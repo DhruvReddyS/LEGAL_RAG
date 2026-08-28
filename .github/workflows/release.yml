@@ -10,6 +10,11 @@ on:
         description: "Version tag matching the desktop version, for example v0.2.0"
         required: true
         type: string
+      audit_only:
+        description: "Audit an existing draft without rebuilding installers"
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: desktop-release-${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
@@ -23,6 +28,7 @@ env:
 jobs:
   validate:
     name: Test and validate release
+    if: github.event_name != 'workflow_dispatch' || inputs.audit_only != true
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -96,6 +102,7 @@ jobs:
   build-release:
     name: Build ${{ matrix.label }}
     needs: validate
+    if: github.event_name != 'workflow_dispatch' || inputs.audit_only != true
     runs-on: ${{ matrix.runner }}
     permissions:
       contents: write
@@ -194,6 +201,10 @@ jobs:
   verify-draft:
     name: Verify draft release assets
     needs: build-release
+    if: >-
+      always() &&
+      ((github.event_name == 'workflow_dispatch' && inputs.audit_only == true) ||
+      needs.build-release.result == 'success')
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -203,12 +214,20 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # GitHub's releases/tags endpoint excludes draft releases. `gh release
-          # view` resolves drafts by tag through the authenticated releases list.
-          release_json="$(gh release view "$RELEASE_TAG" \
-            --repo "$GITHUB_REPOSITORY" \
-            --json isDraft,assets)"
-          release_is_draft="$(jq -r '.isDraft' <<<"$release_json")"
+          # GitHub's releases/tags endpoint excludes drafts, so enumerate the
+          # authenticated releases list and select the requested tag explicitly.
+          release_json="$(
+            gh api --paginate --slurp \
+              "repos/${GITHUB_REPOSITORY}/releases?per_page=100" |
+              jq -c --arg tag "$RELEASE_TAG" \
+                '[.[][] | select(.tag_name == $tag)] | first'
+          )"
+          if [ -z "$release_json" ] || [ "$release_json" = "null" ]; then
+            echo "Draft release ${RELEASE_TAG} was not found." >&2
+            exit 1
+          fi
+
+          release_is_draft="$(jq -r '.draft' <<<"$release_json")"
           if [ "$release_is_draft" != "true" ]; then
             echo "Release must remain a draft until manual acceptance." >&2
             exit 1
