@@ -203,14 +203,18 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          release_path="repos/${GITHUB_REPOSITORY}/releases/tags/${RELEASE_TAG}"
-          release_is_draft="$(gh api "$release_path" --jq '.draft')"
+          # GitHub's releases/tags endpoint excludes draft releases. `gh release
+          # view` resolves drafts by tag through the authenticated releases list.
+          release_json="$(gh release view "$RELEASE_TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --json isDraft,assets)"
+          release_is_draft="$(jq -r '.isDraft' <<<"$release_json")"
           if [ "$release_is_draft" != "true" ]; then
             echo "Release must remain a draft until manual acceptance." >&2
             exit 1
           fi
 
-          asset_names="$(gh api "$release_path" --jq '.assets[].name')"
+          asset_names="$(jq -r '.assets[].name' <<<"$release_json")"
           if ! grep -qx 'latest.json' <<<"$asset_names"; then
             echo "Draft release is missing latest.json." >&2
             exit 1
