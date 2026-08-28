@@ -207,7 +207,10 @@ jobs:
       needs.build-release.result == 'success')
     runs-on: ubuntu-24.04
     permissions:
-      contents: read
+      # GitHub hides unpublished draft releases from read-only installation
+      # tokens. Write scope is required to resolve the draft; this job performs
+      # only read operations and never publishes or mutates it.
+      contents: write
     steps:
       - name: Verify release remains draft and updater assets exist
         shell: bash
