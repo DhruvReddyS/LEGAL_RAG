@@ -1,0 +1,39 @@
+.env
+.venv/
+.venv-ingest/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+backend/.local/
+
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.env.local
+frontend/tsconfig.tsbuildinfo
+frontend/ci-release-config.json
+frontend/src-tauri/target/
+frontend/src-tauri/gen/
+
+# Generated corpus derivatives and runtime state. Keep data/legal_kb metadata,
+# mappings, VERSION, README, and human-readable reports visible to Git.
+data/legal_kb/cache/
+data/legal_kb/processed/
+data/legal_kb/logs/ingestion_checkpoint.json
+data/legal_kb/logs/ingestion_checkpoint.json.lock
+data/legal_kb/logs/ingestion_checkpoint_claims/
+data/legal_kb/logs/page_range_repair_*.json
+
+# The verified corpus is 660+ MB and is distributed as a versioned release
+# asset/object-storage package, not committed into Git history. Metadata,
+# checksums, mappings and provenance remain tracked.
+data/legal_kb/raw/**/*.pdf
+
+# Source PDFs and superseded legacy collections remain local; the current
+# source-material README and Gold corpus provenance stay visible to Git.
+data/source_materials/**/*.pdf
+data/source_materials/legacy_collections/
+
+.DS_Store

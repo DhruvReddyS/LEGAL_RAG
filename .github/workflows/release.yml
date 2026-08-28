@@ -1,0 +1,227 @@
+name: Desktop release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Version tag matching the desktop version, for example v0.2.0"
+        required: true
+        type: string
+
+concurrency:
+  group: desktop-release-${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: "22"
+  PYTHON_VERSION: "3.12"
+  RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+
+jobs:
+  validate:
+    name: Test and validate release
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    env:
+      POSTGRES_DB: legal_rag
+      POSTGRES_USER: legal_rag
+      POSTGRES_PASSWORD: ci-postgres-password
+      DATABASE_URL: postgresql+asyncpg://legal_rag:ci-postgres-password@localhost:5432/legal_rag
+      QDRANT_URL: http://localhost:6333
+      S3_ENDPOINT_URL: http://localhost:9000
+      S3_PUBLIC_ENDPOINT_URL: http://localhost:9000
+      S3_ACCESS_KEY_ID: ci-minio-user
+      S3_SECRET_ACCESS_KEY: ci-minio-password
+      LEGAL_KB_ROOT: ../data/legal_kb
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: backend/requirements-dev.txt
+
+      - name: Check release version
+        run: python scripts/check_release_version.py --tag "$RELEASE_TAG"
+
+      - name: Install backend test dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements-dev.txt
+        working-directory: backend
+
+      - name: Start integration-test services
+        run: >-
+          docker compose --env-file .env.example -f docker/docker-compose.yml
+          up -d --wait postgres qdrant minio
+
+      - name: Apply database migrations
+        run: python -m alembic upgrade head
+        working-directory: backend
+
+      - name: Run backend tests
+        run: python -m pytest -q
+        working-directory: backend
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: Lint frontend
+        run: npm run lint
+        working-directory: frontend
+
+      - name: Build frontend static export
+        run: npm run build
+        working-directory: frontend
+
+  build-release:
+    name: Build ${{ matrix.label }}
+    needs: validate
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: macOS arm64
+            runner: macos-15
+            rust_target: aarch64-apple-darwin
+            bundles: app,dmg
+          - label: macOS x64
+            runner: macos-15-intel
+            rust_target: x86_64-apple-darwin
+            bundles: app,dmg
+          - label: Windows x64
+            runner: windows-latest
+            rust_target: x86_64-pc-windows-msvc
+            bundles: nsis
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.rust_target }}
+
+      - name: Cache Rust build output
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: frontend/src-tauri -> target
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: Require updater signing material
+        shell: bash
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_UPDATER_PUBLIC_KEY: ${{ secrets.TAURI_UPDATER_PUBLIC_KEY }}
+        run: |
+          if [ -z "$TAURI_SIGNING_PRIVATE_KEY" ]; then
+            echo "TAURI_SIGNING_PRIVATE_KEY is required to build verifiable updater artifacts." >&2
+            exit 1
+          fi
+          if [ -z "$TAURI_UPDATER_PUBLIC_KEY" ]; then
+            echo "TAURI_UPDATER_PUBLIC_KEY is required to configure updater verification." >&2
+            exit 1
+          fi
+
+      - name: Create ephemeral updater configuration
+        env:
+          TAURI_UPDATER_PUBLIC_KEY: ${{ secrets.TAURI_UPDATER_PUBLIC_KEY }}
+        run: node scripts/create_tauri_release_config.mjs frontend/ci-release-config.json
+
+      - name: Build signed bundles and update manifest
+        uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          APPLE_CERTIFICATE: ${{ runner.os == 'macOS' && secrets.APPLE_CERTIFICATE || '' }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ runner.os == 'macOS' && secrets.APPLE_CERTIFICATE_PASSWORD || '' }}
+          APPLE_SIGNING_IDENTITY: ${{ runner.os == 'macOS' && secrets.APPLE_SIGNING_IDENTITY || '' }}
+          APPLE_ID: ${{ runner.os == 'macOS' && secrets.APPLE_ID || '' }}
+          APPLE_PASSWORD: ${{ runner.os == 'macOS' && secrets.APPLE_PASSWORD || '' }}
+          APPLE_TEAM_ID: ${{ runner.os == 'macOS' && secrets.APPLE_TEAM_ID || '' }}
+        with:
+          projectPath: frontend
+          tauriScript: npm run tauri
+          tagName: ${{ env.RELEASE_TAG }}
+          releaseName: Aegis Legal Intelligence ${{ env.RELEASE_TAG }}
+          releaseBody: |
+            Automated desktop build for macOS arm64, macOS x64, and Windows x64.
+
+            This release is a draft. Review installers, updater signatures, and latest.json before publishing.
+          releaseDraft: true
+          prerelease: false
+          generateReleaseNotes: true
+          uploadUpdaterJson: true
+          updaterJsonPreferNsis: true
+          uploadUpdaterSignatures: true
+          uploadWorkflowArtifacts: true
+          workflowArtifactNamePattern: "[platform]-[arch]-[bundle]"
+          retryAttempts: 2
+          args: >-
+            --target ${{ matrix.rust_target }}
+            --bundles ${{ matrix.bundles }}
+            --config ci-release-config.json
+
+  verify-draft:
+    name: Verify draft release assets
+    needs: build-release
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Verify release remains draft and updater assets exist
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          release_path="repos/${GITHUB_REPOSITORY}/releases/tags/${RELEASE_TAG}"
+          release_is_draft="$(gh api "$release_path" --jq '.draft')"
+          if [ "$release_is_draft" != "true" ]; then
+            echo "Release must remain a draft until manual acceptance." >&2
+            exit 1
+          fi
+
+          asset_names="$(gh api "$release_path" --jq '.assets[].name')"
+          if ! grep -qx 'latest.json' <<<"$asset_names"; then
+            echo "Draft release is missing latest.json." >&2
+            exit 1
+          fi
+
+          updater_signature_count="$(grep -Ec '\.sig$' <<<"$asset_names" || true)"
+          if [ "$updater_signature_count" -lt 3 ]; then
+            echo "Expected updater signatures for all three desktop targets." >&2
+            exit 1
+          fi
+
+          echo "Draft release contains latest.json and ${updater_signature_count} updater signatures."

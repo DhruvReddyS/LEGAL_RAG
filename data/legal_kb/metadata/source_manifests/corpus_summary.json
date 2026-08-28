@@ -1,0 +1,59 @@
+{
+  "document_count": 419,
+  "total_bytes": 691556372,
+  "total_gib": 0.644,
+  "validation_errors": 0,
+  "duplicate_sha256_groups": 38,
+  "counts_by_source_type": {
+    "judgment": 115,
+    "act": 90,
+    "advisory": 74,
+    "rule": 41,
+    "law_commission_report": 24,
+    "official_guidance": 22,
+    "guidance": 17,
+    "sop": 10,
+    "official_legal_material": 8,
+    "notification": 5,
+    "manual": 4,
+    "order": 4,
+    "handbook": 2,
+    "constitution": 1,
+    "training_module": 1,
+    "amendment_act": 1
+  },
+  "counts_by_court": {
+    "Supreme Court of India": 99,
+    "High Court of Andhra Pradesh": 16
+  },
+  "counts_by_authority": {
+    "Ministry of Home Affairs, Government of India - Women Safety Division": 139,
+    "Supreme Court of India (official copy curated by High Court of Andhra Pradesh)": 60,
+    "Law Commission of India": 47,
+    "Supreme Court of India": 39,
+    "Controller of Certifying Authorities, MeitY, Government of India": 29,
+    "Ministry of Home Affairs, Government of India - Internal Security-I Division": 26,
+    "High Court of Andhra Pradesh": 16,
+    "Ministry of Home Affairs, Government of India - Judicial Division": 11,
+    "Ministry of Home Affairs, Government of India - ICJS/NCRB Administration": 10,
+    "Ministry of Home Affairs, Government of India - Internal Security Division": 9,
+    "Mission Vatsalya, Government of India / UT Administration": 9,
+    "Bureau of Police Research and Development, Ministry of Home Affairs, Government of India": 5,
+    "Department of Social Justice and Empowerment, Government of India": 4,
+    "Ministry of Home Affairs, Government of India": 3,
+    "Department of Revenue, Ministry of Finance, Government of India": 2,
+    "Uttar Pradesh Police, Government of Uttar Pradesh": 2,
+    "Women and Child Development Department, Government of Haryana": 2,
+    "Legislative Department, Ministry of Law and Justice, Government of India": 1,
+    "Bureau of Police Research and Development / Delhi Police": 1,
+    "National Legal Services Authority": 1,
+    "Department of Justice, Ministry of Law and Justice, Government of India": 1,
+    "State Vigilance and Anti-Corruption Bureau, Government of Himachal Pradesh": 1,
+    "Controller General of Communication Accounts, Department of Telecommunications, Government of India": 1
+  },
+  "mandatory_items_present": 26,
+  "mandatory_items_total": 27,
+  "mandatory_gaps": [
+    "Advocates Act, 1961 (standalone bare Act PDF)"
+  ]
+}

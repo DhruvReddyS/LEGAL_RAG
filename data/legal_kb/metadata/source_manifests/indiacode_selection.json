@@ -1,0 +1,1520 @@
+{
+  "generated_at": "2026-08-20T16:26:46.239052+00:00",
+  "source_scope": "69a0c1fb-7b22-4481-b16a-1dc59b5d02e6",
+  "inventory_counts": {
+    "ACT": 846,
+    "RULE": 3104,
+    "REGULATION": 1354,
+    "NOTIFICATION": 662,
+    "ORDER": 27,
+    "CIRCULAR": 51,
+    "CONSTITUTION": 27
+  },
+  "selected_counts": {
+    "ACT": 53,
+    "RULE": 124,
+    "REGULATION": 2,
+    "NOTIFICATION": 38,
+    "ORDER": 2,
+    "CIRCULAR": 1,
+    "CONSTITUTION": 27
+  },
+  "selected_items": {
+    "ACT": [
+      {
+        "id": "4bb3e636-ed67-4731-8fb1-7ebfd83e1584",
+        "title": "The Bharatiya Nyaya Sanhita, 2023",
+        "date": "2023-12-25",
+        "repealed": "false"
+      },
+      {
+        "id": "72592ac7-d084-4545-95d3-0c98dc49fac3",
+        "title": "The Bharatiya Nagarik Suraksha Sanhita, 2023",
+        "date": "2023-12-25",
+        "repealed": "false"
+      },
+      {
+        "id": "9e461245-2c13-4171-9d9d-267425c01e1d",
+        "title": "The Bharatiya Sakshya Adhiniyam, 2023",
+        "date": "2023-12-25",
+        "repealed": "false"
+      },
+      {
+        "id": "3b49d32d-5af1-4bb9-9f6c-ddac6d06fb1c",
+        "title": "The Telecommunications Act, 2023.",
+        "date": "2023-12-24",
+        "repealed": "false"
+      },
+      {
+        "id": "c058fa9f-eaf0-4ca3-98f1-3443b087bca9",
+        "title": "The Digital Personal Data Protection Act, 2023.",
+        "date": "2023-08-11",
+        "repealed": "false"
+      },
+      {
+        "id": "09c34f52-648d-40c9-8f00-a78efe6bfe9e",
+        "title": "The Criminal Procedure (Identification) Act, 2022",
+        "date": "2022-04-18",
+        "repealed": "false"
+      },
+      {
+        "id": "de09ad4f-ff21-4ac0-90b3-2b6aa0f06731",
+        "title": "The Transgender Persons (Protection of Rights) Act, 2019.",
+        "date": "2020-01-10",
+        "repealed": "false"
+      },
+      {
+        "id": "1f82ee21-741f-4a57-94ef-b26040d515b9",
+        "title": "The Muslim Women (Protection of Rights on Marriage) Act, 2019.",
+        "date": "2019-07-31",
+        "repealed": "false"
+      },
+      {
+        "id": "8129f247-6e83-4fbe-889e-1d1ac3a465b6",
+        "title": "The Fugitive Economic Offenders Act, 2018",
+        "date": "2018-07-31",
+        "repealed": "false"
+      },
+      {
+        "id": "a9aa2d8e-5966-46f0-9dc1-d472feb31dee",
+        "title": "The Anti-Hijacking Act, 2016.",
+        "date": "2016-05-13",
+        "repealed": "false"
+      },
+      {
+        "id": "bfa75673-9ac9-4ce8-b5cf-836472c94203",
+        "title": "The Juvenile Justice (Care and Protection of Children) Act, 2015.",
+        "date": "2015-12-31",
+        "repealed": "false"
+      },
+      {
+        "id": "c24ab3e3-7eba-4bb8-8678-bd6854665038",
+        "title": "The Indian Institutes of Information Technology Act, 2014",
+        "date": "2014-12-08",
+        "repealed": "false"
+      },
+      {
+        "id": "60dad1b9-bbf1-4310-8fa1-62643beab7a6",
+        "title": "The Protection of Children from Sexual Offences Act, 2012",
+        "date": "2012-06-19",
+        "repealed": "false"
+      },
+      {
+        "id": "4bdc7685-15f7-4a59-b450-2cd286416959",
+        "title": "The National Investigation Agency Act, 2008",
+        "date": "2008-12-31",
+        "repealed": "false"
+      },
+      {
+        "id": "81cb6494-1a0a-4c88-95ec-baf6cb43a9f5",
+        "title": "The Prohibition of Child Marriage Act, 2006",
+        "date": "2007-01-10",
+        "repealed": "false"
+      },
+      {
+        "id": "4311e86f-7d98-40b6-8a80-2195278207cb",
+        "title": "The Protection of Women from Domestic Violence Act, 2005",
+        "date": "2005-09-13",
+        "repealed": "false"
+      },
+      {
+        "id": "427f94bf-7afc-4447-a6d0-b4769cb08f07",
+        "title": "The Private Security Agencies (Regulation) Act, 2005",
+        "date": "2005-06-23",
+        "repealed": "false"
+      },
+      {
+        "id": "e08a301a-b8d0-4a6c-95d0-5299d5efef7e",
+        "title": "The Repatriation of Prisoners Act, 2003",
+        "date": "2003-09-28",
+        "repealed": "false"
+      },
+      {
+        "id": "3babfe62-c9c8-49b3-8247-052834d2dfa4",
+        "title": "The Prevention of Money-Laundering Act, 2002",
+        "date": "2003-01-17",
+        "repealed": "false"
+      },
+      {
+        "id": "0146b3b5-562d-4fba-9fc4-625f7c676b70",
+        "title": "The Suppression of Unlawful Acts Against Safety of Maritime Navigation and Fixed Platforms on Continental Shelf Act, 2002",
+        "date": "2002-12-20",
+        "repealed": "false"
+      },
+      {
+        "id": "d41fe391-b9c0-40b1-afdc-ad034c7ac62f",
+        "title": "The Information Technology Act, 2000",
+        "date": "2000-06-09",
+        "repealed": "false"
+      },
+      {
+        "id": "d6e9c3c9-5ac2-413f-90a9-0f49c462c648",
+        "title": "The Protection of Human Rights Act, 1993",
+        "date": "1994-01-08",
+        "repealed": "false"
+      },
+      {
+        "id": "f9c8fb04-363a-4779-b628-0d9f9bb997e0",
+        "title": "The Scheduled Castes and the Scheduled Tribes (Prevention of Atrocities) Act, 1989",
+        "date": "1989-09-11",
+        "repealed": "false"
+      },
+      {
+        "id": "5b300920-4878-4e39-8d87-fa87d4953f09",
+        "title": "The Prevention of Corruption Act, 1988",
+        "date": "1988-09-09",
+        "repealed": "false"
+      },
+      {
+        "id": "b1285a4c-1a83-467f-a988-e18b9b6269db",
+        "title": "The Prevention of Illicit Traffic in Narcotic Drugs and Psychotropic Substances Act, 1988",
+        "date": "1988-09-06",
+        "repealed": "false"
+      },
+      {
+        "id": "7302ba32-9568-494d-b2fb-d4ef747eb242",
+        "title": "The Commission of Sati (Prevention ) Act, 1987",
+        "date": "1988-01-03",
+        "repealed": "false"
+      },
+      {
+        "id": "a742f03e-3129-4b8d-8dda-af2a36190b18",
+        "title": "The Legal Services Authorities Act, 1987",
+        "date": "1987-10-11",
+        "repealed": "false"
+      },
+      {
+        "id": "83d3ceb7-2a62-4f96-9fb2-c7e6f04989ad",
+        "title": "The Indecent Representation of Women (Prohibition) Act, 1986",
+        "date": "1986-12-23",
+        "repealed": "false"
+      },
+      {
+        "id": "fe1456eb-e02e-41f2-8338-f134677bbe99",
+        "title": "The Narcotic Drugs and Psychotropic Substances Act, 1985",
+        "date": "1985-09-16",
+        "repealed": "false"
+      },
+      {
+        "id": "86c729f1-a26f-4e61-bd0f-6af03ae667ac",
+        "title": "The Prevention of Damage to Public Property Act, 1984",
+        "date": "1984-03-16",
+        "repealed": "false"
+      },
+      {
+        "id": "a9fd1988-9a6c-44d1-a811-0161260c358f",
+        "title": "The Suppression of Unlawful Acts against Safety of Civil Aviation Act, 1982",
+        "date": "1982-11-06",
+        "repealed": "false"
+      },
+      {
+        "id": "b67d0436-8079-4c58-befe-acb0576c280c",
+        "title": "The National Security Act, 1980",
+        "date": "1980-12-27",
+        "repealed": "false"
+      },
+      {
+        "id": "4ef92b04-d832-445e-aa0c-4d561bfccf87",
+        "title": "The Delhi Police Act, 1978",
+        "date": "1978-08-27",
+        "repealed": "false"
+      },
+      {
+        "id": "f27f2e75-5b1c-4e01-aec1-1eacf34e05b0",
+        "title": "The Contempt of Courts Act, 1971",
+        "date": "1971-12-24",
+        "repealed": "false"
+      },
+      {
+        "id": "b09956f0-89c1-425b-962f-0027b28a3fc0",
+        "title": "The Prevention of Insults to National Honour Act, 1971",
+        "date": "1971-12-23",
+        "repealed": "false"
+      },
+      {
+        "id": "fa986084-35d9-4391-a7e1-9561c880d8bb",
+        "title": "The Unlawful Activities (Prevention) Act, 1967",
+        "date": "1967-12-30",
+        "repealed": "false"
+      },
+      {
+        "id": "ba4e2465-97c0-40ce-96d9-cb555ffe52c9",
+        "title": "The Extradition Act, 1962",
+        "date": "1962-09-15",
+        "repealed": "false"
+      },
+      {
+        "id": "8dc8e1b4-7147-45ea-9e82-5911aa3816d4",
+        "title": "The Dowry Prohibition Act, 1961",
+        "date": "1961-05-20",
+        "repealed": "false"
+      },
+      {
+        "id": "417cb82a-692f-46a2-b0e4-dc296a44cf6a",
+        "title": "The Advocates Act, 1961",
+        "date": "1961-05-19",
+        "repealed": "false"
+      },
+      {
+        "id": "78a46eb4-21bf-49ee-bd08-6b8e8655631c",
+        "title": "The Arms Act, 1959",
+        "date": "1959-12-23",
+        "repealed": "false"
+      },
+      {
+        "id": "f0795751-6201-4705-b798-ffe77b3c2df9",
+        "title": "The Probation of Offenders Act, 1958",
+        "date": "1958-05-16",
+        "repealed": "false"
+      },
+      {
+        "id": "7c9c8305-5b02-4711-8f96-ed0f636f0cb4",
+        "title": "The Immoral Traffic (Prevention) Act, 1956",
+        "date": "1956-12-30",
+        "repealed": "false"
+      },
+      {
+        "id": "a319f812-d493-4b9f-8c70-b93505acb01f",
+        "title": "The Transfer of Prisoners Act, 1950",
+        "date": "1950-04-12",
+        "repealed": "false"
+      },
+      {
+        "id": "c105fc7e-8302-4231-8161-bdd79c49666b",
+        "title": "The Police Act, 1949",
+        "date": "1949-12-27",
+        "repealed": "false"
+      },
+      {
+        "id": "15d1c8e3-51b1-437b-8da8-5bf0c8dc111a",
+        "title": "The Delhi Special Police Establishment Act, 1946",
+        "date": "1946-11-19",
+        "repealed": "false"
+      },
+      {
+        "id": "1f3a00a8-2f8a-4646-9e0d-cef239b84b27",
+        "title": "The Official Secrets Act, 1923",
+        "date": "1923-04-02",
+        "repealed": "false"
+      },
+      {
+        "id": "854690c0-b96d-41c0-82d7-b8a6dd97ff46",
+        "title": "The Explosive Substances Act, 1908",
+        "date": "1908-06-08",
+        "repealed": "false"
+      },
+      {
+        "id": "901228df-4672-4682-98b2-5a3b52a5b00a",
+        "title": "The Prisons Act, 1894",
+        "date": "1894-03-22",
+        "repealed": "false"
+      },
+      {
+        "id": "4fab13db-baed-419b-9c86-ab5bebbd7879",
+        "title": "The Bengal Military Police Act, 1892",
+        "date": "1892-03-25",
+        "repealed": "false"
+      },
+      {
+        "id": "573a74ac-281f-47b6-83a0-a56823346da8",
+        "title": "The Bankers' Books Evidence Act, 1891",
+        "date": "1891-10-01",
+        "repealed": "false"
+      },
+      {
+        "id": "7d8c2c36-9fc1-447e-a686-a99ef14c8357",
+        "title": "The Explosives Act, 1884",
+        "date": "1884-02-26",
+        "repealed": "false"
+      },
+      {
+        "id": "27d85faf-3fab-4c53-aa8d-08420b84c72c",
+        "title": "The Police Act, 1861",
+        "date": "1861-03-22",
+        "repealed": "false"
+      },
+      {
+        "id": "5c6e40da-c829-498c-b9a4-8fa621e616e5",
+        "title": "The Madras District Police Act, 1859",
+        "date": "1859-07-06",
+        "repealed": "false"
+      }
+    ],
+    "RULE": [
+      {
+        "id": "d95eb25b-486b-47f6-997a-6511fc89a945",
+        "title": "Corrigendum to Digital Personal Data Protection Rules, 2025",
+        "date": "2025-12-11",
+        "repealed": "false"
+      },
+      {
+        "id": "fe07b131-481d-4cc9-bdb5-7bd218ced646",
+        "title": "Digital Personal Data Protection (DPDP) Rules, 2025",
+        "date": "2025-11-13",
+        "repealed": "false"
+      },
+      {
+        "id": "87801aae-90ae-4af7-9597-506b3d40de3e",
+        "title": "Telecommunications (Framework to Notify Standards, Conformity Assessment and Certification) Rules, 2025",
+        "date": "2025-05-16",
+        "repealed": "false"
+      },
+      {
+        "id": "7500eae3-03d7-4fe9-b560-36e29653c60a",
+        "title": "Telecommunications (Procedures and Safeguards for Lawful Interception of Messages) Rules, 2024",
+        "date": "2024-12-06",
+        "repealed": "false"
+      },
+      {
+        "id": "7b3ad12d-9722-47ab-82af-c5831bf7569c",
+        "title": "Telecommunications (Critical Telecommunication Infrastructure) Rules, 2024",
+        "date": "2024-11-22",
+        "repealed": "false"
+      },
+      {
+        "id": "988804d6-92f4-4eda-9ada-6d4707cff4d0",
+        "title": "Telecommunications (Temporary Suspension of Services) Rules, 2024",
+        "date": "2024-11-22",
+        "repealed": "false"
+      },
+      {
+        "id": "09b7ff2f-6965-4c63-8f11-eb31b2f85bf7",
+        "title": "Telecommunications (Telecom Cyber Security) Rules, 2024",
+        "date": "2024-11-21",
+        "repealed": "false"
+      },
+      {
+        "id": "2e6d3471-4c10-4969-8cad-f912e671215b",
+        "title": "Telecommunications (Amateur Services) Rules, 2024",
+        "date": "2024-10-29",
+        "repealed": "false"
+      },
+      {
+        "id": "67d03b78-db9e-44ac-b983-7a7596446215",
+        "title": "Telecommunications (Commercial Radio Operator Certificate of Proficiency to Operate Global Maritime Distress and Safety System) Rules, 2024",
+        "date": "2024-10-29",
+        "repealed": "false"
+      },
+      {
+        "id": "3954dbc9-ad7e-435d-84b9-f7d7da2ec30a",
+        "title": "Telecommunications (Right of Way) Rules, 2024",
+        "date": "2024-09-17",
+        "repealed": "false"
+      },
+      {
+        "id": "63ae812b-d51f-49eb-8801-42d4771ca720",
+        "title": "Telecommunications (Administration of Digital Bharat Nidhi) Rules, 2024",
+        "date": "2024-08-30",
+        "repealed": "false"
+      },
+      {
+        "id": "a1ec6cbb-d52a-4d54-8f35-62426796d4af",
+        "title": "The Information Technology (Procedure and Safeguards for Interception, Monitoring and Decryption of Information) Amendment Rules, 2024",
+        "date": "2024-02-26",
+        "repealed": "false"
+      },
+      {
+        "id": "9f3c2b4f-7aea-4f2d-8517-c437e88489b8",
+        "title": "The Prevention of Money-laundering (Maintenance of Records) Third Amendment Rules, 2023",
+        "date": "2023-10-17",
+        "repealed": "false"
+      },
+      {
+        "id": "d9d38c18-9dfc-4399-8124-92ed6e83d6e8",
+        "title": "The prevention of Money-laundering (Maintenance of Records) Second Amendment Rules, 2023.",
+        "date": "2023-09-04",
+        "repealed": "false"
+      },
+      {
+        "id": "366f89c4-4038-4ffe-8965-479eefec4af9",
+        "title": "Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021 updated as on 6.4.2023",
+        "date": "2023-04-06",
+        "repealed": "false"
+      },
+      {
+        "id": "29660a46-f086-42fe-ac77-10949e0a434a",
+        "title": "The Prevention of Money-laundering (Maintenance of Records) Rules, 2023.",
+        "date": "2023-03-07",
+        "repealed": "false"
+      },
+      {
+        "id": "a659b7fa-9cc9-4cb0-b9f0-ae7bb163f38c",
+        "title": "Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Amendment Rules, 2022.",
+        "date": "2022-10-28",
+        "repealed": "false"
+      },
+      {
+        "id": "eb1fd839-10a8-4467-af57-d2f671707673",
+        "title": "Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021 - comprehensive rules updated on 28th Oct 2022,",
+        "date": "2022-10-28",
+        "repealed": "false"
+      },
+      {
+        "id": "387df337-d1cc-4c8a-aead-eb48a67d6cf8",
+        "title": "The Prevention of Money-laundering (Maintenance of Records) Rules, 2022.",
+        "date": "2022-07-13",
+        "repealed": "false"
+      },
+      {
+        "id": "ad366576-843d-4906-92c7-a46c2e8b6000",
+        "title": "Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021.",
+        "date": "2021-02-25",
+        "repealed": "false"
+      },
+      {
+        "id": "19136eaf-f585-4e1f-8ccc-36289107ee5d",
+        "title": "The prevention of Money-laundering (Maintenance of Records) Fourth Amendment Rules, 2020.",
+        "date": "2020-12-28",
+        "repealed": "false"
+      },
+      {
+        "id": "6f11d5fa-61a3-468a-854a-f98bfe23119b",
+        "title": "The Private Security Agencies Central Model Rules, 2020",
+        "date": "2020-12-15",
+        "repealed": "false"
+      },
+      {
+        "id": "07660c8d-3253-49a7-b282-d5cb8f1b3df2",
+        "title": "The prevention of Money-laundering (Maintenance of Records) Third Amendment Rules, 2020.",
+        "date": "2020-04-16",
+        "repealed": "false"
+      },
+      {
+        "id": "240a76fa-9157-4b42-b403-5b4c271975dc",
+        "title": "The prevention of Money-laundering (Maintenance of Records) Second Amendment Rules, 2020.",
+        "date": "2020-04-13",
+        "repealed": "false"
+      },
+      {
+        "id": "e03b64ae-efbd-4d8e-a8bc-a11ec533e571",
+        "title": "The prevention of Money-laundering (Maintenance of Records) Amendment Rules, 2020.",
+        "date": "2020-03-31",
+        "repealed": "false"
+      },
+      {
+        "id": "3c247a76-1895-4eeb-a71e-0bfec3ff8d8b",
+        "title": "The prevention of Money-laundering (Maintenance of Records) Fifth Amendment Rules, 2019.",
+        "date": "2019-11-13",
+        "repealed": "false"
+      },
+      {
+        "id": "115a1239-541e-48ac-b8c0-26239498fcaf",
+        "title": "The prevention of Money-laundering (Maintenance of Records) Fourth Amendment Rules, 2019.",
+        "date": "2019-09-18",
+        "repealed": "false"
+      },
+      {
+        "id": "afb84fe1-32d3-4a69-8384-ba825974a2e0",
+        "title": "The prevention of Money-laundering (Maintenance of Records) Third Amendment Rules, 2019.",
+        "date": "2019-08-19",
+        "repealed": "false"
+      },
+      {
+        "id": "eee7d6ba-6930-4633-a87d-5cccb48962c9",
+        "title": "The Prevention of Money-laundering (Maintenance of Records) Second Amendment Rules, 2019",
+        "date": "2019-05-28",
+        "repealed": "false"
+      },
+      {
+        "id": "ffd4b1a9-87e6-4ba2-b93e-76baf631a165",
+        "title": "The Prevention of Money-laundering (Maintenance of Records) Amendment Rules, 2019",
+        "date": "2019-02-13",
+        "repealed": "false"
+      },
+      {
+        "id": "4a613eaf-fd55-49a1-a525-7d34edbead7b",
+        "title": "The Prevention of Money-laundering (Restoration of Confiscated Property) Amendment Rules, 2019",
+        "date": "2019-01-11",
+        "repealed": "false"
+      },
+      {
+        "id": "754c2306-eccb-45e7-9c96-5044d9ed7a8f",
+        "title": "The Prevention of Money-laundering (Maintenance of Records) Second Amendment Rules, 2018",
+        "date": "2018-10-31",
+        "repealed": "false"
+      },
+      {
+        "id": "1fa6f1ae-5462-4902-8901-cc30ec92e246",
+        "title": "The Fugitive Economic Offenders (Procedure for Sending Letter of Request to Contracting State) Rules, 2018.",
+        "date": "2018-08-24",
+        "repealed": "false"
+      },
+      {
+        "id": "30712556-a6d5-42b7-b42b-0cedf99f2625",
+        "title": "The Fugitive Economic Offenders (Manner of Attachment of Property) Rules, 2018.",
+        "date": "2018-08-24",
+        "repealed": "false"
+      },
+      {
+        "id": "0df5bfb1-240b-4f47-b28d-c0e6acf3e0fd",
+        "title": "Declaration of Fugitive Economic Offenders (Forms and Manner of Filing Application) Rules, 2018",
+        "date": "2018-08-24",
+        "repealed": "false"
+      },
+      {
+        "id": "5dcc8e2d-18d2-411a-a38c-58cd01632da7",
+        "title": "The Fugitive Economic Offenders (Manner and Conditions for Receipt and Management of Confiscated Properties) Rules, 2018.",
+        "date": "2018-08-24",
+        "repealed": "false"
+      },
+      {
+        "id": "74a3e557-d369-48f8-842a-43cc27caa14b",
+        "title": "The Fugitive Economic Offenders (Procedure for Conducting Search and Seizure) Rules, 2018.",
+        "date": "2018-08-24",
+        "repealed": "false"
+      },
+      {
+        "id": "e1aedd20-28bb-456e-9635-6b2452e5ac3e",
+        "title": "the Private Security Agencies (Private Security to Cash Transportation Activities) Rules, 2018",
+        "date": "2018-08-08",
+        "repealed": "false"
+      },
+      {
+        "id": "37ac94ca-d867-4f70-ad11-763787355bb5",
+        "title": "Scheduled Castes and the Scheduled Tribes (Prevention of Atrocities) Amendment Rules, 2018",
+        "date": "2018-06-27",
+        "repealed": "false"
+      },
+      {
+        "id": "6bc80f36-e1d3-4eda-afb6-a6143a4fc45b",
+        "title": "The Prevention of Money-laundering (Maintenance of Records) Amendment Rules, 2018",
+        "date": "2018-05-16",
+        "repealed": "false"
+      },
+      {
+        "id": "4751a923-a5a2-48d9-873f-681abf64f467",
+        "title": "The Prevention of Money-laundering (Maintenance of Records) Seventh Amendment Rules, 2017",
+        "date": "2017-12-12",
+        "repealed": "false"
+      },
+      {
+        "id": "2b093d90-e029-44a5-8baa-19185970cca5",
+        "title": "The Prevention of Money-laundering (Maintenance of Records) Sixth Amendment Rules, 2017",
+        "date": "2017-10-23",
+        "repealed": "false"
+      },
+      {
+        "id": "67d7b700-3fb9-4956-aeff-518c5e87e491",
+        "title": "The Prevention of Money-laundering (Maintenance of Records) Fifth Amendment Rules, 2017",
+        "date": "2017-10-16",
+        "repealed": "false"
+      },
+      {
+        "id": "38b54d95-56ec-4daa-bfb9-d238899133af",
+        "title": "The Prevention of Money-laundering (Maintenance of Records) Fourth Amendment Rules, 2017",
+        "date": "2017-08-23",
+        "repealed": "false"
+      },
+      {
+        "id": "0e35c259-94a8-4702-a659-52d2c231c91f",
+        "title": "The Prevention of Money-laundering (Maintenance of Records) Third Amendment Rules, 2017",
+        "date": "2017-08-21",
+        "repealed": "false"
+      },
+      {
+        "id": "c9360dcb-c38c-4762-a580-75a10f137913",
+        "title": "The Extradition Rules, 2017",
+        "date": "2017-06-30",
+        "repealed": "false"
+      },
+      {
+        "id": "a91af9f9-a97c-444f-825b-c855b2bfe40c",
+        "title": "The Prevention of Money-laundering (Maintenance of Records) Second Amendment Rules, 2017",
+        "date": "2017-06-01",
+        "repealed": "false"
+      },
+      {
+        "id": "dc123e28-639c-4b7c-b623-3fc75185b76c",
+        "title": "The Prevention of Money-laundering (Maintenance of Records) Amendment Rules, 2017",
+        "date": "2017-04-12",
+        "repealed": "false"
+      },
+      {
+        "id": "a4e38f0a-5909-429c-8b66-cbb2556860fb",
+        "title": "Information Technology (Preservation and Retention of Information by Intermediaries Providing Digital Locker Facilities) Amendment Rules, 2017",
+        "date": "2017-02-08",
+        "repealed": "false"
+      },
+      {
+        "id": "7cae0328-b973-4165-8033-049548573aab",
+        "title": "BAR COUNCIL OF INDIA LEGAL EDUCATION (FIRST AMENDMENT) RULES 2016",
+        "date": "2017-01-02",
+        "repealed": "false"
+      },
+      {
+        "id": "e9bfa793-68ef-4178-b03a-b39232068d45",
+        "title": "The Prevention of Money-laundering (Restoration of confiscated property) Rules, 2016",
+        "date": "2016-09-26",
+        "repealed": "false"
+      },
+      {
+        "id": "8ee1ec41-d593-4dd4-a21a-eb73dc9e8cbf",
+        "title": "Juvenile Justice (Care and Protection of Children) Model Rules, 2016",
+        "date": "2016-09-21",
+        "repealed": "false"
+      },
+      {
+        "id": "6466503a-81bf-461c-9c47-b93a86a03017",
+        "title": "Information Technology (Preservation and Retention of Information by Intermediaries Providing Digital Locker Facilities) Rules, 2016",
+        "date": "2016-07-21",
+        "repealed": "false"
+      },
+      {
+        "id": "20d2243a-ccf2-487b-aa10-0ee432bb00fc",
+        "title": "Arms Rules, 2016",
+        "date": "2016-07-15",
+        "repealed": "false"
+      },
+      {
+        "id": "ec0d2fee-6e6d-4abb-83b5-b3fd35f51ed1",
+        "title": "Cyber Appellate Tribunal (Powers and Functions of the Chairperson) Rules, 2016.",
+        "date": "2016-05-16",
+        "repealed": "false"
+      },
+      {
+        "id": "e56d25c5-b82c-4e70-99c4-258cf0c14f55",
+        "title": "Scheduled Castes and the Scheduled Tribes (Prevention of Atrocities) Amendment Rules, 2016",
+        "date": "2016-04-14",
+        "repealed": "false"
+      },
+      {
+        "id": "8cdd85b5-80b2-41cd-972d-d32e07c78b0d",
+        "title": "Information Technology (Security Procedures) Amendment Rules, 2015",
+        "date": "2015-08-25",
+        "repealed": "false"
+      },
+      {
+        "id": "b88a214c-2a6d-4d34-9ebe-d20d54cefeca",
+        "title": "Information Technology (Certifying Authorities) Amendment Rules, 2015",
+        "date": "2015-08-25",
+        "repealed": "false"
+      },
+      {
+        "id": "ebb53e0c-2e18-4ef0-b4cf-8b2e5cfd34a9",
+        "title": "BAR COUNCIL OF INDIA CERTIFICATE AND PLACE OF PRACTICE (VERIFICATION) RULES, 2015",
+        "date": "2015-01-13",
+        "repealed": "false"
+      },
+      {
+        "id": "6b04e7f5-aa75-4966-8d3a-c520b1bb834b",
+        "title": "Rules of Bombay High Court on Contempt of Courts Act, 1971",
+        "date": "2014-12-01",
+        "repealed": "false"
+      },
+      {
+        "id": "1807eb6c-df5c-4ee6-a0a7-bb3aeec51366",
+        "title": "Scheduled Castes and the Scheduled Tribes (Prevention of Atrocities) Amendment Rules, 2014",
+        "date": "2014-11-05",
+        "repealed": "false"
+      },
+      {
+        "id": "6a3ea001-6961-460b-93bb-6081ad97beee",
+        "title": "Scheduled Castes and the Scheduled Tribes (Prevention of Atrocities) Amendment Rules, 2014",
+        "date": "2014-06-23",
+        "repealed": "false"
+      },
+      {
+        "id": "c3d4f0cd-8fc1-45ec-88ef-ffd63258cbe2",
+        "title": "Information Technology (National Critical Information Infrastructure Protection Centre and Manner of Performing Functions and Duties) Rules, 2013",
+        "date": "2014-01-16",
+        "repealed": "false"
+      },
+      {
+        "id": "fabbaf9b-919f-45ff-ba5c-25783b5a91ad",
+        "title": "Information Technology (The Indian Computer Emergency Response Team and Manner of Performing Functions and Duties) Rules, 2013.",
+        "date": "2014-01-16",
+        "repealed": "false"
+      },
+      {
+        "id": "7cde1fb4-24f7-4b59-b2f4-f244846a68ba",
+        "title": "Scheduled Castes and the Scheduled Tribes (Prevention of Atrocities) Amendment Rules, 2013",
+        "date": "2013-11-08",
+        "repealed": "false"
+      },
+      {
+        "id": "06351a77-d993-4df6-bb99-504b86167367",
+        "title": "The Prevention of Money-laundering (Taking Possession of Attached or Frozen Properties Confirmed by the Adjudicating Authority) Rules, 2013",
+        "date": "2013-08-19",
+        "repealed": "false"
+      },
+      {
+        "id": "15223561-1d1b-432d-956c-ffdc66762d17",
+        "title": "The Prevention of Money-laundering (Issuance of Provisional Attachment Order) Rules, 2013",
+        "date": "2013-08-19",
+        "repealed": "false"
+      },
+      {
+        "id": "a7c7e49d-1e8f-4aa7-9f86-a0e8c3b5178a",
+        "title": "Cyber Appellate Tribunal (Salary, Allowances and Other Terms and Conditions of Service of Chairperson and Members) Amendment Rules, 2012",
+        "date": "2013-01-24",
+        "repealed": "false"
+      },
+      {
+        "id": "73f9a97e-092e-4bc8-ba57-22df294a244f",
+        "title": "The Protection of Children from Sexual Offences Rules, 2012",
+        "date": "2012-11-14",
+        "repealed": "false"
+      },
+      {
+        "id": "90a95a2f-4b41-433b-bd30-8c46a5c97662",
+        "title": "Mustard Seeds and Rape Seeds (oil seed) Grading and Marking Rules, 2012",
+        "date": "2012-01-24",
+        "repealed": "false"
+      },
+      {
+        "id": "867af16f-5089-493b-86fd-a6b4955f1c0a",
+        "title": "Scheduled Castes and the Scheduled Tribes (Prevention of Atrocities) Amendment Rules, 2011",
+        "date": "2011-12-23",
+        "repealed": "false"
+      },
+      {
+        "id": "a73b01f4-1b37-431a-b286-69c09ff1f3e2",
+        "title": "Information Technology (Intermediaries Guidelines) Rules, 2011.",
+        "date": "2011-04-11",
+        "repealed": "false"
+      },
+      {
+        "id": "a1af21b5-46fb-4f43-9857-2b63f87f1517",
+        "title": "The Information Technology (Reasonable Security Practices and Procedures and Sensitive Personal Data or Information) Rules, 2011.",
+        "date": "2011-04-11",
+        "repealed": "false"
+      },
+      {
+        "id": "d25dd417-5d2c-4262-beaa-3c3ffd8de0ef",
+        "title": "Information Technology (Electronic Service Delivery) Rules 2011",
+        "date": "2011-04-11",
+        "repealed": "false"
+      },
+      {
+        "id": "e41cc5c5-cffe-4acd-9b17-a8f02d8c78a1",
+        "title": "Information Technology(Guidelines for Cyber Cafe Rules) Rules, 2011",
+        "date": "2011-04-11",
+        "repealed": "false"
+      },
+      {
+        "id": "1cb21089-8160-4c7b-8593-b4bd5c2e6148",
+        "title": "Cyber Appellate Tribunal (Procedure for Investigation of Misbehaviour or Incapacity of Chairperson and Members) Rules, 2009",
+        "date": "2009-10-27",
+        "repealed": "false"
+      },
+      {
+        "id": "410fdbab-49b7-4114-a882-586d11d4c295",
+        "title": "Information Technology (Procedures and Safeguards for Interception, Monitoring or Decryption of Information) Rules, 2009.",
+        "date": "2009-10-27",
+        "repealed": "false"
+      },
+      {
+        "id": "87b08689-f152-4b9b-a4b2-ff4431917d5d",
+        "title": "Information Technology (Procedure and Safeguards for Blocking for Access of Information by Public) Rules, 2009",
+        "date": "2009-10-27",
+        "repealed": "false"
+      },
+      {
+        "id": "c5d918a7-d01e-4da6-be67-0ab177a53a87",
+        "title": "Information Technology (Procedure and Safeguards for Monitoring and Collecting Traffic Data or Information) Rules, 2009",
+        "date": "2009-10-27",
+        "repealed": "false"
+      },
+      {
+        "id": "d3c2120e-3824-4f65-b3db-319c8ffcc9ce",
+        "title": "Cyber Appellate Tribunal (Salary, Allowances and Other Terms and Conditions of Service of Chairperson and Members) Rules, 2009",
+        "date": "2009-10-27",
+        "repealed": "false"
+      },
+      {
+        "id": "7b071542-dd10-4faa-84f3-3bfbef0ab390",
+        "title": "BAR COUNCIL OF INDIA RULES PART-V TO IX",
+        "date": "2009-09-30",
+        "repealed": "false"
+      },
+      {
+        "id": "8593877e-3b0d-4294-9f25-51647577f0c3",
+        "title": "BAR COUNCIL OF INDIA RULES PART-I TO III",
+        "date": "2009-09-30",
+        "repealed": "false"
+      },
+      {
+        "id": "75352dc7-ec79-4459-a16b-013d4a38a3da",
+        "title": "The National Investigation Agency (Manner of Constitution) Rules, 2008 (English &amp; Hindi)",
+        "date": "2008-12-31",
+        "repealed": "false"
+      },
+      {
+        "id": "6513278e-329e-4b04-b82f-7f34b34d256c",
+        "title": "The Unlawful Activities (Prevention) (Recommendation and Sanction of Prosecution) Rules, 2008 (English & Hindi)",
+        "date": "2008-12-31",
+        "repealed": "false"
+      },
+      {
+        "id": "6590ea75-f67b-4617-be82-acbf0d27f710",
+        "title": "The Explosives Rules, 2008",
+        "date": "2008-12-29",
+        "repealed": "false"
+      },
+      {
+        "id": "4fedf866-a19d-44ba-b845-3f5f7970f7e2",
+        "title": "BAR COUNCIL OF INDIA RULES PART-IV (LEGAL EDUCATION RULES 2008)",
+        "date": "2008-09-14",
+        "repealed": "false"
+      },
+      {
+        "id": "2bb31bb5-719e-4235-93ca-0fd367404625",
+        "title": "Prevention of Money-laundering (Appointment and Conditions of Service of Chairperson and Members of Adjudicating Authorities) Rules, 2007 dated 1-8-2007",
+        "date": "2007-08-01",
+        "repealed": "false"
+      },
+      {
+        "id": "15a253f5-b94a-48c5-8c3f-887160aab31b",
+        "title": "Prevention of Money-laundering (Appointment and Conditions of Service of Chairperson and Members of Appellate Tribunal) Rules, 2007 dated 1-8-2007",
+        "date": "2007-08-01",
+        "repealed": "false"
+      },
+      {
+        "id": "671cf3b0-9008-4afb-a91b-32233e3b463a",
+        "title": "Life Insurance Corporation of India, Information Technology Specialist Group (Selection, Terms and Conditions of service and Payment of Allowance) Rules, 2007",
+        "date": "2007-04-25",
+        "repealed": "false"
+      },
+      {
+        "id": "fc478127-cf91-4b4c-9119-a850cee56290",
+        "title": "The Protection of Women from Domestic Violence Rules, 2006",
+        "date": "2006-10-14",
+        "repealed": "false"
+      },
+      {
+        "id": "181cf22e-143a-4f65-8bc3-d7c9375dc8e3",
+        "title": "Private Security Agencies Central Model Rules, 2006",
+        "date": "2006-04-26",
+        "repealed": "false"
+      },
+      {
+        "id": "ec04b0a4-2676-4d21-b71f-420de5cc6032",
+        "title": "The Narcotic Drugs and Psychotropic Substances ( National Fund for Control of Drug Abuse) Rules, 2006",
+        "date": "2006-03-24",
+        "repealed": "false"
+      },
+      {
+        "id": "320020be-8692-4e57-a047-834eff72ecbe",
+        "title": "The Prevention of Money-laundering (Manner of Receiving the Records Authenticated Outside India) Rules, 2005",
+        "date": "2005-07-01",
+        "repealed": "false"
+      },
+      {
+        "id": "0e0304c3-9a0c-4181-97f0-843bd3b66865",
+        "title": "The Prevention of Money-laundering(Forms, Search and Seizure or Freezing & the manner of forwarding the reasons & Material to the Adjudicating Authority, Impounding and Custody of Records and the Period of Retention) Rules, 2005",
+        "date": "2005-07-01",
+        "repealed": "false"
+      },
+      {
+        "id": "46f8f844-9c0b-41ca-993d-0cba08a40108",
+        "title": "The Prevention of Money-laundering(The Manner of Forwarding a Copy of the Order of Retention of Seized Property along with the Material to the Adjudicating Authority and the Period of its Retention) Rules, 2005",
+        "date": "2005-07-01",
+        "repealed": "false"
+      },
+      {
+        "id": "5fa426ab-1b32-43b4-bb2c-bd1734a60617",
+        "title": "The Prevention of Money-laundering (Maintenance of Records) Rules, 2005",
+        "date": "2005-07-01",
+        "repealed": "false"
+      },
+      {
+        "id": "7fc78b34-fef3-48e5-ab82-1abacb38f97d",
+        "title": "The Prevention of Money-laundering (Appeal) Rules, 2005",
+        "date": "2005-07-01",
+        "repealed": "false"
+      },
+      {
+        "id": "7ad26cbe-17fe-450a-9ac5-596b76e16fad",
+        "title": "The Prevention of Money-laundering(Receipt and Management of Confiscated Properties) Rules, 2005",
+        "date": "2005-07-01",
+        "repealed": "false"
+      },
+      {
+        "id": "d4a75988-7015-4dcb-8266-d091d0c9c50c",
+        "title": "The Prevention of Money-laundering (The Forms and the Manner of Forwarding a Copy of Order of Arrest of a Person Along with the Material to the Adjudicating Authority and its Period of Retention) Rules, 2005",
+        "date": "2005-07-01",
+        "repealed": "false"
+      },
+      {
+        "id": "c68ee941-9724-45b1-904f-30ac833b141d",
+        "title": "Information Technology (Security Procedure) Amendment Rules, 2004",
+        "date": "2004-10-29",
+        "repealed": "false"
+      },
+      {
+        "id": "3a05b59f-6359-4eab-9e57-3de59da45d37",
+        "title": "Information Technology (Use of Electronic Records and Digital Signature) Rules, 2004",
+        "date": "2004-09-06",
+        "repealed": "false"
+      },
+      {
+        "id": "4987bd71-c8d9-4d97-b879-eeeed38a6a90",
+        "title": "The Information Technology (Certifying Authorities) (Amendment) Rules, 2004",
+        "date": "2004-08-20",
+        "repealed": "false"
+      },
+      {
+        "id": "913ee2c1-3260-41ff-8532-5805af54473e",
+        "title": "Repatriation of Prisoners Rule, 2004",
+        "date": "2004-08-09",
+        "repealed": "false"
+      },
+      {
+        "id": "39e6684d-e27e-4e19-8f8f-776508da0045",
+        "title": "The Information Technology (Other Powers of Civil Court vested in cyber appellate tribunal) Rules, 2003",
+        "date": "2003-11-21",
+        "repealed": "false"
+      },
+      {
+        "id": "49e00549-21d1-4565-9982-b39d883b5074",
+        "title": "Cyber Regulations Appellate Tribunal (Procedure for Investigation of misbehaviour or Incapacity of Presiding Officer) Rules, 2003.",
+        "date": "2003-11-21",
+        "repealed": "false"
+      },
+      {
+        "id": "8aeaadff-7c1a-4ef9-b322-fc248ae51da7",
+        "title": "Information Technology (Other Standards) Rules, 2003",
+        "date": "2003-03-21",
+        "repealed": "false"
+      },
+      {
+        "id": "474829f4-fb5c-44d3-b3ac-5d8cf8af024f",
+        "title": "Cyber Regulations Appellate Tribunal (Salary, Allowances and other terms and conditions of service of Presiding Officer) Rules, 2003.",
+        "date": "2003-03-17",
+        "repealed": "false"
+      },
+      {
+        "id": "6dd54551-14f0-48f9-826e-e579e6c6b0e0",
+        "title": "Information Technology (Qualification and Experience of Adjudicating Officers and Manner of Holding Enquiry) Rules, 2003.",
+        "date": "2003-03-17",
+        "repealed": "false"
+      },
+      {
+        "id": "7ba7c9c4-b5bb-4a26-a017-a07240302a75",
+        "title": "The Cyber Regulations Appellate Tribunal (Salaries, Allowances and other condition of Service of other Officers and Employees) Rules, 2002.",
+        "date": "2002-10-22",
+        "repealed": "false"
+      },
+      {
+        "id": "55a12feb-db8f-4f47-b7f5-ddb8863846f7",
+        "title": "Delhi Advocates Welfare Fund Rules, 2001",
+        "date": "2002-01-25",
+        "repealed": "false"
+      },
+      {
+        "id": "091e6d2c-df94-4fe8-8657-7f3dc1c3b349",
+        "title": "Contempt of Courts (Patna High Court) Rules",
+        "date": "2001-03-13",
+        "repealed": "false"
+      },
+      {
+        "id": "67850468-f8bc-4cc3-8798-24d4069989ac",
+        "title": "Information Technology (Certifying Authorities) Rules, 2000.",
+        "date": "2000-10-17",
+        "repealed": "false"
+      },
+      {
+        "id": "57e5d945-3a51-4125-ac41-d4c37c13c7aa",
+        "title": "Rules of the Legal Services Authorities Act, 1995",
+        "date": "1995-11-27",
+        "repealed": "false"
+      },
+      {
+        "id": "2a4a6998-900d-4c7a-b30b-6bda8329ff23",
+        "title": "Scheduled Castes and the Scheduled Tribes (Prevention of Atrocities) Rules, 1995",
+        "date": "1995-03-31",
+        "repealed": "false"
+      },
+      {
+        "id": "430d6a42-06d6-4cf1-871c-a23e86376d64",
+        "title": "The Narcotic Drugs and Psychotropic Substances (Authentication of documents) Rules, 1992",
+        "date": "1993-02-13",
+        "repealed": "false"
+      },
+      {
+        "id": "22609c5c-6533-451c-aa0f-12c760e83d76",
+        "title": "Contempt of Courts (CAT) Rules, 1992",
+        "date": "1992-04-08",
+        "repealed": "false"
+      },
+      {
+        "id": "7472c14f-d453-49de-8254-ef973321960f",
+        "title": "The Narcotic Drugs and Psychotropic Substances Illegally acquired property (Receipt, Management and disposal) Rules, 1989",
+        "date": "1989-05-29",
+        "repealed": "false"
+      },
+      {
+        "id": "5682d229-da9f-40da-ae32-52201fa506b2",
+        "title": "The Narcotic Drugs and Psychotropic Substances Consultative Committee Rules, 1988",
+        "date": "1988-12-07",
+        "repealed": "false"
+      },
+      {
+        "id": "5e15f199-3a57-42ef-aea4-2f481376de03",
+        "title": "The Indecent Representation of Women (Prohibition) Rules, 1987",
+        "date": "1987-09-25",
+        "repealed": "false"
+      },
+      {
+        "id": "2ba473cd-c883-4494-8d97-70e8589745b7",
+        "title": "The Narcotic Drugs and Psychotropic Substances Rules, 1985",
+        "date": "1985-11-14",
+        "repealed": "false"
+      },
+      {
+        "id": "aa8d1947-4e6a-4954-b713-d12040b2c966",
+        "title": "The Dowry Prohibition (Maintenance of Lists of Presents to the Bride and Bridegroom) Rules, 1985",
+        "date": "1985-08-19",
+        "repealed": "false"
+      },
+      {
+        "id": "34ec5283-0e9c-40c3-9bf2-9cf44cfe13d4",
+        "title": "Contempt of Courts (GHC) Rules, 1977 (1)",
+        "date": "1980-02-20",
+        "repealed": "false"
+      },
+      {
+        "id": "76893c6d-9cbc-453a-a5d2-d460a714b7f0",
+        "title": "The Unlawful Activities (Prevention) Rules, 1968 (English)",
+        "date": "1968-02-05",
+        "repealed": "false"
+      },
+      {
+        "id": "202a0114-9d16-4e64-aba9-90358c35af78",
+        "title": "Arms Rules, 1962",
+        "date": "1962-10-01",
+        "repealed": "false"
+      }
+    ],
+    "REGULATION": [
+      {
+        "id": "c5735231-39b2-4b94-914b-bc386751728d",
+        "title": "Information Technology (Recognition of Foreign Certifying Authorities operating under Regulatory Authority ) Regulation 2013",
+        "date": "2013-04-06",
+        "repealed": "false"
+      },
+      {
+        "id": "cf779f57-0048-4ce5-9bc4-a58d11edb972",
+        "title": "INFORMATION TECHNOLOGY (CERTIFYING AUTHORITY) REGULATIONS, 2001",
+        "date": "2001-07-09",
+        "repealed": "false"
+      }
+    ],
+    "NOTIFICATION": [
+      {
+        "id": "c8186e87-6675-4c94-8df0-9a671bfc2366",
+        "title": "Declaration of eighteen(18) more individuals as terrorist under the Unlawful Activities (Prevention) Act, 1967 (S.O. 3816(E) to 3833(E))",
+        "date": "2020-10-27",
+        "repealed": "false"
+      },
+      {
+        "id": "9dbe7387-93fd-43ec-9188-2c1c31829791",
+        "title": "Unlawful Activities (Prevention) Tribunal Order dated 6.11.2019 confirming the Liberation Tigers of Tamil Eelam (LTTE) as an unlawful association w.e.f. 14.05.2019",
+        "date": "2019-11-22",
+        "repealed": "false"
+      },
+      {
+        "id": "7d47d485-938e-4878-bffd-2d72d6765714",
+        "title": "UNLAWFUL ACTIVITIES (PREVENTION) TRIBUNAL declaring National Socialist Council of Nagaland (Khaplang) an Unlawful Association",
+        "date": "2016-05-04",
+        "repealed": "false"
+      },
+      {
+        "id": "acd51e21-e8ce-410f-a079-c4f6c694b117",
+        "title": "The Unlawful Activities (Prevention) Act, 1967 (37 of 1967) had declared the LTTE to be an unlawful association vide notification of the Govt. of India in the MHA number S.O. 1272 (E) dated 14.05.2014",
+        "date": "2014-11-20",
+        "repealed": "false"
+      },
+      {
+        "id": "0179a8a1-f15e-4be1-9588-8a1ea60c368f",
+        "title": "Tribunal under the Unlawful Activities (Prevention) Act, 1967 in High Court of Delhi, in the matter of Liberation Tigers of Tamil Eleam (LTTE)",
+        "date": "2012-12-11",
+        "repealed": "false"
+      },
+      {
+        "id": "f4aec6e8-583a-4ff6-b8a8-5ce744d27f11",
+        "title": "Extension of the Code of Criminal Procedure (Punjab Amendment) Act, 1983 to CHD Dt. 27.07.1984",
+        "date": "1984-07-27",
+        "repealed": "false"
+      },
+      {
+        "id": "a5a40d1f-e7df-41a3-b22c-6eff7125e41d",
+        "title": "Extension of Bombay Police Act, 1951 to Delhi Dt. 02.09.1965",
+        "date": "1965-09-02",
+        "repealed": "false"
+      },
+      {
+        "id": "b99a825d-0c94-421d-9c52-e305095582f7",
+        "title": "Notification 2 under Delhi Police Act 1978",
+        "date": "2017-04-19",
+        "repealed": "false"
+      },
+      {
+        "id": "42058071-3913-4b16-921c-425391059614",
+        "title": "G.S.R. 701(E) dated 15/07/2019 on Arms Rules 2016",
+        "date": "2016-07-15",
+        "repealed": "false"
+      },
+      {
+        "id": "54d6731c-9955-4db7-8408-3b7e1ddf0cb8",
+        "title": "Notification Dt. 09.09.2010 under Delhi Police Act 1978",
+        "date": "2010-09-09",
+        "repealed": "false"
+      },
+      {
+        "id": "2af47021-1718-4fa2-aa06-ba49d991bb73",
+        "title": "Notification Dt. 31.10.2008 under Delhi Police Act 1978",
+        "date": "2008-10-31",
+        "repealed": "false"
+      },
+      {
+        "id": "040aa2c8-2721-4fdd-9abd-8938bb2ad9ef",
+        "title": "Extension of the Criminal Procedure Laws (Punjab Amendment) Act, 1984 to CHD Dt. 27.08.1984",
+        "date": "1984-08-27",
+        "repealed": "false"
+      },
+      {
+        "id": "a72d8d10-2574-4c52-9299-ce9bdaf09e7a",
+        "title": "Cyber Forensic Laboratory, Air Force Cyber Group,New Delhi, as Examiner of Electronic Evidence within India,",
+        "date": "2021-11-05",
+        "repealed": "false"
+      },
+      {
+        "id": "a115eaa4-1997-4897-bd65-45408ac4e1b6",
+        "title": "Cyber Forensic Division, State Forensics Science Laboratory, Vellayambalam, Thiruvananthapuram Kerala, as Examiner of Electronic Evidence within India,",
+        "date": "2021-11-05",
+        "repealed": "false"
+      },
+      {
+        "id": "964a3689-7ea7-4b18-b80e-ad8c970f62dd",
+        "title": "Cyber Forensic Laboratory, under Army Cyber Group, Directorate General of Military Operations",
+        "date": "2018-09-06",
+        "repealed": "false"
+      },
+      {
+        "id": "fb1fe409-c09a-4553-98b6-b692e2f92a5e",
+        "title": "State Forensic Science Laboratory, Madiwala, Bangaluru, under Directorate of Forensic Sciences, Karnataka, Police Department, as Examiner of Electronic Evidence within India",
+        "date": "2018-09-06",
+        "repealed": "false"
+      },
+      {
+        "id": "88ae8340-9fa8-4311-bde7-c78313cdaef9",
+        "title": "Notifies Forensic Science Laboratory, Sector 14, Rohini, New Delhi under Government of National Capital Territory of Delhi, as Examiner of Electronic Evidence within India",
+        "date": "2018-04-11",
+        "repealed": "false"
+      },
+      {
+        "id": "b0590270-6175-4aba-85df-48bcf8e8b473",
+        "title": "Notifies Computer Forensic and Data Mining Laboratory under Serious Fraud Investigation Office, Ministry of Corporate Affairs, New Delhi as Examiner of Electronic Evidence within India with the scope of Computer (Media) Forensics excluding Floppy Disk Drive.",
+        "date": "2018-03-26",
+        "repealed": "false"
+      },
+      {
+        "id": "f0b02335-28fb-427b-ac23-dfda2e7ac5ba",
+        "title": "Notifies Directorate of Forensic Science, Gandhi Nagar (Gujarat), in the State of Gujarat as Examiner of Electronic Evidence within India",
+        "date": "2018-03-26",
+        "repealed": "false"
+      },
+      {
+        "id": "484aea84-be57-4abd-afed-73459c85cb3f",
+        "title": "Notifies Central Forensic Science Laboratory, Hyderabad under Directorate of Forensic Science Services, MHA as Examiner of Electronic Evidence within India",
+        "date": "2018-03-16",
+        "repealed": "false"
+      },
+      {
+        "id": "c2294c34-53a4-4ef2-b008-d6b21f0842c5",
+        "title": "Declaring certain computer resources of National Investigation Agency and its associated dependencies as protected system",
+        "date": "2024-02-26",
+        "repealed": "false"
+      },
+      {
+        "id": "104c458d-b658-41d2-8fcf-1e066aaa6b90",
+        "title": "Establish three GAC and appoints persons thereto in the GAC under Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021,",
+        "date": "2023-01-27",
+        "repealed": "false"
+      },
+      {
+        "id": "c1d46d5e-487a-4299-9789-8e294f849743",
+        "title": "Amendment to the First Schedule of the Information Technology Act, 2000 (“IT Act”)",
+        "date": "2022-09-26",
+        "repealed": "false"
+      },
+      {
+        "id": "6d0c23ee-1059-4381-ac12-18117c6af602",
+        "title": "Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021.",
+        "date": "2021-02-26",
+        "repealed": "false"
+      },
+      {
+        "id": "8968a9c4-c6cd-43d3-93ee-39dee54a5cb8",
+        "title": "Section 69B IT Act, 2000 enhance cyber security, identification, analysis and prevention of intrusion or spread of computer contaminant to CERT-In",
+        "date": "2016-04-26",
+        "repealed": "false"
+      },
+      {
+        "id": "75828791-2141-4db7-9eb5-86d143cb01e9",
+        "title": "Declares the UIDAI’s Central Identities Data Repository (CIDR) facilities, Information Assets, Logistics Infrastructure and Dependencies Installed at UIDAI (Unique Identification Authority of India) locations to be Protected System for the Purpose of Information Technology Act 2000.",
+        "date": "2015-12-21",
+        "repealed": "false"
+      },
+      {
+        "id": "87774db8-132f-4684-bde9-3802f81d1d01",
+        "title": "Constitution of Cyber Regulation Advisory",
+        "date": "2012-11-16",
+        "repealed": "false"
+      },
+      {
+        "id": "9fc47069-67b6-43d8-b60f-a128c90494c6",
+        "title": "Process of registration of cyber cafe to be followed by registration agency",
+        "date": "2012-03-16",
+        "repealed": "false"
+      },
+      {
+        "id": "120676b7-030d-458d-ac73-0b89e321bbea",
+        "title": "Notification for Designated Officer under section 69A and Rule 3 of Information Technology (Procedure and Safeguards for Blocking for Access of Information by Public Rules, 2009",
+        "date": "2010-01-20",
+        "repealed": "false"
+      },
+      {
+        "id": "c4f4c44f-8b0a-46e9-8591-a0ec86a377ff",
+        "title": "Notification no. G.S.R.240(E) dated 25.3.2003 regarding appointment of Secretary of the Department of Information Technology of each of the States or Union Territories as Adjudicating Officer",
+        "date": "2003-03-25",
+        "repealed": "false"
+      },
+      {
+        "id": "ea81295e-8fbb-4fb8-a5e3-3c358254eeea",
+        "title": "Notification no. G.S.R.181(E) dated 27.2.2003 regarding establishment of Computer Emergency Response-in India (CERT-In) and the procedure for blocking of websites",
+        "date": "2003-02-27",
+        "repealed": "false"
+      },
+      {
+        "id": "8a327d45-85c8-477a-bc2d-4ea79edf7355",
+        "title": "Notification no. S. O.1015(E) dated 19.9.2002 regarding Information Technology (Removal of Difficulties) Order, 2002",
+        "date": "2002-09-19",
+        "repealed": "false"
+      },
+      {
+        "id": "27f56d8b-3012-4977-a38d-b02007656630",
+        "title": "Notification - Appointed date of commencement of the Prevention of Corruption (Amendment) Act, 2018 (16 of 2018)",
+        "date": "2018-07-26",
+        "repealed": "false"
+      },
+      {
+        "id": "ca4e0aa6-2569-459f-bcd2-03ab6bed5623",
+        "title": "Extension of the Dowry Prohibition (Punjab Amendment) Act, 1976 to CHD Dt. 17.12.1976",
+        "date": "1976-12-17",
+        "repealed": "false"
+      },
+      {
+        "id": "30a25f34-85fd-4994-9c35-8d8dc7723c41",
+        "title": "Authorize the State Authority and District Authority constituted under the Legal Services Authorities Act, 1987 for the purpose of pre-institution mediation and settlement under the Commercial Courts Act, 2015",
+        "date": "2018-07-03",
+        "repealed": "false"
+      },
+      {
+        "id": "5f66bd8f-5a29-4f73-bcaa-b9d7013d614e",
+        "title": "Declaration of nine more individuals as terrorist under the Unlawful Activities (Prevention) Act, 1967 (S.O.No. 2164,2165,2166,2167,2168,2169,2170,2171 and 2172)",
+        "date": "2020-07-01",
+        "repealed": "false"
+      },
+      {
+        "id": "a6bc2c5e-f743-47b2-aa60-fb766d87fe45",
+        "title": "Maulana Masood Azhar, Hafiz Muhammad Sahib, Zaki-ur-Rehman Lakhvi, Dawood Ibrahim Kaskar are declared as individual terrorists and add their name to schedule 4 of the Unlawful Activities (Prevention) Act, 1967",
+        "date": "2019-09-04",
+        "repealed": "false"
+      },
+      {
+        "id": "66f85f17-a98b-4eba-adcf-94a822a83394",
+        "title": "The Unlawful Activities (Prevention) Tribunal consisting of Honble Mr. Justice G.P. Mittal a sitting Judge of the High Court of Delhi for declaring the LTTE as an Unlawful association",
+        "date": "2014-06-05",
+        "repealed": "false"
+      }
+    ],
+    "ORDER": [
+      {
+        "id": "4735c39f-46da-4e3d-87ae-a163a3228134",
+        "title": "The Narcotic Drugs and Psychotropic Substances (Regulation of Controlled Substances) Amendment Order, 2013.",
+        "date": "2013-09-23",
+        "repealed": "false"
+      },
+      {
+        "id": "57ebc07e-af26-43e0-8f93-ffd82557f6d2",
+        "title": "The Narcotic Drugs and Psychotropic Substances ( Regulation of Controlled Substances) Order 2013",
+        "date": "2013-03-26",
+        "repealed": "false"
+      }
+    ],
+    "CIRCULAR": [
+      {
+        "id": "f6416c47-b594-4946-b039-49fd1cae16f4",
+        "title": "Procedure for processing of applications under Section 11A of the Prevention of Money-Laundering Act, 2002 for use of Aadhaar authentication services by entities other than Banking companies.",
+        "date": "2019-05-09",
+        "repealed": "false"
+      }
+    ],
+    "CONSTITUTION": [
+      {
+        "id": "097c43a3-79b3-460f-8ffc-876df8052802",
+        "title": "The Constitution of India in telugu",
+        "date": "",
+        "repealed": ""
+      },
+      {
+        "id": "128e52c5-7b9d-4b63-95d6-0bc680f85389",
+        "title": "The Constitution of India in Hindi 2026",
+        "date": "",
+        "repealed": ""
+      },
+      {
+        "id": "3086a88d-fac8-4d2b-a137-51089bc69129",
+        "title": "The Constitution of India in Bengali",
+        "date": "",
+        "repealed": ""
+      },
+      {
+        "id": "0d746c00-d94c-40c1-b300-fbe02a9703ba",
+        "title": "The Constitution of India in Manipuri meteimayek language",
+        "date": "",
+        "repealed": ""
+      },
+      {
+        "id": "00ec2125-c493-4545-b2ad-f8c173c60a74",
+        "title": "The Constitution of India in Marathi",
+        "date": "",
+        "repealed": ""
+      },
+      {
+        "id": "325421cb-a9a8-49be-994a-218d57e4a280",
+        "title": "The Constitution of India in Tamil",
+        "date": "",
+        "repealed": ""
+      },
+      {
+        "id": "69b92480-aa4d-420f-9714-c4f1e5b3dbb6",
+        "title": "The Constitution of India in Dogri",
+        "date": "",
+        "repealed": ""
+      },
+      {
+        "id": "6d37d94f-edcd-4aae-9947-b55246a882a0",
+        "title": "Copy of Original Constitution of India",
+        "date": "",
+        "repealed": ""
+      },
+      {
+        "id": "3c585f25-5703-4979-a673-dfd8f91012eb",
+        "title": "The Constitution of India in Malayalam",
+        "date": "",
+        "repealed": ""
+      },
+      {
+        "id": "4a0826a2-1ac4-46ae-b635-e7732ecd4d11",
+        "title": "The Constitution of India in Nepali",
+        "date": "",
+        "repealed": ""
+      },
+      {
+        "id": "52461935-3bbf-4ea0-bfc3-2022e8330588",
+        "title": "The Constitution of India in Sindi (Arabic)",
+        "date": "",
+        "repealed": ""
+      },
+      {
+        "id": "58e289d9-d2a4-4c69-b863-b789ad8c1957",
+        "title": "The Constitution of India in Maithili",
+        "date": "",
+        "repealed": ""
+      },
+      {
+        "id": "544213ec-4072-44b2-a6fc-69fb84df2001",
+        "title": "The Constitution of India in English 2026",
+        "date": "",
+        "repealed": ""
+      },
+      {
+        "id": "7f339be7-3fac-470b-8abb-d00722f61381",
+        "title": "The Constitution of India in Gujarati",
+        "date": "",
+        "repealed": ""
+      },
+      {
+        "id": "77904e50-c002-4a3f-a011-8e732589fb76",
+        "title": "The Constitution of India in Santhali Ol Chiki script",
+        "date": "",
+        "repealed": ""
+      },
+      {
+        "id": "858eb4e1-27b8-47f6-8f7b-9f24e07c38dc",
+        "title": "The Constitution of India in Santhali Devanagari script",
+        "date": "",
+        "repealed": ""
+      },
+      {
+        "id": "83137c18-d3e7-4671-af16-ef4c53bf8d41",
+        "title": "The Constitution of India in Urdu",
+        "date": "",
+        "repealed": ""
+      },
+      {
+        "id": "75e3816c-d9bb-494d-84c5-3b85ac33a912",
+        "title": "The Constitution of India in Sindi (Devanagari)",
+        "date": "",
+        "repealed": ""
+      },
+      {
+        "id": "9972b5dc-892c-477b-a40b-d800561a020d",
+        "title": "The Constitution of India in Sanskrit",
+        "date": "",
+        "repealed": ""
+      },
+      {
+        "id": "9c432588-d1b7-4580-ab51-439d999e6f47",
+        "title": "The Constitution of India in Assamese",
+        "date": "",
+        "repealed": ""
+      },
+      {
+        "id": "b20d451a-8919-4d76-98cf-eeb8f54bbdc2",
+        "title": "The Constitution of India in Bodo",
+        "date": "",
+        "repealed": ""
+      },
+      {
+        "id": "b48cd116-c827-4d1a-9752-1f67ee4bcbc2",
+        "title": "The Constitution of India in Kannada",
+        "date": "",
+        "repealed": ""
+      },
+      {
+        "id": "ee3c7587-6b8e-463b-bbb6-9da04ebfde5c",
+        "title": "The Constitution of India in Kashimiri",
+        "date": "",
+        "repealed": ""
+      },
+      {
+        "id": "e4f01b7e-d05e-47eb-b0af-aeb90019dada",
+        "title": "The Constitution of India in Odia",
+        "date": "",
+        "repealed": ""
+      },
+      {
+        "id": "dba8b3af-fabf-4ab6-a2af-48b0f8f6a65d",
+        "title": "The Constitution of India in Manipuri Bengali script",
+        "date": "",
+        "repealed": ""
+      },
+      {
+        "id": "bbff8ebe-2ca6-4d0c-8f5c-c3ea535a7317",
+        "title": "The Constitution of India in Punjabi",
+        "date": "",
+        "repealed": ""
+      },
+      {
+        "id": "f7f366a4-5a61-4974-bb75-865e1c405b91",
+        "title": "The Constitution of India in Konkani",
+        "date": "",
+        "repealed": ""
+      }
+    ]
+  }
+}
