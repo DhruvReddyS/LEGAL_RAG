@@ -9,7 +9,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-legal_rag}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-legal_rag_dev_only}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -27,8 +27,8 @@ services:
     image: qdrant/qdrant:v1.18.2
     restart: unless-stopped
     ports:
-      - "${QDRANT_HTTP_PORT:-6333}:6333"
-      - "${QDRANT_GRPC_PORT:-6334}:6334"
+      - "127.0.0.1:${QDRANT_HTTP_PORT:-6333}:6333"
+      - "127.0.0.1:${QDRANT_GRPC_PORT:-6334}:6334"
     volumes:
       - qdrant_data:/qdrant/storage
     healthcheck:
@@ -101,6 +101,8 @@ services:
     environment:
       APP_ENV: ${APP_ENV:-development}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://advocate.localhost:3000,http://admin.localhost:3000,http://127.0.0.1:3000,http://127.0.0.2:3000,http://tauri.localhost,tauri://localhost}
+      CORS_ALLOW_PRIVATE_NETWORK: ${CORS_ALLOW_PRIVATE_NETWORK:-false}
+      TRUSTED_HOSTS: ${TRUSTED_HOSTS:-localhost,127.0.0.1}
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
       COOKIE_SAMESITE: ${COOKIE_SAMESITE:-lax}
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-legal_rag}:${POSTGRES_PASSWORD:-legal_rag_dev_only}@postgres:5432/${POSTGRES_DB:-legal_rag}
@@ -139,7 +141,7 @@ services:
     volumes:
       - ../data/legal_kb:/data/legal_kb
     ports:
-      - "${BACKEND_PORT:-8000}:8000"
+      - "${BACKEND_BIND_ADDRESS:-127.0.0.1}:${BACKEND_PORT:-8000}:8000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -168,7 +170,7 @@ services:
       - llm
     restart: unless-stopped
     ports:
-      - "${OLLAMA_PORT:-11434}:11434"
+      - "127.0.0.1:${OLLAMA_PORT:-11434}:11434"
     volumes:
       - ollama_data:/root/.ollama
     healthcheck:

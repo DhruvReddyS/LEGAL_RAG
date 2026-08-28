@@ -45,7 +45,7 @@ cd "/Users/sripathidhruvreddy/Documents/MAJOR PROJECT"
 - Tauri v2 native packaging is accepted. The signed local Apple Silicon build
   produced a 9.6 MB `.app` and 2.8 MB `.dmg`; the native process, CSP/API route,
   Tauri CORS origin and four-role cookie sessions were verified.
-- GitHub desktop distribution is implemented at v0.2.0. CI passed the 105-test
+- GitHub desktop distribution is implemented for the v0.3.0 scalable preview. CI passes the 116-test
   backend suite, database migrations, S3 initialization, frontend lint/static
   export, and native builds for macOS Apple Silicon, macOS Intel and Windows
   x64. The draft contains two DMGs, one NSIS installer, three signed updater
@@ -143,7 +143,7 @@ cd frontend
 npm run build
 ```
 
-Accepted result: **105 backend tests passed** and the Next.js 14 static export
+Accepted result: **116 backend tests passed** and the Next.js 14 static export
 completed successfully.
 
 ## Configuration and secrets
@@ -175,30 +175,27 @@ The local ad-hoc signature is valid for this capstone machine. External macOS
 distribution still requires a Developer ID certificate and Apple notarization;
 those credentials are the remaining manual step.
 
-The current cross-platform preview remains a private GitHub draft:
+The v0.3.0 desktop is a lightweight scalable client. It validates and stores a
+private backend origin at runtime, so a host migration does not require a new
+client build. Friends do not install the corpus, Docker, data services, BGE
+models or Ollama; those remain on the shared host. See
+[SCALABLE_DEPLOYMENT_RUNBOOK.md](SCALABLE_DEPLOYMENT_RUNBOOK.md).
 
-```text
-https://github.com/DhruvReddyS/LEGAL_RAG/releases/tag/untagged-580dbc8569e02ab07e9e
-```
-
-Do not describe it as a trusted public installer yet. macOS is ad-hoc signed
+Do not describe it as an OS-trusted installer yet. macOS is ad-hoc signed
 and not notarized; Windows has updater signatures but no Authenticode publisher
-certificate. In addition, the desktop installer contains the UI/native shell,
-not the Docker backend and legal corpus. A different device still needs the
-repository's backend services running. The planned bundled sidecar/runtime work
-must pass clean-machine acceptance before the promised "install Ollama and run"
-experience is complete.
+certificate. The unsigned capstone preview therefore requires the user's
+explicit Open Anyway / Run Anyway review after verifying the release asset.
 
 ## Remaining product backlog
 
-Distribution gates now come first:
+Distribution and scalability gates now come first:
 
 1. Obtain Apple Developer ID/notarization credentials and a Windows
    Authenticode signing solution, then test both installers on clean machines.
-2. Package or bootstrap the FastAPI runtime and required local services/data so
-   another device does not need a repository checkout and manual Compose stack.
-3. Publish v0.2.0 only as a clearly labelled preview, or cut a later production
-   version after the two gates above.
+2. Complete clean-machine Windows/macOS client acceptance through the private
+   shared backend and measure four-user Fast/Deep behavior.
+3. Move inference to a dedicated vLLM/SGLang GPU host when Ollama concurrency
+   becomes the bottleneck; the desktop API URL can be switched at runtime.
 
 Then continue Tier 2 in this order:
 

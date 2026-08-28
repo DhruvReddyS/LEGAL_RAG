@@ -7,6 +7,8 @@ from time import perf_counter
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.responses import JSONResponse
 
 from app.agents.orchestrator import LegalRAGWorkflow
 from app.routers.auth import router as auth_router
@@ -22,6 +24,7 @@ from app.routers.document_analysis import router as document_analysis_router
 from app.services.retrieval import HybridRetrievalService
 from app.services.fast_research import FastLegalResearchService
 from app.core.config import settings
+from app.core.http_security import DesktopOriginSecurityMiddleware
 
 
 logger = logging.getLogger("legal_rag.http")
@@ -48,6 +51,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.trusted_host_list)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origin_list,
@@ -55,6 +59,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
     expose_headers=["X-Request-ID", "Server-Timing"],
+)
+app.add_middleware(
+    DesktopOriginSecurityMiddleware,
+    allowed_origins=settings.cors_origin_list,
+    allow_private_network=settings.cors_allow_private_network,
 )
 
 
@@ -96,6 +105,9 @@ app.include_router(document_analysis_router)
 
 
 @app.get("/health", tags=["system"])
-async def health_check() -> dict[str, str]:
+async def health_check() -> JSONResponse:
     """Report whether the API process is healthy."""
-    return {"status": "healthy"}
+    return JSONResponse(
+        content={"status": "healthy", "api_compatibility": "1"},
+        headers={"Cache-Control": "no-store"},
+    )

@@ -1,7 +1,8 @@
 from functools import lru_cache
 from typing import Literal
+from urllib.parse import urlsplit
 
-from pydantic import Field, SecretStr, field_validator
+from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -19,6 +20,8 @@ class Settings(BaseSettings):
         "http://admin.localhost:3000,http://127.0.0.1:3000,"
         "http://127.0.0.2:3000,http://tauri.localhost,tauri://localhost"
     )
+    cors_allow_private_network: bool = False
+    trusted_hosts: str = "localhost,127.0.0.1,test,testserver"
     cookie_secure: bool | None = None
     cookie_samesite: Literal["lax", "strict", "none"] = "lax"
     database_url: str = Field(
@@ -64,13 +67,62 @@ class Settings(BaseSettings):
         origins = [origin.strip() for origin in value.split(",") if origin.strip()]
         if not origins:
             raise ValueError("cors_origins must contain at least one explicit origin")
-        if "*" in origins:
-            raise ValueError("wildcard CORS is forbidden when credential cookies are enabled")
-        return ",".join(dict.fromkeys(origins))
+        normalized: list[str] = []
+        for origin in origins:
+            if "*" in origin:
+                raise ValueError("wildcard CORS is forbidden when credential cookies are enabled")
+            try:
+                parsed = urlsplit(origin)
+                # Reading .port also validates malformed and out-of-range ports.
+                parsed.port
+            except ValueError as exc:
+                raise ValueError(f"invalid CORS origin: {origin}") from exc
+            if (
+                parsed.scheme not in {"http", "https", "tauri"}
+                or not parsed.hostname
+                or parsed.username is not None
+                or parsed.password is not None
+                or parsed.path not in {"", "/"}
+                or parsed.query
+                or parsed.fragment
+            ):
+                raise ValueError(f"invalid CORS origin: {origin}")
+            if parsed.scheme == "tauri" and parsed.netloc != "localhost":
+                raise ValueError("only tauri://localhost is an allowed Tauri origin")
+            normalized.append(origin.rstrip("/"))
+        return ",".join(dict.fromkeys(normalized))
+
+    @field_validator("trusted_hosts")
+    @classmethod
+    def validate_trusted_hosts(cls, value: str) -> str:
+        hosts = [host.strip().lower() for host in value.split(",") if host.strip()]
+        if not hosts:
+            raise ValueError("trusted_hosts must contain at least one explicit host")
+        for host in hosts:
+            if (
+                "*" in host
+                or "://" in host
+                or "/" in host
+                or any(character.isspace() for character in host)
+            ):
+                raise ValueError(f"invalid trusted host: {host}")
+        return ",".join(dict.fromkeys(hosts))
+
+    @model_validator(mode="after")
+    def validate_cookie_transport(self) -> "Settings":
+        if self.cookie_samesite == "none" and not self.auth_cookie_secure:
+            raise ValueError("COOKIE_SAMESITE=none requires COOKIE_SECURE=true")
+        if self.app_env.casefold() not in {"development", "test"} and not self.auth_cookie_secure:
+            raise ValueError("secure authentication cookies are required outside development")
+        return self
 
     @property
     def cors_origin_list(self) -> list[str]:
         return self.cors_origins.split(",")
+
+    @property
+    def trusted_host_list(self) -> list[str]:
+        return self.trusted_hosts.split(",")
 
     @property
     def auth_cookie_secure(self) -> bool:

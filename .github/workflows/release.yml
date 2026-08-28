@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Version tag matching the desktop version, for example v0.2.0"
+        description: "Version tag matching the desktop version, for example v0.3.0"
         required: true
         type: string
       audit_only:
@@ -181,9 +181,13 @@ jobs:
           tagName: ${{ env.RELEASE_TAG }}
           releaseName: Aegis Legal Intelligence ${{ env.RELEASE_TAG }}
           releaseBody: |
-            Automated desktop build for macOS arm64, macOS x64, and Windows x64.
+            Scalable four-user capstone preview for macOS arm64, macOS x64, and Windows x64.
 
-            This release is a draft. Review installers, updater signatures, and latest.json before publishing.
+            The desktop can select and test a private Aegis backend at runtime. Friends do not install the corpus, databases, embedding models, Docker, or Ollama when using the shared-host deployment.
+
+            This preview is not Apple-notarized or Windows Authenticode-signed. Confirm the asset and checksum before using the operating system's explicit Open Anyway / Run Anyway flow. Tauri updater artifacts are cryptographically signed.
+
+            This release is a draft until application tests, updater signatures, and latest.json pass review.
           releaseDraft: true
           prerelease: false
           generateReleaseNotes: true

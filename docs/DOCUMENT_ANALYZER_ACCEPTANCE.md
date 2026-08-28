@@ -92,7 +92,7 @@ authority is admitted with `status_unverified` currency qualification.
 
 ## Automated acceptance
 
-- Full backend regression: **105 passed**, one upstream Passlib/Python
+- Full backend regression at final v0.3.0 validation: **116 passed**, one upstream Passlib/Python
   deprecation warning.
 - Focused analyzer/chat/defence regression: **8 passed**.
 - Next.js 14 production static export and TypeScript validation: passed.

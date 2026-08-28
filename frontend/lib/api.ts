@@ -21,8 +21,9 @@ import type {
   DocumentAnalysisResponse,
   SourceInspectorResponse,
 } from "./types";
+import { DEFAULT_BACKEND_URL, getRuntimeBackendUrl } from "./runtime-backend";
 
-const CONFIGURED_API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const CONFIGURED_API_URL = DEFAULT_BACKEND_URL;
 
 function apiUrl(): string {
   if (typeof window === "undefined") {
@@ -38,8 +39,11 @@ function apiUrl(): string {
     window.location.protocol === "tauri:" ||
     window.location.hostname === "tauri.localhost";
 
+  if (isTauri) {
+    return getRuntimeBackendUrl();
+  }
+
   if (
-    !isTauri &&
     (window.location.hostname === "localhost" ||
       window.location.hostname.endsWith(".localhost") ||
       window.location.hostname.startsWith("127."))

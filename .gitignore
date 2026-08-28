@@ -13,6 +13,9 @@ frontend/.next/
 frontend/out/
 frontend/.env.local
 frontend/tsconfig.tsbuildinfo
+
+# Locally assembled release/runtime artifacts (uploaded separately to Releases)
+dist/
 frontend/ci-release-config.json
 frontend/src-tauri/target/
 frontend/src-tauri/gen/

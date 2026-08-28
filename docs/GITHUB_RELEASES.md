@@ -72,7 +72,7 @@ Azure Key Vault signing configuration.
 2. Validate locally:
 
    ```bash
-   python3 scripts/check_release_version.py --tag v0.2.0
+   python3 scripts/check_release_version.py --tag v0.3.0
    ```
 
 3. Push the matching `v<version>` tag, or run **Desktop release** manually with

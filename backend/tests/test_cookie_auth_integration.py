@@ -18,7 +18,11 @@ async def test_http_only_cookie_login_refresh_and_logout() -> None:
     user_id: uuid.UUID | None = None
     transport = ASGITransport(app=app)
     try:
-        async with AsyncClient(transport=transport, base_url="http://test") as client:
+        async with AsyncClient(
+            transport=transport,
+            base_url="http://test",
+            headers={"Origin": "http://localhost:3000"},
+        ) as client:
             registered = await client.post(
                 "/auth/cookie/register",
                 json={
@@ -54,3 +58,17 @@ async def test_http_only_cookie_login_refresh_and_logout() -> None:
                 await session.execute(delete(AuditLog).where(AuditLog.user_id == user_id))
                 await session.execute(delete(User).where(User.id == user_id))
                 await session.commit()
+
+
+@pytest.mark.asyncio
+async def test_cookie_authentication_rejects_an_untrusted_origin() -> None:
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        response = await client.post(
+            "/auth/cookie/login",
+            headers={"Origin": "https://attacker.example"},
+            json={"email": "nobody@example.com", "password": "not-a-real-password"},
+        )
+
+    assert response.status_code == 403
+    assert response.json() == {"detail": "Untrusted request origin"}
