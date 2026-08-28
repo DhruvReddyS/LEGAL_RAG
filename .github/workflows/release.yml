@@ -66,6 +66,10 @@ jobs:
         run: python -m alembic upgrade head
         working-directory: backend
 
+      - name: Initialize S3-compatible storage buckets
+        run: python -m app.ingestion.init_storage
+        working-directory: backend
+
       - name: Run backend tests
         run: python -m pytest -q
         working-directory: backend
