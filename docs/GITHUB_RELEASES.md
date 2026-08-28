@@ -54,8 +54,10 @@ distribution requires an Apple Developer ID certificate and notarization.
 - `APPLE_PASSWORD`: app-specific Apple password, not the account password.
 - `APPLE_TEAM_ID`: Apple Developer Team ID.
 
-The workflow passes Apple secrets only to macOS jobs. Before using them, the
-Tauri bundle signing identity must be configured for Developer ID signing.
+Preview CI deliberately leaves these variables unset so Tauri uses the
+configured ad-hoc identity. After a valid certificate is available, add a
+dedicated macOS signing/import step and map these secrets only into macOS jobs;
+then configure the Tauri bundle identity for Developer ID signing.
 
 Windows Authenticode signing is not enabled by this foundation. The updater
 artifacts are cryptographically signed by the Tauri updater key, but public
