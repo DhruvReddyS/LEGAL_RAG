@@ -1,6 +1,6 @@
 # Project progress and architecture log
 
-Last consolidated: **2026-08-28 IST**
+Last consolidated: **2026-08-29 IST**
 
 ## Purpose and evidence policy
 
@@ -21,8 +21,8 @@ together.
 | P2 / Tier 2 | Partial, substantial | Case workspaces, isolated evidence, FIR/defence workflows, role consoles, Fast/Auto RAG, admin governance, Document Analyzer and Evidence Inspector | Document Studio/export, judgment tools, amendment tracker, feedback, durable jobs and streaming |
 | Deep performance | Not accepted | Functional local Deep flows and a 46.25-second analyzer run exist | General synchronous 14B Deep exceeded 180 seconds under stress |
 | P3–P7 | Pending | Plan only | Case intelligence, courtroom, academic evaluation, multilingual/voice and other stretch work |
-| Desktop distribution | Preview foundation accepted | Tauri v2 app/DMG, release workflow, signed updater artifacts and recorded three-target draft | OS trust signing/notarization, clean-machine validation and full offline runtime packaging |
-| Four-user scalable release | Implementation in progress | Runtime-selectable private backend, loopback hardening, shared-host launcher and three-target release foundation | Tailscale onboarding, clean Windows/Mac acceptance and public preview publication |
+| Desktop distribution | Public capstone preview released | Tauri v2 clients for macOS arm64, macOS x64 and Windows x64; signed updater artifacts; public v0.3.0 release | OS publisher signing/notarization and clean-machine friend validation |
+| Four-user scalable release | Software/release complete; network onboarding pending | Runtime-selectable private backend, loopback hardening, shared-host launcher and public three-target release | Install/invite through Tailscale and run clean Windows/Mac acceptance |
 
 ## Current implemented architecture
 
@@ -246,18 +246,38 @@ strict corpus validation are in [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md).
 
 ## Desktop and release status
 
-- Product version recorded for the current release candidate: **v0.3.0**.
+- Current public product version: **v0.3.0**, published as the latest regular
+  GitHub Release on **2026-08-28 09:48:59 UTC**:
+  <https://github.com/DhruvReddyS/LEGAL_RAG/releases/tag/v0.3.0>.
+- The release points to commit `3724e23` and contains nine audited assets:
+  Apple Silicon DMG/updater archive/signature, Intel Mac DMG/updater
+  archive/signature, Windows x64 NSIS installer/signature, and `latest.json`.
+- Installer sizes are 5,314,210 bytes for the Apple Silicon DMG, 5,582,862
+  bytes for the Intel DMG and 3,567,106 bytes for the Windows installer. The
+  ordinary client therefore remains a small download and does not include the
+  approximately 954 MiB optional corpus pack or the Ollama model.
+- The published `latest.json` reports version `0.3.0`, six signed platform keys
+  (`darwin-aarch64`, `darwin-aarch64-app`, `darwin-x86_64`,
+  `darwin-x86_64-app`, `windows-x86_64`, and `windows-x86_64-nsis`). Anonymous
+  requests to the public manifest and ranged installer/updater downloads were
+  accepted after publication.
+- Clean GitHub CI timings were: validation 4 m 8 s, Apple Silicon build 5 m
+  17 s, Windows x64 build 9 m 0 s and Intel Mac build 19 m 35 s. All jobs and
+  the draft-asset verification job passed.
+- Both downloaded macOS `.app` updater archives passed
+  `codesign --verify --deep --strict`; the Windows download was identified as a
+  PE32 GUI x64-compatible NSIS self-extracting installer. Downloaded SHA-256
+  values matched the digests recorded by GitHub for all nine assets.
 - Accepted local Apple Silicon output: 9.6 MB `.app`, 2.8 MB `.dmg`, macOS 11+
   target metadata and strict local ad-hoc signature verification.
 - Toolchain recorded in acceptance: Tauri CLI 2.11.4, Rust Tauri 2.11.5,
   Rust/Cargo 1.98.0.
-- The project handoff records a draft release with macOS arm64, macOS x64 and
-  Windows x64 artifacts, updater archives/signatures and `latest.json`, with CI
-  running the 116-test backend suite, migrations, S3 initialization and frontend
-  build.
+- The release CI ran the 116-test backend suite, Alembic migrations, MinIO/S3
+  initialization, frontend lint/static export and all three native builds in a
+  clean hosted environment.
 - `.github/workflows/release.yml` and the release helper scripts form the GitHub
-  Release/updater foundation. Version tags and secrets are validated before a
-  publish path.
+  Release/updater foundation. Version tags and secrets are validated before the
+  workflow creates a draft; publication remains a deliberate post-audit step.
 
 This is still a preview distribution, not a trusted offline product installer:
 
@@ -267,8 +287,8 @@ This is still a preview distribution, not a trusted offline product installer:
 - clean-machine Windows execution remains a release gate;
 - the package contains UI/native shell, not the backend, databases, corpus,
   embedding models or Ollama;
-- a private GitHub release cannot be consumed by an unauthenticated updater
-  without a separate safe distribution decision; never embed a GitHub token.
+- v0.3.0 is public so its manifest and updater assets are anonymously
+  retrievable; never embed a GitHub token in the desktop application.
 
 See [TAURI_DESKTOP_ACCEPTANCE.md](TAURI_DESKTOP_ACCEPTANCE.md),
 [GITHUB_RELEASES.md](GITHUB_RELEASES.md), and
@@ -332,6 +352,24 @@ not the ordinary scalable-client download.
 
 ## Manual operations currently required
 
+### Start the scalable four-user private host
+
+The remaining deployment blocker on the accepted host is Tailscale installation
+and interactive sign-in. Ollama is installed and the required
+`qwen3-14b-16k:latest` model is already present. After the owner installs
+Tailscale, signs in and invites the three friends, run:
+
+```bash
+./scripts/start_private_demo_host.sh
+```
+
+The launcher verifies Docker, Ollama, Tailscale, `.env` and the selected model;
+starts the production Compose stack with secure cross-site cookies and exact
+trusted hosts; waits for `/health`; enables private Tailscale Serve HTTPS; and
+prints the backend URL to save in each desktop client. Friends install only
+Tailscale and the correct v0.3.0 desktop installer. They do not install the
+corpus, Docker, PostgreSQL, Qdrant, MinIO, BGE models or Ollama.
+
 ### Start and check the accepted local developer stack
 
 ```bash
@@ -389,7 +427,8 @@ and a Windows Authenticode solution remain external manual prerequisites.
 3. The desktop bundle is intentionally a lightweight client; its shared backend
    must remain online for normal scalable operation.
 4. Tailscale installation/invitation and clean Windows/macOS friend acceptance
-   remain manual release gates.
+   remain manual deployment/acceptance gates; public release publication itself
+   is complete.
 5. External macOS/Windows OS trust signing is incomplete.
 6. The Next.js 14 dependency line has two high-severity audit findings through
    Next/PostCSS recorded in desktop acceptance. Static export limits server-side
@@ -407,8 +446,8 @@ and a Windows Authenticode solution remain external manual prerequisites.
 1. Install/configure Tailscale on the host and three friend devices; allow only
    the private HTTPS API port.
 2. Run clean Windows/macOS installer, login, role-isolation and latency checks.
-3. Publish the unsigned capstone preview with explicit OS warning instructions;
-   keep updater signatures and checksums mandatory.
+3. Change the four shared demo passwords before any real/confidential material
+   is used and verify account suspension/recovery from the Admin console.
 4. Add streaming/asynchronous Deep execution and benchmark four-user load.
 5. Move Ollama to vLLM/SGLang on a dedicated GPU host when concurrency requires
    continuous batching; keep the inference adapter/client contract stable.
@@ -440,11 +479,17 @@ and a Windows Authenticode solution remain external manual prerequisites.
 - P7: multilingual, voice, enhanced PII anonymization and trace visualization
   only after the prior acceptance gates.
 
-## Definition of the next honest release
+## Current release claim and next acceptance gate
 
-A build is a **scalable four-user preview** after each platform installer can
-select and validate the private backend at runtime, authenticate through private
-HTTPS, pass role/owner isolation checks, survive restart/update, and meet the
-Fast latency target while the shared host is available. It is not an offline or
-high-availability claim. OS publisher trust remains an explicit warning until
-paid signing/notarization is added.
+v0.3.0 is honestly described as a **public scalable four-user capstone
+preview**: the three desktop targets are published, can select/test a private
+backend at runtime, use backend-enforced role/owner isolation, and have signed
+automatic-update artifacts. It is not an offline, high-availability or
+OS-trusted production distribution claim.
+
+The next acceptance gate is operational rather than another code claim:
+Tailscale onboarding, clean-machine installation on the friends' actual Windows
+and macOS devices, private HTTPS login for all four roles, cross-owner denial,
+Fast-mode latency measurement, restart behavior and an updater rehearsal. OS
+publisher trust remains an explicit warning until paid signing/notarization is
+added.
