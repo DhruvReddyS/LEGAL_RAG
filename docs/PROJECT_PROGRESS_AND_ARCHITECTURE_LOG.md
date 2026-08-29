@@ -493,3 +493,240 @@ and macOS devices, private HTTPS login for all four roles, cross-owner denial,
 Fast-mode latency measurement, restart behavior and an updater rehearsal. OS
 publisher trust remains an explicit warning until paid signing/notarization is
 added.
+
+## Pending work and how it will be completed
+
+This section is the executable roadmap from the current v0.3.0 baseline. Items
+are ordered by dependency and risk. A later feature must not be described as
+complete merely because its UI exists; its backend authorization, persistence,
+grounding, tests and acceptance evidence must also pass.
+
+### 1. Activate the four-user private pilot
+
+**Pending:** Tailscale is not installed on the accepted host, and the release
+has not yet been exercised on the three friends' clean computers.
+
+**How:**
+
+1. The owner installs Tailscale on the host Mac, signs in and invites the three
+   friends. Each friend installs Tailscale and accepts the invitation. This is
+   an unavoidable interactive/manual identity step; no access token will be
+   embedded in Aegis.
+2. From the repository root, the owner runs:
+
+   ```bash
+   ./scripts/start_private_demo_host.sh
+   ```
+
+3. The launcher validates `.env`, Docker, Ollama, the selected model and
+   Tailscale; starts the production service plane; configures private HTTPS;
+   and prints the `https://...ts.net` backend origin.
+4. Friends download v0.3.0 from the official release, install the correct
+   Windows/Apple Silicon/Intel package, enter that private origin under
+   **Private backend connection**, test it and save it.
+5. Run one Citizen, Police, Advocate and Admin session concurrently. Confirm
+   login, logout/refresh, role-specific navigation, case ownership denial and
+   global-corpus access.
+
+**Acceptance evidence:** all four clients receive a healthy API response over
+private HTTPS; each account receives only its role interface; a Police or
+Advocate account cannot open another owner's case; Citizen cannot access
+professional routes; Admin governance works; no database/vector/object/LLM port
+is reachable from a friend device.
+
+**Owner/manual responsibility:** Tailscale installation/sign-in/invitations,
+OS warning approval and access to the friends' physical computers. The code,
+launcher and release artifacts are already prepared.
+
+### 2. Replace demonstration credentials and establish operations
+
+**Pending:** the four published walkthrough credentials are suitable only for
+synthetic capstone testing. Coordinated backup, restore and host monitoring have
+not completed acceptance.
+
+**How:**
+
+1. Use Admin to replace or retire the demo professional accounts, create named
+   pilot accounts and use unique high-entropy passwords. Rotate `.env` JWT,
+   PostgreSQL and S3 secrets if they have ever been shared.
+2. Keep `.env`, updater private keys and real evidence outside Git. Never send
+   them to friends or place them in a desktop build.
+3. Add versioned encrypted backups for PostgreSQL, Qdrant snapshots and MinIO,
+   plus a small manifest recording schema, corpus and application versions.
+4. Restore the backup into an isolated temporary environment and run health,
+   count, ownership and retrieval checks before calling the backup accepted.
+5. Add host uptime/disk/RAM/model-queue monitoring and a documented recovery
+   procedure. Keep the host awake and Docker, Ollama and Tailscale available
+   during the pilot.
+
+**Acceptance evidence:** successful isolated restore, 381 valid Gold caches,
+25,517 global points, login for active accounts, denial for suspended accounts,
+and zero private objects/vectors exposed across owners.
+
+### 3. Complete clean-machine release and updater acceptance
+
+**Pending:** CI built and audited all three platforms, but installation on the
+friends' actual clean Windows/macOS devices and a real automatic-update cycle
+remain unverified.
+
+**How:**
+
+1. Install v0.3.0 on Windows x64, Apple Silicon macOS and Intel macOS as
+   applicable. Record OS version, architecture, installation time, first-launch
+   behavior and any OS warning.
+2. Verify connection selection survives restart and that logout clears the
+   authenticated session.
+3. Publish a harmless signed patch release after validation, then exercise the
+   in-app updater from v0.3.0. Verify signature acceptance, restart and retained
+   backend configuration.
+4. Record installer SHA-256, update duration and failure/recovery behavior in a
+   release acceptance document.
+
+**Acceptance evidence:** clean install, launch, authentication, role isolation,
+restart and signed update pass on every represented OS/architecture. Paid Apple
+notarization and Windows Authenticode remain optional future trust improvements,
+not hidden claims of the unsigned capstone preview.
+
+### 4. Make Deep workflows responsive and concurrency-safe
+
+**Pending:** Fast Research meets the current interactive target, but Deep Review
+is synchronous and has recorded approximately 46–47 second accepted paths plus
+one stress timeout beyond 180 seconds.
+
+**How:**
+
+1. Move OCR, ingestion, analyzer, export and Deep workflows into durable jobs
+   with queued/running/succeeded/failed/cancelled states, progress checkpoints,
+   retry limits and idempotency keys.
+2. Add SSE streaming for job progress, agent stages, citations and generated
+   tokens. Preserve the current synchronous contract during migration where
+   compatibility requires it.
+3. Apply separate Fast/Deep concurrency pools, bounded Ollama queueing,
+   cancellation and per-user rate limits so a long Deep task cannot block Fast
+   retrieval.
+4. Benchmark four simultaneous users and record queue time, time to first
+   token, end-to-end latency, tokens/second, embedding/reranker time, CPU/GPU,
+   memory, failures and cancellation time.
+5. Keep Ollama for the four-person pilot. Move the inference adapter to
+   vLLM/SGLang on a Linux GPU host only when measurements show sustained
+   concurrency requires continuous batching.
+
+**Acceptance evidence:** Fast p95 remains below five seconds under the agreed
+four-user workload; Deep returns visible progress quickly, can be cancelled,
+survives client reconnect and no longer holds an HTTP request indefinitely.
+
+### 5. Finish the remaining Tier 2 product scope
+
+Implementation will continue in this dependency order:
+
+1. **Durable jobs and streaming foundation** described above, because document
+   generation and analysis depend on it.
+2. **Legal Document Studio:** template-backed drafting, explicit unknown fields,
+   version history, source links and PDF/DOCX export. Generated text must remain
+   editable and traceable to evidence.
+3. **Judgment summarizer:** issues, facts, arguments, holdings and cited passages
+   with abstention when a component is unavailable.
+4. **Judgment similarity:** hybrid retrieval plus reranking, visible comparison
+   dimensions and no judgment-outcome prediction claim.
+5. **Amendment/current-law tracker:** versioned authority records, effective
+   dates, supersession links and an explicit outdated-law demonstration. Until
+   then all Gold payloads continue to carry the conservative
+   `is_current=false` qualification.
+6. **Feedback and quality dashboard:** answer/citation feedback, retrieval and
+   verifier diagnostics, role-safe admin aggregation and no exposure of private
+   case text.
+
+**Acceptance evidence for every feature:** migration downgrade/upgrade,
+permission matrix tests, owner-isolation tests, API contract tests, frontend
+production build, synthetic live scenario, citation/abstention checks and a
+written acceptance record with timings.
+
+### 6. Harden multi-tenancy and application security
+
+**Pending:** backend ownership/RBAC checks are implemented, but a larger
+deployment needs defence in depth beyond application-level multi-tenancy.
+
+**How:**
+
+1. Add PostgreSQL row-level security for tenant/owner-sensitive tables while
+   retaining backend authorization dependencies.
+2. Add automated cross-tenant denial tests covering guessed IDs, filters,
+   exports, object keys, vector payloads, chats, audit data and suspended users.
+3. Add tenant/role/owner assertions to all Qdrant private queries and storage
+   paths; reject missing scope rather than defaulting to broad search.
+4. Add per-tenant encryption-key and retention design before onboarding real
+   institutions.
+5. Upgrade the recorded Next.js/PostCSS dependency findings to patched supported
+   versions, rebuild the static export and rerun the complete desktop matrix.
+6. Add dependency/container scanning, secret scanning and a documented security
+   response process to CI.
+
+**Acceptance evidence:** zero successful cross-owner accesses in the adversarial
+suite, clean dependency/security gates at the agreed severity threshold, exact
+CORS/trusted-host checks and no secret/private data inside release artifacts.
+
+### 7. Grow and govern the global legal corpus
+
+**Pending:** additional authorities are desirable, but candidate documents
+cannot be bulk-added merely to increase the count. Seven of the current ten
+candidates are exact Gold duplicates.
+
+**How:**
+
+1. Prefer primary official sources and record source URL, jurisdiction,
+   authority type, dates, checksum, license/provenance and reviewer decision.
+2. Stage files outside Gold, run duplicate detection, extraction/OCR quality,
+   page mapping, chunk validation and retrieval evaluation.
+3. Embed only accepted canonical documents, stage Qdrant changes in a new
+   snapshot/collection version and compare the 12-query suite plus new
+   domain-specific questions.
+4. Publish only after count reconciliation, zero validation issues, regression
+   review and rollback snapshot creation.
+5. Record physical files, canonical documents, pages, OCR ratio, chunks,
+   embedding time/rate, index size, ingestion cost, retrieval quality and failed
+   sources for every corpus version.
+
+**Acceptance evidence:** provenance-complete manifest, no unreviewed duplicates,
+all caches/points reconciled, retrieval quality non-regressing and a tested
+rollback path. Admin corpus publication remains governed and immutable Gold is
+never silently overwritten.
+
+### 8. Implement later phases only after the earlier gates
+
+- **P3 case intelligence:** timelines, evidence maps, missing-information
+  detection, contradiction analysis and provenance-aware case graph.
+- **P4 professional strategy:** investigation checklist, strategy engine,
+  argument–precedent mapping and bounded multi-pass research.
+- **P5 courtroom simulation:** structured debate and cross-examination practice
+  with safety boundaries and no judgment prediction.
+- **P6 academic evaluation:** a 50–100-item golden set and vector-only, hybrid,
+  reranked and full-RAG ablations measuring retrieval, citations,
+  hallucinations, latency and resources.
+- **P7 stretch:** multilingual interfaces/retrieval, voice, enhanced PII
+  anonymization and trace visualization.
+
+Each phase will be implemented vertically: schema/storage first, backend
+authorization and domain logic second, RAG/agent behavior third, role-specific
+UI fourth, automated tests fifth, live synthetic acceptance sixth and progress
+ledger update last.
+
+### 9. Immediate next sequence
+
+The shortest safe path from today is:
+
+1. **User/manual:** install Tailscale, invite the three friends and run the host
+   launcher.
+2. **Joint acceptance:** install v0.3.0 on their computers and complete the
+   four-role/cross-owner/Fast-latency checklist using synthetic information.
+3. **Engineering:** implement durable jobs plus SSE streaming and four-user load
+   instrumentation.
+4. **Engineering:** complete Document Studio/export, then the remaining Tier 2
+   features in the order above.
+5. **Operations/security:** establish tested backups, monitoring, credential
+   rotation, dependency upgrades and deeper tenant isolation before real data.
+6. **Scaling:** move inference from the pilot Mac/Ollama host only when measured
+   concurrency justifies a dedicated Linux GPU serving layer.
+
+The next action currently requiring the user is step 1: Tailscale installation,
+interactive sign-in and friend invitations. All subsequent code changes can be
+implemented and tested incrementally from the current clean v0.3.0 baseline.
