@@ -25,11 +25,16 @@ const ROLE_EXPERIENCES = {
     description: "Receive plain-language legal information, practical procedural steps and page-linked authorities. The assistant abstains when the verified corpus is insufficient.",
     placeholder: "Describe your legal question in your own words…",
     badge: "Citizen assistant",
+    // Every chip is measured against the live corpus: each answers directly in
+    // Fast mode with cited authority. "Contract basics" was removed because the
+    // Indian Contract Act is not in the corpus at all, so it could only ever
+    // abstain - correct behaviour, but a poor thing to advertise on the
+    // landing screen.
     suggestions: [
-      { title: "Police complaint", text: "How do I report a cognizable offence and what details should I preserve?" },
-      { title: "Missing property", text: "What information should I give police when reporting missing property?" },
+      { title: "Filing an FIR", text: "What is the procedure for filing an FIR?" },
+      { title: "Stolen phone", text: "My phone was stolen, what do I do?" },
+      { title: "Police stop", text: "What are my rights if the police stop me?" },
       { title: "Fundamental rights", text: "Explain the right to equality under Article 14 in plain language." },
-      { title: "Contract basics", text: "What are the essential elements of a valid contract?" },
     ],
   },
   police: {
