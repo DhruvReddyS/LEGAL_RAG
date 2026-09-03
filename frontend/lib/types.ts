@@ -337,6 +337,42 @@ export interface DeepReviewJob {
   } | null;
   error_code: string | null;
   error_message: string | null;
+  /** What the job is doing right now, in citizen-readable words. */
+  stage: string | null;
+  stage_label: string | null;
+}
+
+/** A sidebar row from GET /chat/sessions. Carries no message bodies. */
+export interface ChatSessionSummary {
+  id: string;
+  title: string;
+  case_id: string | null;
+  created_at: string;
+  updated_at: string;
+  message_count: number;
+  last_message_preview: string | null;
+}
+
+export interface ChatSessionListResponse {
+  items: ChatSessionSummary[];
+  next_cursor: string | null;
+}
+
+export interface StoredChatMessage {
+  id: string;
+  role: string;
+  content: string;
+  citations: AgentCitation[];
+  confidence_score: number | null;
+  created_at: string;
+}
+
+export interface StoredChatSession {
+  id: string;
+  title: string;
+  case_id: string | null;
+  created_at: string;
+  messages: StoredChatMessage[];
 }
 
 export interface IngestionProgress {
@@ -378,6 +414,11 @@ export interface ChatMessage {
   pipelineMetrics?: PipelineStageMetric[];
   latencyTargetMs?: number;
   targetMet?: boolean | null;
+  /** Live Deep-review state, so a multi-minute wait is legible. */
+  stageLabel?: string | null;
+  jobProgress?: number | null;
+  /** Fast passages shown while a Deep escalation runs. Not yet verified. */
+  provisional?: boolean;
 }
 
 export interface CitizenDocument {

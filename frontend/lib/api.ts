@@ -21,6 +21,8 @@ import type {
   DocumentAnalysisResponse,
   SourceInspectorResponse,
   DeepReviewJob,
+  ChatSessionListResponse,
+  StoredChatSession,
 } from "./types";
 import { DEFAULT_BACKEND_URL, getRuntimeBackendUrl } from "./runtime-backend";
 
@@ -199,6 +201,20 @@ export async function chatWithCorpus(
 
 export async function getDeepReviewJob(jobId: string, signal?: AbortSignal): Promise<DeepReviewJob> {
   return request<DeepReviewJob>(`/jobs/${jobId}`, { signal });
+}
+
+/** Conversation history lives in PostgreSQL; the sidebar reads it from there. */
+export async function listChatSessions(
+  limit = 30,
+  cursor?: string,
+): Promise<ChatSessionListResponse> {
+  const params = new URLSearchParams({ limit: String(limit) });
+  if (cursor) params.set("cursor", cursor);
+  return request<ChatSessionListResponse>(`/chat/sessions?${params}`);
+}
+
+export async function getChatSession(sessionId: string): Promise<StoredChatSession> {
+  return request<StoredChatSession>(`/chat/sessions/${sessionId}`);
 }
 
 export async function cancelDeepReviewJob(jobId: string): Promise<DeepReviewJob> {

@@ -79,6 +79,27 @@ class ChatMessageResponse(BaseModel):
     created_at: datetime
 
 
+class ChatSessionSummary(BaseModel):
+    """A sidebar row. Deliberately excludes message bodies.
+
+    Listing sessions must not ship every message of every conversation, which
+    for a case-scoped session can include private evidence excerpts.
+    """
+
+    id: uuid.UUID
+    title: str
+    case_id: uuid.UUID | None
+    created_at: datetime
+    updated_at: datetime
+    message_count: int
+    last_message_preview: str | None = None
+
+
+class ChatSessionListResponse(BaseModel):
+    items: list[ChatSessionSummary]
+    next_cursor: str | None = None
+
+
 class ChatSessionResponse(BaseModel):
     id: uuid.UUID
     title: str

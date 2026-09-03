@@ -215,3 +215,90 @@ async def test_strong_fast_result_is_not_auto_escalated() -> None:
                 await session.execute(delete(AuditLog).where(AuditLog.user_id.in_(user_ids)))
                 await session.execute(delete(User).where(User.id.in_(user_ids)))
                 await session.commit()
+
+
+@pytest.mark.asyncio
+async def test_chat_sessions_list_is_owner_scoped_and_carries_no_message_bodies() -> None:
+    """History lived in sessionStorage because nothing could list it back.
+
+    The listing must not ship message bodies: a case-scoped session's messages
+    can quote private evidence, and a sidebar needs none of it.
+    """
+    owner = await provision_test_user(
+        name="Citizen One",
+        email="sessions-owner@example.test",
+        password="Sessions-Owner-1",
+        role="citizen",
+    )
+    other = await provision_test_user(
+        name="Citizen Two",
+        email="sessions-other@example.test",
+        password="Sessions-Other-1",
+        role="citizen",
+    )
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        owner_headers = {"Authorization": f"Bearer {owner['access_token']}"}
+        created = await client.post(
+            "/chat/query",
+            json={"query": "What is the right to equality?", "response_mode": "fast"},
+            headers=owner_headers,
+        )
+        assert created.status_code == 200
+        session_id = created.json()["session_id"]
+
+        listing = await client.get("/chat/sessions", headers=owner_headers)
+        assert listing.status_code == 200
+        items = listing.json()["items"]
+        assert [item["id"] for item in items] == [session_id]
+        row = items[0]
+        assert row["message_count"] >= 2
+        assert row["last_message_preview"]
+        assert "messages" not in row
+
+        # A second account must not see it, even though both are citizens.
+        other_listing = await client.get(
+            "/chat/sessions",
+            headers={"Authorization": f"Bearer {other['access_token']}"},
+        )
+        assert other_listing.status_code == 200
+        assert other_listing.json()["items"] == []
+
+
+@pytest.mark.asyncio
+async def test_escalation_returns_the_fast_brief_instead_of_discarding_it() -> None:
+    """A low-confidence Fast result used to be thrown away.
+
+    The citizen went from a 70ms response to a blank multi-minute wait, with
+    the retrieved passages sitting unused in memory.
+    """
+    user = await provision_test_user(
+        name="Citizen Escalate",
+        email="escalation-brief@example.test",
+        password="Escalation-Brief-1",
+        role="citizen",
+    )
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        response = await client.post(
+            "/chat/query",
+            json={
+                "query": "What should I do about a noisy neighbour at night?",
+                "response_mode": "fast",
+            },
+            headers={"Authorization": f"Bearer {user['access_token']}"},
+        )
+        assert response.status_code == 200
+        payload = response.json()
+        if payload["delivery_state"] != "searching_more_thoroughly":
+            pytest.skip("this corpus answered the query confidently; nothing escalated")
+
+        assert payload["job_id"]
+        assert payload["evidence_strength"] == "insufficient"
+        # Whatever the quick search found travels with the placeholder.
+        if payload["citations"]:
+            assert "not yet" in payload["answer"].casefold()

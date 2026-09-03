@@ -390,8 +390,19 @@ async def read_job(
     job_id: uuid.UUID,
     user: User = Depends(require_permission(CHAT_USE)),
     session: AsyncSession = Depends(get_db_session),
-) -> Job:
-    return await _owned_job(session, job_id, user)
+) -> JobResponse:
+    job = await _owned_job(session, job_id, user)
+    response = JobResponse.model_validate(job)
+    latest = await session.scalar(
+        select(JobEvent)
+        .where(JobEvent.job_id == job_id, JobEvent.event_type == "stage")
+        .order_by(JobEvent.id.desc())
+        .limit(1)
+    )
+    if latest is not None:
+        response.stage = latest.stage
+        response.stage_label = latest.data.get("label")
+    return response
 
 
 def _sse_event(event: JobEvent) -> str:

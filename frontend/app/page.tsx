@@ -13,7 +13,7 @@ import ProfessionalWorkspace from "@/components/ProfessionalWorkspace";
 import { useDialogFocus } from "@/components/useDialogFocus";
 import AdminWorkspace from "@/components/AdminWorkspace";
 import DesktopReadiness from "@/components/DesktopReadiness";
-import { ApiError, cancelDeepReviewJob, chatWithCorpus, getDeepReviewJob, getIngestionProgress, getMe, logout, refreshSession } from "@/lib/api";
+import { ApiError, cancelDeepReviewJob, chatWithCorpus, getChatSession, getDeepReviewJob, getIngestionProgress, getMe, listChatSessions, logout, refreshSession } from "@/lib/api";
 import type { ChatMessage, CitizenDocument, IngestionProgress, RequestedResponseMode, User } from "@/lib/types";
 
 const ROLE_EXPERIENCES = {
@@ -86,11 +86,14 @@ function newMessage(role: ChatMessage["role"], content: string): ChatMessage {
 type SavedChat = {
   id: string;
   title: string;
+  /** Empty until the row is opened; bodies load on demand. */
   messages: ChatMessage[];
   sessionId: string | null;
   updatedAt?: number;
   pinned?: boolean;
   customTitle?: boolean;
+  preview?: string;
+  messageCount?: number;
 };
 
 export default function HomePage() {
@@ -159,32 +162,61 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!user) { setHistory([]); setHistoryReady(false); return; }
+    // Preferences are per-device and stay local. Conversations do not: every
+    // message is already persisted in PostgreSQL, and reading history from
+    // sessionStorage meant it vanished when the tab closed and never appeared
+    // on a second device.
     try {
-      const saved = JSON.parse(sessionStorage.getItem("corpusil-chats:" + user.id) || "[]");
-      setHistory(Array.isArray(saved) ? saved.filter(item => typeof item.id === "string" && typeof item.title === "string" && Array.isArray(item.messages)).slice(0, 20) : []);
       const preferences = JSON.parse(sessionStorage.getItem("corpusil-preferences:" + user.id) || "{}");
       setAnimate(preferences.animate !== false);
       setTheme(preferences.theme === "ink" ? "ink" : "paper");
       setRememberHistory(preferences.rememberHistory !== false);
       if (["auto", "fast", "deep"].includes(preferences.mode)) setResponseMode(preferences.mode);
-    } catch { setHistory([]); }
-    setHistoryReady(true);
+    } catch { /* Storage disabled: fall back to defaults. */ }
+
+    let cancelled = false;
+    void (async () => {
+      try {
+        const stored = await listChatSessions(30);
+        if (cancelled) return;
+        setHistory(stored.items.map(item => ({
+          id: item.id,
+          title: item.title,
+          // Bodies load on demand; a sidebar must not fetch every message of
+          // every conversation, which for a case session includes evidence.
+          messages: [],
+          sessionId: item.id,
+          updatedAt: Date.parse(item.updated_at),
+          preview: item.last_message_preview ?? undefined,
+          messageCount: item.message_count,
+        })));
+      } catch {
+        // An offline or unauthenticated read must not blank the console.
+        if (!cancelled) setHistory([]);
+      } finally {
+        if (!cancelled) setHistoryReady(true);
+      }
+    })();
+    return () => { cancelled = true; };
   }, [user]);
 
   useEffect(() => {
     if (!user || !historyReady || loading || !activeChatId || !messages.length) return;
+    // Keep the sidebar in step with the live conversation. The server already
+    // holds the durable copy; this only avoids a round-trip after each answer.
     setHistory(current => {
-      const existing = current.find(item => item.id === activeChatId);
+      const existing = current.find(item => item.id === activeChatId || item.sessionId === sessionId);
       const savedChat: SavedChat = {
-        id: activeChatId,
+        id: existing?.id ?? activeChatId,
         title: existing?.customTitle ? existing.title : messages.find(message => message.role === "user")?.content.slice(0, 90) || "Untitled chat",
         messages,
         sessionId,
         updatedAt: Date.now(),
         pinned: existing?.pinned,
         customTitle: existing?.customTitle,
+        messageCount: messages.length,
       };
-      return [savedChat, ...current.filter(item => item.id !== activeChatId)].slice(0, 20);
+      return [savedChat, ...current.filter(item => item !== existing)].slice(0, 30);
     });
   }, [messages, sessionId, loading, user, historyReady, activeChatId]);
 
@@ -192,8 +224,8 @@ export default function HomePage() {
     if (!user || !historyReady) return;
     try {
       sessionStorage.setItem("corpusil-preferences:" + user.id, JSON.stringify({ animate, rememberHistory, mode: responseMode, theme }));
-      if (rememberHistory) sessionStorage.setItem("corpusil-chats:" + user.id, JSON.stringify(history, (key, value) => key === "pages" ? [] : value));
-      else sessionStorage.removeItem("corpusil-chats:" + user.id);
+      // Conversations are never mirrored into browser storage any more.
+      sessionStorage.removeItem("corpusil-chats:" + user.id);
     } catch { /* Browsers with storage disabled keep history in memory. */ }
   }, [history, user, historyReady, rememberHistory, animate, responseMode, theme]);
 
@@ -233,12 +265,16 @@ export default function HomePage() {
         operation.jobId = response.job_id;
         setMessages((current) => current.map((message) => message.id === assistantId ? {
           ...message,
-          content: "Searching more thoroughly because the quick source match was not strong enough…",
+          content: response.answer,
           loading: true,
           responseMode: "deep",
           requestedMode: response.requested_mode,
           routingReason: response.routing_reason,
           routingSignals: response.routing_signals,
+          citations: response.citations,
+          provisional: response.citations.length > 0,
+          stageLabel: null,
+          jobProgress: 0,
         } : message));
         while (true) {
           await new Promise((resolve) => window.setTimeout(resolve, 1000));
@@ -247,8 +283,9 @@ export default function HomePage() {
           if (operation.controller.signal.aborted) return;
           setMessages((current) => current.map((message) => message.id === assistantId ? {
             ...message,
-            content: `Searching more thoroughly… ${job.progress}%`,
             loading: true,
+            stageLabel: job.stage_label ?? null,
+            jobProgress: job.progress,
           } : message));
           if (job.status === "succeeded" && job.result) {
             const result = job.result;
@@ -267,6 +304,9 @@ export default function HomePage() {
               pipelineMetrics: result.pipeline_metrics,
               latencyTargetMs: response.latency_target_ms,
               targetMet: null,
+              provisional: false,
+              stageLabel: null,
+              jobProgress: null,
               clientElapsedMs: Math.round(performance.now() - requestStarted),
             } : message));
             break;
@@ -292,12 +332,33 @@ export default function HomePage() {
   const openSavedChat = (item: SavedChat) => {
     setChatMenuId(null);
     setActiveChatId(item.id);
-    setMessages(item.messages);
     setSessionId(item.sessionId);
     setDraftVersion(value => value + 1);
     setView("research");
     setMobileNav(false);
     window.scrollTo({ top: 0, behavior: "auto" });
+
+    if (item.messages.length || !item.sessionId) { setMessages(item.messages); return; }
+    // Sidebar rows carry no bodies. Load this conversation's messages from the
+    // server, with their stored citations and confidence scores intact.
+    setMessages([{ id: crypto.randomUUID(), role: "assistant", content: "", timestamp: Date.now(), loading: true, requestedMode: "fast" }]);
+    void (async () => {
+      try {
+        const stored = await getChatSession(item.sessionId!);
+        const restored: ChatMessage[] = stored.messages.map(message => ({
+          id: message.id,
+          role: message.role === "user" ? "user" : "assistant",
+          content: message.content,
+          citations: message.citations,
+          confidenceScore: message.confidence_score ?? undefined,
+          timestamp: Date.parse(message.created_at),
+        }));
+        setMessages(restored);
+        setHistory(current => current.map(row => row.id === item.id ? { ...row, messages: restored } : row));
+      } catch {
+        setMessages([{ id: crypto.randomUUID(), role: "assistant", content: "", timestamp: Date.now(), error: "This conversation could not be loaded. Check your connection and try again." }]);
+      }
+    })();
   };
   const togglePinned = (item: SavedChat) => {
     if (!item.pinned && history.filter(chat => chat.pinned).length >= 5) {

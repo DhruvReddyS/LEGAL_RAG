@@ -102,16 +102,31 @@ function llmWallTime(message: ChatMessage): number | null {
   return measured.length ? measured.reduce((total, value) => total + value, 0) : null;
 }
 
-export function CorpusilThinking({ detail, deep = true }: { detail?: string; deep?: boolean }) {
+export function CorpusilThinking({ detail, deep = true, stageLabel, progress, startedAt }: { detail?: string; deep?: boolean; stageLabel?: string | null; progress?: number | null; startedAt?: number }) {
   const [phrase, setPhrase] = useState(0);
+  const [elapsed, setElapsed] = useState(0);
   const phrases = deep ? ["Working through your question", "Looking for supporting authority", "Taking a closer look at the evidence"] : ["Finding relevant sources", "Looking for a useful passage"];
   useEffect(() => { const timer = window.setInterval(() => setPhrase(value => value + 1), 3600); return () => window.clearInterval(timer); }, []);
+  // Deep review takes minutes. Without an elapsed time and a named stage the
+  // wait is indistinguishable from a hang, which is what it was reported as.
+  useEffect(() => {
+    if (!deep || !startedAt) return;
+    const tick = () => setElapsed(Math.floor((Date.now() - startedAt) / 1000));
+    tick();
+    const timer = window.setInterval(tick, 1000);
+    return () => window.clearInterval(timer);
+  }, [deep, startedAt]);
+  const clock = elapsed >= 60 ? `${Math.floor(elapsed / 60)}m ${String(elapsed % 60).padStart(2, "0")}s` : `${elapsed}s`;
   const scene = phrase % 3;
   return <div className="thinking-inline" role="status" aria-label={deep ? "Deep review in progress" : "Source search in progress"}><div className="thinking-scene" aria-hidden="true">
     {scene === 0 && <div className="balance-mark"><span className="balance-beam"/><span className="balance-pillar"/><span className="balance-pan left"><i className="balance-weight left"/></span><span className="balance-pan right"><i className="balance-weight right"/></span></div>}
     {scene === 1 && <div className="gavel-mark"><Gavel size={24}/><span/></div>}
     {scene === 2 && <div className="authority-mark"><BookMarked size={24}/><span/><i/></div>}
-  </div><div className="thinking-copy"><p key={phrase}>{phrases[phrase % phrases.length]}…</p>{detail && <small>{detail}</small>}</div></div>;
+  </div><div className="thinking-copy">
+    <p key={stageLabel || phrase}>{stageLabel || phrases[phrase % phrases.length]}…</p>
+    {deep && startedAt ? <small>{typeof progress === "number" ? `${progress}% · ` : ""}{clock} elapsed · usually two to five minutes</small> : detail ? <small>{detail}</small> : null}
+    {deep && typeof progress === "number" && <div className="thinking-progress" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label="Deep review progress"><span style={{ width: `${Math.max(2, progress)}%` }} /></div>}
+  </div></div>;
 }
 
 export default function MessageBubble({ message, onRegenerate, onForgetDocuments, onEdit }: { message: ChatMessage; onRegenerate?: () => void; onForgetDocuments?: () => void; onEdit?: (text: string) => void }) {
@@ -151,7 +166,21 @@ export default function MessageBubble({ message, onRegenerate, onForgetDocuments
     utterance.lang = "en-IN"; utterance.onend = utterance.onerror = () => setSpeaking(false);
     setSpeaking(true); window.speechSynthesis.speak(utterance);
   };
-  if (message.loading) return <CorpusilThinking detail={message.content} deep={(message.responseMode ?? message.requestedMode) === "deep"} />;
+  if (message.loading) {
+    const thinking = <CorpusilThinking deep={(message.responseMode ?? message.requestedMode) === "deep"} stageLabel={message.stageLabel} progress={message.jobProgress} startedAt={message.timestamp} />;
+    // A Fast brief exists whenever a low-confidence result escalated. Showing
+    // it costs nothing - it was already computed - and replaces a blank
+    // multi-minute wait with something the reader can start on.
+    if (!message.provisional) return thinking;
+    return <div className="provisional-turn">
+      {thinking}
+      <section className="provisional-brief" aria-label="Provisional evidence, not yet verified">
+        <p className="provisional-note"><ShieldCheck size={14}/> Provisional — found by the quick search, not yet checked against your question.</p>
+        <div className="legal-answer">{markdown(message.content)}</div>
+        {!!citations.length && <div className="trust-row"><span className="source-label">Sources</span>{citations.map(item => <button key={item.chunk_id} className="source-chip" onClick={() => toggle(`S${item.number}`)} aria-expanded={active === `S${item.number}`} aria-label={`Preview source ${item.number}: ${item.title}`}>{item.number}</button>)}</div>}
+      </section>
+    </div>;
+  }
   if (message.role === "user") return <div className={`user-turn ${editing ? "is-editing" : ""}`}><article className="user-message">{editing ? <><textarea autoFocus aria-label="Edit your question" value={editedText} maxLength={4000} rows={3} onChange={event => setEditedText(event.target.value)} onKeyDown={event => { if (event.key === "Escape") setEditing(false); if ((event.metaKey || event.ctrlKey) && event.key === "Enter" && editedText.trim()) { setEditing(false); onEdit?.(editedText.trim()); } }}/><p className="edit-hint">Resending starts a new branch. The original chat stays in history.</p><div className="edit-actions"><button onClick={() => setEditing(false)}>Cancel</button><button disabled={!editedText.trim()} onClick={() => { setEditing(false); onEdit?.(editedText.trim()); }}>Save & resend</button></div></> : <p>{message.content}</p>}{message.documents?.map((doc, index) => <span className="document-chip" key={doc.id}>D{index + 1} · {doc.filename}</span>)}</article>{!editing && <div className="user-actions"><button className="answer-action" aria-label="Copy question" onClick={async () => { try { await navigator.clipboard.writeText(message.content); setCopied(true); } catch { setCopyError(true); } }}>{copied ? <Check size={14}/> : <Copy size={14}/>}</button>{onEdit && <button className="answer-action" aria-label="Edit question" onClick={() => { setEditedText(message.content); setEditing(true); }}><Pencil size={14}/></button>}</div>}{copyError && <p className="edit-hint">Select the text to copy; clipboard access is unavailable.</p>}</div>;
   if (message.stopped) return <div className="stopped-answer"><span>{message.content}</span>{onRegenerate && <button onClick={onRegenerate}><RotateCcw size={13}/>Try again</button>}</div>;
   if (message.error) return <article className="answer-error" role="alert">{message.error}{onRegenerate && <button onClick={onRegenerate}>Try again</button>}</article>;

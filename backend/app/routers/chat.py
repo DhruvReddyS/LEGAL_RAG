@@ -2,14 +2,15 @@ from __future__ import annotations
 
 import uuid
 import asyncio
+from datetime import datetime
 from contextlib import suppress
 import hashlib
 from decimal import Decimal
 from time import perf_counter
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
-from sqlalchemy import select
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -20,7 +21,13 @@ from app.core.permissions import CHAT_USE
 from app.core.rbac import require_permission
 from app.models import AuditLog, Case, ChatMessage, ChatSession, Job, User
 from app.models.enums import ChatMessageRole, JobStatus, JobType, UserRole
-from app.schemas.chat import ChatQueryRequest, ChatQueryResponse, ChatSessionResponse
+from app.schemas.chat import (
+    ChatQueryRequest,
+    ChatQueryResponse,
+    ChatSessionListResponse,
+    ChatSessionResponse,
+    ChatSessionSummary,
+)
 from app.schemas.agents import AgentTraceEvent
 from app.services.adaptive_routing import route_legal_query
 from app.services.rate_limit import RateLimitExceeded, user_rate_limiter
@@ -224,10 +231,24 @@ async def query_chat(
         await session.commit()
         timings = dict(result.get("timings", {}))
         timings["api_total_ms"] = round((perf_counter() - request_started) * 1000, 2)
+        # The Fast brief is already computed and costs ~70ms. Discarding it
+        # left the citizen staring at a blank multi-minute wait having been
+        # given nothing, when provisional evidence was sitting in memory.
+        # It is returned labelled as provisional and unverified; the Deep
+        # answer replaces it when the job completes.
         return ChatQueryResponse(
             session_id=chat_session.id,
-            answer="Searching more thoroughly because the quick source match was not strong enough.",
-            citations=[],
+            answer=(
+                "Checking this more thoroughly, because the quick source match "
+                "was not strong enough to answer from.\n\n"
+                "In the meantime, here is what the quick search found. These "
+                "passages have not been verified against your question yet.\n\n"
+                + result["final_answer"]
+                if result["citations"]
+                else "Checking this more thoroughly, because the quick search did "
+                "not find a close enough match to answer from."
+            ),
+            citations=result["citations"],
             confidence_score=result["confidence_score"],
             evidence_strength="insufficient",
             intent=result["intent"],
@@ -298,6 +319,91 @@ async def query_chat(
         pipeline_metrics=result.get("stage_metrics", []),
         latency_target_ms=latency_target_ms,
         target_met=target_met,
+    )
+
+
+@router.get("/sessions", response_model=ChatSessionListResponse)
+async def list_chat_sessions(
+    limit: Annotated[int, Query(ge=1, le=100)] = 30,
+    cursor: Annotated[str | None, Query(max_length=64)] = None,
+    user: User = Depends(require_permission(CHAT_USE)),
+    session: AsyncSession = Depends(get_db_session),
+) -> ChatSessionListResponse:
+    """List the caller's own conversations, most recently active first.
+
+    Sessions and messages were already persisted, but nothing could read them
+    back as a list, so the interface kept its history in sessionStorage and
+    lost it when the tab closed. Rows never leave the owner: admin is not
+    special-cased here, because a sidebar listing every user's conversations
+    is not something any screen needs.
+    """
+    last_activity = func.coalesce(
+        func.max(ChatMessage.created_at), ChatSession.created_at
+    ).label("last_activity")
+    query = (
+        select(
+            ChatSession,
+            last_activity,
+            func.count(ChatMessage.id).label("message_count"),
+        )
+        .outerjoin(ChatMessage, ChatMessage.session_id == ChatSession.id)
+        .where(ChatSession.user_id == user.id)
+        .group_by(ChatSession.id)
+        .order_by(last_activity.desc(), ChatSession.id.desc())
+        .limit(limit + 1)
+    )
+    if cursor is not None:
+        try:
+            cursor_at = datetime.fromisoformat(cursor)
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="cursor must be an ISO-8601 timestamp",
+            ) from exc
+        query = query.having(last_activity < cursor_at)
+
+    rows = (await session.execute(query)).all()
+    has_more = len(rows) > limit
+    rows = rows[:limit]
+
+    previews: dict[uuid.UUID, str] = {}
+    if rows:
+        session_ids = [row[0].id for row in rows]
+        newest = (
+            select(
+                ChatMessage.session_id,
+                ChatMessage.content,
+                func.row_number()
+                .over(
+                    partition_by=ChatMessage.session_id,
+                    order_by=ChatMessage.created_at.desc(),
+                )
+                .label("rank"),
+            )
+            .where(ChatMessage.session_id.in_(session_ids))
+            .subquery()
+        )
+        for session_id, content in (
+            await session.execute(
+                select(newest.c.session_id, newest.c.content).where(newest.c.rank == 1)
+            )
+        ).all():
+            previews[session_id] = " ".join(str(content).split())[:160]
+
+    return ChatSessionListResponse(
+        items=[
+            ChatSessionSummary(
+                id=chat_session.id,
+                title=chat_session.title,
+                case_id=chat_session.case_id,
+                created_at=chat_session.created_at,
+                updated_at=activity,
+                message_count=message_count,
+                last_message_preview=previews.get(chat_session.id),
+            )
+            for chat_session, activity, message_count in rows
+        ],
+        next_cursor=rows[-1][1].isoformat() if has_more and rows else None,
     )
 
 

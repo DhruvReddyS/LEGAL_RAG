@@ -44,6 +44,10 @@ class JobResponse(BaseModel):
     updated_at: datetime
     started_at: datetime | None
     completed_at: datetime | None
+    # What the job is doing right now, in words a citizen can read. A bare
+    # percentage on a multi-minute wait reads as a hang.
+    stage: str | None = None
+    stage_label: str | None = None
 
 
 class JobListResponse(BaseModel):

@@ -33,16 +33,38 @@ class JobCancellationRequested(Exception):
     pass
 
 
+# Progress weighted by measured stage cost, not by position in the pipeline.
+# The even spacing this replaces put reasoning and verification - together 87%
+# of wall time - into a quarter of the bar each, so the indicator raced to 50%
+# and then appeared frozen for three minutes.
+#
+# Shares from docs/evidence/deep-triage-reasoning-limit-rerun.json:
+#   query_understanding 6%, retrieval 7%, reasoning 55%, verification 32%.
+# Each entry is the progress reached when that stage *completes*.
 DEEP_STAGE_PROGRESS = {
-    "role_context": 5,
-    "query_understanding": 10,
-    "retrieval": 25,
-    "reasoning": 50,
-    "verification": 75,
-    "retry": 80,
-    "response_generation": 90,
+    "role_context": 1,
+    "query_understanding": 7,
+    "retrieval": 14,
+    "reasoning": 69,
+    "verification": 97,
+    "retry": 69,
+    "response_generation": 99,
     "document_extraction": 10,
     "document_analysis": 10,
+}
+
+# A citizen-readable name per stage. "verification" is not a word a member of
+# the public should have to map onto what the system is doing for them.
+DEEP_STAGE_LABELS = {
+    "role_context": "Preparing your question",
+    "query_understanding": "Understanding your question",
+    "retrieval": "Searching the legal corpus",
+    "reasoning": "Working through the law that applies",
+    "verification": "Checking every statement against its source",
+    "retry": "Searching again for better authority",
+    "response_generation": "Writing your answer",
+    "document_extraction": "Reading your document",
+    "document_analysis": "Analysing your document",
 }
 
 
@@ -435,16 +457,24 @@ class DurableJobWorker:
                     raise JobCancellationRequested
                 if job.cancel_requested:
                     raise JobCancellationRequested
-                target = DEEP_STAGE_PROGRESS.get(stage, job.progress)
+                completed = DEEP_STAGE_PROGRESS.get(stage, job.progress)
                 if transition == "completed":
-                    target = min(99, target + 5)
-                update_job_progress(job, max(job.progress, target))
+                    target = completed
+                else:
+                    # Entering a stage means the previous one finished, so
+                    # credit the work already done without claiming this one.
+                    target = job.progress
+                update_job_progress(job, min(99, max(job.progress, target)))
                 append_job_event(
                     session,
                     job,
                     event_type="stage",
                     stage=stage,
-                    data={"transition": transition, **data},
+                    data={
+                        "transition": transition,
+                        "label": DEEP_STAGE_LABELS.get(stage, "Working"),
+                        **data,
+                    },
                 )
 
     @staticmethod
