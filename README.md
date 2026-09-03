@@ -31,6 +31,7 @@ deduplication, and quality validation.
 - Adaptive Auto routing and diverse-authority acceptance: [`docs/ADAPTIVE_RAG_ACCEPTANCE.md`](docs/ADAPTIVE_RAG_ACCEPTANCE.md)
 - Premium citizen/police/advocate command centres, agents, shortcuts and security acceptance: [`docs/ROLE_BASED_ACCEPTANCE.md`](docs/ROLE_BASED_ACCEPTANCE.md)
 - Administrator account governance, corpus expansion and audit acceptance: [`docs/ADMIN_CONTROL_PLANE_ACCEPTANCE.md`](docs/ADMIN_CONTROL_PLANE_ACCEPTANCE.md)
+- How the citizen module works end to end, from source PDF to rendered answer: [`docs/CITIZEN_MODULE_TECHNICAL_GUIDE.md`](docs/CITIZEN_MODULE_TECHNICAL_GUIDE.md)
 - Measured inference throughput and the Deep latency budget: [`docs/INFERENCE_THROUGHPUT_BASELINE.md`](docs/INFERENCE_THROUGHPUT_BASELINE.md)
 - Latest adversarial RAG stress-test and release decision: [`docs/RAG_STRESS_TEST_REPORT.md`](docs/RAG_STRESS_TEST_REPORT.md)
 - Native Tauri package, one-command launch and desktop RBAC acceptance: [`docs/TAURI_DESKTOP_ACCEPTANCE.md`](docs/TAURI_DESKTOP_ACCEPTANCE.md)
