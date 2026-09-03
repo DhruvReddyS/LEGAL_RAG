@@ -14,6 +14,7 @@ from app.models.enums import (
 )
 from app.models.job import Job, JobEvent
 from app.models.storage import StorageNamespace, StorageObject
+from app.models.token import RevokedRefreshToken
 from app.models.user import Permission, Role, RolePermission, User
 
 __all__ = [
@@ -37,6 +38,7 @@ __all__ = [
     "JobStatus",
     "JobType",
     "Permission",
+    "RevokedRefreshToken",
     "Role",
     "RolePermission",
     "StorageNamespace",

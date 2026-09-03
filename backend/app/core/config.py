@@ -44,6 +44,11 @@ class Settings(BaseSettings):
     fast_requests_per_minute: int = Field(default=30, ge=1, le=600)
     sync_deep_requests_per_minute: int = Field(default=2, ge=1, le=60)
     job_enqueues_per_minute: int = Field(default=6, ge=1, le=120)
+    # bcrypt makes each verification deliberately expensive, so an
+    # unthrottled login endpoint is both a credential-guessing target and
+    # the cheapest denial-of-service surface in the application.
+    login_attempts_per_minute: int = Field(default=8, ge=1, le=60)
+    login_attempts_per_account_per_minute: int = Field(default=5, ge=1, le=60)
     legacy_sync_long_running_enabled: bool = True
     warm_query_models_on_startup: bool = True
     # Opt-in guard: a CPU-only inference path runs correctly but several

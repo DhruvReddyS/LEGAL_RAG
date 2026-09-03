@@ -76,6 +76,13 @@ class User(Base):
         nullable=False,
         index=True,
     )
+    # Every refresh token issued before this instant is refused. Outstanding
+    # tokens are bearer credentials the server never stored, so they cannot be
+    # enumerated and revoked one by one; moving this forward ends them all at
+    # once. Used on reuse detection and on an administrative session reset.
+    sessions_valid_from: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True)
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),

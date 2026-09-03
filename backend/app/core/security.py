@@ -136,4 +136,13 @@ async def get_optional_current_user(
             detail="User is inactive, no longer exists, or role has changed",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    # Revoking every session must also stop access tokens already in flight.
+    # Checking only the refresh path would leave a compromised session working
+    # for the remainder of its access-token lifetime.
+    if user.sessions_valid_from is not None and payload.iat < user.sessions_valid_from:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Session ended. Sign in again.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     return user

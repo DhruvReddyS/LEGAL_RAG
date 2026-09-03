@@ -47,5 +47,23 @@ class UserRateLimiter:
         async with self._lock:
             self._requests.clear()
 
+    async def prune(self, *, window_seconds: int = 60) -> int:
+        """Drop buckets with no recent activity.
+
+        The dictionary is keyed on (identity, bucket) and grew without bound;
+        for the login buckets the identity is caller-supplied, so an unbounded
+        key space is reachable from outside.
+        """
+        cutoff = monotonic() - window_seconds
+        async with self._lock:
+            stale = [
+                key
+                for key, timestamps in self._requests.items()
+                if not timestamps or timestamps[-1] <= cutoff
+            ]
+            for key in stale:
+                del self._requests[key]
+            return len(stale)
+
 
 user_rate_limiter = UserRateLimiter()
