@@ -7,16 +7,28 @@ from app.schemas.agents import AgentCitation, AgentTraceEvent, QueryIntent
 from app.core.config import settings
 from app.services.generation import INSUFFICIENT_EVIDENCE
 from app.services.retrieval import HybridRetrievalService, RetrievalFilters
-from app.services.legal_term_normalization import LEGAL_ACRONYM_EXPANSIONS
+from app.services.legal_term_normalization import (
+    LEGAL_ACRONYM_EXPANSIONS,
+    normalize_legal_terms,
+)
 
 
+# Function words and words that describe how an answer should be presented.
+#
+# Two classes were removed. "police", "report", "law" and "legal" are among the
+# most discriminative tokens in an Indian legal corpus - they separate an FIR
+# procedure from a contract chapter - and stripping them left the citizen
+# question "what should I tell police when reporting missing property" with
+# almost no anchors. "passages", "statutory", "show", "relevant" and "verified"
+# were benchmark phrasing rather than general presentation vocabulary.
 FOCUS_STOPWORDS = {
-    "a", "an", "and", "are", "be", "can", "do", "does", "for", "from", "how", "i",
-    "in", "is", "it", "law", "legal", "may", "must", "of", "on", "or", "police",
-    "report", "request", "should", "the", "to", "under", "what", "when", "which", "with",
-    "address", "details", "disclosed", "facts", "passages", "relevant", "show", "statutory",
-    "steps", "verified",
-    "explain", "explanation", "language", "plain", "please", "understand",
+    "a", "an", "and", "any", "are", "be", "can", "do", "does", "for", "from",
+    "how", "i", "if", "in", "is", "it", "may", "me", "must", "my", "of", "on",
+    "or", "please", "should", "that", "the", "to", "under", "was", "what",
+    "when", "which", "who", "why", "will", "with", "you", "your",
+    # Presentation vocabulary: how to answer, not what about.
+    "explain", "explanation", "language", "plain", "simple", "summarise",
+    "summarize", "tell", "understand",
 }
 
 
@@ -128,9 +140,25 @@ class FastLegalResearchService:
     def __init__(self, retrieval: HybridRetrievalService) -> None:
         self.retrieval = retrieval
 
-    async def run(self, *, query: str, role: str, case_id: str | None, history: list[dict[str, str]]) -> dict:
+    async def run(
+        self,
+        *,
+        query: str,
+        role: str,
+        case_id: str | None,
+        history: list[dict[str, str]],
+    ) -> dict:
+        # role and case_id are accepted and deliberately unused: Fast searches
+        # the global corpus only. Reading private case evidence here would put
+        # it behind a lane that runs no verifier, so scoped retrieval stays a
+        # Deep capability. history is unused because Fast resolves no
+        # references; a follow-up escalates rather than guessing.
         del role, case_id, history
         started = perf_counter()
+        # Typo correction ran in the Deep path only, so "pocos" retrieved
+        # nothing in Fast while working correctly one lane over.
+        normalization = normalize_legal_terms(query)
+        query = normalization.normalized
         focus_tokens = _focus_tokens(query)
         hits, retrieval_timings = await self.retrieval.search_with_timings(
             query,
@@ -280,6 +308,10 @@ class FastLegalResearchService:
                         "confidence_method": "weighted_coverage_recall_x_mandatory_term_match_rate",
                         "diversity_selection": True,
                         "focus_tokens": sorted(focus_tokens),
+                        "legal_term_corrections": [
+                            {"from": source, "to": target}
+                            for source, target in normalization.corrections
+                        ],
                         "lexical_gate": 0.5,
                         "reranker_skipped": True,
                         "no_generative_claims": True,

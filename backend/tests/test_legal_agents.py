@@ -487,7 +487,11 @@ class _AnchoredProcedureFallbackRetrieval:
         self.calls.append((query, kwargs["candidate_limit"], kwargs["result_limit"]))
         if len(self.calls) == 1:
             hit = _hit("irrelevant-high")
-            hit.payload["text"] = "An age of consent discussion mentioning child marriage."
+            # A confident scorer that does not answer the question. It must sit
+            # clearly below the anchor threshold rather than exactly on it, so
+            # the test exercises the bypass mechanism and not an arithmetic
+            # coincidence in how many focus tokens the query happens to yield.
+            hit.payload["text"] = "An age of consent discussion under general personal law."
             hit.reranker_score = 0.90
             return [hit], RetrievalTimings(1.0, 2.0, 3.0, 6.0)
         hits = []

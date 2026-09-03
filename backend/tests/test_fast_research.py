@@ -73,7 +73,10 @@ async def test_fast_research_is_retrieval_only_and_exposes_currency_warning() ->
     assert retrieval.calls[0]["result_limit"] == 8
     assert retrieval.calls[0]["rerank"] is False
     assert retrieval.calls[0]["lexical_only"] is True
-    assert retrieval.calls[0]["lexical_terms"] == {"record", "information"}
+    # "police" is retained. It is among the most discriminative tokens in an
+    # Indian legal corpus and was previously stripped as a stopword, which left
+    # procedural citizen questions with almost nothing to match on.
+    assert retrieval.calls[0]["lexical_terms"] == {"police", "record", "information"}
     assert "does not synthesise a final legal opinion" in result["final_answer"]
     assert "Currency notice" in result["final_answer"]
     assert [item.chunk_id for item in result["citations"]] == ["chunk-a", "chunk-b"]
@@ -238,3 +241,47 @@ async def test_high_relevance_fast_match_is_labelled_strong() -> None:
 
     assert result["confidence_score"] >= 0.75
     assert result["evidence_strength"] == "strong"
+
+
+def test_discriminative_legal_words_survive_stopword_removal() -> None:
+    """Presentation vocabulary is stripped; corpus vocabulary is not."""
+    from app.services.fast_research import _focus_tokens
+
+    tokens = _focus_tokens(
+        "Please explain in plain language what I should tell police when "
+        "reporting missing property under the law."
+    )
+
+    for kept in ("police", "reporting", "missing", "property", "law"):
+        assert kept in tokens, kept
+    for stripped in ("please", "explain", "plain", "language", "what", "should"):
+        assert stripped not in tokens, stripped
+
+
+@pytest.mark.asyncio
+async def test_fast_lane_corrects_a_misspelled_acronym() -> None:
+    """Typo correction ran in the Deep path only.
+
+    "pocos" retrieved nothing in Fast while working correctly one lane over.
+    """
+    retrieval = FakeRetrieval([hit("chunk-a", "doc-a", "POCSO Act", current=True)])
+    service = FastLegalResearchService(retrieval)  # type: ignore[arg-type]
+
+    result = await service.run(
+        query="how do I file a pocos case", role="citizen", case_id=None, history=[]
+    )
+
+    assert "pocso" in retrieval.calls[0]["lexical_terms"]
+    assert "pocos" not in retrieval.calls[0]["lexical_terms"]
+    corrections = result["agent_trace"][0].details["legal_term_corrections"]
+    assert corrections == [{"from": "pocos", "to": "POCSO"}]
+
+
+def test_three_letter_acronyms_are_correctable_without_becoming_ambiguous() -> None:
+    """bns, bsa and ipc were below the old four-character floor."""
+    from app.services.legal_term_normalization import normalize_legal_terms
+
+    assert normalize_legal_terms("what does bnd say").normalized == "what does BNS say"
+    assert normalize_legal_terms("under ipa section 302").normalized == "under IPC section 302"
+    # Ambiguity must still refuse: bns and bnss are both one edit from "bnss".
+    assert normalize_legal_terms("under bnss rules").normalized == "under bnss rules"

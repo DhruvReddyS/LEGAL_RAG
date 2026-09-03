@@ -80,12 +80,15 @@ def normalize_legal_terms(query: str) -> LegalTermNormalization:
     def replace(match: re.Match[str]) -> str:
         token = match.group(0)
         folded = token.casefold()
-        if folded in KNOWN_LEGAL_ACRONYMS or len(folded) < 4:
+        if folded in KNOWN_LEGAL_ACRONYMS or len(folded) < 3:
             return token
+        # A three-character floor lets bns, bsa and ipc be corrected. The
+        # unique-match requirement below still refuses anything ambiguous, so
+        # "bnss" cannot be pulled toward "bns" and vice versa.
         candidates = sorted(
             acronym
             for acronym in KNOWN_LEGAL_ACRONYMS
-            if len(acronym) >= 4 and _damerau_levenshtein_at_most_one(folded, acronym)
+            if len(acronym) >= 3 and _damerau_levenshtein_at_most_one(folded, acronym)
         )
         if len(candidates) != 1:
             return token
