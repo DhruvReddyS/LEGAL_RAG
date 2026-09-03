@@ -8,8 +8,11 @@ from app.models.enums import (
     ChatMessageRole,
     CorpusSourceType,
     FeedbackRating,
+    JobStatus,
+    JobType,
     UserRole,
 )
+from app.models.job import Job, JobEvent
 from app.models.storage import StorageNamespace, StorageObject
 from app.models.user import Permission, Role, RolePermission, User
 
@@ -29,6 +32,10 @@ __all__ = [
     "Feedback",
     "FeedbackRating",
     "GeneratedDocument",
+    "Job",
+    "JobEvent",
+    "JobStatus",
+    "JobType",
     "Permission",
     "Role",
     "RolePermission",

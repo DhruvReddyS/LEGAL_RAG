@@ -27,3 +27,18 @@ class CorpusSourceType(StrEnum):
 class FeedbackRating(StrEnum):
     UP = "up"
     DOWN = "down"
+
+
+class JobType(StrEnum):
+    DEEP_REVIEW = "deep_review"
+    OCR_INGESTION = "ocr_ingestion"
+    DOCUMENT_ANALYSIS = "document_analysis"
+    EXPORT = "export"
+
+
+class JobStatus(StrEnum):
+    QUEUED = "queued"
+    RUNNING = "running"
+    SUCCEEDED = "succeeded"
+    FAILED = "failed"
+    CANCELLED = "cancelled"
