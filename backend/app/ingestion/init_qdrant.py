@@ -34,6 +34,7 @@ COLLECTIONS = (
             "decision_date": models.PayloadSchemaType.DATETIME,
             "decision_year": models.PayloadSchemaType.INTEGER,
             "is_current": models.PayloadSchemaType.BOOL,
+            "is_superseded": models.PayloadSchemaType.BOOL,
             "source_id": models.PayloadSchemaType.KEYWORD,
             "document_id": models.PayloadSchemaType.KEYWORD,
             "canonical_document_id": models.PayloadSchemaType.KEYWORD,

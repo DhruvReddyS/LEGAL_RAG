@@ -27,9 +27,21 @@ class LegalChunk(BaseModel):
     page_start: int
     page_end: int
     current_status: str
+    superseded_by: str | None = None
     verified_official: bool
     quality_status: str
     text: str
+
+    @property
+    def is_superseded(self) -> bool:
+        """Whether a later instrument replaces this text.
+
+        Eight guards across reasoning, verification, response generation and
+        the analyzer read this. Until it was written it was always None, so
+        every one of them was unreachable and read as implemented.
+        """
+        status = self.current_status.strip().lower()
+        return bool(self.superseded_by) or "superseded" in status or "repealed" in status
 
     @property
     def is_current(self) -> bool:
@@ -101,6 +113,7 @@ def chunk_structural_units(
                     page_start=unit.page_start,
                     page_end=unit.page_end,
                     current_status=document.current_status,
+                    superseded_by=document.superseded_by,
                     verified_official=document.verified_official,
                     quality_status=document.quality_status,
                     text=piece,

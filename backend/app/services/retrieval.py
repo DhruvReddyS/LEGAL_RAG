@@ -34,6 +34,9 @@ class RetrievalFilters:
     date_from: date | str | None = None
     date_to: date | str | None = None
     current_only: bool = False
+    # Excludes replaced authorities in the query rather than after ranking,
+    # so a superseded provision cannot occupy a candidate slot.
+    exclude_superseded: bool = False
     corpus_tiers: list[str] = field(default_factory=lambda: ["gold", "extended"])
     case_ids: list[str] = field(default_factory=list)
 
@@ -75,6 +78,12 @@ class RetrievalFilters:
         if self.current_only:
             conditions.append(
                 models.FieldCondition(key="is_current", match=models.MatchValue(value=True))
+            )
+        if self.exclude_superseded:
+            conditions.append(
+                models.FieldCondition(
+                    key="is_superseded", match=models.MatchValue(value=False)
+                )
             )
         return models.Filter(must=conditions) if conditions else None
 

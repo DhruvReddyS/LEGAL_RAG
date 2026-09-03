@@ -28,6 +28,7 @@ def _payload(chunk: LegalChunk) -> dict[str, object]:
         "court": chunk.court or "",
         "decision_year": chunk.decision_year or 0,
         "is_current": chunk.is_current,
+        "is_superseded": chunk.is_superseded,
         "source_id": chunk.source_id,
         "document_id": chunk.document_id,
         "canonical_document_id": chunk.canonical_document_id,

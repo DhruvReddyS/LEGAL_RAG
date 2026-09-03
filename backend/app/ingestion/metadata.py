@@ -47,9 +47,17 @@ class CanonicalDocument(BaseModel):
     quality_status: str
     notes: str | None = None
     document_type: LegalDocumentType | None = None
+    # Set when a later instrument replaces this one. Absent means unknown,
+    # not current: the corpus cannot yet distinguish the two.
+    superseded_by: str | None = None
 
     def resolved_type(self) -> LegalDocumentType:
         return self.document_type or classify_document(self.model_dump())
+
+    @property
+    def is_superseded(self) -> bool:
+        status = self.current_status.strip().lower()
+        return bool(self.superseded_by) or "superseded" in status or "repealed" in status
 
     @property
     def is_current(self) -> bool:
