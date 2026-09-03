@@ -291,6 +291,7 @@ export default function HomePage() {
             const result = job.result;
             setMessages((current) => current.map((message) => message.id === assistantId ? {
               ...message,
+              messageId: result.message_id,
               content: result.answer,
               loading: false,
               citations: result.citations,
@@ -317,7 +318,7 @@ export default function HomePage() {
         }
         return;
       }
-      setMessages((current) => current.map((message) => message.id === assistantId ? { ...message, content: response.answer, loading: false, citations: response.citations, confidenceScore: response.confidence_score, evidenceStrength: response.evidence_strength, responseMode: response.response_mode, requestedMode: response.requested_mode, routingReason: response.routing_reason, routingSignals: response.routing_signals, timingsMs: response.timings_ms, pipelineMetrics: response.pipeline_metrics, latencyTargetMs: response.latency_target_ms, targetMet: response.target_met, clientElapsedMs: Math.round(performance.now() - requestStarted) } : message));
+      setMessages((current) => current.map((message) => message.id === assistantId ? { ...message, messageId: response.message_id ?? undefined, content: response.answer, loading: false, citations: response.citations, confidenceScore: response.confidence_score, evidenceStrength: response.evidence_strength, responseMode: response.response_mode, requestedMode: response.requested_mode, routingReason: response.routing_reason, routingSignals: response.routing_signals, timingsMs: response.timings_ms, pipelineMetrics: response.pipeline_metrics, latencyTargetMs: response.latency_target_ms, targetMet: response.target_met, clientElapsedMs: Math.round(performance.now() - requestStarted) } : message));
     } catch (error) {
       if (operation.controller.signal.aborted) return;
       const detail = error instanceof ApiError ? error.message : "The legal corpus is unavailable. Confirm the backend is healthy and try again.";
@@ -347,6 +348,7 @@ export default function HomePage() {
         const stored = await getChatSession(item.sessionId!);
         const restored: ChatMessage[] = stored.messages.map(message => ({
           id: message.id,
+          messageId: message.id,
           role: message.role === "user" ? "user" : "assistant",
           content: message.content,
           citations: message.citations,

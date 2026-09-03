@@ -3,6 +3,7 @@ import { BookMarked, Check, Clock3, Copy, Gavel, Pencil, RotateCcw, ShieldCheck,
 import { Fragment, ReactNode, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { presentAnswer } from "@/lib/answer-presentation";
+import { submitFeedback } from "@/lib/api";
 import type { ChatMessage } from "@/lib/types";
 
 type TimingRow = { label: string; ms: number; detail?: boolean };
@@ -134,6 +135,22 @@ export default function MessageBubble({ message, onRegenerate, onForgetDocuments
   const [active, setActive] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState(false);
+  const [feedbackError, setFeedbackError] = useState(false);
+  // The buttons previously set local state and sent nothing. Toggling off
+  // is not "no opinion" - the API has no delete - so a second press on the
+  // same verdict is a no-op rather than a silent local reset.
+  const rate = async (rating: "up" | "down") => {
+    if (!message.messageId || feedback === rating) return;
+    const previous = feedback;
+    setFeedback(rating);
+    setFeedbackError(false);
+    try {
+      await submitFeedback(message.messageId, rating);
+    } catch {
+      setFeedback(previous);
+      setFeedbackError(true);
+    }
+  };
   const [feedback, setFeedback] = useState<"up" | "down" | null>(null);
   const [speaking, setSpeaking] = useState(false);
   const [canSpeak, setCanSpeak] = useState(false);
@@ -196,8 +213,9 @@ export default function MessageBubble({ message, onRegenerate, onForgetDocuments
     {(source || document) && <section className={`source-preview ${document ? "document-preview" : ""}`} aria-label="Source preview"><button className="icon-button preview-close" onClick={() => setActive(null)} aria-label="Close source preview"><X size={16}/></button>{source ? <><small>Legal corpus · Source {source.number} · {source.verification_status ?? "Unverified"}</small><h3>{source.title}</h3><p className="source-pages">Pages {source.page_start}–{source.page_end}{source.section ? ` · Section ${source.section}` : ""}</p><blockquote>{source.excerpt}</blockquote></> : document && <><small>Your document · Unverified facts, not legal authority</small><h3>{document.filename}</h3><p className="source-pages">Request context; this chip does not imply a verified legal citation.</p>{document.pages.length ? document.pages.map(page => <div key={page.page}><small>Page {page.page}</small><blockquote>{page.text}</blockquote></div>) : <p>Document text is no longer held in this tab. Reattach it to review.</p>}{onForgetDocuments && <button className="answer-text-action" onClick={() => { onForgetDocuments(); setActive(null); }}>Remove document text from this chat</button>}</>}</section>}
     <div className="legal-answer answer-body">{presentation.basis && <><h3>Legal basis</h3>{markdown(presentation.basis)}</>}{markdown(presentation.other)}{presentation.limits && <details className="answer-limits"><summary>Limits & uncertainties</summary>{markdown(presentation.limits)}</details>}</div>
     <aside className="legal-note" aria-label="Important legal information"><ShieldCheck size={17}/><div><strong>Before you rely on this</strong><p>{citations.length && citations.every(item => item.current_status === "current") ? "These sources are marked current in the corpus, but later changes may apply." : "The current-law status is not independently guaranteed."} Check the latest official text for a live matter. This is legal information, not advice on your circumstances.</p></div></aside>
-    <div className="answer-actions" aria-label="Answer actions"><button className="answer-action" aria-label={copied ? "Answer copied" : "Copy answer"} onClick={async () => { try { await navigator.clipboard.writeText(message.content); setCopied(true); setCopyError(false); } catch { setCopyError(true); } }}>{copied ? <Check size={16}/> : <Copy size={16}/>}</button><button className="answer-action" aria-label="Mark answer helpful" aria-pressed={feedback === "up"} onClick={() => setFeedback(feedback === "up" ? null : "up")}><ThumbsUp size={16}/></button><button className="answer-action" aria-label="Mark answer not helpful" aria-pressed={feedback === "down"} onClick={() => setFeedback(feedback === "down" ? null : "down")}><ThumbsDown size={16}/></button>{onRegenerate && <button className="answer-action" aria-label="Regenerate answer" onClick={onRegenerate}><RotateCcw size={16}/></button>}<span className="performance-pills">{llmElapsedLabel && <span className="answer-performance" title="Measured wall time spent in Ollama calls across this answer." aria-label={`LLM time ${llmElapsedLabel}`}><span>LLM</span>{llmElapsedLabel}</span>}{elapsedLabel && <span className="answer-performance" title="Time from sending your question to receiving the finished response in this tab, including network and review wait." aria-label={`Total response time ${elapsedLabel}`}><Clock3 size={13}/><span>Total</span>{elapsedLabel}</span>}</span>{canSpeak && <button className="listen-button" onClick={speak} aria-pressed={speaking}>{speaking ? <Square size={14}/> : <Volume2 size={16}/>} {speaking ? "Stop reading" : "Listen to answer"}</button>}</div>
+    <div className="answer-actions" aria-label="Answer actions"><button className="answer-action" aria-label={copied ? "Answer copied" : "Copy answer"} onClick={async () => { try { await navigator.clipboard.writeText(message.content); setCopied(true); setCopyError(false); } catch { setCopyError(true); } }}>{copied ? <Check size={16}/> : <Copy size={16}/>}</button><button className="answer-action" aria-label="Mark answer helpful" aria-pressed={feedback === "up"} disabled={!message.messageId} onClick={() => rate("up")}><ThumbsUp size={16}/></button><button className="answer-action" aria-label="Mark answer not helpful" aria-pressed={feedback === "down"} disabled={!message.messageId} onClick={() => rate("down")}><ThumbsDown size={16}/></button>{onRegenerate && <button className="answer-action" aria-label="Regenerate answer" onClick={onRegenerate}><RotateCcw size={16}/></button>}<span className="performance-pills">{llmElapsedLabel && <span className="answer-performance" title="Measured wall time spent in Ollama calls across this answer." aria-label={`LLM time ${llmElapsedLabel}`}><span>LLM</span>{llmElapsedLabel}</span>}{elapsedLabel && <span className="answer-performance" title="Time from sending your question to receiving the finished response in this tab, including network and review wait." aria-label={`Total response time ${elapsedLabel}`}><Clock3 size={13}/><span>Total</span>{elapsedLabel}</span>}</span>{canSpeak && <button className="listen-button" onClick={speak} aria-pressed={speaking}>{speaking ? <Square size={14}/> : <Volume2 size={16}/>} {speaking ? "Stop reading" : "Listen to answer"}</button>}</div>
     {performanceRows.length > 0 && <details className="rag-timing"><summary><span><Clock3 size={13}/>RAG timing</span>{bottleneck && <small>Slowest: {bottleneck.label} · {durationLabel(bottleneck.ms)}</small>}</summary><div className="rag-timing-list">{performanceRows.map((row, index) => <div key={`${row.label}-${index}`} className={row.detail ? "is-detail" : row.label === "End-to-end total" ? "is-total" : ""}><span>{row.label}</span><b>{durationLabel(row.ms)}</b></div>)}</div></details>}
     {copyError && <p role="status" className="answer-footer">Clipboard unavailable. Select the answer text to copy.</p>}
+    {feedbackError && <p role="status" className="answer-footer">Your rating could not be saved. Check your connection and try again.</p>}
   </article>;
 }

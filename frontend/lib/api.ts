@@ -203,6 +203,22 @@ export async function getDeepReviewJob(jobId: string, signal?: AbortSignal): Pro
   return request<DeepReviewJob>(`/jobs/${jobId}`, { signal });
 }
 
+/** Answer feedback. The table and permission predate the endpoint. */
+export async function submitFeedback(
+  messageId: string,
+  rating: "up" | "down",
+  correctionText?: string,
+): Promise<{ id: string; rating: string }> {
+  return request(`/feedback`, {
+    method: "POST",
+    body: JSON.stringify({
+      message_id: messageId,
+      rating,
+      correction_text: correctionText ?? null,
+    }),
+  });
+}
+
 /** Conversation history lives in PostgreSQL; the sidebar reads it from there. */
 export async function listChatSessions(
   limit = 30,

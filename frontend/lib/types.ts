@@ -299,7 +299,8 @@ export interface PipelineStageMetric {
 
 export interface ChatQueryResponse {
   session_id: string;
-  message_id: string;
+  /** Absent on an escalation placeholder, which persists no answer yet. */
+  message_id: string | null;
   answer: string;
   citations: AgentCitation[];
   confidence_score: number;
@@ -419,6 +420,8 @@ export interface ChatMessage {
   jobProgress?: number | null;
   /** Fast passages shown while a Deep escalation runs. Not yet verified. */
   provisional?: boolean;
+  /** Server message id, required to attach feedback. */
+  messageId?: string;
 }
 
 export interface CitizenDocument {
