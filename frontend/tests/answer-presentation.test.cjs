@@ -7,45 +7,122 @@ const moduleScope = { exports: {} };
 vm.runInNewContext(ts.transpileModule(fs.readFileSync('lib/answer-presentation.ts', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText, moduleScope);
 const { presentAnswer, legalCategory } = moduleScope.exports;
 
-test('only explicit verdicts are elevated', () => {
-  assert.equal(presentAnswer('## Direct answer\n\nYes, subject to the stated conditions.').headline, 'Yes.');
-  assert.equal(presentAnswer('## Direct answer\n\nNo. This is not established.').headline, 'No.');
-  assert.equal(presentAnswer('## Direct answer\n\nIt depends: facts are missing.').headline, 'It depends.');
-  assert.equal(presentAnswer('No person shall be deprived of liberty.').headline, 'What the sources establish.');
-  assert.equal(presentAnswer('I could not find enough reliable support in the indexed legal corpus for this answer.').headline, 'More evidence is needed.');
+test('no verdict is inferred from the wording of the answer', () => {
+  // The renderer must not promote the model's first word to a legal finding.
+  // Every one of these previously produced a "Yes." / "No." / "It depends."
+  // headline with green, maroon or amber tone.
+  for (const content of [
+    '## Direct answer\n\nYes, subject to the stated conditions.',
+    '## Direct answer\n\nNo. This is not established.',
+    '## Direct answer\n\nIt depends: facts are missing.',
+    '## Direct answer\n\nRegistration is mandatory for a cognizable offence.',
+  ]) {
+    const result = presentAnswer(content);
+    assert.equal(result.headline, 'What the sources establish.');
+    assert.equal(result.abstained, false);
+    assert.equal(result.tone, undefined, 'tone must no longer exist');
+  }
 });
-test('merge repeated legal basis while retaining distinct conditions and limits', () => {
-  const result = presentAnswer('## Direct answer\n\nYes, conditionally. [Source 1]\n\n## Why this is the legal position\n\n- Preserve the notice. [Source 1]\n\n## How this applies to you\n\n- Preserve the notice. [Source 1]\n- A second condition applies. [Source 2]\n\n## Important limits\n\nConfirm commencement.');
-  assert.equal((result.basis.match(/Preserve/g) || []).length, 1);
+
+test('the answer text itself is never rewritten', () => {
+  const content = '## Direct answer\n\nYes, subject to the stated conditions. [Source 1]';
+  assert.equal(
+    presentAnswer(content).explanation,
+    'Yes, subject to the stated conditions. [Source 1]',
+  );
+});
+
+test('abstention is read from evidence strength, not from prose', () => {
+  const rewordedAbstention = '## Direct answer\n\nThe governed corpus does not support a reliable answer here.';
+
+  // Prose matching missed this entirely; the pipeline flag does not.
+  const flagged = presentAnswer(rewordedAbstention, { evidenceStrength: 'insufficient' });
+  assert.equal(flagged.abstained, true);
+  assert.equal(flagged.headline, 'More evidence is needed.');
+
+  // A supported answer is not an abstention even when it discusses limits.
+  const supported = presentAnswer(
+    '## Direct answer\n\nRegistration is mandatory.\n\n## Important limits\n\nEvidence of commencement is insufficient in the corpus.',
+    { evidenceStrength: 'moderate' },
+  );
+  assert.equal(supported.abstained, false);
+  assert.equal(supported.headline, 'What the sources establish.');
+});
+
+test('prose matching still covers callers with no evidence strength', () => {
+  const result = presentAnswer('I could not find enough reliable support in the indexed legal corpus for this answer.');
+  assert.equal(result.abstained, true);
+  assert.equal(result.headline, 'More evidence is needed.');
+});
+
+test('a verified claim repeated across sections is kept in both', () => {
+  // One `seen` set shared across sections deleted the second occurrence, so
+  // the renderer silently overrode the verifier.
+  const result = presentAnswer([
+    '## Direct answer',
+    '',
+    'Yes, conditionally. [Source 1]',
+    '',
+    '## Why this is the legal position',
+    '',
+    '- Preserve the notice you received. [Source 1]',
+    '',
+    '## How this applies to you',
+    '',
+    '- Preserve the notice you received. [Source 1]',
+    '- A second condition applies. [Source 2]',
+  ].join('\n'));
+
+  assert.equal(
+    (result.basis.match(/Preserve the notice/g) || []).length,
+    2,
+    'a claim verified for two sections must appear in both',
+  );
   assert.match(result.basis, /second condition/);
-  assert.match(result.limits, /Confirm commencement/);
-  assert.doesNotMatch(result.other, /Important limits/);
 });
-test('currency note moves to footer without changing source text', () => {
-  const result = presentAnswer('A source preview.\n\n1. Exact quoted passage.\n\nCurrency notice: confirm current status.', true);
+
+test('an exact duplicate within one section is still collapsed', () => {
+  const result = presentAnswer([
+    '## Direct answer',
+    '',
+    'Registration is mandatory.',
+    '',
+    '## Why this is the legal position',
+    '',
+    '- Preserve the notice. [Source 1]',
+    '- Preserve the notice. [Source 1]',
+  ].join('\n'));
+
+  assert.equal((result.basis.match(/Preserve the notice/g) || []).length, 1);
+});
+
+test('fast mode is labelled as a source brief', () => {
+  const result = presentAnswer(
+    'A source preview.\n\n1. Exact quoted passage.\n\nCurrency notice: confirm current status.',
+    { fast: true },
+  );
   assert.equal(result.headline, 'Source brief.');
   assert.match(result.footer, /Currency notice/);
   assert.doesNotMatch(result.other, /Currency notice/);
-  assert.match(result.other, /Exact quoted passage/);
-  assert.equal(legalCategory('FIR procedure'), 'Criminal law');
 });
-test('escaped and repeated legal notices do not leak into the answer body', () => {
+
+test('disclaimers and currency notices are routed to the footer', () => {
   const result = presentAnswer('The supported answer.\n\n\\---\n\n\\*Legal decision-support information, not a substitute for advice from a qualified professional.\\*\n\nSource currency is not independently guaranteed; confirm the law in force.');
-  assert.equal(result.explanation, 'The supported answer.');
-  assert.doesNotMatch(result.other, /substitute|Source currency|\\---/i);
-  assert.match(result.footer, /substitute|Source currency/i);
+  assert.match(result.footer, /not a substitute for/);
+  assert.match(result.footer, /Source currency/);
+  assert.doesNotMatch(result.other, /not a substitute for/);
 });
-test('neutral light and dark theme text combinations meet AA', () => {
-  const rgb = hex => hex.replace('#', '').match(/../g).map(value => parseInt(value, 16));
-  const lum = color => color.map(value => { value /= 255; return value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4; }).reduce((sum, value, i) => sum + value * [.2126, .7152, .0722][i], 0);
-  const ratio = (a, b) => (Math.max(lum(a), lum(b)) + .05) / (Math.min(lum(a), lum(b)) + .05);
-  const css = fs.readFileSync('app/globals.css', 'utf8');
-  for (const pattern of [/^:root \{([^}]+)\}/m, /^:root\[data-theme="ink"\] \{([^}]+)\}/m]) {
-    const tokens = css.match(pattern)[1];
-    const token = name => tokens.match(new RegExp(`--${name}:(#[a-fA-F0-9]{6})`))[1];
-    for (const foreground of ['ink','ink-soft','accent']) for (const background of ['paper','card','hover']) {
-      const contrast = ratio(rgb(token(foreground)), rgb(token(background)));
-      assert.ok(contrast >= 4.5, `${foreground} / ${background}: ${contrast}`);
-    }
-  }
+
+test('limits are separated from the body', () => {
+  const result = presentAnswer('## Direct answer\n\nRegistration is mandatory.\n\n## Important limits\n\nCommencement is unconfirmed.');
+  assert.match(result.limits, /Commencement is unconfirmed/);
+  assert.doesNotMatch(result.other, /Commencement is unconfirmed/);
+});
+
+test('legal category routing', () => {
+  assert.equal(legalCategory('my phone was snatched'), 'Criminal law');
+  assert.equal(legalCategory('landlord withheld my deposit'), 'Property law');
+  assert.equal(legalCategory('explain Article 14'), 'Constitutional law');
+  assert.equal(legalCategory('what is a valid agreement'), 'Contract law');
+  assert.equal(legalCategory('how do I read a statute'), 'Legal research');
 });

@@ -125,7 +125,10 @@ export default function MessageBubble({ message, onRegenerate, onForgetDocuments
   const [editing, setEditing] = useState(false);
   const [editedText, setEditedText] = useState(message.content);
   useEffect(() => { setCanSpeak("speechSynthesis" in window); return () => { if ("speechSynthesis" in window) window.speechSynthesis.cancel(); }; }, []);
-  const presentation = presentAnswer(message.content, message.responseMode === "fast");
+  const presentation = presentAnswer(message.content, {
+    fast: message.responseMode === "fast",
+    evidenceStrength: message.evidenceStrength ?? null,
+  });
   const citations = message.citations ?? [];
   const source = citations.find(item => active === `S${item.number}`);
   const document = message.documents?.find((_, index) => active === `D${index + 1}`);
@@ -154,7 +157,7 @@ export default function MessageBubble({ message, onRegenerate, onForgetDocuments
   if (message.error) return <article className="answer-error" role="alert">{message.error}{onRegenerate && <button onClick={onRegenerate}>Try again</button>}</article>;
   return <article className="assistant-message">
     <div className="answer-byline"><span className="corpus-signature">Corpus</span><span>{message.category || "Legal research"}</span></div>
-    <div className="answer-lead legal-answer">{markdown(presentation.explanation.replace(/^(Yes|No|It depends)([.,:])/i, "**$1$2**"))}</div>
+    <div className="answer-lead legal-answer">{markdown(presentation.explanation)}</div>
     <div className="trust-row" aria-label="Evidence and sources">
       <details className="confidence-help"><summary className="confidence-pill">{message.responseMode === "fast" ? "Relevance preview" : message.evidenceStrength === "strong" ? "High confidence" : message.evidenceStrength === "moderate" ? "Moderate confidence" : "Limited evidence"}</summary><p>{message.responseMode === "fast" ? "These passages were retrieved for relevance; their claims have not been verified." : "Confidence describes support in the retrieved sources, not your chance of winning a case. High means strong published evidence support; moderate means some gaps remain. Check the source text and current law."}</p></details>
       {citations.length > 0 && <span className="source-label">Sources</span>}{citations.map(item => <button key={item.chunk_id} className="source-chip" onClick={() => toggle(`S${item.number}`)} aria-expanded={active === `S${item.number}`} aria-label={`Preview source ${item.number}: ${item.title}`}>{item.number}</button>)}
