@@ -36,6 +36,7 @@ def extract_pdf(
     ocr_language: str = "eng",
     ocr_dpi: int = 300,
     ocr_workers: int = 4,
+    ocr_timeout: float = 0,
 ) -> ExtractedDocument:
     """Extract with PyMuPDF and OCR only pages whose native text is insufficient."""
     import pymupdf as fitz
@@ -71,6 +72,7 @@ def extract_pdf(
                                     ocr_png,
                                     pixmap.tobytes("png"),
                                     language=ocr_language,
+                                    **({"timeout": ocr_timeout} if ocr_timeout else {}),
                                 ),
                             )
                         )
