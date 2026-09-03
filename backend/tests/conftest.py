@@ -132,8 +132,14 @@ def _clear_stale_queued_jobs():
     under test. CI gets a fresh database and never sees this; a developer
     re-running locally sees it every time.
 
-    Only jobs that predate this session are removed, so nothing a running test
-    created is touched.
+    Only jobs older than an hour are removed, so nothing a running test - or a
+    developer's live app sharing this database - is working on gets deleted.
+
+    Note that the jobs suite still cannot run alongside a live backend whose
+    durable worker is enabled: both workers claim from the same queue with
+    SKIP_LOCKED, which is correct behaviour and exactly what makes them
+    interchangeable in production. Stop the app, or point the tests at their
+    own database, before running that suite.
     """
     host, port = _database_endpoint()
     if not _tcp_reachable(host, port):

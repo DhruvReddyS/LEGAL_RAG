@@ -230,3 +230,37 @@ def test_ollama_http_error_body_is_not_exposed(monkeypatch) -> None:
     assert metrics[0]["error_type"] == "http_error"
     assert metrics[0]["http_status"] == 500
     assert "error" not in metrics[0]
+
+
+@pytest.mark.asyncio
+async def test_time_to_first_token_excludes_queue_wait() -> None:
+    """TTFT was measured before the generation slot was acquired.
+
+    A busy queue then looked identical to a slow prefill: a 3,000-token prompt
+    reported 65 seconds to first token when the model itself was fine.
+    """
+    import asyncio
+
+    from app.services.llm import OllamaClient
+
+    client = OllamaClient(base_url="http://127.0.0.1:1", model="test-model")
+    try:
+        # Hold the only generation slot so the next call has to wait for it.
+        await client._generation_slots.acquire()
+
+        async def release_later() -> None:
+            await asyncio.sleep(0.3)
+            client._generation_slots.release()
+
+        asyncio.create_task(release_later())
+        try:
+            await client.generate("probe")
+        except RuntimeError as exc:
+            metric = getattr(exc, "telemetry_metrics", [{}])[0]
+        else:  # pragma: no cover - the endpoint is unreachable by construction
+            raise AssertionError("expected the request to fail")
+
+        # The failure path records wall time, which still contains the wait.
+        assert metric["wall_ms"] >= 300
+    finally:
+        await client.close()

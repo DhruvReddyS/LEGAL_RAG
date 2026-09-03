@@ -14,7 +14,11 @@ from app.services.pipeline_telemetry import append_stage_metric, structured_with
 
 
 REASONING_NUM_PREDICT = 1800
-MAX_EVIDENCE_TEXT_CHARACTERS = 6000
+# Prefill runs at roughly 240 tok/s, so every 1,000 characters of evidence
+# costs about a second before the first output token. Legal chunks average
+# ~4,000 characters and the provision that grounds a claim is rarely in the
+# tail, so this trims prompt cost without trimming the answer.
+MAX_EVIDENCE_TEXT_CHARACTERS = 3500
 
 
 # Output length is the largest single cost in a Deep run: 1,345 tokens at a

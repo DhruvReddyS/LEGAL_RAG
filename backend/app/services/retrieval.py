@@ -141,6 +141,11 @@ class RetrievalTarget:
     filters: RetrievalFilters
 
 
+# Legal chunks average ~4,000 characters; this keeps the part that decides
+# relevance and drops the tail that only adds reranking cost.
+RERANKER_INPUT_CHARACTERS = 2500
+
+
 class BGEReranker:
     # bge-reranker-v2-m3 supports an 8192-token context. Using that full context
     # prevents the current 700-word legal chunks from being silently cut down to
@@ -765,8 +770,14 @@ class HybridRetrievalService:
             sparse_scores.update(
                 {(target.collection_name, point_id): score for point_id, score in target_sparse.items()}
             )
+        # The cross-encoder judges relevance, which the opening of a legal
+        # passage establishes; it does not need the whole provision, which the
+        # reasoning stage reads in full afterwards. Cost grows worse than
+        # linearly with total input - 45k characters measured 6.5s and 81k
+        # measured 18.4s - so this is the cheapest second in the pipeline.
         reranker_documents = [
-            str((point.payload or {}).get("text", ""))[:6000] for point in candidates
+            str((point.payload or {}).get("text", ""))[:RERANKER_INPUT_CHARACTERS]
+            for point in candidates
         ]
         reranking_started = perf_counter()
         if rerank:

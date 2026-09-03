@@ -80,13 +80,26 @@ def _categorized_claim_marker_pairs(answer: str) -> list[tuple[str, str, str]]:
 def _format_verification_items(
     valid_pairs: list[tuple[str, str, str]],
     hits_by_id: dict[str, str],
+    *,
+    start_index: int = 0,
+    explicit_indexes: list[int] | None = None,
 ) -> str:
+    """Render claims grouped under the source each one cites.
+
+    `explicit_indexes` keeps a claim's original number when only a subset is
+    re-sent, so a second request can be scoped to what was skipped without the
+    numbering drifting away from the first.
+    """
     premise_ids = list(dict.fromkeys(chunk_id for _, _, chunk_id in valid_pairs))
     source_labels = {
         chunk_id: f"SOURCE_{index}"
         for index, chunk_id in enumerate(premise_ids, 1)
     }
-    indexed_pairs = list(enumerate(valid_pairs, 1))
+    indexed_pairs = (
+        list(zip(explicit_indexes, valid_pairs, strict=True))
+        if explicit_indexes is not None
+        else list(enumerate(valid_pairs, start_index + 1))
+    )
     source_blocks: list[str] = []
     for chunk_id in premise_ids:
         source_claims = "\n\n".join(
@@ -169,13 +182,25 @@ material claim; partial for incomplete support; no otherwise. Return JSON.
                 if index not in seen_indexes
             ]
             if outstanding:
+                # Only the blocks the skipped claims actually cite. Re-sending
+                # every source cost ~7s of prefill to re-read premises that
+                # already had verdicts.
+                outstanding_pairs = [
+                    (index, valid_pairs[index - 1]) for index in outstanding
+                ]
+                retry_items = _format_verification_items(
+                    [pair for _, pair in outstanding_pairs],
+                    hits_by_id,
+                    start_index=0,
+                    explicit_indexes=[index for index, _ in outstanding_pairs],
+                )
                 retry_prompt = (
                     "You returned no verdict for some claims. Return a verdict for "
-                    "EVERY index listed here and nothing else: "
-                    f"{', '.join(str(index) for index in outstanding)}.\n"
-                    "Verify each claim only against the PREMISE_TEXT in its own source "
-                    "block. Verdict must be yes, partial, or no. Return JSON.\n\n"
-                    f"{items}"
+                    "EVERY numbered claim below and nothing else. Use the exact "
+                    "claim numbers shown. Verify each claim only against the "
+                    "PREMISE_TEXT in its own source block. Verdict must be yes, "
+                    "partial, or no. Return JSON.\n\n"
+                    f"{retry_items}"
                 )
                 try:
                     second, retry_calls = await structured_with_metrics(

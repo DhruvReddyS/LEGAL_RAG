@@ -907,10 +907,12 @@ class _PartialVerifier:
                 for index in range(1, self.answered + 1)
             ]
         elif self.answer_retry:
-            requested = [
-                int(token.strip(" ,."))
-                for token in prompt.split("nothing else:")[1].split(".")[0].split(",")
-            ]
+            # The re-ask carries only the skipped claims, still numbered as
+            # they were in the first request.
+            import re as _re
+
+            requested = sorted({int(n) for n in _re.findall(r"CLAIM (\d+):", prompt)})
+            self.retry_prompt = prompt
             claims = [
                 {"index": index, "verdict": "yes", "reason": "entailed"}
                 for index in requested
@@ -950,6 +952,12 @@ async def test_missing_verdicts_are_requested_again_before_scoring() -> None:
     assert verifier.calls == 2, "the verifier must be asked again for what it skipped"
     assert result["verification_result"].score == 1.0
     assert result["agent_trace"][-1].details["unadjudicated"] == 0
+    # Scoped to what was skipped: claims 1-3 already had verdicts and must not
+    # be re-sent, because re-reading every premise cost ~7s of prefill.
+    retry = verifier.retry_prompt
+    assert "CLAIM 4:" in retry and "CLAIM 10:" in retry
+    for answered in (1, 2, 3):
+        assert f"CLAIM {answered}:" not in retry, answered
 
 
 @pytest.mark.asyncio

@@ -60,8 +60,14 @@ class OllamaClient:
             payload["format"] = format_
         started_ns = perf_counter_ns()
         first_token_ms: float | None = None
+        # Time to first token was measured from here, which is before the
+        # generation slot is acquired, so it silently included queue wait. A
+        # 65-second "prefill" on a 3,000-token prompt turned out to be a busy
+        # queue, and there was no way to tell the two apart from the metric.
+        dispatched_ns: int | None = None
         try:
             async with self._generation_slots:
+                dispatched_ns = perf_counter_ns()
                 async with self._http_client.stream(
                     "POST",
                     f"{self.base_url}/api/generate",
@@ -100,7 +106,7 @@ class OllamaClient:
                         if piece:
                             if first_token_ms is None:
                                 first_token_ms = (
-                                    perf_counter_ns() - started_ns
+                                    perf_counter_ns() - dispatched_ns
                                 ) / 1_000_000
                             pieces.append(piece)
                         body.update(chunk)
@@ -144,6 +150,11 @@ class OllamaClient:
             num_predict=num_predict,
             context_window=context_window,
             first_token_ms=first_token_ms,
+            queue_wait_ms=(
+                (dispatched_ns - started_ns) / 1_000_000
+                if dispatched_ns is not None
+                else None
+            ),
         )
 
     def _request_with_metrics(
@@ -253,6 +264,7 @@ class OllamaClient:
         num_predict: int,
         context_window: int,
         first_token_ms: float | None = None,
+        queue_wait_ms: float | None = None,
     ) -> dict[str, Any]:
         prompt_eval_count = body.get("prompt_eval_count")
         eval_count = body.get("eval_count")
@@ -274,7 +286,10 @@ class OllamaClient:
             ),
             "num_predict_limit": num_predict,
             "response_characters": len(text),
+            # Measured from dispatch, so it reflects the model rather than
+            # contention. Queue wait is reported separately.
             "time_to_first_response_token_ms": first_token_ms,
+            "generation_queue_wait_ms": queue_wait_ms,
             "response_eval_count": int(eval_count) if isinstance(eval_count, (int, float)) else None,
             "done_reason": body.get("done_reason"),
             "ollama_total_duration_ms": self._nanoseconds_to_ms(body.get("total_duration")),
