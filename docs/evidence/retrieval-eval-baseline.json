@@ -1,0 +1,600 @@
+{
+  "generated_at": "2026-09-03T17:26:47.034157+00:00",
+  "collection": "global_legal_corpus",
+  "golden_set": "golden_set_v1.json",
+  "limit": 20,
+  "configs": {
+    "dense": {
+      "summary": {
+        "recall_at_1": 0.5333333333333333,
+        "recall_at_5": 0.7333333333333333,
+        "recall_at_20": 0.8666666666666667,
+        "mrr": 0.6245564892623716,
+        "ndcg_at_10": 0.6542937258663937,
+        "abstention_accuracy": 0.5,
+        "seconds_per_query": 0.10102151190464308
+      },
+      "items": [
+        {
+          "id": "fir-mandatory-cognizable",
+          "expectation": "answer",
+          "first_rank": 17,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "fir-procedure",
+          "expectation": "answer",
+          "first_rank": 3,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "zero-fir",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "article-14-equality",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "article-21-life-liberty",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "arrest-rights",
+          "expectation": "answer",
+          "first_rank": 3,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "arrest-without-warrant",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "woman-arrest-safeguards",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "anticipatory-bail",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "bail-conditions",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "electronic-evidence",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "search-of-place",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0
+        },
+        {
+          "id": "pocso-child-offences",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "police-stop-rights",
+          "expectation": "answer",
+          "first_rank": 7,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "phone-stolen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0
+        },
+        {
+          "id": "contract-elements",
+          "expectation": "abstain",
+          "abstained": true
+        },
+        {
+          "id": "tenancy-deposit",
+          "expectation": "abstain",
+          "abstained": false
+        },
+        {
+          "id": "noise-pollution",
+          "expectation": "abstain",
+          "abstained": true
+        },
+        {
+          "id": "consumer-complaint",
+          "expectation": "abstain",
+          "abstained": false
+        },
+        {
+          "id": "posh-workplace",
+          "expectation": "abstain",
+          "abstained": false
+        },
+        {
+          "id": "out-of-jurisdiction",
+          "expectation": "abstain",
+          "abstained": true
+        }
+      ]
+    },
+    "sparse": {
+      "summary": {
+        "recall_at_1": 0.4,
+        "recall_at_5": 0.6,
+        "recall_at_20": 0.8,
+        "mrr": 0.5134615384615384,
+        "ndcg_at_10": 0.5500295627947075,
+        "abstention_accuracy": 0.16666666666666666,
+        "seconds_per_query": 0.07480548809516699
+      },
+      "items": [
+        {
+          "id": "fir-mandatory-cognizable",
+          "expectation": "answer",
+          "first_rank": 6,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "fir-procedure",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "zero-fir",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "article-14-equality",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "article-21-life-liberty",
+          "expectation": "answer",
+          "first_rank": 8,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "arrest-rights",
+          "expectation": "answer",
+          "first_rank": 13,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "arrest-without-warrant",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "woman-arrest-safeguards",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "anticipatory-bail",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "bail-conditions",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "electronic-evidence",
+          "expectation": "answer",
+          "first_rank": 3,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "search-of-place",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0
+        },
+        {
+          "id": "pocso-child-offences",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "police-stop-rights",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0
+        },
+        {
+          "id": "phone-stolen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0
+        },
+        {
+          "id": "contract-elements",
+          "expectation": "abstain",
+          "abstained": false
+        },
+        {
+          "id": "tenancy-deposit",
+          "expectation": "abstain",
+          "abstained": false
+        },
+        {
+          "id": "noise-pollution",
+          "expectation": "abstain",
+          "abstained": false
+        },
+        {
+          "id": "consumer-complaint",
+          "expectation": "abstain",
+          "abstained": false
+        },
+        {
+          "id": "posh-workplace",
+          "expectation": "abstain",
+          "abstained": false
+        },
+        {
+          "id": "out-of-jurisdiction",
+          "expectation": "abstain",
+          "abstained": true
+        }
+      ]
+    },
+    "hybrid": {
+      "summary": {
+        "recall_at_1": 0.5333333333333333,
+        "recall_at_5": 0.7333333333333333,
+        "recall_at_20": 0.8666666666666667,
+        "mrr": 0.6297619047619047,
+        "ndcg_at_10": 0.6248053440726133,
+        "abstention_accuracy": 0.3333333333333333,
+        "seconds_per_query": 0.0835688829046419
+      },
+      "items": [
+        {
+          "id": "fir-mandatory-cognizable",
+          "expectation": "answer",
+          "first_rank": 8,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "fir-procedure",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "zero-fir",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "article-14-equality",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "article-21-life-liberty",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "arrest-rights",
+          "expectation": "answer",
+          "first_rank": 4,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "arrest-without-warrant",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "woman-arrest-safeguards",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "anticipatory-bail",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "bail-conditions",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "electronic-evidence",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "search-of-place",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0
+        },
+        {
+          "id": "pocso-child-offences",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "police-stop-rights",
+          "expectation": "answer",
+          "first_rank": 14,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "phone-stolen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0
+        },
+        {
+          "id": "contract-elements",
+          "expectation": "abstain",
+          "abstained": true
+        },
+        {
+          "id": "tenancy-deposit",
+          "expectation": "abstain",
+          "abstained": false
+        },
+        {
+          "id": "noise-pollution",
+          "expectation": "abstain",
+          "abstained": false
+        },
+        {
+          "id": "consumer-complaint",
+          "expectation": "abstain",
+          "abstained": false
+        },
+        {
+          "id": "posh-workplace",
+          "expectation": "abstain",
+          "abstained": false
+        },
+        {
+          "id": "out-of-jurisdiction",
+          "expectation": "abstain",
+          "abstained": true
+        }
+      ]
+    },
+    "reranked": {
+      "summary": {
+        "recall_at_1": 0.3333333333333333,
+        "recall_at_5": 0.7333333333333333,
+        "recall_at_20": 0.8666666666666667,
+        "mrr": 0.4715740740740741,
+        "ndcg_at_10": 0.5641095875186527,
+        "abstention_accuracy": 0.3333333333333333,
+        "seconds_per_query": 1.4847971230001782
+      },
+      "items": [
+        {
+          "id": "fir-mandatory-cognizable",
+          "expectation": "answer",
+          "first_rank": 16,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "fir-procedure",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "zero-fir",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "article-14-equality",
+          "expectation": "answer",
+          "first_rank": 5,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "article-21-life-liberty",
+          "expectation": "answer",
+          "first_rank": 5,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "arrest-rights",
+          "expectation": "answer",
+          "first_rank": 4,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "arrest-without-warrant",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "woman-arrest-safeguards",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "anticipatory-bail",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "bail-conditions",
+          "expectation": "answer",
+          "first_rank": 4,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "electronic-evidence",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "search-of-place",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0
+        },
+        {
+          "id": "pocso-child-offences",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "police-stop-rights",
+          "expectation": "answer",
+          "first_rank": 9,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0
+        },
+        {
+          "id": "phone-stolen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0
+        },
+        {
+          "id": "contract-elements",
+          "expectation": "abstain",
+          "abstained": true
+        },
+        {
+          "id": "tenancy-deposit",
+          "expectation": "abstain",
+          "abstained": false
+        },
+        {
+          "id": "noise-pollution",
+          "expectation": "abstain",
+          "abstained": false
+        },
+        {
+          "id": "consumer-complaint",
+          "expectation": "abstain",
+          "abstained": false
+        },
+        {
+          "id": "posh-workplace",
+          "expectation": "abstain",
+          "abstained": false
+        },
+        {
+          "id": "out-of-jurisdiction",
+          "expectation": "abstain",
+          "abstained": true
+        }
+      ]
+    }
+  }
+}
