@@ -562,6 +562,11 @@ class HybridRetrievalService:
             self.client.query_points(
                 collection_name=target.collection_name,
                 prefetch=prefetch,
+                # Reciprocal Rank Fusion runs server-side. Qdrant does not
+                # expose its k constant through this API, so the value is
+                # fixed by the pinned Qdrant image rather than by us; see
+                # QDRANT_IMAGE_VERSION. Do not bump that image without
+                # re-running the retrieval evaluation.
                 query=models.FusionQuery(fusion=models.Fusion.RRF),
                 limit=candidate_limit,
                 with_payload=True,
@@ -677,7 +682,18 @@ class HybridRetrievalService:
 
         started = perf_counter()
         embedding_started = perf_counter()
-        cache_key = hashlib.sha256(" ".join(query.casefold().split()).encode("utf-8")).hexdigest()
+        # The model identity is part of the key. Two models produce vectors in
+        # different spaces, so a cache keyed on query text alone would serve a
+        # stale-space vector after a model or dimension change.
+        cache_key = hashlib.sha256(
+            "\x00".join(
+                (
+                    settings.embedding_model,
+                    str(settings.embedding_dimension),
+                    " ".join(query.casefold().split()),
+                )
+            ).encode("utf-8")
+        ).hexdigest()
         query_embedding = self._query_embedding_cache.get(cache_key)
         embedding_cache_hit = query_embedding is not None
         if query_embedding is None:

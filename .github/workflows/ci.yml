@@ -70,9 +70,23 @@ jobs:
         run: python -m app.ingestion.init_storage
         working-directory: backend
 
+      - name: Verify retrieval health
+        # Silent failure modes: a stale instruction prefix, an asymmetric
+        # query/document path, a normalisation/distance mismatch, a 512-token
+        # truncation. None of these raise; all degrade retrieval.
+        run: python scripts/verify_retrieval_health.py --json retrieval-health.json
+
       - name: Run backend tests
         run: python -m pytest -q
         working-directory: backend
+
+      - name: Upload retrieval health report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: retrieval-health
+          path: retrieval-health.json
+          if-no-files-found: ignore
 
       - name: Report service logs on failure
         if: failure()
