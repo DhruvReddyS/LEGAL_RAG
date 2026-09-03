@@ -8,6 +8,8 @@ whether or not the password is right.
 from __future__ import annotations
 
 import pytest
+
+from tests.helpers import unique_email
 from httpx import ASGITransport, AsyncClient
 
 from app.core.config import settings
@@ -33,8 +35,10 @@ async def test_repeated_failures_against_one_account_are_throttled() -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
+        # One stable address, so the per-account bucket is what trips.
+        victim = unique_email("victim")
         statuses = [
-            (await _post_login(client, "victim@example.test")).status_code
+            (await _post_login(client, victim)).status_code
             for _ in range(limit + 2)
         ]
 
@@ -49,8 +53,9 @@ async def test_the_throttle_response_carries_retry_after() -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
+        target = unique_email("retryafter")
         for _ in range(settings.login_attempts_per_account_per_minute + 1):
-            response = await _post_login(client, "retryafter@example.test")
+            response = await _post_login(client, target)
 
     assert response.status_code == 429
     assert int(response.headers["Retry-After"]) >= 1
@@ -64,12 +69,13 @@ async def test_the_message_does_not_reveal_which_bucket_tripped() -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
+        one_account = unique_email("same-account")
         for _ in range(settings.login_attempts_per_account_per_minute + 1):
-            account = await _post_login(client, "same-account@example.test")
+            account = await _post_login(client, one_account)
 
         await user_rate_limiter.clear()
         for index in range(settings.login_attempts_per_minute + 1):
-            source = await _post_login(client, f"spray-{index}@example.test")
+            source = await _post_login(client, unique_email(f"spray-{index}"))
 
     assert account.status_code == 429
     assert source.status_code == 429
@@ -85,7 +91,7 @@ async def test_spraying_many_accounts_from_one_client_is_throttled() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         statuses = [
-            (await _post_login(client, f"spray-target-{index}@example.test")).status_code
+            (await _post_login(client, unique_email(f"spray-target-{index}"))).status_code
             for index in range(settings.login_attempts_per_minute + 2)
         ]
 

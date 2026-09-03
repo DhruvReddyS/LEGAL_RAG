@@ -350,13 +350,19 @@ async def check_payload_indexes(client) -> Check:
 
     info = await client.get_collection(GLOBAL_LEGAL_CORPUS)
     indexed = set(info.payload_schema)
-    # Fields RetrievalFilters can put in a Qdrant filter.
+    # Payload keys RetrievalFilters can put in a Qdrant filter. Note these are
+    # payload keys, not filter attribute names: the attribute that filters on
+    # "is_superseded" is called exclude_superseded. An earlier version of this
+    # check looked for the payload key among the dataclass fields, never found
+    # it, and silently reported a pass on the one field it was added to verify.
     filtered = {
         "source_type", "court", "jurisdiction", "act_name", "section",
         "corpus_tier", "case_id", "decision_year", "decision_date", "is_current",
     }
-    if "is_superseded" in RetrievalFilters.__dataclass_fields__:
+    filter_fields = RetrievalFilters.__dataclass_fields__
+    if "exclude_superseded" in filter_fields:
         filtered.add("is_superseded")
+    assert "current_only" in filter_fields, "filter attribute names have changed"
     missing = sorted(filtered - indexed - {"case_id"})  # case_id lives on private collections
     if missing:
         return record(

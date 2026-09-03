@@ -1,0 +1,108 @@
+{
+  "generated_at": "2026-09-03T07:36:02.463647+00:00",
+  "passed": 12,
+  "failed": 0,
+  "blocked": 0,
+  "checks": [
+    {
+      "id": "E-01",
+      "name": "No instruction prefix on queries",
+      "status": "PASS",
+      "detail": "no E5/BGE-v1.5 prefix pattern in the embedding or retrieval path",
+      "data": null
+    },
+    {
+      "id": "E-05",
+      "name": "Chunks fit the model window",
+      "status": "PASS",
+      "detail": "max_length=8192 set explicitly",
+      "data": {
+        "max_length": 8192
+      }
+    },
+    {
+      "id": "E-07",
+      "name": "Sane dtype per device",
+      "status": "PASS",
+      "detail": "fp16 only on cuda/mps, fp32 on cpu",
+      "data": null
+    },
+    {
+      "id": "E-10",
+      "name": "Sparse and dense from one pass over identical text",
+      "status": "PASS",
+      "detail": "single encode() returns both; no second pass and no tokenizer drift",
+      "data": null
+    },
+    {
+      "id": "E-06",
+      "name": "Cache key includes model identity",
+      "status": "PASS",
+      "detail": "query cache key includes the model name and dimension",
+      "data": null
+    },
+    {
+      "id": "E-12",
+      "name": "Fusion constant is reproducible",
+      "status": "PASS",
+      "detail": "RRF runs server-side under pinned qdrant/qdrant:v1.18.2",
+      "data": {
+        "qdrant_image": "v1.18.2"
+      }
+    },
+    {
+      "id": "E-08",
+      "name": "Embedder and reranker reach an accelerator",
+      "status": "PASS",
+      "detail": "resolved device is mps",
+      "data": {
+        "device": "mps"
+      }
+    },
+    {
+      "id": "E-02",
+      "name": "Vector schema and sparse IDF modifier",
+      "status": "PASS",
+      "detail": "dense size 1024 Cosine, sparse modifier IDF",
+      "data": null
+    },
+    {
+      "id": "E-17",
+      "name": "Point count reconciles with the manifest",
+      "status": "PASS",
+      "detail": "25517 points for 381 canonical documents (419 physical)",
+      "data": {
+        "points": 25517,
+        "canonical_documents": 381,
+        "physical_documents": 419
+      }
+    },
+    {
+      "id": "E-18",
+      "name": "No empty chunk text",
+      "status": "PASS",
+      "detail": "5120 chunks sampled, all carry text",
+      "data": {
+        "sampled": 5120
+      }
+    },
+    {
+      "id": "E-20",
+      "name": "Payload index on every filtered field",
+      "status": "PASS",
+      "detail": "11 filter fields all indexed",
+      "data": null
+    },
+    {
+      "id": "E-03",
+      "name": "Query and document embedding are symmetric",
+      "status": "PASS",
+      "detail": "cosine 1.000000; vectors are L2-normalised",
+      "data": {
+        "cosine": 1.0000000000000002,
+        "l2_normalised": true,
+        "norm": 1.000076933206392
+      }
+    }
+  ]
+}

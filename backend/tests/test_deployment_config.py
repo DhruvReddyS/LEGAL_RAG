@@ -39,7 +39,11 @@ def test_malformed_or_unsafe_cors_origins_are_rejected(origin: str) -> None:
         Settings(_env_file=None, cors_origins=origin)
 
 
-def test_cookie_security_defaults_follow_environment_and_allow_override() -> None:
+def test_cookie_security_defaults_follow_environment_and_allow_override(monkeypatch) -> None:
+    # Settings reads env vars ahead of its defaults, so an exported
+    # COOKIE_SECURE from a local .env would silently answer for the assertion
+    # this test is making about the default.
+    monkeypatch.delenv("COOKIE_SECURE", raising=False)
     assert Settings(_env_file=None, app_env="development").auth_cookie_secure is False
     assert Settings(_env_file=None, app_env="production").auth_cookie_secure is True
     assert (
@@ -48,7 +52,8 @@ def test_cookie_security_defaults_follow_environment_and_allow_override() -> Non
     )
 
 
-def test_cross_site_cookie_mode_requires_secure_transport() -> None:
+def test_cross_site_cookie_mode_requires_secure_transport(monkeypatch) -> None:
+    monkeypatch.delenv("COOKIE_SECURE", raising=False)
     with pytest.raises(ValidationError, match="COOKIE_SAMESITE=none requires"):
         Settings(
             _env_file=None,
@@ -58,7 +63,8 @@ def test_cross_site_cookie_mode_requires_secure_transport() -> None:
         )
 
 
-def test_insecure_cookie_override_is_rejected_outside_development() -> None:
+def test_insecure_cookie_override_is_rejected_outside_development(monkeypatch) -> None:
+    monkeypatch.delenv("COOKIE_SECURE", raising=False)
     with pytest.raises(ValidationError, match="secure authentication cookies"):
         Settings(_env_file=None, app_env="production", cookie_secure=False)
 

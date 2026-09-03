@@ -17,7 +17,7 @@ from httpx import ASGITransport, AsyncClient
 from app.core.database import AsyncSessionLocal
 from app.models import RevokedRefreshToken, User
 from app.services import token_revocation
-from tests.helpers import provision_test_user
+from tests.helpers import provision_test_user, unique_email
 
 
 pytestmark = pytest.mark.integration
@@ -32,7 +32,7 @@ async def _client() -> AsyncClient:
 async def test_rotation_revokes_the_token_it_consumed() -> None:
     account = await provision_test_user(
         name="Rotate One",
-        email="rotate-one@example.test",
+        email=unique_email("rotate-one"),
         password="Rotate-One-Password-1",
         role="citizen",
     )
@@ -61,7 +61,7 @@ async def test_replaying_a_consumed_token_ends_every_session() -> None:
     """
     account = await provision_test_user(
         name="Reuse Detect",
-        email="reuse-detect@example.test",
+        email=unique_email("reuse-detect"),
         password="Reuse-Detect-Password-1",
         role="citizen",
     )
@@ -94,11 +94,16 @@ async def test_replaying_a_consumed_token_ends_every_session() -> None:
 
 async def test_logout_revokes_server_side_not_just_the_cookie() -> None:
     async with await _client() as client:
+        # Cookie flows require a trusted Origin: DesktopOriginSecurityMiddleware
+        # refuses a credentialed mutation without one, which is the CSRF
+        # defence CORS alone does not provide.
+        origin = {"Origin": "http://test"}
         registration = await client.post(
             "/auth/cookie/register",
+            headers=origin,
             json={
                 "name": "Logout Revoke",
-                "email": "logout-revoke@example.test",
+                "email": unique_email("logout-revoke"),
                 "password": "Logout-Revoke-Password-1",
             },
         )
@@ -106,7 +111,7 @@ async def test_logout_revokes_server_side_not_just_the_cookie() -> None:
         stolen = client.cookies.get("legal_rag_refresh")
         assert stolen
 
-        assert (await client.post("/auth/cookie/logout")).status_code == 204
+        assert (await client.post("/auth/cookie/logout", headers=origin)).status_code == 204
 
         # A copy taken before sign-out must no longer work.
         assert (
@@ -118,7 +123,7 @@ async def test_revocation_is_idempotent_for_a_retried_request() -> None:
     """A dropped connection makes a client retry; that must not raise."""
     account = await provision_test_user(
         name="Idempotent",
-        email="idempotent-revoke@example.test",
+        email=unique_email("idempotent-revoke"),
         password="Idempotent-Password-1",
         role="citizen",
     )
@@ -143,7 +148,7 @@ async def test_expired_revocations_are_purged() -> None:
     """The table would otherwise grow for the life of the deployment."""
     account = await provision_test_user(
         name="Purge",
-        email="purge-revocations@example.test",
+        email=unique_email("purge-revocations"),
         password="Purge-Password-1",
         role="citizen",
     )

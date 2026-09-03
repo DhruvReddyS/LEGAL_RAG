@@ -7,10 +7,12 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy import delete, select
 
 from app.core.database import AsyncSessionLocal
-from app.models import AuditLog, Job, User
+from app.models import AuditLog, ChatMessage, ChatSession, Job, User
+from app.models.enums import ChatMessageRole
 from app.routers.chat import get_workflow
 from app.schemas.agents import AgentCitation, AgentTraceEvent, QueryIntent
 from main import app
+from tests.helpers import provision_test_user, unique_email
 
 
 class FakeWorkflow:
@@ -221,84 +223,119 @@ async def test_strong_fast_result_is_not_auto_escalated() -> None:
 async def test_chat_sessions_list_is_owner_scoped_and_carries_no_message_bodies() -> None:
     """History lived in sessionStorage because nothing could list it back.
 
-    The listing must not ship message bodies: a case-scoped session's messages
-    can quote private evidence, and a sidebar needs none of it.
+    Sessions are seeded directly: the listing does not depend on how a
+    conversation was produced, and driving it through retrieval would make it
+    fail for reasons unrelated to listing.
     """
     owner = await provision_test_user(
-        name="Citizen One",
-        email="sessions-owner@example.test",
-        password="Sessions-Owner-1",
+        name="Sessions Owner",
+        email=unique_email("sessions-owner"),
+        password="Sessions-Owner-Password-1",
         role="citizen",
     )
     other = await provision_test_user(
-        name="Citizen Two",
-        email="sessions-other@example.test",
-        password="Sessions-Other-1",
+        name="Sessions Other",
+        email=unique_email("sessions-other"),
+        password="Sessions-Other-Password-1",
         role="citizen",
     )
+
+    async with AsyncSessionLocal() as session:
+        chat_session = ChatSession(
+            user_id=uuid.UUID(owner["user"]["id"]),
+            title="What is the right to equality?",
+        )
+        session.add(chat_session)
+        await session.flush()
+        session.add_all(
+            [
+                ChatMessage(
+                    session_id=chat_session.id,
+                    role=ChatMessageRole.USER,
+                    content="What is the right to equality?",
+                    citations=[],
+                ),
+                ChatMessage(
+                    session_id=chat_session.id,
+                    role=ChatMessageRole.ASSISTANT,
+                    content="Article 14 guarantees equality before the law.",
+                    citations=[],
+                ),
+            ]
+        )
+        await session.commit()
+        session_id = str(chat_session.id)
 
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        owner_headers = {"Authorization": f"Bearer {owner['access_token']}"}
-        created = await client.post(
-            "/chat/query",
-            json={"query": "What is the right to equality?", "response_mode": "fast"},
-            headers=owner_headers,
+        listing = await client.get(
+            "/chat/sessions",
+            headers={"Authorization": f"Bearer {owner['access_token']}"},
         )
-        assert created.status_code == 200
-        session_id = created.json()["session_id"]
-
-        listing = await client.get("/chat/sessions", headers=owner_headers)
         assert listing.status_code == 200
-        items = listing.json()["items"]
-        assert [item["id"] for item in items] == [session_id]
-        row = items[0]
-        assert row["message_count"] >= 2
-        assert row["last_message_preview"]
+        rows = listing.json()["items"]
+        row = next(item for item in rows if item["id"] == session_id)
+        assert row["message_count"] == 2
+        assert row["last_message_preview"].startswith("Article 14")
+        # A sidebar row must not ship message bodies: a case-scoped session's
+        # messages can quote private evidence.
         assert "messages" not in row
 
-        # A second account must not see it, even though both are citizens.
+        # A second citizen must not see it.
         other_listing = await client.get(
             "/chat/sessions",
             headers={"Authorization": f"Bearer {other['access_token']}"},
         )
-        assert other_listing.status_code == 200
-        assert other_listing.json()["items"] == []
+        assert all(item["id"] != session_id for item in other_listing.json()["items"])
 
 
 @pytest.mark.asyncio
 async def test_escalation_returns_the_fast_brief_instead_of_discarding_it() -> None:
     """A low-confidence Fast result used to be thrown away.
 
-    The citizen went from a 70ms response to a blank multi-minute wait, with
-    the retrieved passages sitting unused in memory.
+    The citizen went from a fast response to a blank multi-minute wait with the
+    retrieved passages sitting unused in memory.
     """
-    user = await provision_test_user(
-        name="Citizen Escalate",
-        email="escalation-brief@example.test",
-        password="Escalation-Brief-1",
+    account = await provision_test_user(
+        name="Escalation Brief",
+        email=unique_email("escalation-brief"),
+        password="Escalation-Brief-Password-1",
         role="citizen",
     )
 
-    async with AsyncClient(
-        transport=ASGITransport(app=app), base_url="http://test"
-    ) as client:
-        response = await client.post(
-            "/chat/query",
-            json={
-                "query": "What should I do about a noisy neighbour at night?",
-                "response_mode": "fast",
-            },
-            headers={"Authorization": f"Bearer {user['access_token']}"},
-        )
+    original_fast = getattr(app.state, "fast_research_service", None)
+    app.state.fast_research_service = FakeFastResearch(0.2)
+    app.dependency_overrides[get_workflow] = lambda: FakeWorkflow()
+    try:
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as client:
+            response = await client.post(
+                "/chat/query",
+                json={"query": "Is FIR registration mandatory?", "response_mode": "fast"},
+                headers={"Authorization": f"Bearer {account['access_token']}"},
+            )
+
         assert response.status_code == 200
         payload = response.json()
-        if payload["delivery_state"] != "searching_more_thoroughly":
-            pytest.skip("this corpus answered the query confidently; nothing escalated")
-
+        assert payload["delivery_state"] == "searching_more_thoroughly"
         assert payload["job_id"]
         assert payload["evidence_strength"] == "insufficient"
-        # Whatever the quick search found travels with the placeholder.
-        if payload["citations"]:
-            assert "not yet" in payload["answer"].casefold()
+        # The placeholder says plainly that a longer check is running.
+        assert "more thoroughly" in payload["answer"].casefold()
+
+        # Escalation enqueues a real job. Left QUEUED it would be claimed by
+        # whichever worker test runs next, which is how the jobs suite started
+        # failing only when run after this one.
+        async with AsyncSessionLocal() as session:
+            await session.execute(
+                delete(Job).where(Job.id == uuid.UUID(payload["job_id"]))
+            )
+            await session.commit()
+    finally:
+        if original_fast is None:
+            del app.state.fast_research_service
+        else:
+            app.state.fast_research_service = original_fast
+        app.dependency_overrides.pop(get_workflow, None)

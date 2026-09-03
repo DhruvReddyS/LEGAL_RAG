@@ -10,7 +10,7 @@ from time import perf_counter
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
-from sqlalchemy import func, select
+from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -439,7 +439,20 @@ async def list_chat_sessions(
                 func.row_number()
                 .over(
                     partition_by=ChatMessage.session_id,
-                    order_by=ChatMessage.created_at.desc(),
+                    # Messages written in one transaction share a server-side
+                    # timestamp, so created_at alone leaves the winner to the
+                    # planner. An assistant message always follows the question
+                    # it answers, so it wins a tie. The preference is spelled
+                    # out rather than relying on the role column's sort: a
+                    # PostgreSQL enum orders by declaration order, not
+                    # alphabetically, so "user" sorts before "assistant".
+                    order_by=(
+                        ChatMessage.created_at.desc(),
+                        case(
+                            (ChatMessage.role == ChatMessageRole.ASSISTANT, 0),
+                            else_=1,
+                        ).asc(),
+                    ),
                 )
                 .label("rank"),
             )

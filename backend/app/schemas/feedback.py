@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -24,10 +23,11 @@ class FeedbackRequest(BaseModel):
 
 
 class FeedbackResponse(BaseModel):
+    # The feedback table carries no timestamp column, so the response does not
+    # claim one. When answer quality needs a time series, that is a migration.
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
     message_id: uuid.UUID
     rating: str
     correction_text: str | None
-    created_at: datetime

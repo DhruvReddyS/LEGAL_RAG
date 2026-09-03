@@ -17,6 +17,7 @@ import uuid
 from datetime import datetime, timezone
 
 from sqlalchemy import delete, select
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import AuditLog, RevokedRefreshToken, User
@@ -45,18 +46,24 @@ async def revoke(
 ) -> None:
     """Record one token as unusable.
 
-    Idempotent: revoking twice is normal - a client that retries a refresh on a
+    Idempotent: revoking twice is normal - a client retrying a refresh on a
     dropped connection does exactly that - and must not raise.
+
+    A read-then-write would not be enough. Within one session the pending
+    INSERT is invisible to a SELECT until it flushes, and across sessions two
+    concurrent refreshes presenting the same token would both see it absent
+    and both insert. ON CONFLICT DO NOTHING settles both cases in the database,
+    where the uniqueness actually lives.
     """
-    if await is_revoked(session, jti):
-        return
-    session.add(
-        RevokedRefreshToken(
+    await session.execute(
+        insert(RevokedRefreshToken)
+        .values(
             jti=jti,
             user_id=user_id,
             reason=reason,
             expires_at=expires_at,
         )
+        .on_conflict_do_nothing(index_elements=["jti"])
     )
 
 
