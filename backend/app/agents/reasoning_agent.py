@@ -17,17 +17,28 @@ REASONING_NUM_PREDICT = 1800
 MAX_EVIDENCE_TEXT_CHARACTERS = 6000
 
 
+# Output length is the largest single cost in a Deep run: 1,345 tokens at a
+# measured ~11 tok/s is roughly 119 seconds of decode. These bounds ask the
+# model for fewer, denser claims rather than truncating a longer draft, which
+# is what the earlier 900-token num_predict ceiling did. The ceiling stays at
+# 1,800 so the draft still stops naturally.
+MAX_CLAIMS = 10
+MAX_CLAIM_CHARACTERS = 600
+
+
 class _GroundedDraftClaim(BaseModel):
     category: Literal[
         "direct_answer", "legal_basis", "application", "next_step", "limit"
     ]
-    claim: str = Field(min_length=1, max_length=1400)
+    claim: str = Field(min_length=1, max_length=MAX_CLAIM_CHARACTERS)
     source_chunk_ids: list[str] = Field(min_length=1, max_length=3)
 
 
 class _GroundedDraft(BaseModel):
     insufficient_evidence: bool = False
-    claims: list[_GroundedDraftClaim] = Field(default_factory=list, max_length=20)
+    claims: list[_GroundedDraftClaim] = Field(
+        default_factory=list, max_length=MAX_CLAIMS
+    )
 
 
 CATEGORY_TAGS = {
@@ -72,6 +83,8 @@ async def reasoning_node(state: dict, llm: OllamaClient) -> dict:
     if not hits:
         draft = INSUFFICIENT_EVIDENCE
     else:
+        max_claims = MAX_CLAIMS
+        max_characters = MAX_CLAIM_CHARACTERS
         prompt = f"""You are a professional Indian legal decision-support assistant. Prepare a clear,
 practical answer for the user, not a retrieval report. Answer only from EVIDENCE. Never mention RAG,
 chunks, retrieval, embeddings, the model, or "the provided context" in the answer.
@@ -82,6 +95,9 @@ legal_basis — the verified rule, provision, authority, or source limitation.
 application — how the verified material applies to facts expressly stated by the user.
 next_step — a practical action directly supported by the cited material.
 limit — uncertainty, missing facts, adverse interpretation, or currency limitation.
+
+Write at most {max_claims} claims, each at most {max_characters} characters. Prefer fewer, denser
+claims over many thin ones: one well-supported claim per point, not the same point restated.
 
 Every claim must list 1–3 exact CHUNK_ID values from EVIDENCE that directly support the entire claim.
 Never invent or alter a CHUNK_ID. Omit any unsupported claim. Use plain professional language.
@@ -181,6 +197,8 @@ USER_DOCUMENTS: {state['document_context']}"""
             "llm_skipped": not hits,
             "reasoning_num_predict_limit": REASONING_NUM_PREDICT if hits else 0,
             "structured_claim_contract": True,
+            "max_claims": MAX_CLAIMS,
+            "max_claim_characters": MAX_CLAIM_CHARACTERS,
         },
         llm_calls=llm_calls,
     )

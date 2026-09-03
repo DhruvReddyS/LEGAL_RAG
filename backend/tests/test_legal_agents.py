@@ -281,9 +281,12 @@ async def test_query_understanding_normalizes_typo_and_preserves_corrected_entit
         _IntentLLM(),  # type: ignore[arg-type]
     )
 
-    assert result["retrieval_query"] == "how to file a POCSO case"
+    # A standalone question skips the rewrite call, so the retrieval query is
+    # the normalised question itself, trailing punctuation and all.
+    assert result["retrieval_query"] == "how to file a POCSO case?"
     assert result["intent"].entities == ["POCSO"]
     assert result["agent_trace"][-1].details["legal_term_corrections"]
+    assert result["agent_trace"][-1].details["llm_skipped"] is True
 
 
 class _CapturingRetrieval:
@@ -711,3 +714,108 @@ async def test_verification_premise_cap_keeps_every_distinct_source() -> None:
     assert "CHUNK_ID: chunk-1" in captured["prompt"]
     assert "CHUNK_ID: chunk-2" in captured["prompt"]
     assert "escalated to the Superintendent" in captured["prompt"]
+
+
+@pytest.mark.asyncio
+async def test_self_contained_question_skips_the_rewrite_call() -> None:
+    """~18 seconds of a ~295-second Deep run, for a question needing no rewrite."""
+
+    class _MustNotBeCalled:
+        async def structured_with_metrics(self, *args, **kwargs):
+            raise AssertionError("a standalone question must not call the model")
+
+    result = await query_understanding_node(
+        {
+            "query": "Is FIR registration mandatory for cognizable offences?",
+            "history": [],
+            "agent_trace": [],
+        },
+        _MustNotBeCalled(),  # type: ignore[arg-type]
+    )
+
+    assert result["agent_trace"][-1].details["llm_skipped"] is True
+    assert result["retrieval_query"] == "Is FIR registration mandatory for cognizable offences?"
+
+
+@pytest.mark.parametrize(
+    ("query", "history"),
+    [
+        # A backward reference cannot be retrieved as written.
+        ("What about the second one?", []),
+        ("Does that apply to me as well?", []),
+        ("And then what happens to him?", []),
+        # Any history at all means a reference might need resolving.
+        ("What are the grounds for bail?", [{"role": "user", "content": "earlier"}]),
+    ],
+)
+@pytest.mark.asyncio
+async def test_a_query_needing_context_still_calls_the_model(query, history) -> None:
+    result = await query_understanding_node(
+        {"query": query, "history": history, "agent_trace": []},
+        _IntentLLM(),  # type: ignore[arg-type]
+    )
+
+    assert result["agent_trace"][-1].details["llm_skipped"] is False
+
+
+def test_self_containment_is_conservative() -> None:
+    """Wrongly skipping costs retrieval quality; 18 seconds is not worth that."""
+    from app.agents.query_understanding import is_self_contained
+
+    assert is_self_contained("What are the grounds for anticipatory bail?", []) is True
+    assert is_self_contained("Explain Article 14 in plain language.", []) is True
+
+    assert is_self_contained("What are the grounds?", [{"role": "user"}]) is False
+    assert is_self_contained("Does it apply to a private employer?", []) is False
+    assert is_self_contained("What about her rights?", []) is False
+    # An unusually long question is likely multi-part and worth rewriting.
+    assert is_self_contained(" ".join(["word"] * 61), []) is False
+
+
+def test_reasoning_claim_bounds_are_stated_in_the_prompt_and_the_schema() -> None:
+    """Bounds must reach the model, not only reject its output afterwards.
+
+    A schema-only cap makes an over-long draft a validation failure and a retry,
+    which costs more time than it saves.
+    """
+    from app.agents.reasoning_agent import (
+        MAX_CLAIMS,
+        MAX_CLAIM_CHARACTERS,
+        _GroundedDraft,
+        _GroundedDraftClaim,
+    )
+
+    claim_field = _GroundedDraftClaim.model_fields["claim"]
+    claims_field = _GroundedDraft.model_fields["claims"]
+    assert claim_field.metadata[-1].max_length == MAX_CLAIM_CHARACTERS
+    assert claims_field.metadata[-1].max_length == MAX_CLAIMS
+
+
+@pytest.mark.asyncio
+async def test_reasoning_prompt_asks_for_fewer_denser_claims() -> None:
+    from app.agents.reasoning_agent import (
+        MAX_CLAIMS,
+        MAX_CLAIM_CHARACTERS,
+        reasoning_node,
+    )
+
+    captured: dict[str, str] = {}
+
+    class _Drafter:
+        async def structured_with_metrics(self, prompt, schema, **kwargs):
+            captured["prompt"] = prompt
+            return schema(insufficient_evidence=True, claims=[]), []
+
+    await reasoning_node(
+        {
+            "query": "Is FIR registration mandatory?",
+            "retrieved_chunks": [_hit("chunk-1")],
+            "role": "citizen",
+            "agent_trace": [],
+        },
+        _Drafter(),  # type: ignore[arg-type]
+    )
+
+    assert f"at most {MAX_CLAIMS} claims" in captured["prompt"]
+    assert f"at most {MAX_CLAIM_CHARACTERS} characters" in captured["prompt"]
+    assert "fewer, denser" in captured["prompt"]
