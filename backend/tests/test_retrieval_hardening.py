@@ -74,7 +74,7 @@ def test_reranker_uses_full_supported_context_with_bounded_batch() -> None:
 
     assert reranker.score("query", ["word " * 700]) == [0.75]
     assert model.options["max_length"] == 8192
-    assert model.options["batch_size"] == 2
+    assert model.options["batch_size"] == 8
 
 
 class BlockingEmbedder:
@@ -89,7 +89,7 @@ class BlockingEmbedder:
         self.max_active = max(self.max_active, self.active)
         time.sleep(0.03)
         self.active -= 1
-        return [EmbeddedText(dense=[0.1], sparse={1: 0.2})]
+        return [EmbeddedText(dense=[0.1], sparse={1: 0.2}) for _ in texts]
 
 
 class EmptyClient:

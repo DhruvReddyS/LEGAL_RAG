@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from types import SimpleNamespace
 from typing import Any
 
@@ -27,7 +28,10 @@ class FakeEmbedder:
         batch_size: int,
     ) -> list[EmbeddedText]:
         self.calls.append((texts, batch_size))
-        return [EmbeddedText(dense=[0.1, 0.2, 0.3], sparse={11: 0.8, 29: 0.4})]
+        return [
+            EmbeddedText(dense=[0.1, 0.2, 0.3], sparse={11: 0.8, 29: 0.4})
+            for _ in texts
+        ]
 
 
 class FakeReranker:
@@ -127,7 +131,7 @@ async def test_hybrid_search_preserves_channel_scores_and_uses_reranker_order() 
         ],
     )
     embedder = FakeEmbedder()
-    reranker = FakeReranker([0.25, 0.99, 0.50])
+    reranker = FakeReranker([0.99, 0.25, 0.50])
     filters = RetrievalFilters(courts=["Supreme Court of India"])
     service = HybridRetrievalService(
         client=client,
@@ -144,7 +148,7 @@ async def test_hybrid_search_preserves_channel_scores_and_uses_reranker_order() 
 
     assert embedder.calls == [(["criminal intent"], 1)]
     assert reranker.calls == [
-        ("criminal intent", ["first passage", "second passage", "third passage"])
+        ("criminal intent", ["second passage", "first passage", "third passage"])
     ]
     assert [hit.point_id for hit in hits] == ["b", "c"]
     assert hits[0].dense_score == pytest.approx(0.72)
@@ -170,7 +174,7 @@ async def test_hybrid_search_preserves_channel_scores_and_uses_reranker_order() 
     assert fused_call["with_payload"] is True
     assert fused_call["query"].fusion == models.Fusion.RRF
     assert len(fused_call["prefetch"]) == 2
-    assert all(call["limit"] == 7 for call in client.calls)
+    assert all(call["limit"] == 21 for call in client.calls)
     assert all(call.get("query_filter") is not None for call in (dense_call, sparse_call))
     assert all(prefetch.filter is not None for prefetch in fused_call["prefetch"])
 
@@ -191,6 +195,68 @@ async def test_hybrid_search_returns_empty_results_without_loading_reranker() ->
     assert hits == []
     assert reranker.calls == [("no matching authority", [])]
     assert len(client.calls) == 3
+
+
+@pytest.mark.asyncio
+async def test_hybrid_search_deduplicates_same_source_before_reranking() -> None:
+    repeated = " ".join(f"shared{index}" for index in range(120))
+    near_duplicate = f"{repeated} one changed ending"
+    client = FakeQdrantClient(
+        dense_points=[],
+        sparse_points=[],
+        fused_points=[
+            point(
+                "duplicate-best",
+                0.99,
+                {
+                    "text": repeated,
+                    "canonical_document_id": "advisory",
+                    "title": "Advisory",
+                },
+            ),
+            point(
+                "duplicate-lower",
+                0.98,
+                {
+                    "text": near_duplicate,
+                    "canonical_document_id": "advisory",
+                    "title": "Advisory",
+                },
+            ),
+            point(
+                "distinct-authority",
+                0.60,
+                {
+                    "text": repeated,
+                    "canonical_document_id": "fir-gd-sop",
+                    "title": "FIR/GD SOP",
+                },
+            ),
+        ],
+    )
+    reranker = FakeReranker([0.25, 0.95])
+    service = HybridRetrievalService(
+        client=client,
+        embedder=FakeEmbedder(),
+        reranker=reranker,
+    )
+
+    hits, timings = await service.search_with_timings(
+        "stolen bike complaint",
+        candidate_limit=2,
+        result_limit=2,
+    )
+
+    assert reranker.calls == [
+        ("stolen bike complaint", [repeated, repeated])
+    ]
+    assert [hit.point_id for hit in hits] == [
+        "distinct-authority",
+        "duplicate-best",
+    ]
+    assert timings.raw_candidate_count == 3
+    assert timings.deduplicated_candidate_count == 2
+    assert timings.duplicate_candidate_count == 1
 
 
 @pytest.mark.asyncio
@@ -219,6 +285,39 @@ async def test_fast_search_skips_reranker_and_reuses_hashed_embedding_cache() ->
     assert second_timings.embedding_cache_hit is True
     assert first_timings.reranking_ms == 0
     assert second_timings.reranking_ms == 0
+
+
+@pytest.mark.asyncio
+async def test_simultaneous_queries_share_one_embedding_batch() -> None:
+    client = FakeQdrantClient(
+        dense_points=[],
+        sparse_points=[],
+        fused_points=[],
+    )
+    embedder = FakeEmbedder()
+    reranker = FakeReranker([])
+    service = HybridRetrievalService(
+        client=client,
+        embedder=embedder,
+        reranker=reranker,
+    )
+
+    await asyncio.gather(
+        *(
+            service.search_with_timings(
+                f"concurrent query {index}",
+                rerank=False,
+            )
+            for index in range(3)
+        )
+    )
+
+    assert len(embedder.calls) == 1
+    assert embedder.calls[0][0] == [
+        "concurrent query 0",
+        "concurrent query 1",
+        "concurrent query 2",
+    ]
 
 
 @pytest.mark.asyncio
@@ -268,3 +367,40 @@ async def test_scoped_search_embeds_once_and_reranks_global_and_private_together
     ]
     private_filter = private_calls[0]["query_filter"]
     assert conditions_by_key(private_filter)["case_id"].match.any == ["case-a"]
+
+
+@pytest.mark.asyncio
+async def test_reranking_excludes_previously_scored_candidate_ids_without_backfill() -> None:
+    points = [
+        point("a", 0.9, {"text": "authority a"}),
+        point("b", 0.8, {"text": "authority b"}),
+        point("c", 0.7, {"text": "authority c"}),
+    ]
+    client = FakeQdrantClient(
+        dense_points=points,
+        sparse_points=points,
+        fused_points=points,
+    )
+    reranker = FakeReranker([0.8, 0.7])
+    service = HybridRetrievalService(
+        client=client,
+        embedder=FakeEmbedder(),
+        reranker=reranker,
+    )
+
+    hits, timings = await service.search_across_collections_with_timings(
+        "reporting procedure",
+        targets=[RetrievalTarget(GLOBAL_LEGAL_CORPUS, RetrievalFilters(corpus_tiers=[]))],
+        candidate_limit=3,
+        result_limit=2,
+        exclude_candidate_ids={(GLOBAL_LEGAL_CORPUS, "b")},
+    )
+
+    assert reranker.calls == [("reporting procedure", ["authority a", "authority c"])]
+    assert [hit.point_id for hit in hits] == ["a", "c"]
+    assert timings.candidate_count == 2
+    assert timings.excluded_candidate_count == 1
+    assert timings.scored_candidate_ids == [
+        (GLOBAL_LEGAL_CORPUS, "a"),
+        (GLOBAL_LEGAL_CORPUS, "c"),
+    ]
