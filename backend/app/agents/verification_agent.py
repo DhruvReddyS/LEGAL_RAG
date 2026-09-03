@@ -12,6 +12,13 @@ from app.services.llm import OllamaClient
 from app.services.pipeline_telemetry import append_stage_metric, structured_with_metrics, text_size
 
 
+# Reasoning caps evidence per chunk; verification did not, so the premise
+# block grew to ~12,900 tokens - 79% of the context window and 40-50 seconds
+# of prefill before the first output token. Legal chunks average ~700 words,
+# so 2,500 characters keeps the provision that grounds a claim while removing
+# the surrounding material no claim cites.
+MAX_PREMISE_CHARACTERS = 2500
+
 MARKER_RE = re.compile(r"\[SRC:([^\]]+)\]")
 CATEGORY_RE = re.compile(
     r"^\[(DIRECT_ANSWER|LEGAL_BASIS|APPLICATION|NEXT_STEP|LIMIT)\]\s*",
@@ -100,7 +107,9 @@ async def verification_node(state: dict, llm: OllamaClient) -> dict:
     retry_index = int(state.get("retry_count", 0))
     draft = str(state.get("draft_answer") or "")
     hits_by_id = {
-        str(hit.payload.get("chunk_id")): str(hit.payload.get("text") or "")
+        str(hit.payload.get("chunk_id")): str(hit.payload.get("text") or "")[
+            :MAX_PREMISE_CHARACTERS
+        ]
         for hit in state.get("retrieved_chunks", [])
     }
     pairs = _categorized_claim_marker_pairs(draft)
@@ -205,6 +214,7 @@ material claim; partial for incomplete support; no otherwise. Return JSON.
             "valid_claim_count": len(valid_pairs),
             "verification_items": text_size(items),
             "prompt": text_size(prompt),
+            "max_premise_characters": MAX_PREMISE_CHARACTERS,
         },
         outputs={
             "verified_claim_count": len(verified),

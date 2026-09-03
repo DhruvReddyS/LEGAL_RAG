@@ -70,7 +70,17 @@ def _topic_anchor_details(query: str, payload: dict) -> tuple[set[str], set[str]
 async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
     started_ns = perf_counter_ns()
     retry_count = int(state.get("retry_count", 0))
-    query = str(state.get("retrieval_query") or state["query"])
+    # The topic query is the normalized question itself, never an expanded
+    # form. Retrieval writes its expansions back into state["retrieval_query"],
+    # so deriving the retry query from that compounded fallback terms across
+    # passes and drifted further from the user's topic each time. It is also
+    # the correct reference for the anchor check: "governing law authoritative
+    # provision" is search scaffolding, not part of what the user asked about.
+    intent = state.get("intent")
+    topic_query = str(
+        getattr(intent, "retrieval_query", None) or state.get("query") or ""
+    )
+    query = topic_query or str(state.get("retrieval_query") or state["query"])
     if retry_count:
         entities = ", ".join(state["intent"].entities)
         # Preserve query-understanding normalization on every retry. Rebuilding
@@ -111,24 +121,24 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
             default=None,
         )
         focus_tokens, top_matched_anchor_terms, top_anchor_coverage = (
-            _topic_anchor_details(initial_query, top_hit.payload)
+            _topic_anchor_details(topic_query, top_hit.payload)
             if top_hit is not None
-            else (_focus_tokens(initial_query), set(), 0.0)
+            else (_focus_tokens(topic_query), set(), 0.0)
         )
         top_has_topic_anchor = (
             bool(top_hit)
             and top_anchor_coverage >= TOPIC_ANCHOR_MIN_COVERAGE
         )
+        # The gate applies on every pass. Restricting it to the first pass left
+        # the retry with no relevance floor at all, which is the pass most
+        # likely to drift: it searches a broadened query after verification has
+        # already rejected the first answer.
         fallback_triggered = (
-            retry_count == 0
-            and (
-                initial_max_score < LOW_RERANKER_SCORE_FALLBACK_THRESHOLD
-                or not top_has_topic_anchor
-            )
+            initial_max_score < LOW_RERANKER_SCORE_FALLBACK_THRESHOLD
+            or not top_has_topic_anchor
         )
         anchor_bypass_triggered = (
-            retry_count == 0
-            and initial_max_score >= LOW_RERANKER_SCORE_FALLBACK_THRESHOLD
+            initial_max_score >= LOW_RERANKER_SCORE_FALLBACK_THRESHOLD
             and not top_has_topic_anchor
         )
         if fallback_triggered:
@@ -187,7 +197,7 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
                             hit.point_id,
                         )
                         not in seen
-                        and len(_topic_anchor_details(initial_query, hit.payload)[1])
+                        and len(_topic_anchor_details(topic_query, hit.payload)[1])
                         >= min(2, len(focus_tokens))
                         and any(
                             term
@@ -244,6 +254,7 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
                 "query": query,
                 "retry": retry_count,
                 "initial_query": initial_query,
+                "topic_query": topic_query,
                 "low_score_fallback_triggered": fallback_triggered,
                 "low_score_fallback_threshold": LOW_RERANKER_SCORE_FALLBACK_THRESHOLD,
                 "initial_max_reranker_score": initial_max_score,

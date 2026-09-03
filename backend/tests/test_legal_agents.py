@@ -289,9 +289,13 @@ async def test_query_understanding_normalizes_typo_and_preserves_corrected_entit
 class _CapturingRetrieval:
     def __init__(self) -> None:
         self.query = ""
+        # Every pass, so a test can distinguish the query the node built from
+        # the fallback re-query it may append afterwards.
+        self.queries: list[str] = []
 
     async def search_across_collections_with_timings(self, query, **kwargs):
         self.query = query
+        self.queries.append(query)
         return [], RetrievalTimings(
             embedding_ms=0.0,
             qdrant_ms=0.0,
@@ -528,3 +532,178 @@ async def test_anchor_bypass_prioritizes_topic_specific_procedure_from_fallback(
         "generic-fir",
         "child-injunction",
     ]
+
+
+@pytest.mark.asyncio
+async def test_retry_pass_still_enforces_the_topic_anchor_gate() -> None:
+    """The retry pass previously had no relevance floor at all.
+
+    Restricting the gate to retry_count == 0 left the pass most likely to
+    drift unguarded: it searches a broadened query after verification has
+    already rejected the first answer.
+    """
+    retrieval = _LowScoreRetrieval()
+
+    result = await retrieval_node(
+        {
+            "query": "my dog went missing, how do I report it",
+            "retrieval_query": "missing pet report procedure",
+            "intent": QueryIntent(
+                entities=[], retrieval_query="missing pet report procedure"
+            ),
+            "retry_count": 1,
+            "role": "citizen",
+            "case_id": None,
+            "agent_trace": [],
+        },
+        retrieval,  # type: ignore[arg-type]
+    )
+
+    details = result["agent_trace"][-1].details
+    assert details["retry"] == 1
+    assert details["low_score_fallback_triggered"] is True
+    assert len(retrieval.calls) == 2, "the retry pass must be able to re-query"
+
+
+@pytest.mark.asyncio
+async def test_retry_query_is_built_from_the_topic_not_a_prior_expansion() -> None:
+    """Retrieval writes its expansions back into state["retrieval_query"].
+
+    Deriving the retry query from that compounded fallback scaffolding across
+    passes, so each retry drifted further from what the user asked.
+    """
+    retrieval = _CapturingRetrieval()
+
+    await retrieval_node(
+        {
+            "query": "is FIR registration mandatory for cognizable offences",
+            # A first pass already appended fallback scaffolding here.
+            "retrieval_query": (
+                "is FIR registration mandatory for cognizable offences "
+                "non-cognizable offence General Diary entry SOP complaint procedure"
+            ),
+            "intent": QueryIntent(
+                entities=["FIR"],
+                retrieval_query="is FIR registration mandatory for cognizable offences",
+            ),
+            "retry_count": 1,
+            "role": "citizen",
+            "case_id": None,
+            "agent_trace": [],
+        },
+        retrieval,  # type: ignore[arg-type]
+    )
+
+    first_pass = retrieval.queries[0]
+    assert "General Diary entry SOP" not in first_pass
+    assert "is FIR registration mandatory for cognizable offences" in first_pass
+    assert "governing law authoritative provision" in first_pass
+
+
+@pytest.mark.asyncio
+async def test_anchor_coverage_ignores_retry_scaffolding_terms() -> None:
+    """Anchor coverage is judged against the topic, not the expanded query.
+
+    "governing law authoritative provision" is search scaffolding. Counting it
+    as topic vocabulary made the coverage threshold unreachable on any retry,
+    which would have fired the fallback unconditionally.
+    """
+    retrieval = _HighScoreRetrieval(
+        top_text=(
+            "Registration of a first information report is mandatory where the "
+            "information discloses a cognizable offence."
+        )
+    )
+
+    result = await retrieval_node(
+        {
+            "query": "is FIR registration mandatory for cognizable offences",
+            "retrieval_query": "is FIR registration mandatory for cognizable offences",
+            "intent": QueryIntent(
+                entities=["FIR"],
+                retrieval_query="is FIR registration mandatory for cognizable offences",
+            ),
+            "retry_count": 1,
+            "role": "citizen",
+            "case_id": None,
+            "agent_trace": [],
+        },
+        retrieval,  # type: ignore[arg-type]
+    )
+
+    details = result["agent_trace"][-1].details
+    assert details["topic_query"] == "is FIR registration mandatory for cognizable offences"
+    assert details["top_topic_anchor_matched"] is True
+    assert details["low_score_fallback_triggered"] is False
+
+
+@pytest.mark.asyncio
+async def test_verification_caps_premise_text_per_source() -> None:
+    """Reasoning capped its evidence; verification did not.
+
+    The uncapped premise block reached ~12,900 tokens, which is 79% of the
+    context window and 40-50 seconds of prefill before the first output token.
+    """
+    from app.agents.verification_agent import MAX_PREMISE_CHARACTERS, verification_node
+
+    long_authority = "The officer shall record the information in writing. " * 400
+    assert len(long_authority) > MAX_PREMISE_CHARACTERS * 3
+
+    hit = _hit("chunk-1")
+    hit.payload["text"] = long_authority
+
+    captured: dict[str, str] = {}
+
+    class _Verifier:
+        async def structured_with_metrics(self, prompt, schema, **kwargs):
+            captured["prompt"] = prompt
+            return schema(claims=[{"index": 1, "verdict": "yes", "reason": "ok"}]), []
+
+    result = await verification_node(
+        {
+            "draft_answer": "[DIRECT_ANSWER] Registration is mandatory. [SRC:chunk-1]",
+            "retrieved_chunks": [hit],
+            "agent_trace": [],
+        },
+        _Verifier(),  # type: ignore[arg-type]
+    )
+
+    assert len(captured["prompt"]) < MAX_PREMISE_CHARACTERS + 2000
+    assert long_authority not in captured["prompt"]
+    # Truncation must not cost the claim its verdict.
+    assert result["verification_result"].score == 1.0
+    assert result["verification_result"].claims[0].verdict == "yes"
+
+
+@pytest.mark.asyncio
+async def test_verification_premise_cap_keeps_every_distinct_source() -> None:
+    """Capping is per source, so a long chunk cannot crowd out a short one."""
+    from app.agents.verification_agent import verification_node
+
+    first = _hit("chunk-1")
+    first.payload["text"] = "Section 154 requires registration. " * 300
+    second = _hit("chunk-2")
+    second.payload["text"] = "A refusal may be escalated to the Superintendent."
+
+    captured: dict[str, str] = {}
+
+    class _Verifier:
+        async def structured_with_metrics(self, prompt, schema, **kwargs):
+            captured["prompt"] = prompt
+            return schema(claims=[]), []
+
+    await verification_node(
+        {
+            "draft_answer": (
+                "[LEGAL_BASIS] Registration is required. [SRC:chunk-1] "
+                "[NEXT_STEP] Escalate a refusal. [SRC:chunk-2]"
+            ),
+            "retrieved_chunks": [first, second],
+            "agent_trace": [],
+        },
+        _Verifier(),  # type: ignore[arg-type]
+    )
+
+    assert "CHUNK_ID: chunk-1" in captured["prompt"]
+    assert "CHUNK_ID: chunk-2" in captured["prompt"]
+    assert "escalated to the Superintendent" in captured["prompt"]
