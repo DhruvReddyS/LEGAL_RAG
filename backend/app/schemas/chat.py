@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+import re
 import uuid
 from datetime import datetime
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator
+
+# C0 and C1 control characters, keeping none of them: a legal question has
+# no use for a vertical tab, and NUL cannot be stored at all.
+_CONTROL_CHARACTERS_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]")
 
 from app.schemas.agents import AgentCitation, AgentTraceEvent, QueryIntent
 
@@ -42,9 +47,18 @@ class ChatQueryRequest(BaseModel):
     @field_validator("query")
     @classmethod
     def normalize_query(cls, value: str) -> str:
-        value = value.strip()
+        # Control characters arrive routinely from a PDF copy-paste. PostgreSQL
+        # text columns cannot hold a NUL byte at all, so one reaching the
+        # message insert failed the request with a 500 after the pipeline had
+        # already run.
+        value = _CONTROL_CHARACTERS_RE.sub(" ", value)
+        value = " ".join(value.split())
         if not value:
             raise ValueError("query must not be blank")
+        # Retrieval needs something to search for. A query of only punctuation
+        # produced no search terms and crashed on an empty term set.
+        if not any(character.isalnum() for character in value):
+            raise ValueError("query must contain letters or numbers")
         return value
 
 

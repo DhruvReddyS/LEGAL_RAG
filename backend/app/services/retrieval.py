@@ -416,6 +416,16 @@ class HybridRetrievalService:
         term_document_counts = {
             term: count for term, _, count in term_results
         }
+        if not term_document_counts:
+            # No searchable terms means no lexical evidence, which is an
+            # abstention rather than a crash. Validation should prevent this
+            # reaching here; a 500 is the wrong failure if it ever does.
+            return [], RetrievalTimings(
+                embedding_ms=0.0,
+                qdrant_ms=qdrant_ms,
+                reranking_ms=0.0,
+                total_ms=(perf_counter() - started) * 1000,
+            )
         zero_frequency_terms = sorted(
             term for term, count in term_document_counts.items() if count == 0
         )
