@@ -18,6 +18,8 @@ class AgentState(TypedDict, total=False):
     intent: QueryIntent
     retrieval_query: str
     retrieved_chunks: list[RetrievalHit]
+    retrieval_signature: tuple[str, ...]
+    previous_retrieval_signature: tuple[str, ...]
     draft_answer: str
     verification_result: VerificationResult
     final_answer: str

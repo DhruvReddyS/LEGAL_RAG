@@ -332,6 +332,11 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
     return {
         "retrieval_query": query,
         "retrieved_chunks": hits,
+        # Identity of the evidence this pass found. Generation is deterministic
+        # (temperature 0.0), so an unchanged set guarantees an unchanged answer.
+        "retrieval_signature": tuple(
+            sorted(str(hit.payload.get("chunk_id")) for hit in hits)
+        ),
         "agent_trace": trace,
         "timings": {
             **state.get("timings", {}),

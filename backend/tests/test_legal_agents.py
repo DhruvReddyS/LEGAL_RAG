@@ -819,3 +819,73 @@ async def test_reasoning_prompt_asks_for_fewer_denser_claims() -> None:
     assert f"at most {MAX_CLAIMS} claims" in captured["prompt"]
     assert f"at most {MAX_CLAIM_CHARACTERS} characters" in captured["prompt"]
     assert "fewer, denser" in captured["prompt"]
+
+
+def _verification(score: float):
+    from app.schemas.agents import VerificationResult
+
+    return VerificationResult(
+        score=score, supported_claims=0, total_claims=4, claims=[], unsupported_claims=[]
+    )
+
+
+def test_a_failing_score_retries_within_the_bound() -> None:
+    """The verification branch decides on score and the bound alone.
+
+    Whether the retry will find anything new is unknowable here - its retrieval
+    has not run yet - so that question belongs to _route_after_retrieval.
+    """
+    route = LegalRAGWorkflow._route_after_verification
+
+    assert route({"verification_result": _verification(0.3), "retry_count": 1}) == "retry"
+    assert route({"verification_result": _verification(0.3), "retry_count": 2}) == "proceed"
+
+
+def test_the_first_retry_is_never_suppressed() -> None:
+    """There is no previous signature to compare against on the first pass."""
+    assert (
+        LegalRAGWorkflow._route_after_verification(
+            {
+                "verification_result": _verification(0.3),
+                "retry_count": 0,
+                "retrieval_signature": ("chunk-a",),
+            }
+        )
+        == "retry"
+    )
+
+
+def test_a_passing_score_never_retries() -> None:
+    assert (
+        LegalRAGWorkflow._route_after_verification(
+            {
+                "verification_result": _verification(0.9),
+                "retry_count": 0,
+                "retrieval_signature": ("chunk-a",),
+            }
+        )
+        == "proceed"
+    )
+
+
+def test_a_retry_that_rediscovers_the_same_evidence_skips_regeneration() -> None:
+    """The check must sit after retrieval, not at the verification branch.
+
+    Until the retry's retrieval has run there is no way to know whether it
+    found anything new, so deciding earlier cannot save the work.
+    """
+    route = LegalRAGWorkflow._route_after_retrieval
+
+    repeated = {
+        "retry_count": 1,
+        "verification_result": _verification(0.3),
+        "retrieval_signature": ("chunk-a", "chunk-b"),
+        "previous_retrieval_signature": ("chunk-a", "chunk-b"),
+    }
+    assert route(repeated) == "skip"
+
+    widened = {**repeated, "retrieval_signature": ("chunk-a", "chunk-c")}
+    assert route(widened) == "reason"
+
+    # The first pass has nothing to compare against and must always reason.
+    assert route({"retry_count": 0, "retrieval_signature": ("chunk-a",)}) == "reason"

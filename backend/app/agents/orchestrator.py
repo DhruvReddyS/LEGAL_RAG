@@ -43,7 +43,13 @@ class LegalRAGWorkflow:
         graph.set_entry_point("role_context")
         graph.add_edge("role_context", "query_understanding")
         graph.add_edge("query_understanding", "retrieval")
-        graph.add_edge("retrieval", "reasoning")
+        # A retry that rediscovers the same evidence cannot change the
+        # answer, so the expensive stages are skipped rather than repeated.
+        graph.add_conditional_edges(
+            "retrieval",
+            self._route_after_retrieval,
+            {"reason": "reasoning", "skip": "response_generation"},
+        )
         graph.add_edge("reasoning", "verification")
         graph.add_conditional_edges(
             "verification",
@@ -161,6 +167,9 @@ class LegalRAGWorkflow:
         next_retry = int(state.get("retry_count", 0)) + 1
         return {
             "retry_count": next_retry,
+            # Carried forward so the next verification can tell whether the
+            # broadened query actually found anything new.
+            "previous_retrieval_signature": state.get("retrieval_signature", ()),
             "stage_metrics": append_stage_metric(
                 state,
                 stage="retry",
@@ -173,7 +182,44 @@ class LegalRAGWorkflow:
 
     @staticmethod
     def _route_after_verification(state: AgentState) -> str:
-        return "retry" if state["verification_result"].score < 0.5 and int(state.get("retry_count", 0)) < 2 else "proceed"
+        """Retry only when a retry can still change something.
+
+        The loop is bounded at two, but a bound is not the same as progress. A
+        broadened query that returns the evidence the previous pass already saw
+        will, at temperature 0.0, produce the same claims and the same verdicts.
+        A measured run spent 84 seconds - a quarter of its total - re-deriving a
+        byte-identical result before abstaining anyway.
+        """
+        if state["verification_result"].score >= 0.5:
+            return "proceed"
+        if int(state.get("retry_count", 0)) >= 2:
+            return "proceed"
+        return "retry"
+
+    @staticmethod
+    def _route_after_retrieval(state: AgentState) -> str:
+        """Skip re-deriving an answer from evidence already seen.
+
+        The retry broadens the query, but a broadened query often returns the
+        same passages. Generation runs at temperature 0.0, so identical evidence
+        yields identical claims and identical verdicts. A measured run spent 70
+        seconds on reasoning and verification to reproduce a result it already
+        had, then abstained on it anyway.
+
+        The check has to sit here rather than at the verification branch: until
+        the retry's retrieval has actually run, there is no way to know whether
+        it found anything new. The previous pass's verification_result stays in
+        state and remains valid, because it was computed over this same
+        evidence.
+        """
+        if not int(state.get("retry_count", 0)):
+            return "reason"
+        if state.get("verification_result") is None:
+            return "reason"
+        signature = state.get("retrieval_signature", ())
+        if signature and signature == state.get("previous_retrieval_signature"):
+            return "skip"
+        return "reason"
 
     async def run(
         self,

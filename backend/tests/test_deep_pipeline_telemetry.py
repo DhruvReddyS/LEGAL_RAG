@@ -58,12 +58,25 @@ class InstrumentedFakeLLM:
 
 
 class InstrumentedFakeRetrieval:
+    """Returns fresh evidence on every pass.
+
+    The workflow now stops retrying when a broadened query returns the chunks
+    the previous pass already saw, because generation is deterministic and the
+    verdicts cannot change. A fixture that returned a fixed chunk would
+    therefore exercise the no-progress guard rather than the retry bound this
+    test is about.
+    """
+
+    def __init__(self) -> None:
+        self.passes = 0
+
     async def search_across_collections_with_timings(self, query, **kwargs):
+        self.passes += 1
         return [
             RetrievalHit(
-                point_id="point-1",
+                point_id=f"point-{self.passes}",
                 payload={
-                    "chunk_id": "chunk-1",
+                    "chunk_id": f"chunk-{self.passes}",
                     "title": "Procedure Code",
                     "source_type": "act",
                     "page_start": 1,
