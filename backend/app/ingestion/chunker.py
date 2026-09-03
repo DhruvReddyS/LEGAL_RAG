@@ -5,6 +5,12 @@ import re
 
 from pydantic import BaseModel, Field
 
+from app.ingestion.citations import extract_references, resolve_act
+from app.ingestion.enrichment import (
+    build_embed_text,
+    classify_quality,
+    structural_role,
+)
 from app.ingestion.metadata import CanonicalDocument
 from app.ingestion.structure import StructuralUnit
 
@@ -27,6 +33,23 @@ class LegalChunk(BaseModel):
     page_start: int
     page_end: int
     current_status: str
+    # Which structural unit this chunk came from, and where it sits inside it.
+    # The chunker always knew this and hashed it into chunk_id without storing
+    # it, so there was no way to ask for the rest of a section. Small-to-big
+    # retrieval, judgment summarisation and drafting all need exactly that.
+    unit_id: str = ""
+    unit_ordinal: int = 0
+    unit_count: int = 1
+    # What kind of legal material this is: provision, proviso, ratio, order.
+    structural_role: str = "prose"
+    # Retrieval target. Carries the Act and heading the bare text omits; the
+    # `text` field stays verbatim because citations quote it.
+    embed_text: str = ""
+    # "indexed" or "noise", with the reason recorded for review.
+    quality: str = "indexed"
+    quality_reason: str | None = None
+    cited_provisions: list[str] = Field(default_factory=list)
+    cited_cases: list[str] = Field(default_factory=list)
     superseded_by: str | None = None
     verified_official: bool
     quality_status: str
@@ -78,6 +101,9 @@ def chunk_structural_units(
     overlap_tokens: int = 80,
 ) -> list[LegalChunk]:
     chunks: list[LegalChunk] = []
+    # Resolved once per document: an unqualified section reference inside an
+    # Act means that Act.
+    self_act = resolve_act(f"{document.act_name or ''} {document.title or ''}")
     for unit_index, unit in enumerate(units):
         if not unit.text.strip():
             continue
@@ -94,6 +120,12 @@ def chunk_structural_units(
                 f"{unit.page_start}|{unit.page_end}|{piece}"
             )
             chunk_id = "gold-chunk-" + hashlib.sha256(stable_input.encode()).hexdigest()[:32]
+            unit_id = "gold-unit-" + hashlib.sha256(
+                f"{document.canonical_document_id}|{unit_index}".encode()
+            ).hexdigest()[:32]
+            section = unit.section or document.section
+            quality = classify_quality(piece, section=section)
+            references = extract_references(piece, self_act=self_act)
             chunks.append(
                 LegalChunk(
                     chunk_id=chunk_id,
@@ -113,6 +145,23 @@ def chunk_structural_units(
                     page_start=unit.page_start,
                     page_end=unit.page_end,
                     current_status=document.current_status,
+                    unit_id=unit_id,
+                    unit_ordinal=piece_index,
+                    unit_count=len(pieces),
+                    structural_role=structural_role(
+                        piece, unit_kind=unit.kind, section=section
+                    ),
+                    embed_text=build_embed_text(
+                        piece,
+                        title=document.title,
+                        act_name=document.act_name,
+                        heading_path=unit.heading_path,
+                        section=section,
+                    ),
+                    quality=quality.quality,
+                    quality_reason=quality.reason,
+                    cited_provisions=list(references.provisions),
+                    cited_cases=list(references.cases),
                     superseded_by=document.superseded_by,
                     verified_official=document.verified_official,
                     quality_status=document.quality_status,

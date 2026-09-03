@@ -275,6 +275,15 @@ async def run_pipeline(options: PipelineOptions, *, corpus_root: Path | None = N
                         )
                         units = parse_legal_structure(extracted, document.resolved_type())
                         chunks = chunk_structural_units(document, units)
+                        # Furniture is classified at chunking and dropped here
+                        # rather than filtered at query time, so it never
+                        # occupies an embedding or a candidate slot.
+                        rejected = [
+                            chunk for chunk in chunks if chunk.quality != "indexed"
+                        ]
+                        chunks = [
+                            chunk for chunk in chunks if chunk.quality == "indexed"
+                        ]
                         _write_extracted(root, extracted, document.canonical_document_id)
                         _write_chunks(root, chunks, document.canonical_document_id)
                     if not chunks:
@@ -328,7 +337,13 @@ async def run_pipeline(options: PipelineOptions, *, corpus_root: Path | None = N
 
                         remaining = await asyncio.to_thread(
                             embedder.embed_texts,
-                            [chunk.text for chunk in chunks[prefix_length:]],
+                            # embed_text, not text. The retrieval target carries
+                            # the Act and heading that the bare provision omits;
+                            # `text` stays verbatim because citations quote it.
+                            [
+                                chunk.embed_text or chunk.text
+                                for chunk in chunks[prefix_length:]
+                            ],
                             batch_size=options.embedding_batch_size,
                             on_batch=save_completed_batch,
                             start_index=prefix_length,
