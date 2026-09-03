@@ -141,7 +141,7 @@ def _clear_stale_queued_jobs():
         return
 
     import asyncio
-    from datetime import datetime, timezone
+    from datetime import datetime, timedelta, timezone
 
     async def sweep() -> None:
         from sqlalchemy import delete
@@ -152,13 +152,17 @@ def _clear_stale_queued_jobs():
 
         from app.core.database import engine
 
-        started = datetime.now(timezone.utc)
+        # Only jobs old enough that no run could still be working on them.
+        # "Predates this session" was wrong: a developer with the app open
+        # against the same database had a live Deep job deleted mid-flight, and
+        # the browser then polled a job id that no longer existed.
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=1)
         try:
             async with AsyncSessionLocal() as session:
                 await session.execute(
                     delete(Job).where(
                         Job.status.in_((JobStatus.QUEUED, JobStatus.RUNNING)),
-                        Job.created_at < started,
+                        Job.created_at < cutoff,
                     )
                 )
                 await session.commit()

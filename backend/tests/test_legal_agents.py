@@ -889,3 +889,126 @@ def test_a_retry_that_rediscovers_the_same_evidence_skips_regeneration() -> None
 
     # The first pass has nothing to compare against and must always reason.
     assert route({"retry_count": 0, "retrieval_signature": ("chunk-a",)}) == "reason"
+
+
+class _PartialVerifier:
+    """Returns verdicts for only the first `answered` claims, then all of them."""
+
+    def __init__(self, answered: int, *, answer_retry: bool = True) -> None:
+        self.answered = answered
+        self.answer_retry = answer_retry
+        self.calls = 0
+
+    async def structured_with_metrics(self, prompt, schema, **kwargs):
+        self.calls += 1
+        if self.calls == 1:
+            claims = [
+                {"index": index, "verdict": "yes", "reason": "entailed"}
+                for index in range(1, self.answered + 1)
+            ]
+        elif self.answer_retry:
+            requested = [
+                int(token.strip(" ,."))
+                for token in prompt.split("nothing else:")[1].split(".")[0].split(",")
+            ]
+            claims = [
+                {"index": index, "verdict": "yes", "reason": "entailed"}
+                for index in requested
+            ]
+        else:
+            claims = []
+        return schema(claims=claims), []
+
+
+def _draft(count: int) -> str:
+    return " ".join(
+        f"[LEGAL_BASIS] Supported proposition {index}. [SRC:chunk-{index}]"
+        for index in range(1, count + 1)
+    )
+
+
+def _hits(count: int):
+    hits = []
+    for index in range(1, count + 1):
+        hit = _hit(f"chunk-{index}")
+        hit.payload["text"] = f"Premise {index} establishing the proposition."
+        hits.append(hit)
+    return hits
+
+
+@pytest.mark.asyncio
+async def test_missing_verdicts_are_requested_again_before_scoring() -> None:
+    """Measured runs returned three verdicts for ten and for fourteen claims."""
+    from app.agents.verification_agent import verification_node
+
+    verifier = _PartialVerifier(answered=3)
+    result = await verification_node(
+        {"draft_answer": _draft(10), "retrieved_chunks": _hits(10), "agent_trace": []},
+        verifier,  # type: ignore[arg-type]
+    )
+
+    assert verifier.calls == 2, "the verifier must be asked again for what it skipped"
+    assert result["verification_result"].score == 1.0
+    assert result["agent_trace"][-1].details["unadjudicated"] == 0
+
+
+@pytest.mark.asyncio
+async def test_a_claim_never_ruled_on_is_not_counted_as_refuted() -> None:
+    """Unknown is not the same as refuted.
+
+    Three verdicts out of fourteen scored 3/14 = 0.214 against a 0.5 threshold,
+    so the graph abstained on an answer whose every adjudicated claim passed.
+    """
+    from app.agents.verification_agent import verification_node
+
+    result = await verification_node(
+        {"draft_answer": _draft(10), "retrieved_chunks": _hits(10), "agent_trace": []},
+        _PartialVerifier(answered=3, answer_retry=False),  # type: ignore[arg-type]
+    )
+
+    verification = result["verification_result"]
+    # Three of three adjudicated claims passed, so the score is 1.0, not 0.3.
+    assert verification.score == 1.0
+    assert result["agent_trace"][-1].details["unadjudicated"] == 7
+
+
+@pytest.mark.asyncio
+async def test_an_unadjudicated_claim_is_still_never_published() -> None:
+    """Excluding them from the score must not let them reach a reader."""
+    from app.agents.response_generation import response_generation_node
+    from app.agents.verification_agent import verification_node
+
+    hits = _hits(10)
+    state = await verification_node(
+        {"draft_answer": _draft(10), "retrieved_chunks": hits, "agent_trace": []},
+        _PartialVerifier(answered=3, answer_retry=False),  # type: ignore[arg-type]
+    )
+    published = response_generation_node(
+        {**state, "retrieved_chunks": hits, "role": "citizen", "retry_count": 0}
+    )
+
+    answer = published["final_answer"]
+    # Response generation strips the trailing stop before appending the marker,
+    # so a claim renders as "proposition 1 [Source 1]."
+    for index in range(4, 11):
+        assert f"proposition {index} " not in answer, index
+    for index in range(1, 4):
+        assert f"proposition {index} [Source" in answer, index
+
+
+@pytest.mark.asyncio
+async def test_a_fabricated_chunk_id_still_counts_against_the_score() -> None:
+    """A claim citing evidence that was never retrieved is not merely unknown."""
+    from app.agents.verification_agent import verification_node
+
+    draft = (
+        "[LEGAL_BASIS] Grounded proposition. [SRC:chunk-1] "
+        "[LEGAL_BASIS] Invented proposition. [SRC:chunk-invented]"
+    )
+    result = await verification_node(
+        {"draft_answer": draft, "retrieved_chunks": _hits(1), "agent_trace": []},
+        _PartialVerifier(answered=1),  # type: ignore[arg-type]
+    )
+
+    # One adjudicated pass plus one fabricated citation in the denominator.
+    assert result["verification_result"].score == 0.5

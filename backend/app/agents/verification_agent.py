@@ -137,23 +137,54 @@ material claim; partial for incomplete support; no otherwise. Return JSON.
         try:
             batch, llm_calls = await structured_with_metrics(llm, prompt, VerificationBatch)
             seen_indexes: set[int] = set()
-            for item in batch.claims:
-                if item.index > len(valid_pairs) or item.index in seen_indexes:
-                    continue
-                seen_indexes.add(item.index)
-                category, claim, chunk_id = valid_pairs[item.index - 1]
-                verdict = item.verdict.casefold()
-                if verdict not in {"yes", "partial", "no"}:
-                    verdict = "no"
-                verified.append(
-                    ClaimVerification(
-                        claim=claim,
-                        chunk_id=chunk_id,
-                        category=category,
-                        verdict=verdict,
-                        reason=item.reason,
+
+            def collect(items) -> None:
+                for item in items:
+                    if item.index > len(valid_pairs) or item.index in seen_indexes:
+                        continue
+                    seen_indexes.add(item.index)
+                    category, claim, chunk_id = valid_pairs[item.index - 1]
+                    verdict = item.verdict.casefold()
+                    if verdict not in {"yes", "partial", "no"}:
+                        verdict = "no"
+                    verified.append(
+                        ClaimVerification(
+                            claim=claim,
+                            chunk_id=chunk_id,
+                            category=category,
+                            verdict=verdict,
+                            reason=item.reason,
+                        )
                     )
+
+            collect(batch.claims)
+
+            # The verifier routinely returns fewer verdicts than it was sent -
+            # measured runs came back with three verdicts for ten and for
+            # fourteen claims, and the rest were being recorded as refuted.
+            # Ask once more for only what it skipped, listing the indexes
+            # explicitly so the request is small and unambiguous.
+            outstanding = [
+                index for index in range(1, len(valid_pairs) + 1)
+                if index not in seen_indexes
+            ]
+            if outstanding:
+                retry_prompt = (
+                    "You returned no verdict for some claims. Return a verdict for "
+                    "EVERY index listed here and nothing else: "
+                    f"{', '.join(str(index) for index in outstanding)}.\n"
+                    "Verify each claim only against the PREMISE_TEXT in its own source "
+                    "block. Verdict must be yes, partial, or no. Return JSON.\n\n"
+                    f"{items}"
                 )
+                try:
+                    second, retry_calls = await structured_with_metrics(
+                        llm, retry_prompt, VerificationBatch
+                    )
+                    llm_calls = [*llm_calls, *retry_calls]
+                    collect(second.claims)
+                except RuntimeError as exc:
+                    llm_calls = [*llm_calls, *getattr(exc, "telemetry_metrics", [])]
         except RuntimeError as exc:
             llm_calls = list(getattr(exc, "telemetry_metrics", []))
             fallback_used = True
@@ -168,22 +199,43 @@ material claim; partial for incomplete support; no otherwise. Return JSON.
                 for category, claim, chunk_id in valid_pairs
             ]
 
+    # A claim the verifier never ruled on is unknown, not refuted. Scoring the
+    # two identically is what collapsed a well-grounded answer: three verdicts
+    # returned for fourteen claims scored 3/14 = 0.214 against a 0.5 threshold,
+    # so the graph abstained on an answer whose every adjudicated claim had
+    # passed. Unadjudicated claims are excluded from the denominator and still
+    # never published, because response generation publishes "yes" only. The
+    # gate is unchanged for every claim that actually received a verdict.
     accounted = {(item.claim, item.chunk_id) for item in verified}
-    for category, claim, chunk_id in valid_pairs:
-        if (claim, chunk_id) not in accounted:
-            verified.append(
-                ClaimVerification(
-                    claim=claim,
-                    chunk_id=chunk_id,
-                    category=category,
-                    verdict="no",
-                    reason="No verifier result",
-                )
+    unadjudicated = [
+        (category, claim, chunk_id)
+        for category, claim, chunk_id in valid_pairs
+        if (claim, chunk_id) not in accounted
+    ]
+    for category, claim, chunk_id in unadjudicated:
+        verified.append(
+            ClaimVerification(
+                claim=claim,
+                chunk_id=chunk_id,
+                category=category,
+                verdict="no",
+                reason="No verifier result",
             )
-    total = max(len(pairs), 1)
-    support = sum(1.0 if item.verdict == "yes" else 0.5 if item.verdict == "partial" else 0.0 for item in verified)
+        )
+    adjudicated = [
+        item for item in verified if item.reason != "No verifier result"
+    ]
+    # Claims whose chunk ID was not retrieved stay in the denominator: those
+    # are fabricated citations, and the answer should be penalised for them.
+    total = max(len(adjudicated) + len(missing), 1)
+    support = sum(
+        1.0 if item.verdict == "yes" else 0.5 if item.verdict == "partial" else 0.0
+        for item in adjudicated
+    )
     score = 0.0 if not pairs or draft == INSUFFICIENT_EVIDENCE else support / total
-    unsupported = missing + [item.claim for item in verified if item.verdict == "no"]
+    unsupported = missing + [
+        item.claim for item in adjudicated if item.verdict == "no"
+    ]
     result = VerificationResult(
         score=max(0.0, min(1.0, score)),
         supported_claims=sum(item.verdict == "yes" for item in verified),
@@ -199,6 +251,7 @@ material claim; partial for incomplete support; no otherwise. Return JSON.
                 "score": result.score,
                 "claims": result.total_claims,
                 "unsupported": len(result.unsupported_claims),
+                "unadjudicated": len(unadjudicated),
             },
         )
     )
@@ -222,6 +275,8 @@ material claim; partial for incomplete support; no otherwise. Return JSON.
             "score": result.score,
             "fallback_used": fallback_used,
             "llm_skipped": not valid_pairs,
+            "adjudicated_claim_count": len(adjudicated),
+            "unadjudicated_claim_count": len(unadjudicated),
         },
         llm_calls=llm_calls,
     )
