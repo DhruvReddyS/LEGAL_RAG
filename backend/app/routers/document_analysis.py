@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.case_scope import collection_for_case_role
 from app.core.database import get_db_session
+from app.core.config import settings
 from app.core.permissions import CASE_DOCUMENT_MANAGE_OWN, CASE_READ_OWN, CORPUS_READ
 from app.core.rbac import require_permission
 from app.ingestion.init_qdrant import GLOBAL_LEGAL_CORPUS
@@ -54,6 +55,11 @@ async def analyze_document(
     runtime: AnalyzerRuntime = Depends(get_analyzer_runtime),
     session: AsyncSession = Depends(get_db_session),
 ) -> DocumentAnalysisResponse:
+    if not settings.legacy_sync_long_running_enabled:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Synchronous analysis is disabled; enqueue /jobs/document-analysis",
+        )
     case = await session.get(Case, case_id)
     if case is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Case not found")

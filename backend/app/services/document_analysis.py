@@ -193,6 +193,7 @@ class DocumentAnalysisService:
         document: CaseDocument,
         user: User,
         focus: str | None,
+        commit: bool = True,
     ) -> DocumentAnalysisResponse:
         all_points = await self._document_points(case, document)
         if not all_points:
@@ -270,8 +271,11 @@ END DOCUMENT EVIDENCE"""
                 },
             )
         )
-        await self.session.commit()
-        await self.session.refresh(generated)
+        if commit:
+            await self.session.commit()
+            await self.session.refresh(generated)
+        else:
+            await self.session.flush()
         return DocumentAnalysisResponse(
             id=generated.id,
             case_id=case.id,

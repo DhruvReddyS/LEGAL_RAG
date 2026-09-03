@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, File, Query, Request, Response, UploadFi
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db_session
+from app.core.config import settings
 from app.core.permissions import CASE_DOCUMENT_MANAGE_OWN, CASE_READ_OWN
 from app.core.rbac import require_permission
 from app.models import AuditLog, Case, User
@@ -62,6 +63,13 @@ async def index_case_object(
     session: AsyncSession = Depends(get_db_session),
     retrieval: HybridRetrievalService = Depends(get_retrieval_service),
 ) -> CaseDocumentIndexResponse:
+    if not settings.legacy_sync_long_running_enabled:
+        from fastapi import HTTPException
+
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Synchronous indexing is disabled; enqueue /jobs/ocr-ingestion",
+        )
     case = await session.get(Case, case_id)
     service = DocumentStorageService(session)
     stored = await service._authorized_object(object_id, current_user)

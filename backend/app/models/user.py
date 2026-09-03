@@ -88,3 +88,4 @@ class User(Base):
     bookmarks: Mapped[list[Bookmark]] = relationship(back_populates="user")
     feedback: Mapped[list[Feedback]] = relationship(back_populates="user")
     storage_objects: Mapped[list[StorageObject]] = relationship(back_populates="owner")
+    jobs: Mapped[list[Job]] = relationship(back_populates="user", cascade="all, delete-orphan")
