@@ -28,8 +28,9 @@ from app.schemas.chat import (
     ChatSessionResponse,
     ChatSessionSummary,
 )
-from app.schemas.agents import AgentTraceEvent
+from app.schemas.agents import AgentTraceEvent, QueryIntent
 from app.services.adaptive_routing import route_legal_query
+from app.services.citizen_safety import screen_citizen_query
 from app.services.rate_limit import RateLimitExceeded, user_rate_limiter
 from app.services.jobs import append_job_event
 
@@ -112,6 +113,68 @@ async def query_chat(
     )
     session.add(user_message)
     await session.flush()
+    # Screened before routing, retrieval or generation. An emergency needs a
+    # phone number now, and a request for a decision or an outcome would
+    # otherwise be answered fluently from statute text and pass verification,
+    # because every claim would be grounded. Grounding is not appropriateness.
+    intervention = screen_citizen_query(request.query)
+    if intervention is not None:
+        assistant_message = ChatMessage(
+            session_id=chat_session.id,
+            role=ChatMessageRole.ASSISTANT,
+            content=intervention.answer,
+            citations=[],
+            confidence_score=Decimal("0"),
+        )
+        session.add(assistant_message)
+        await session.flush()
+        session.add(
+            AuditLog(
+                user_id=user.id,
+                action=f"chat.{intervention.kind}",
+                resource_type="chat_session",
+                resource_id=chat_session.id,
+                metadata_={
+                    "message_id": str(assistant_message.id),
+                    "reason": intervention.reason,
+                    # The query itself is deliberately not recorded here: an
+                    # audit row must not become the durable copy of a distress
+                    # disclosure. The session already holds the user message.
+                },
+            )
+        )
+        await session.commit()
+        timings = {"api_total_ms": round((perf_counter() - request_started) * 1000, 2)}
+        return ChatQueryResponse(
+            session_id=chat_session.id,
+            message_id=assistant_message.id,
+            answer=intervention.answer,
+            citations=[],
+            confidence_score=0.0,
+            evidence_strength="insufficient",
+            intent=QueryIntent(
+                intent=intervention.kind,
+                entities=[],
+                language="English",
+                complexity="simple",
+                retrieval_query="",
+            ),
+            agent_trace=[
+                AgentTraceEvent(
+                    node="citizen_safety",
+                    details={"kind": intervention.kind, "reason": intervention.reason},
+                )
+            ],
+            response_mode="fast",
+            requested_mode=request.response_mode,
+            routing_reason=f"safety_{intervention.kind}",
+            routing_signals=[intervention.reason],
+            timings_ms=timings,
+            pipeline_metrics=[],
+            latency_target_ms=settings.fast_latency_target_ms,
+            target_met=True,
+        )
+
     from app.services.citizen_context import select_document_context
     document_context = select_document_context(request.query, request.documents)
     routing = route_legal_query(
