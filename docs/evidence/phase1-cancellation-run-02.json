@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-30T16:22:29.259023+00:00",
+  "job_id": "2e35fccb-a529-46da-961c-260f0c7642d4",
+  "credentials_recorded": false,
+  "response_text_recorded": false,
+  "cancel_requested_during": "reasoning",
+  "cancel_delay_after_reasoning_started_seconds": 5.0,
+  "reasoning_event": {
+    "id": 238,
+    "created_at": "2026-08-30T16:22:20.404893Z",
+    "progress": 50
+  },
+  "cancel_http_ms": 39.985959,
+  "cancel_response_status": "running",
+  "terminal_status": "cancelled",
+  "terminal_after_cancel_ms": 538.624,
+  "post_cancel_ollama_probe_ms": 3062.325375,
+  "post_cancel_ollama_probe_done_reason": "length",
+  "post_cancel_ollama_probe_eval_count": 1
+}

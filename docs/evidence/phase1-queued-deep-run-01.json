@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-31T02:51:04.150037+00:00",
+  "scenario": "two_queued_deep_jobs",
+  "credentials_recorded": false,
+  "records": [
+    {
+      "position": 1,
+      "job_id": "4d9ca0ec-967e-4709-8261-553daf0e1a4d",
+      "status": "succeeded",
+      "attempt_count": 1,
+      "enqueue_http_ms": 33.977083,
+      "queue_wait_ms": 182.095,
+      "service_ms": 332972.397,
+      "end_to_end_ms": 333154.492,
+      "citation_count": 2,
+      "answer_text_recorded": false
+    },
+    {
+      "position": 2,
+      "job_id": "304ea34d-237a-4ba3-9697-e3adeee5553b",
+      "status": "succeeded",
+      "attempt_count": 1,
+      "enqueue_http_ms": 12.909541,
+      "queue_wait_ms": 333166.63,
+      "service_ms": 209936.002,
+      "end_to_end_ms": 543102.632,
+      "citation_count": 2,
+      "answer_text_recorded": false
+    }
+  ]
+}

@@ -1,0 +1,847 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-31T02:23:43.349249+00:00",
+  "base_url": "http://127.0.0.1:8000",
+  "scenario": "one_deep_three_fast",
+  "cohort": "4b9fe33817dd",
+  "credentials_recorded": false,
+  "response_text_recorded": false,
+  "deep": {
+    "job_id": "d967166c-030a-4211-a858-e3074c7dd2f2",
+    "enqueue_http_ms": 107.285625,
+    "first_durable_progress": {
+      "id": 444,
+      "event_type": "status",
+      "stage": "running",
+      "progress": 1,
+      "created_at": "2026-08-31T02:21:14.016827Z",
+      "wall_ms_after_enqueue_start": 656.670667
+    },
+    "terminal_status": "succeeded",
+    "progress": 100,
+    "attempt_count": 1,
+    "created_at": "2026-08-31T02:21:13.512938Z",
+    "started_at": "2026-08-31T02:21:14.018009Z",
+    "completed_at": "2026-08-31T02:23:42.280217Z",
+    "end_to_end_wall_ms": 149838.010167,
+    "workflow_total_ms": 148219.2809,
+    "citation_count": 2,
+    "ollama_token_rates": [
+      11.884077016283443,
+      12.096314767709435,
+      11.959952100391838
+    ],
+    "ollama_time_to_first_response_token_ms": [
+      2595.632709,
+      5502.444753,
+      7372.235212
+    ],
+    "answer_quality_checks": {
+      "has_structured_heading": true,
+      "has_direct_answer_heading": true,
+      "has_legal_basis_heading": false,
+      "has_source_reference": true,
+      "mentions_rag": false,
+      "mentions_chunk": false,
+      "has_professional_disclaimer": true
+    },
+    "events_seen": [
+      {
+        "id": 443,
+        "event_type": "status",
+        "stage": "queued",
+        "progress": 0,
+        "created_at": "2026-08-31T02:21:13.512938Z"
+      },
+      {
+        "id": 444,
+        "event_type": "status",
+        "stage": "running",
+        "progress": 1,
+        "created_at": "2026-08-31T02:21:14.016827Z"
+      },
+      {
+        "id": 445,
+        "event_type": "stage",
+        "stage": "query_understanding",
+        "progress": 10,
+        "created_at": "2026-08-31T02:21:14.071365Z"
+      },
+      {
+        "id": 446,
+        "event_type": "stage",
+        "stage": "query_understanding",
+        "progress": 15,
+        "created_at": "2026-08-31T02:21:26.789825Z"
+      },
+      {
+        "id": 447,
+        "event_type": "stage",
+        "stage": "retrieval",
+        "progress": 25,
+        "created_at": "2026-08-31T02:21:26.818689Z"
+      },
+      {
+        "id": 448,
+        "event_type": "stage",
+        "stage": "retrieval",
+        "progress": 30,
+        "created_at": "2026-08-31T02:22:25.389492Z"
+      },
+      {
+        "id": 449,
+        "event_type": "stage",
+        "stage": "reasoning",
+        "progress": 50,
+        "created_at": "2026-08-31T02:22:25.450663Z"
+      },
+      {
+        "id": 450,
+        "event_type": "stage",
+        "stage": "reasoning",
+        "progress": 55,
+        "created_at": "2026-08-31T02:23:22.737201Z"
+      },
+      {
+        "id": 451,
+        "event_type": "stage",
+        "stage": "verification",
+        "progress": 75,
+        "created_at": "2026-08-31T02:23:22.751665Z"
+      },
+      {
+        "id": 452,
+        "event_type": "stage",
+        "stage": "verification",
+        "progress": 80,
+        "created_at": "2026-08-31T02:23:42.204921Z"
+      },
+      {
+        "id": 453,
+        "event_type": "stage",
+        "stage": "response_generation",
+        "progress": 90,
+        "created_at": "2026-08-31T02:23:42.241844Z"
+      },
+      {
+        "id": 454,
+        "event_type": "stage",
+        "stage": "response_generation",
+        "progress": 95,
+        "created_at": "2026-08-31T02:23:42.249739Z"
+      },
+      {
+        "id": 455,
+        "event_type": "citation",
+        "stage": "response_generation",
+        "progress": 95,
+        "created_at": "2026-08-31T02:23:42.259719Z"
+      },
+      {
+        "id": 456,
+        "event_type": "citation",
+        "stage": "response_generation",
+        "progress": 95,
+        "created_at": "2026-08-31T02:23:42.259719Z"
+      },
+      {
+        "id": 457,
+        "event_type": "answer_chunk",
+        "stage": "response_generation",
+        "progress": 95,
+        "created_at": "2026-08-31T02:23:42.259719Z"
+      },
+      {
+        "id": 458,
+        "event_type": "answer_chunk",
+        "stage": "response_generation",
+        "progress": 95,
+        "created_at": "2026-08-31T02:23:42.259719Z"
+      },
+      {
+        "id": 459,
+        "event_type": "answer_chunk",
+        "stage": "response_generation",
+        "progress": 95,
+        "created_at": "2026-08-31T02:23:42.259719Z"
+      },
+      {
+        "id": 460,
+        "event_type": "answer_chunk",
+        "stage": "response_generation",
+        "progress": 95,
+        "created_at": "2026-08-31T02:23:42.259719Z"
+      },
+      {
+        "id": 461,
+        "event_type": "answer_chunk",
+        "stage": "response_generation",
+        "progress": 95,
+        "created_at": "2026-08-31T02:23:42.259719Z"
+      },
+      {
+        "id": 462,
+        "event_type": "answer_chunk",
+        "stage": "response_generation",
+        "progress": 95,
+        "created_at": "2026-08-31T02:23:42.259719Z"
+      },
+      {
+        "id": 463,
+        "event_type": "answer_chunk",
+        "stage": "response_generation",
+        "progress": 95,
+        "created_at": "2026-08-31T02:23:42.259719Z"
+      },
+      {
+        "id": 464,
+        "event_type": "status",
+        "stage": "succeeded",
+        "progress": 100,
+        "created_at": "2026-08-31T02:23:42.259719Z"
+      }
+    ]
+  },
+  "fast": {
+    "records": [
+      {
+        "user_index": 2,
+        "wall_ms": 8489.352291,
+        "api_total_ms": 8413.16,
+        "embedding_ms": 7116.96,
+        "qdrant_ms": 1097.13,
+        "citation_count": 4,
+        "target_met": false,
+        "status_code": 200
+      },
+      {
+        "user_index": 3,
+        "wall_ms": 8487.78925,
+        "api_total_ms": 8431.7,
+        "embedding_ms": 7105.31,
+        "qdrant_ms": 1118.35,
+        "citation_count": 4,
+        "target_met": false,
+        "status_code": 200
+      },
+      {
+        "user_index": 4,
+        "wall_ms": 8486.303084,
+        "api_total_ms": 8425.72,
+        "embedding_ms": 7112.23,
+        "qdrant_ms": 1024.89,
+        "citation_count": 2,
+        "target_met": false,
+        "status_code": 200
+      }
+    ],
+    "summary_wall_ms": {
+      "min": 8486.303084,
+      "mean": 8487.814874999998,
+      "p95": 8489.1959869,
+      "max": 8489.352291
+    }
+  },
+  "resource_samples": [
+    {
+      "observed_at": "2026-08-31T02:21:13.616553+00:00",
+      "host_cpu_percent": 33.3,
+      "host_memory_used_bytes": 17811226624,
+      "host_memory_percent": 92.9,
+      "backend_container": {
+        "BlockIO": "0B / 4.1kB",
+        "CPUPerc": "115.03%",
+        "Container": "multi-agent-legal-rag-backend-1",
+        "ID": "a5aec3b5588d",
+        "MemPerc": "24.83%",
+        "MemUsage": "1.924GiB / 7.748GiB",
+        "Name": "multi-agent-legal-rag-backend-1",
+        "NetIO": "93.9kB / 118kB",
+        "PIDs": "82"
+      },
+      "ollama_models": [
+        {
+          "name": "qwen3-14b-16k:latest",
+          "size": 11661717011,
+          "size_vram": 11661717011,
+          "context_length": 16384
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-08-31T02:21:19.745250+00:00",
+      "host_cpu_percent": 43.9,
+      "host_memory_used_bytes": 17970446336,
+      "host_memory_percent": 92.3,
+      "backend_container": {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "1055.67%",
+        "Container": "multi-agent-legal-rag-backend-1",
+        "ID": "a5aec3b5588d",
+        "MemPerc": "24.88%",
+        "MemUsage": "1.927GiB / 7.748GiB",
+        "Name": "multi-agent-legal-rag-backend-1",
+        "NetIO": "117kB / 140kB",
+        "PIDs": "82"
+      },
+      "ollama_models": [
+        {
+          "name": "qwen3-14b-16k:latest",
+          "size": 11661717011,
+          "size_vram": 11661717011,
+          "context_length": 16384
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-08-31T02:21:26.265819+00:00",
+      "host_cpu_percent": 39.4,
+      "host_memory_used_bytes": 17886953472,
+      "host_memory_percent": 92.4,
+      "backend_container": {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "672.33%",
+        "Container": "multi-agent-legal-rag-backend-1",
+        "ID": "a5aec3b5588d",
+        "MemPerc": "25.05%",
+        "MemUsage": "1.941GiB / 7.748GiB",
+        "Name": "multi-agent-legal-rag-backend-1",
+        "NetIO": "208kB / 386kB",
+        "PIDs": "82"
+      },
+      "ollama_models": [
+        {
+          "name": "qwen3-14b-16k:latest",
+          "size": 11661717011,
+          "size_vram": 11661717011,
+          "context_length": 16384
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-08-31T02:21:32.646664+00:00",
+      "host_cpu_percent": 27.1,
+      "host_memory_used_bytes": 17750048768,
+      "host_memory_percent": 92.0,
+      "backend_container": {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "633.58%",
+        "Container": "multi-agent-legal-rag-backend-1",
+        "ID": "a5aec3b5588d",
+        "MemPerc": "35.58%",
+        "MemUsage": "2.757GiB / 7.748GiB",
+        "Name": "multi-agent-legal-rag-backend-1",
+        "NetIO": "278kB / 463kB",
+        "PIDs": "100"
+      },
+      "ollama_models": [
+        {
+          "name": "qwen3-14b-16k:latest",
+          "size": 11661717011,
+          "size_vram": 11661717011,
+          "context_length": 16384
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-08-31T02:21:38.799728+00:00",
+      "host_cpu_percent": 50.1,
+      "host_memory_used_bytes": 17686822912,
+      "host_memory_percent": 92.5,
+      "backend_container": {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "680.60%",
+        "Container": "multi-agent-legal-rag-backend-1",
+        "ID": "a5aec3b5588d",
+        "MemPerc": "43.34%",
+        "MemUsage": "3.358GiB / 7.748GiB",
+        "Name": "multi-agent-legal-rag-backend-1",
+        "NetIO": "305kB / 493kB",
+        "PIDs": "100"
+      },
+      "ollama_models": [
+        {
+          "name": "qwen3-14b-16k:latest",
+          "size": 11661717011,
+          "size_vram": 11661717011,
+          "context_length": 16384
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-08-31T02:21:44.966585+00:00",
+      "host_cpu_percent": 54.6,
+      "host_memory_used_bytes": 17520050176,
+      "host_memory_percent": 92.0,
+      "backend_container": {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "1237.73%",
+        "Container": "multi-agent-legal-rag-backend-1",
+        "ID": "a5aec3b5588d",
+        "MemPerc": "47.28%",
+        "MemUsage": "3.663GiB / 7.748GiB",
+        "Name": "multi-agent-legal-rag-backend-1",
+        "NetIO": "326kB / 516kB",
+        "PIDs": "100"
+      },
+      "ollama_models": [
+        {
+          "name": "qwen3-14b-16k:latest",
+          "size": 11661717011,
+          "size_vram": 11661717011,
+          "context_length": 16384
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-08-31T02:21:51.042465+00:00",
+      "host_cpu_percent": 63.6,
+      "host_memory_used_bytes": 17463771136,
+      "host_memory_percent": 92.2,
+      "backend_container": {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "1376.39%",
+        "Container": "multi-agent-legal-rag-backend-1",
+        "ID": "a5aec3b5588d",
+        "MemPerc": "47.54%",
+        "MemUsage": "3.683GiB / 7.748GiB",
+        "Name": "multi-agent-legal-rag-backend-1",
+        "NetIO": "351kB / 545kB",
+        "PIDs": "100"
+      },
+      "ollama_models": [
+        {
+          "name": "qwen3-14b-16k:latest",
+          "size": 11661717011,
+          "size_vram": 11661717011,
+          "context_length": 16384
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-08-31T02:21:57.150657+00:00",
+      "host_cpu_percent": 63.7,
+      "host_memory_used_bytes": 17620500480,
+      "host_memory_percent": 91.7,
+      "backend_container": {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "1184.74%",
+        "Container": "multi-agent-legal-rag-backend-1",
+        "ID": "a5aec3b5588d",
+        "MemPerc": "47.24%",
+        "MemUsage": "3.66GiB / 7.748GiB",
+        "Name": "multi-agent-legal-rag-backend-1",
+        "NetIO": "384kB / 582kB",
+        "PIDs": "100"
+      },
+      "ollama_models": [
+        {
+          "name": "qwen3-14b-16k:latest",
+          "size": 11661717011,
+          "size_vram": 11661717011,
+          "context_length": 16384
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-08-31T02:22:03.873155+00:00",
+      "host_cpu_percent": 62.0,
+      "host_memory_used_bytes": 17816125440,
+      "host_memory_percent": 92.2,
+      "backend_container": {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "1190.25%",
+        "Container": "multi-agent-legal-rag-backend-1",
+        "ID": "a5aec3b5588d",
+        "MemPerc": "47.94%",
+        "MemUsage": "3.715GiB / 7.748GiB",
+        "Name": "multi-agent-legal-rag-backend-1",
+        "NetIO": "410kB / 610kB",
+        "PIDs": "101"
+      },
+      "ollama_models": [
+        {
+          "name": "qwen3-14b-16k:latest",
+          "size": 11661717011,
+          "size_vram": 11661717011,
+          "context_length": 16384
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-08-31T02:22:09.962981+00:00",
+      "host_cpu_percent": 63.1,
+      "host_memory_used_bytes": 17679941632,
+      "host_memory_percent": 92.7,
+      "backend_container": {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "1224.12%",
+        "Container": "multi-agent-legal-rag-backend-1",
+        "ID": "a5aec3b5588d",
+        "MemPerc": "47.87%",
+        "MemUsage": "3.709GiB / 7.748GiB",
+        "Name": "multi-agent-legal-rag-backend-1",
+        "NetIO": "434kB / 638kB",
+        "PIDs": "100"
+      },
+      "ollama_models": [
+        {
+          "name": "qwen3-14b-16k:latest",
+          "size": 11661717011,
+          "size_vram": 11661717011,
+          "context_length": 16384
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-08-31T02:22:16.040020+00:00",
+      "host_cpu_percent": 63.0,
+      "host_memory_used_bytes": 17634164736,
+      "host_memory_percent": 92.7,
+      "backend_container": {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "1105.65%",
+        "Container": "multi-agent-legal-rag-backend-1",
+        "ID": "a5aec3b5588d",
+        "MemPerc": "48.15%",
+        "MemUsage": "3.73GiB / 7.748GiB",
+        "Name": "multi-agent-legal-rag-backend-1",
+        "NetIO": "467kB / 676kB",
+        "PIDs": "100"
+      },
+      "ollama_models": [
+        {
+          "name": "qwen3-14b-16k:latest",
+          "size": 11661717011,
+          "size_vram": 11661717011,
+          "context_length": 16384
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-08-31T02:22:23.043748+00:00",
+      "host_cpu_percent": 60.5,
+      "host_memory_used_bytes": 17801297920,
+      "host_memory_percent": 91.1,
+      "backend_container": {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "885.48%",
+        "Container": "multi-agent-legal-rag-backend-1",
+        "ID": "a5aec3b5588d",
+        "MemPerc": "48.35%",
+        "MemUsage": "3.746GiB / 7.748GiB",
+        "Name": "multi-agent-legal-rag-backend-1",
+        "NetIO": "494kB / 707kB",
+        "PIDs": "100"
+      },
+      "ollama_models": [
+        {
+          "name": "qwen3-14b-16k:latest",
+          "size": 11661717011,
+          "size_vram": 11661717011,
+          "context_length": 16384
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-08-31T02:22:29.107171+00:00",
+      "host_cpu_percent": 31.5,
+      "host_memory_used_bytes": 17511284736,
+      "host_memory_percent": 92.0,
+      "backend_container": {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "1.72%",
+        "Container": "multi-agent-legal-rag-backend-1",
+        "ID": "a5aec3b5588d",
+        "MemPerc": "48.35%",
+        "MemUsage": "3.746GiB / 7.748GiB",
+        "Name": "multi-agent-legal-rag-backend-1",
+        "NetIO": "532kB / 778kB",
+        "PIDs": "100"
+      },
+      "ollama_models": [
+        {
+          "name": "qwen3-14b-16k:latest",
+          "size": 11661717011,
+          "size_vram": 11661717011,
+          "context_length": 16384
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-08-31T02:22:35.154787+00:00",
+      "host_cpu_percent": 14.7,
+      "host_memory_used_bytes": 17669242880,
+      "host_memory_percent": 92.3,
+      "backend_container": {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "7.22%",
+        "Container": "multi-agent-legal-rag-backend-1",
+        "ID": "a5aec3b5588d",
+        "MemPerc": "48.47%",
+        "MemUsage": "3.755GiB / 7.748GiB",
+        "Name": "multi-agent-legal-rag-backend-1",
+        "NetIO": "573kB / 814kB",
+        "PIDs": "101"
+      },
+      "ollama_models": [
+        {
+          "name": "qwen3-14b-16k:latest",
+          "size": 11661717011,
+          "size_vram": 11661717011,
+          "context_length": 16384
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-08-31T02:22:41.208601+00:00",
+      "host_cpu_percent": 16.2,
+      "host_memory_used_bytes": 17733468160,
+      "host_memory_percent": 91.9,
+      "backend_container": {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "2.46%",
+        "Container": "multi-agent-legal-rag-backend-1",
+        "ID": "a5aec3b5588d",
+        "MemPerc": "48.35%",
+        "MemUsage": "3.746GiB / 7.748GiB",
+        "Name": "multi-agent-legal-rag-backend-1",
+        "NetIO": "619kB / 855kB",
+        "PIDs": "100"
+      },
+      "ollama_models": [
+        {
+          "name": "qwen3-14b-16k:latest",
+          "size": 11661717011,
+          "size_vram": 11661717011,
+          "context_length": 16384
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-08-31T02:22:47.253576+00:00",
+      "host_cpu_percent": 12.4,
+      "host_memory_used_bytes": 17592008704,
+      "host_memory_percent": 92.0,
+      "backend_container": {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "2.53%",
+        "Container": "multi-agent-legal-rag-backend-1",
+        "ID": "a5aec3b5588d",
+        "MemPerc": "48.35%",
+        "MemUsage": "3.746GiB / 7.748GiB",
+        "Name": "multi-agent-legal-rag-backend-1",
+        "NetIO": "660kB / 893kB",
+        "PIDs": "100"
+      },
+      "ollama_models": [
+        {
+          "name": "qwen3-14b-16k:latest",
+          "size": 11661717011,
+          "size_vram": 11661717011,
+          "context_length": 16384
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-08-31T02:22:53.649295+00:00",
+      "host_cpu_percent": 12.5,
+      "host_memory_used_bytes": 17929371648,
+      "host_memory_percent": 88.5,
+      "backend_container": {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "2.86%",
+        "Container": "multi-agent-legal-rag-backend-1",
+        "ID": "a5aec3b5588d",
+        "MemPerc": "48.35%",
+        "MemUsage": "3.746GiB / 7.748GiB",
+        "Name": "multi-agent-legal-rag-backend-1",
+        "NetIO": "705kB / 933kB",
+        "PIDs": "100"
+      },
+      "ollama_models": [
+        {
+          "name": "qwen3-14b-16k:latest",
+          "size": 11661717011,
+          "size_vram": 11661717011,
+          "context_length": 16384
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-08-31T02:22:59.696242+00:00",
+      "host_cpu_percent": 13.7,
+      "host_memory_used_bytes": 18423529472,
+      "host_memory_percent": 88.9,
+      "backend_container": {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "2.11%",
+        "Container": "multi-agent-legal-rag-backend-1",
+        "ID": "a5aec3b5588d",
+        "MemPerc": "48.35%",
+        "MemUsage": "3.746GiB / 7.748GiB",
+        "Name": "multi-agent-legal-rag-backend-1",
+        "NetIO": "748kB / 971kB",
+        "PIDs": "100"
+      },
+      "ollama_models": [
+        {
+          "name": "qwen3-14b-16k:latest",
+          "size": 11661717011,
+          "size_vram": 11661717011,
+          "context_length": 16384
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-08-31T02:23:05.741725+00:00",
+      "host_cpu_percent": 11.7,
+      "host_memory_used_bytes": 18560466944,
+      "host_memory_percent": 89.4,
+      "backend_container": {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "18.43%",
+        "Container": "multi-agent-legal-rag-backend-1",
+        "ID": "a5aec3b5588d",
+        "MemPerc": "48.36%",
+        "MemUsage": "3.747GiB / 7.748GiB",
+        "Name": "multi-agent-legal-rag-backend-1",
+        "NetIO": "797kB / 1.02MB",
+        "PIDs": "100"
+      },
+      "ollama_models": [
+        {
+          "name": "qwen3-14b-16k:latest",
+          "size": 11661717011,
+          "size_vram": 11661717011,
+          "context_length": 16384
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-08-31T02:23:12.625631+00:00",
+      "host_cpu_percent": 13.7,
+      "host_memory_used_bytes": 18683461632,
+      "host_memory_percent": 89.0,
+      "backend_container": {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "2.25%",
+        "Container": "multi-agent-legal-rag-backend-1",
+        "ID": "a5aec3b5588d",
+        "MemPerc": "48.35%",
+        "MemUsage": "3.746GiB / 7.748GiB",
+        "Name": "multi-agent-legal-rag-backend-1",
+        "NetIO": "840kB / 1.05MB",
+        "PIDs": "100"
+      },
+      "ollama_models": [
+        {
+          "name": "qwen3-14b-16k:latest",
+          "size": 11661717011,
+          "size_vram": 11661717011,
+          "context_length": 16384
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-08-31T02:23:18.670985+00:00",
+      "host_cpu_percent": 13.7,
+      "host_memory_used_bytes": 18400460800,
+      "host_memory_percent": 90.2,
+      "backend_container": {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "2.23%",
+        "Container": "multi-agent-legal-rag-backend-1",
+        "ID": "a5aec3b5588d",
+        "MemPerc": "48.35%",
+        "MemUsage": "3.746GiB / 7.748GiB",
+        "Name": "multi-agent-legal-rag-backend-1",
+        "NetIO": "884kB / 1.1MB",
+        "PIDs": "100"
+      },
+      "ollama_models": [
+        {
+          "name": "qwen3-14b-16k:latest",
+          "size": 11661717011,
+          "size_vram": 11661717011,
+          "context_length": 16384
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-08-31T02:23:24.717489+00:00",
+      "host_cpu_percent": 12.5,
+      "host_memory_used_bytes": 17721999360,
+      "host_memory_percent": 92.4,
+      "backend_container": {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "1.59%",
+        "Container": "multi-agent-legal-rag-backend-1",
+        "ID": "a5aec3b5588d",
+        "MemPerc": "48.34%",
+        "MemUsage": "3.746GiB / 7.748GiB",
+        "Name": "multi-agent-legal-rag-backend-1",
+        "NetIO": "954kB / 1.17MB",
+        "PIDs": "100"
+      },
+      "ollama_models": [
+        {
+          "name": "qwen3-14b-16k:latest",
+          "size": 11661717011,
+          "size_vram": 11661717011,
+          "context_length": 16384
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-08-31T02:23:30.772052+00:00",
+      "host_cpu_percent": 15.1,
+      "host_memory_used_bytes": 17504518144,
+      "host_memory_percent": 92.0,
+      "backend_container": {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "30.64%",
+        "Container": "multi-agent-legal-rag-backend-1",
+        "ID": "a5aec3b5588d",
+        "MemPerc": "48.35%",
+        "MemUsage": "3.746GiB / 7.748GiB",
+        "Name": "multi-agent-legal-rag-backend-1",
+        "NetIO": "996kB / 1.21MB",
+        "PIDs": "100"
+      },
+      "ollama_models": [
+        {
+          "name": "qwen3-14b-16k:latest",
+          "size": 11661717011,
+          "size_vram": 11661717011,
+          "context_length": 16384
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-08-31T02:23:36.924468+00:00",
+      "host_cpu_percent": 15.3,
+      "host_memory_used_bytes": 18073665536,
+      "host_memory_percent": 86.8,
+      "backend_container": {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "24.16%",
+        "Container": "multi-agent-legal-rag-backend-1",
+        "ID": "a5aec3b5588d",
+        "MemPerc": "48.35%",
+        "MemUsage": "3.746GiB / 7.748GiB",
+        "Name": "multi-agent-legal-rag-backend-1",
+        "NetIO": "1.04MB / 1.25MB",
+        "PIDs": "100"
+      },
+      "ollama_models": [
+        {
+          "name": "qwen3-14b-16k:latest",
+          "size": 11661717011,
+          "size_vram": 11661717011,
+          "context_length": 16384
+        }
+      ]
+    }
+  ]
+}

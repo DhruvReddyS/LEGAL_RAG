@@ -1,0 +1,854 @@
+{
+  "schema_version": 1,
+  "completed_at": "2026-08-31T09:20:03.936497+00:00",
+  "credentials_persisted": false,
+  "test_user_id": "3d01eccb-6489-4206-a60a-35d0cb0a66e8",
+  "query": "how to file a pocos case?",
+  "fast_client_elapsed_ms": 130.893417,
+  "initial_response": {
+    "session_id": "a359f973-fab9-44e6-b929-8136c6597f86",
+    "message_id": null,
+    "answer": "Searching more thoroughly because the quick source match was not strong enough.",
+    "citations": [],
+    "confidence_score": 0.0,
+    "evidence_strength": "insufficient",
+    "intent": {
+      "intent": "fast_evidence_research",
+      "entities": [],
+      "language": "English",
+      "complexity": "simple",
+      "retrieval_query": "how to file a pocos case?"
+    },
+    "agent_trace": [
+      {
+        "node": "fast_retrieval",
+        "details": {
+          "result_count": 0,
+          "raw_result_count": 8,
+          "relevant_result_count": 0,
+          "unique_document_count": 0,
+          "mean_local_coverage": 0.0,
+          "focus_term_recall": 0.0,
+          "mandatory_term_match_rate": 0.0,
+          "distinctive_terms": [
+            "pocos"
+          ],
+          "term_document_counts": {
+            "case": 6698,
+            "file": 485,
+            "pocos": 0
+          },
+          "confidence_method": "weighted_coverage_recall_x_mandatory_term_match_rate",
+          "diversity_selection": true,
+          "focus_tokens": [
+            "case",
+            "file",
+            "pocos"
+          ],
+          "lexical_gate": 0.5,
+          "reranker_skipped": true,
+          "no_generative_claims": true,
+          "timings_ms": {
+            "embedding_ms": 0.0,
+            "qdrant_ms": 73.15291700069793,
+            "reranking_ms": 0.0,
+            "retrieval_total_ms": 85.23329099989496,
+            "embedding_cache_hit": false,
+            "workflow_total_ms": 87.8
+          }
+        }
+      },
+      {
+        "node": "adaptive_router",
+        "details": {
+          "requested_mode": "fast",
+          "selected_mode": "fast",
+          "reason": "user_selected",
+          "signals": [
+            "explicit_fast_mode"
+          ]
+        }
+      }
+    ],
+    "response_mode": "deep",
+    "requested_mode": "fast",
+    "routing_reason": "fast_confidence_below_escalation_threshold",
+    "routing_signals": [
+      "explicit_fast_mode",
+      "auto_escalated_low_fast_confidence"
+    ],
+    "timings_ms": {
+      "embedding_ms": 0.0,
+      "qdrant_ms": 73.15291700069793,
+      "reranking_ms": 0.0,
+      "retrieval_total_ms": 85.23329099989496,
+      "embedding_cache_hit": false,
+      "workflow_total_ms": 87.8,
+      "api_total_ms": 102.21
+    },
+    "pipeline_metrics": [],
+    "latency_target_ms": 300000,
+    "target_met": null,
+    "delivery_state": "searching_more_thoroughly",
+    "job_id": "bf0296ba-dd2b-49dc-9f67-8e48ab9dc759",
+    "escalation_threshold": 0.6
+  },
+  "job_elapsed_ms": 262253.398917,
+  "progress_observations": [
+    {
+      "observed_at": "2026-08-31T09:15:41.694899+00:00",
+      "status": "queued",
+      "progress": 0
+    },
+    {
+      "observed_at": "2026-08-31T09:15:43.724428+00:00",
+      "status": "running",
+      "progress": 10
+    },
+    {
+      "observed_at": "2026-08-31T09:15:47.759890+00:00",
+      "status": "running",
+      "progress": 25
+    },
+    {
+      "observed_at": "2026-08-31T09:16:36.081847+00:00",
+      "status": "running",
+      "progress": 50
+    },
+    {
+      "observed_at": "2026-08-31T09:17:34.763525+00:00",
+      "status": "running",
+      "progress": 75
+    },
+    {
+      "observed_at": "2026-08-31T09:17:58.926825+00:00",
+      "status": "running",
+      "progress": 80
+    },
+    {
+      "observed_at": "2026-08-31T09:20:03.934100+00:00",
+      "status": "succeeded",
+      "progress": 100
+    }
+  ],
+  "terminal_job": {
+    "id": "bf0296ba-dd2b-49dc-9f67-8e48ab9dc759",
+    "type": "deep_review",
+    "status": "succeeded",
+    "progress": 100,
+    "attempt_count": 1,
+    "max_attempts": 3,
+    "cancel_requested": false,
+    "result": {
+      "answer": "## Direct answer\n\nTo file a POCSO case, you must report the offence to the Special Juvenile Police Unit or local police, who are required to record the report and take immediate action for the care and protection of the child, including reporting the matter to the Child Welfare Committee and the Special Court within 24 hours [Source 1].\n\n## Why this is the legal position\n\n- Section 19 of the Protection of Children from Sexual Offences (POCSO) Act, 2012 mandates that any person who has knowledge of an offence under the Act must report it to the Special Juvenile Police Unit or local police [Source 1].\n\n## How this applies to you\n\n- This applies to any individual who has knowledge of or apprehension that an offence under the POCSO Act is likely to be committed or has already been committed, including the child victim [Source 1].\n\n## What you can do now\n\n1. The next step is to report the incident to the Special Juvenile Police Unit or local police, who will record the report and take immediate action for the care and protection of the child, including reporting the matter to the Child Welfare Committee and the Special Court within 24 hours [Source 1].\n\n## Source currency\n\nThe cited corpus material supports the statements above, but its current-law status is not verified in the corpus metadata. Check the latest official text and amendments before relying on it for a live matter.\n\n---\n\n*Legal decision-support information, not a substitute for advice from a qualified professional who has reviewed the complete facts and current law.*",
+      "intent": {
+        "intent": "Procedural guidance",
+        "entities": [
+          "POCSO"
+        ],
+        "language": "English",
+        "complexity": "complex",
+        "retrieval_query": "how to file a POCSO case"
+      },
+      "citations": [
+        {
+          "court": "Supreme Court of India",
+          "title": "IN RE: RIGHT TO PRIVACY OF ADOLESCENTS vs SMW(C) No. 3/2023",
+          "number": 1,
+          "excerpt": "27.  The first relevant statutory provision is Section 19 of the\n     POCSO Act. Section 19 of the POCSO Act reads thus:\n                     “19.  Reporting  of  offences.—  (1)\n                     Notwithstanding anything contained\n                        in the Code  of Criminal Procedure,\n                   1973 (2 of 1974) any person (including\n                      the child), who has apprehension that\n                   an offence under this Act is likely to be\n                    committed or has knowledge that such\nSuo Motu Writ Petition (C) no.3 of 2023 etc.                                    Page 23 of 50\n                   an offence has been committed, he\n                        shall provide such information to,—\n                                      (a) the Special Juvenile Police\n                               Unit; or\n                                     (b) the local police.\n                            (2) Every  report  given under sub-\n                       section (1) shall be—\n                                      (a) ascribed an entry number\n                        and recorded in writing;\n                                     (b)  be  read  over   to  the\n ",
+          "section": null,
+          "act_name": null,
+          "chunk_id": "gold-chunk-0a505dd4488f6b8607edbaed14dd20d2",
+          "page_end": 25,
+          "page_start": 23,
+          "source_url": null,
+          "source_type": "SUPREME_COURT_JUDGMENT",
+          "current_status": "status_unverified",
+          "retrieval_score": 0.5010259472336445,
+          "verification_status": "verified"
+        }
+      ],
+      "message_id": "13748c4c-b98d-4777-a208-d94fa27d4b4a",
+      "session_id": "a359f973-fab9-44e6-b929-8136c6597f86",
+      "timings_ms": {
+        "retrieval_0": {
+          "total_ms": 48202.84,
+          "qdrant_ms": 113.84,
+          "embedding_ms": 622.48,
+          "reranking_ms": 47466.17,
+          "result_count": 5,
+          "candidate_count": 20,
+          "embedding_cache_hit": false,
+          "reranker_max_length": 8192,
+          "lexical_distinctive_terms": [],
+          "reranker_input_characters": 82477,
+          "reranker_input_utf8_bytes": 82793,
+          "reranker_input_chunk_count": 20,
+          "lexical_term_document_counts": {},
+          "reranker_pair_input_characters": 82957,
+          "reranker_pair_input_utf8_bytes": 83273,
+          "reranker_query_characters_per_pair": 24,
+          "reranker_query_utf8_bytes_per_pair": 24
+        },
+        "retrieval_1": {
+          "total_ms": 61662.06,
+          "qdrant_ms": 136.42,
+          "embedding_ms": 1288.06,
+          "reranking_ms": 60237.2,
+          "result_count": 8,
+          "candidate_count": 40,
+          "embedding_cache_hit": false,
+          "reranker_max_length": 8192,
+          "lexical_distinctive_terms": [],
+          "reranker_input_characters": 110626,
+          "reranker_input_utf8_bytes": 110918,
+          "reranker_input_chunk_count": 40,
+          "lexical_term_document_counts": {},
+          "reranker_pair_input_characters": 113346,
+          "reranker_pair_input_utf8_bytes": 113638,
+          "reranker_query_characters_per_pair": 68,
+          "reranker_query_utf8_bytes_per_pair": 68
+        },
+        "reasoning_0_ms": 58567.84,
+        "reasoning_1_ms": 51358.77,
+        "verification_0_ms": 24444.09,
+        "verification_1_ms": 11784.08,
+        "workflow_total_ms": 260223.98537,
+        "query_understanding_ms": 4037.11,
+        "response_generation_ms": 9.31
+      },
+      "agent_trace": [
+        {
+          "node": "role_context",
+          "details": {
+            "role": "citizen",
+            "objective": "Explain the located law and procedure in plain language so a member of the public can understand practical next steps.",
+            "agent_label": "Citizen legal information assistant",
+            "case_scoped": false,
+            "safety_boundary": "Do not present research as personalised legal advice, predict an outcome, or invent a police/court procedure not established by the evidence.",
+            "specialist_agent_id": "procedure_navigator",
+            "specialist_agent_label": "Procedure Navigator"
+          }
+        },
+        {
+          "node": "query_understanding",
+          "details": {
+            "intent": "Procedural guidance",
+            "entities": [
+              "POCSO"
+            ],
+            "language": "English",
+            "complexity": "complex",
+            "legal_term_corrections": [
+              {
+                "to": "POCSO",
+                "from": "pocos"
+              }
+            ]
+          }
+        },
+        {
+          "node": "retrieval",
+          "details": {
+            "query": "how to file a POCSO case",
+            "retry": 0,
+            "chunk_ids": [
+              "gold-chunk-beac28b316dc66d2485cc63824e80b06",
+              "gold-chunk-b8f6da00bd2e102738adf1c72134733d",
+              "gold-chunk-694cd116e141b359c33c4f51397235a6",
+              "gold-chunk-0a505dd4488f6b8607edbaed14dd20d2",
+              "gold-chunk-dfedf1d2375eb12264203c8d6d5775a7"
+            ],
+            "timings_ms": {
+              "total_ms": 48202.84,
+              "qdrant_ms": 113.84,
+              "embedding_ms": 622.48,
+              "reranking_ms": 47466.17,
+              "result_count": 5,
+              "candidate_count": 20,
+              "embedding_cache_hit": false,
+              "reranker_max_length": 8192,
+              "lexical_distinctive_terms": [],
+              "reranker_input_characters": 82477,
+              "reranker_input_utf8_bytes": 82793,
+              "reranker_input_chunk_count": 20,
+              "lexical_term_document_counts": {},
+              "reranker_pair_input_characters": 82957,
+              "reranker_pair_input_utf8_bytes": 83273,
+              "reranker_query_characters_per_pair": 24,
+              "reranker_query_utf8_bytes_per_pair": 24
+            },
+            "collections": [
+              "global_legal_corpus"
+            ],
+            "result_count": 5,
+            "case_scope_applied": false
+          }
+        },
+        {
+          "node": "reasoning",
+          "details": {
+            "citation_markers": 10,
+            "answer_characters": 1762
+          }
+        },
+        {
+          "node": "verification",
+          "details": {
+            "score": 0.4,
+            "claims": 10,
+            "unsupported": 1
+          }
+        },
+        {
+          "node": "retrieval",
+          "details": {
+            "query": "how to file a POCSO case POCSO governing law authoritative provision",
+            "retry": 1,
+            "chunk_ids": [
+              "gold-chunk-0a505dd4488f6b8607edbaed14dd20d2",
+              "gold-chunk-beac28b316dc66d2485cc63824e80b06",
+              "gold-chunk-0c44b38a7a069f4325707142a57aab5b",
+              "gold-chunk-c0d0b037b888e06873ebab19b4a287bb",
+              "gold-chunk-694cd116e141b359c33c4f51397235a6",
+              "gold-chunk-e7485df2602963193a576a652e6a82a5",
+              "gold-chunk-dfedf1d2375eb12264203c8d6d5775a7",
+              "gold-chunk-5e59fcdf1d016f7df911d7b297ea0e10"
+            ],
+            "timings_ms": {
+              "total_ms": 61662.06,
+              "qdrant_ms": 136.42,
+              "embedding_ms": 1288.06,
+              "reranking_ms": 60237.2,
+              "result_count": 8,
+              "candidate_count": 40,
+              "embedding_cache_hit": false,
+              "reranker_max_length": 8192,
+              "lexical_distinctive_terms": [],
+              "reranker_input_characters": 110626,
+              "reranker_input_utf8_bytes": 110918,
+              "reranker_input_chunk_count": 40,
+              "lexical_term_document_counts": {},
+              "reranker_pair_input_characters": 113346,
+              "reranker_pair_input_utf8_bytes": 113638,
+              "reranker_query_characters_per_pair": 68,
+              "reranker_query_utf8_bytes_per_pair": 68
+            },
+            "collections": [
+              "global_legal_corpus"
+            ],
+            "result_count": 8,
+            "case_scope_applied": false
+          }
+        },
+        {
+          "node": "reasoning",
+          "details": {
+            "citation_markers": 5,
+            "answer_characters": 1488
+          }
+        },
+        {
+          "node": "verification",
+          "details": {
+            "score": 0.8,
+            "claims": 5,
+            "unsupported": 1
+          }
+        },
+        {
+          "node": "response_generation",
+          "details": {
+            "citations": 1,
+            "evidence_strength": "moderate"
+          }
+        }
+      ],
+      "response_mode": "deep",
+      "requested_mode": "deep",
+      "confidence_score": 0.8,
+      "pipeline_metrics": [
+        {
+          "stage": "role_context",
+          "inputs": {
+            "query": {
+              "characters": 25,
+              "utf8_bytes": 25,
+              "whitespace_tokens": 6
+            },
+            "case_scoped": false,
+            "history_messages": 0
+          },
+          "run_id": "743df7a9-167e-4d24-ae47-3c44bba22279",
+          "outputs": {
+            "role": "citizen",
+            "specialist_agent_id": "procedure_navigator"
+          },
+          "sequence": 1,
+          "llm_calls": [],
+          "duration_ms": 0.368542,
+          "retry_index": 0,
+          "run_started_at": "2026-08-31T09:15:42.113650+00:00"
+        },
+        {
+          "stage": "query_understanding",
+          "inputs": {
+            "query": {
+              "characters": 25,
+              "utf8_bytes": 25,
+              "whitespace_tokens": 6
+            },
+            "prompt": {
+              "characters": 1015,
+              "utf8_bytes": 1015,
+              "whitespace_tokens": 140
+            },
+            "history": {
+              "characters": 0,
+              "utf8_bytes": 0,
+              "whitespace_tokens": 0
+            },
+            "history_messages": 0
+          },
+          "run_id": "743df7a9-167e-4d24-ae47-3c44bba22279",
+          "outputs": {
+            "entity_count": 1,
+            "fallback_used": false,
+            "retrieval_query": {
+              "characters": 24,
+              "utf8_bytes": 24,
+              "whitespace_tokens": 6
+            },
+            "legal_term_correction_count": 1
+          },
+          "sequence": 2,
+          "llm_calls": [
+            {
+              "model": "qwen3-14b-16k:latest",
+              "prompt": {
+                "characters": 1015,
+                "utf8_bytes": 1015,
+                "whitespace_tokens": 140
+              },
+              "attempt": 1,
+              "wall_ms": 4020.971835,
+              "operation": "structured",
+              "done_reason": "stop",
+              "parse_status": "valid",
+              "context_window": 16384,
+              "metrics_source": "ollama_response",
+              "num_predict_limit": 1800,
+              "prompt_eval_count": 212,
+              "context_utilization": 0.012939453125,
+              "response_characters": 138,
+              "response_eval_count": 45,
+              "ollama_eval_duration_ms": 2965.901,
+              "ollama_load_duration_ms": 23.793042,
+              "ollama_total_duration_ms": 3968.256,
+              "response_tokens_per_second": 15.172455183096131,
+              "ollama_prompt_eval_duration_ms": 278.66,
+              "time_to_first_response_token_ms": 1054.147834
+            }
+          ],
+          "duration_ms": 4028.152669,
+          "retry_index": 0,
+          "run_started_at": "2026-08-31T09:15:42.113650+00:00"
+        },
+        {
+          "stage": "retrieval",
+          "inputs": {
+            "query": {
+              "characters": 24,
+              "utf8_bytes": 24,
+              "whitespace_tokens": 6
+            },
+            "result_limit": 5,
+            "target_collection_count": 1,
+            "candidate_limit_per_collection": 20
+          },
+          "run_id": "743df7a9-167e-4d24-ae47-3c44bba22279",
+          "outputs": {
+            "qdrant_ms": 113.84,
+            "embedding_ms": 622.48,
+            "reranking_ms": 47466.17,
+            "result_count": 5,
+            "candidate_count": 20,
+            "retrieval_total_ms": 48202.84,
+            "embedding_cache_hit": false,
+            "reranker_input_characters": 82477,
+            "reranker_input_utf8_bytes": 82793,
+            "reranker_input_chunk_count": 20,
+            "reranker_pair_input_characters": 82957,
+            "reranker_pair_input_utf8_bytes": 83273,
+            "reranker_query_characters_per_pair": 24,
+            "reranker_query_utf8_bytes_per_pair": 24,
+            "reranker_max_tokens_per_query_document_pair": 8192
+          },
+          "sequence": 3,
+          "llm_calls": [],
+          "duration_ms": 48205.739939,
+          "retry_index": 0,
+          "run_started_at": "2026-08-31T09:15:42.113650+00:00"
+        },
+        {
+          "stage": "reasoning",
+          "inputs": {
+            "prompt": {
+              "characters": 30131,
+              "utf8_bytes": 30287,
+              "whitespace_tokens": 3825
+            },
+            "evidence": {
+              "characters": 27346,
+              "utf8_bytes": 27490,
+              "whitespace_tokens": 3412
+            },
+            "retrieved_chunk_count": 5
+          },
+          "run_id": "743df7a9-167e-4d24-ae47-3c44bba22279",
+          "outputs": {
+            "draft": {
+              "characters": 1762,
+              "utf8_bytes": 1762,
+              "whitespace_tokens": 217
+            },
+            "llm_skipped": false,
+            "citation_marker_count": 10,
+            "structured_claim_contract": true,
+            "reasoning_num_predict_limit": 1800
+          },
+          "sequence": 4,
+          "llm_calls": [
+            {
+              "model": "qwen3-14b-16k:latest",
+              "prompt": {
+                "characters": 30131,
+                "utf8_bytes": 30287,
+                "whitespace_tokens": 3825
+              },
+              "attempt": 1,
+              "wall_ms": 58550.08511,
+              "operation": "structured",
+              "done_reason": "stop",
+              "parse_status": "valid",
+              "context_window": 16384,
+              "metrics_source": "ollama_response",
+              "num_predict_limit": 1800,
+              "prompt_eval_count": 6480,
+              "context_utilization": 0.3955078125,
+              "response_characters": 2292,
+              "response_eval_count": 737,
+              "ollama_eval_duration_ms": 53242.276,
+              "ollama_load_duration_ms": 21.267916,
+              "ollama_total_duration_ms": 58469.108458,
+              "response_tokens_per_second": 13.842383447319195,
+              "ollama_prompt_eval_duration_ms": 63.005,
+              "time_to_first_response_token_ms": 5296.820878
+            }
+          ],
+          "duration_ms": 58558.189027,
+          "retry_index": 0,
+          "run_started_at": "2026-08-31T09:15:42.113650+00:00"
+        },
+        {
+          "stage": "verification",
+          "inputs": {
+            "draft": {
+              "characters": 1762,
+              "utf8_bytes": 1762,
+              "whitespace_tokens": 217
+            },
+            "prompt": {
+              "characters": 50248,
+              "utf8_bytes": 50488,
+              "whitespace_tokens": 6303
+            },
+            "valid_claim_count": 10,
+            "claim_marker_count": 10,
+            "verification_items": {
+              "characters": 49972,
+              "utf8_bytes": 50212,
+              "whitespace_tokens": 6259
+            },
+            "retrieved_chunk_count": 5
+          },
+          "run_id": "743df7a9-167e-4d24-ae47-3c44bba22279",
+          "outputs": {
+            "score": 0.4,
+            "llm_skipped": false,
+            "fallback_used": false,
+            "verified_claim_count": 10,
+            "unsupported_claim_count": 1
+          },
+          "sequence": 5,
+          "llm_calls": [
+            {
+              "model": "qwen3-14b-16k:latest",
+              "prompt": {
+                "characters": 50248,
+                "utf8_bytes": 50488,
+                "whitespace_tokens": 6303
+              },
+              "attempt": 1,
+              "wall_ms": 24421.22447,
+              "operation": "structured",
+              "done_reason": "stop",
+              "parse_status": "valid",
+              "context_window": 16384,
+              "metrics_source": "ollama_response",
+              "num_predict_limit": 1800,
+              "prompt_eval_count": 10386,
+              "context_utilization": 0.6339111328125,
+              "response_characters": 591,
+              "response_eval_count": 202,
+              "ollama_eval_duration_ms": 15728.212,
+              "ollama_load_duration_ms": 5.592584,
+              "ollama_total_duration_ms": 24396.584625,
+              "response_tokens_per_second": 12.843163609442701,
+              "ollama_prompt_eval_duration_ms": 83.448,
+              "time_to_first_response_token_ms": 8698.755463
+            }
+          ],
+          "duration_ms": 24437.01547,
+          "retry_index": 0,
+          "run_started_at": "2026-08-31T09:15:42.113650+00:00"
+        },
+        {
+          "stage": "retry",
+          "inputs": {
+            "previous_verification_score": 0.4
+          },
+          "run_id": "743df7a9-167e-4d24-ae47-3c44bba22279",
+          "outputs": {
+            "next_retry_index": 1
+          },
+          "sequence": 6,
+          "llm_calls": [],
+          "duration_ms": 0.018791,
+          "retry_index": 1,
+          "run_started_at": "2026-08-31T09:15:42.113650+00:00"
+        },
+        {
+          "stage": "retrieval",
+          "inputs": {
+            "query": {
+              "characters": 68,
+              "utf8_bytes": 68,
+              "whitespace_tokens": 11
+            },
+            "result_limit": 8,
+            "target_collection_count": 1,
+            "candidate_limit_per_collection": 40
+          },
+          "run_id": "743df7a9-167e-4d24-ae47-3c44bba22279",
+          "outputs": {
+            "qdrant_ms": 136.42,
+            "embedding_ms": 1288.06,
+            "reranking_ms": 60237.2,
+            "result_count": 8,
+            "candidate_count": 40,
+            "retrieval_total_ms": 61662.06,
+            "embedding_cache_hit": false,
+            "reranker_input_characters": 110626,
+            "reranker_input_utf8_bytes": 110918,
+            "reranker_input_chunk_count": 40,
+            "reranker_pair_input_characters": 113346,
+            "reranker_pair_input_utf8_bytes": 113638,
+            "reranker_query_characters_per_pair": 68,
+            "reranker_query_utf8_bytes_per_pair": 68,
+            "reranker_max_tokens_per_query_document_pair": 8192
+          },
+          "sequence": 7,
+          "llm_calls": [],
+          "duration_ms": 61663.50832,
+          "retry_index": 1,
+          "run_started_at": "2026-08-31T09:15:42.113650+00:00"
+        },
+        {
+          "stage": "reasoning",
+          "inputs": {
+            "prompt": {
+              "characters": 44939,
+              "utf8_bytes": 45097,
+              "whitespace_tokens": 6080
+            },
+            "evidence": {
+              "characters": 42154,
+              "utf8_bytes": 42300,
+              "whitespace_tokens": 5667
+            },
+            "retrieved_chunk_count": 8
+          },
+          "run_id": "743df7a9-167e-4d24-ae47-3c44bba22279",
+          "outputs": {
+            "draft": {
+              "characters": 1488,
+              "utf8_bytes": 1488,
+              "whitespace_tokens": 210
+            },
+            "llm_skipped": false,
+            "citation_marker_count": 5,
+            "structured_claim_contract": true,
+            "reasoning_num_predict_limit": 1800
+          },
+          "sequence": 8,
+          "llm_calls": [
+            {
+              "model": "qwen3-14b-16k:latest",
+              "prompt": {
+                "characters": 44939,
+                "utf8_bytes": 45097,
+                "whitespace_tokens": 6080
+              },
+              "attempt": 1,
+              "wall_ms": 51340.014898,
+              "operation": "structured",
+              "done_reason": "stop",
+              "parse_status": "valid",
+              "context_window": 16384,
+              "metrics_source": "ollama_response",
+              "num_predict_limit": 1800,
+              "prompt_eval_count": 10434,
+              "context_utilization": 0.6368408203125,
+              "response_characters": 1913,
+              "response_eval_count": 537,
+              "ollama_eval_duration_ms": 41939.315,
+              "ollama_load_duration_ms": 7.227375,
+              "ollama_total_duration_ms": 51281.891083,
+              "response_tokens_per_second": 12.804214851863938,
+              "ollama_prompt_eval_duration_ms": 79.977,
+              "time_to_first_response_token_ms": 9353.66263
+            }
+          ],
+          "duration_ms": 51349.207273,
+          "retry_index": 1,
+          "run_started_at": "2026-08-31T09:15:42.113650+00:00"
+        },
+        {
+          "stage": "verification",
+          "inputs": {
+            "draft": {
+              "characters": 1488,
+              "utf8_bytes": 1488,
+              "whitespace_tokens": 210
+            },
+            "prompt": {
+              "characters": 23729,
+              "utf8_bytes": 23799,
+              "whitespace_tokens": 2574
+            },
+            "valid_claim_count": 5,
+            "claim_marker_count": 5,
+            "verification_items": {
+              "characters": 23453,
+              "utf8_bytes": 23523,
+              "whitespace_tokens": 2530
+            },
+            "retrieved_chunk_count": 8
+          },
+          "run_id": "743df7a9-167e-4d24-ae47-3c44bba22279",
+          "outputs": {
+            "score": 0.8,
+            "llm_skipped": false,
+            "fallback_used": false,
+            "verified_claim_count": 5,
+            "unsupported_claim_count": 1
+          },
+          "sequence": 9,
+          "llm_calls": [
+            {
+              "model": "qwen3-14b-16k:latest",
+              "prompt": {
+                "characters": 23729,
+                "utf8_bytes": 23799,
+                "whitespace_tokens": 2574
+              },
+              "attempt": 1,
+              "wall_ms": 11763.203922,
+              "operation": "structured",
+              "done_reason": "stop",
+              "parse_status": "valid",
+              "context_window": 16384,
+              "metrics_source": "ollama_response",
+              "num_predict_limit": 1800,
+              "prompt_eval_count": 4595,
+              "context_utilization": 0.28045654296875,
+              "response_characters": 289,
+              "response_eval_count": 106,
+              "ollama_eval_duration_ms": 7238.833,
+              "ollama_load_duration_ms": 5.01675,
+              "ollama_total_duration_ms": 11743.656375,
+              "response_tokens_per_second": 14.64324429089606,
+              "ollama_prompt_eval_duration_ms": 62.625,
+              "time_to_first_response_token_ms": 4507.468836
+            }
+          ],
+          "duration_ms": 11776.445797,
+          "retry_index": 1,
+          "run_started_at": "2026-08-31T09:15:42.113650+00:00"
+        },
+        {
+          "stage": "response_generation",
+          "inputs": {
+            "draft": {
+              "characters": 1488,
+              "utf8_bytes": 1488,
+              "whitespace_tokens": 210
+            },
+            "verified_claim_count": 5,
+            "retrieved_chunk_count": 8
+          },
+          "run_id": "743df7a9-167e-4d24-ae47-3c44bba22279",
+          "outputs": {
+            "answer": {
+              "characters": 1551,
+              "utf8_bytes": 1551,
+              "whitespace_tokens": 266
+            },
+            "citation_count": 1,
+            "confidence_score": 0.8,
+            "evidence_strength": "moderate"
+          },
+          "sequence": 10,
+          "llm_calls": [],
+          "duration_ms": 6.655625,
+          "retry_index": 1,
+          "run_started_at": "2026-08-31T09:15:42.113650+00:00"
+        },
+        {
+          "stage": "workflow_total",
+          "inputs": {
+            "role": "citizen",
+            "query": {
+              "characters": 25,
+              "utf8_bytes": 25,
+              "whitespace_tokens": 6
+            },
+            "case_scoped": false,
+            "history_messages": 0
+          },
+          "run_id": "743df7a9-167e-4d24-ae47-3c44bba22279",
+          "outputs": {
+            "completed": true,
+            "retry_count": 1,
+            "citation_count": 1,
+            "evidence_strength": "moderate"
+          },
+          "sequence": 11,
+          "llm_calls": [],
+          "duration_ms": 260223.98537,
+          "retry_index": 1,
+          "run_started_at": "2026-08-31T09:15:42.113650+00:00"
+        }
+      ],
+      "evidence_strength": "moderate"
+    },
+    "error_code": null,
+    "error_message": null,
+    "created_at": "2026-08-31T09:15:41.572124Z",
+    "updated_at": "2026-08-31T09:20:02.345473Z",
+    "started_at": "2026-08-31T09:15:42.104411Z",
+    "completed_at": "2026-08-31T09:20:02.405945Z"
+  },
+  "acceptance_c_passed": true
+}

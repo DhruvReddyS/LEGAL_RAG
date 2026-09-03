@@ -1,0 +1,720 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-29T17:21:03.024551+00:00",
+  "query_sha256": "1a01ff245b827414c493b4760e3fd8a75da44c7b8eeaf716d20a6db9a07ae83e",
+  "query_characters": 437,
+  "query_utf8_bytes": 437,
+  "query_source": "built_in_synthetic",
+  "query": "Compare the legal duty to register information about a cognizable offence under section 154 of the Code of Criminal Procedure, 1973 and section 173 of the Bharatiya Nagarik Suraksha Sanhita, 2023. Explain commencement, transition, material procedural differences, lawful escalation after a refusal to record the information, and clearly identify any point the retrieved corpus cannot establish as current law. Use only retrieved sources.",
+  "role": "citizen",
+  "model": "qwen3-14b-16k:latest",
+  "reasoning_num_predict_requested": 1300,
+  "runs_requested": 2,
+  "runs_recorded": 2,
+  "records": [
+    {
+      "run_number": 1,
+      "run_id": "c3b94680-6f2b-41b6-9159-3cbb3d5472f7",
+      "started_at": "2026-08-29T17:15:11.894127+00:00",
+      "wall_ms": 178647.58475,
+      "historical_timeout_threshold_ms": 180000.0,
+      "exceeded_historical_timeout_threshold": false,
+      "completed": true,
+      "error": null,
+      "retry_count": 0,
+      "citation_count": 2,
+      "evidence_strength": "moderate",
+      "stage_metrics": [
+        {
+          "sequence": 1,
+          "run_id": "c3b94680-6f2b-41b6-9159-3cbb3d5472f7",
+          "run_started_at": "2026-08-29T17:15:11.894127+00:00",
+          "stage": "role_context",
+          "retry_index": 0,
+          "duration_ms": 0.077125,
+          "inputs": {
+            "query": {
+              "characters": 437,
+              "utf8_bytes": 437,
+              "whitespace_tokens": 63
+            },
+            "history_messages": 0,
+            "case_scoped": false
+          },
+          "outputs": {
+            "role": "citizen",
+            "specialist_agent_id": "authority_finder"
+          },
+          "llm_calls": []
+        },
+        {
+          "sequence": 2,
+          "run_id": "c3b94680-6f2b-41b6-9159-3cbb3d5472f7",
+          "run_started_at": "2026-08-29T17:15:11.894127+00:00",
+          "stage": "query_understanding",
+          "retry_index": 0,
+          "duration_ms": 10444.354834,
+          "inputs": {
+            "query": {
+              "characters": 437,
+              "utf8_bytes": 437,
+              "whitespace_tokens": 63
+            },
+            "history_messages": 0,
+            "history": {
+              "characters": 0,
+              "utf8_bytes": 0,
+              "whitespace_tokens": 0
+            },
+            "prompt": {
+              "characters": 1418,
+              "utf8_bytes": 1418,
+              "whitespace_tokens": 196
+            }
+          },
+          "outputs": {
+            "retrieval_query": {
+              "characters": 437,
+              "utf8_bytes": 437,
+              "whitespace_tokens": 63
+            },
+            "entity_count": 0,
+            "fallback_used": false
+          },
+          "llm_calls": [
+            {
+              "operation": "structured",
+              "attempt": 1,
+              "model": "qwen3-14b-16k:latest",
+              "wall_ms": 10441.97925,
+              "prompt": {
+                "characters": 1418,
+                "utf8_bytes": 1418,
+                "whitespace_tokens": 196
+              },
+              "prompt_eval_count": 296,
+              "context_window": 16384,
+              "context_utilization": 0.01806640625,
+              "num_predict_limit": 1800,
+              "response_characters": 643,
+              "response_eval_count": 141,
+              "done_reason": "stop",
+              "ollama_total_duration_ms": 10426.801375,
+              "ollama_load_duration_ms": 9.76525,
+              "ollama_prompt_eval_duration_ms": 58.194,
+              "ollama_eval_duration_ms": 9800.202,
+              "metrics_source": "ollama_response",
+              "response_tokens_per_second": 14.387458544221843,
+              "parse_status": "valid"
+            }
+          ]
+        },
+        {
+          "sequence": 3,
+          "run_id": "c3b94680-6f2b-41b6-9159-3cbb3d5472f7",
+          "run_started_at": "2026-08-29T17:15:11.894127+00:00",
+          "stage": "retrieval",
+          "retry_index": 0,
+          "duration_ms": 18524.921292,
+          "inputs": {
+            "query": {
+              "characters": 437,
+              "utf8_bytes": 437,
+              "whitespace_tokens": 63
+            },
+            "target_collection_count": 1,
+            "candidate_limit_per_collection": 20,
+            "result_limit": 5
+          },
+          "outputs": {
+            "result_count": 5,
+            "candidate_count": 20,
+            "reranker_input_chunk_count": 20,
+            "reranker_input_characters": 80845,
+            "reranker_input_utf8_bytes": 80995,
+            "reranker_query_characters_per_pair": 437,
+            "reranker_query_utf8_bytes_per_pair": 437,
+            "reranker_pair_input_characters": 89585,
+            "reranker_pair_input_utf8_bytes": 89735,
+            "reranker_max_tokens_per_query_document_pair": 8192,
+            "embedding_cache_hit": false,
+            "embedding_ms": 10107.19,
+            "qdrant_ms": 233.04,
+            "reranking_ms": 8182.49,
+            "retrieval_total_ms": 18523.24
+          },
+          "llm_calls": []
+        },
+        {
+          "sequence": 4,
+          "run_id": "c3b94680-6f2b-41b6-9159-3cbb3d5472f7",
+          "run_started_at": "2026-08-29T17:15:11.894127+00:00",
+          "stage": "reasoning",
+          "retry_index": 0,
+          "duration_ms": 111662.103625,
+          "inputs": {
+            "retrieved_chunk_count": 5,
+            "evidence": {
+              "characters": 23654,
+              "utf8_bytes": 23702,
+              "whitespace_tokens": 3372
+            },
+            "prompt": {
+              "characters": 25223,
+              "utf8_bytes": 25271,
+              "whitespace_tokens": 3599
+            }
+          },
+          "outputs": {
+            "draft": {
+              "characters": 4246,
+              "utf8_bytes": 4250,
+              "whitespace_tokens": 586
+            },
+            "citation_marker_count": 9,
+            "llm_skipped": false,
+            "reasoning_num_predict_limit": 1300
+          },
+          "llm_calls": [
+            {
+              "operation": "generate",
+              "attempt": 1,
+              "model": "qwen3-14b-16k:latest",
+              "wall_ms": 111653.454583,
+              "prompt": {
+                "characters": 25223,
+                "utf8_bytes": 25271,
+                "whitespace_tokens": 3599
+              },
+              "prompt_eval_count": 6496,
+              "context_window": 16384,
+              "context_utilization": 0.396484375,
+              "num_predict_limit": 1300,
+              "response_characters": 4246,
+              "response_eval_count": 1300,
+              "done_reason": "length",
+              "ollama_total_duration_ms": 111576.467833,
+              "ollama_load_duration_ms": 32.194625,
+              "ollama_prompt_eval_duration_ms": 95.311,
+              "ollama_eval_duration_ms": 106002.72,
+              "metrics_source": "ollama_response",
+              "response_tokens_per_second": 12.263836248730222
+            }
+          ]
+        },
+        {
+          "sequence": 5,
+          "run_id": "c3b94680-6f2b-41b6-9159-3cbb3d5472f7",
+          "run_started_at": "2026-08-29T17:15:11.894127+00:00",
+          "stage": "verification",
+          "retry_index": 0,
+          "duration_ms": 37968.736916,
+          "inputs": {
+            "draft": {
+              "characters": 4246,
+              "utf8_bytes": 4250,
+              "whitespace_tokens": 586
+            },
+            "retrieved_chunk_count": 5,
+            "claim_marker_count": 9,
+            "valid_claim_count": 9,
+            "verification_items": {
+              "characters": 47841,
+              "utf8_bytes": 47933,
+              "whitespace_tokens": 6314
+            },
+            "prompt": {
+              "characters": 48117,
+              "utf8_bytes": 48209,
+              "whitespace_tokens": 6358
+            }
+          },
+          "outputs": {
+            "verified_claim_count": 9,
+            "unsupported_claim_count": 3,
+            "score": 0.6111111111111112,
+            "fallback_used": false,
+            "llm_skipped": false
+          },
+          "llm_calls": [
+            {
+              "operation": "structured",
+              "attempt": 1,
+              "model": "qwen3-14b-16k:latest",
+              "wall_ms": 37928.7445,
+              "prompt": {
+                "characters": 48117,
+                "utf8_bytes": 48209,
+                "whitespace_tokens": 6358
+              },
+              "prompt_eval_count": 11793,
+              "context_window": 16384,
+              "context_utilization": 0.71978759765625,
+              "num_predict_limit": 1800,
+              "response_characters": 507,
+              "response_eval_count": 182,
+              "done_reason": "stop",
+              "ollama_total_duration_ms": 37901.676,
+              "ollama_load_duration_ms": 7.991875,
+              "ollama_prompt_eval_duration_ms": 15139.866,
+              "ollama_eval_duration_ms": 15950.406,
+              "metrics_source": "ollama_response",
+              "response_tokens_per_second": 11.41036786148265,
+              "parse_status": "valid"
+            }
+          ]
+        },
+        {
+          "sequence": 6,
+          "run_id": "c3b94680-6f2b-41b6-9159-3cbb3d5472f7",
+          "run_started_at": "2026-08-29T17:15:11.894127+00:00",
+          "stage": "response_generation",
+          "retry_index": 0,
+          "duration_ms": 2.688417,
+          "inputs": {
+            "draft": {
+              "characters": 4246,
+              "utf8_bytes": 4250,
+              "whitespace_tokens": 586
+            },
+            "retrieved_chunk_count": 5,
+            "verified_claim_count": 9
+          },
+          "outputs": {
+            "answer": {
+              "characters": 2026,
+              "utf8_bytes": 2030,
+              "whitespace_tokens": 301
+            },
+            "citation_count": 2,
+            "confidence_score": 0.5555555555555556,
+            "evidence_strength": "moderate"
+          },
+          "llm_calls": []
+        },
+        {
+          "sequence": 7,
+          "run_id": "c3b94680-6f2b-41b6-9159-3cbb3d5472f7",
+          "run_started_at": "2026-08-29T17:15:11.894127+00:00",
+          "stage": "workflow_total",
+          "retry_index": 0,
+          "duration_ms": 178646.422166,
+          "inputs": {
+            "query": {
+              "characters": 437,
+              "utf8_bytes": 437,
+              "whitespace_tokens": 63
+            },
+            "history_messages": 0,
+            "role": "citizen",
+            "case_scoped": false
+          },
+          "outputs": {
+            "completed": true,
+            "citation_count": 2,
+            "retry_count": 0,
+            "evidence_strength": "moderate"
+          },
+          "llm_calls": []
+        }
+      ],
+      "llm_summary": {
+        "call_count": 3,
+        "actual_prompt_token_total": 18585,
+        "actual_prompt_token_observations": 3,
+        "max_prompt_tokens": 11793,
+        "max_context_window": 16384
+      },
+      "machine_before": {
+        "captured_at": "2026-08-29T17:15:11.818416+00:00",
+        "platform": "macOS-27.0-arm64-arm-64bit",
+        "machine": "arm64",
+        "python": "3.12.13",
+        "logical_cpu_count": 18,
+        "load_average": [
+          4.5625,
+          7.55908203125,
+          5.88818359375
+        ],
+        "process_max_rss_raw": 125943808,
+        "ollama_ps": {
+          "available": true,
+          "returncode": 0,
+          "stdout": "NAME                    ID              SIZE     PROCESSOR    CONTEXT    UNTIL              \nqwen3-14b-16k:latest    351c0a45b605    11 GB    100% GPU     16384      4 minutes from now",
+          "stderr": ""
+        }
+      },
+      "machine_after": {
+        "captured_at": "2026-08-29T17:18:10.542826+00:00",
+        "platform": "macOS-27.0-arm64-arm-64bit",
+        "machine": "arm64",
+        "python": "3.12.13",
+        "logical_cpu_count": 18,
+        "load_average": [
+          3.16064453125,
+          5.494140625,
+          5.330078125
+        ],
+        "process_max_rss_raw": 2399453184,
+        "ollama_ps": {
+          "available": true,
+          "returncode": 0,
+          "stdout": "NAME                    ID              SIZE     PROCESSOR    CONTEXT    UNTIL              \nqwen3-14b-16k:latest    351c0a45b605    11 GB    100% GPU     16384      4 minutes from now",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "run_number": 2,
+      "run_id": "229a6c88-c4d0-43fd-b391-b6d17da30f4d",
+      "started_at": "2026-08-29T17:18:10.830481+00:00",
+      "wall_ms": 161740.491334,
+      "historical_timeout_threshold_ms": 180000.0,
+      "exceeded_historical_timeout_threshold": false,
+      "completed": true,
+      "error": null,
+      "retry_count": 0,
+      "citation_count": 2,
+      "evidence_strength": "moderate",
+      "stage_metrics": [
+        {
+          "sequence": 1,
+          "run_id": "229a6c88-c4d0-43fd-b391-b6d17da30f4d",
+          "run_started_at": "2026-08-29T17:18:10.830481+00:00",
+          "stage": "role_context",
+          "retry_index": 0,
+          "duration_ms": 0.338958,
+          "inputs": {
+            "query": {
+              "characters": 437,
+              "utf8_bytes": 437,
+              "whitespace_tokens": 63
+            },
+            "history_messages": 0,
+            "case_scoped": false
+          },
+          "outputs": {
+            "role": "citizen",
+            "specialist_agent_id": "authority_finder"
+          },
+          "llm_calls": []
+        },
+        {
+          "sequence": 2,
+          "run_id": "229a6c88-c4d0-43fd-b391-b6d17da30f4d",
+          "run_started_at": "2026-08-29T17:18:10.830481+00:00",
+          "stage": "query_understanding",
+          "retry_index": 0,
+          "duration_ms": 10679.036042,
+          "inputs": {
+            "query": {
+              "characters": 437,
+              "utf8_bytes": 437,
+              "whitespace_tokens": 63
+            },
+            "history_messages": 0,
+            "history": {
+              "characters": 0,
+              "utf8_bytes": 0,
+              "whitespace_tokens": 0
+            },
+            "prompt": {
+              "characters": 1418,
+              "utf8_bytes": 1418,
+              "whitespace_tokens": 196
+            }
+          },
+          "outputs": {
+            "retrieval_query": {
+              "characters": 437,
+              "utf8_bytes": 437,
+              "whitespace_tokens": 63
+            },
+            "entity_count": 0,
+            "fallback_used": false
+          },
+          "llm_calls": [
+            {
+              "operation": "structured",
+              "attempt": 1,
+              "model": "qwen3-14b-16k:latest",
+              "wall_ms": 10671.794333,
+              "prompt": {
+                "characters": 1418,
+                "utf8_bytes": 1418,
+                "whitespace_tokens": 196
+              },
+              "prompt_eval_count": 296,
+              "context_window": 16384,
+              "context_utilization": 0.01806640625,
+              "num_predict_limit": 1800,
+              "response_characters": 643,
+              "response_eval_count": 141,
+              "done_reason": "stop",
+              "ollama_total_duration_ms": 10659.394375,
+              "ollama_load_duration_ms": 4.476125,
+              "ollama_prompt_eval_duration_ms": 45.475,
+              "ollama_eval_duration_ms": 9492.44,
+              "metrics_source": "ollama_response",
+              "response_tokens_per_second": 14.853925861000965,
+              "parse_status": "valid"
+            }
+          ]
+        },
+        {
+          "sequence": 3,
+          "run_id": "229a6c88-c4d0-43fd-b391-b6d17da30f4d",
+          "run_started_at": "2026-08-29T17:18:10.830481+00:00",
+          "stage": "retrieval",
+          "retry_index": 0,
+          "duration_ms": 12772.408083,
+          "inputs": {
+            "query": {
+              "characters": 437,
+              "utf8_bytes": 437,
+              "whitespace_tokens": 63
+            },
+            "target_collection_count": 1,
+            "candidate_limit_per_collection": 20,
+            "result_limit": 5
+          },
+          "outputs": {
+            "result_count": 5,
+            "candidate_count": 20,
+            "reranker_input_chunk_count": 20,
+            "reranker_input_characters": 80845,
+            "reranker_input_utf8_bytes": 80995,
+            "reranker_query_characters_per_pair": 437,
+            "reranker_query_utf8_bytes_per_pair": 437,
+            "reranker_pair_input_characters": 89585,
+            "reranker_pair_input_utf8_bytes": 89735,
+            "reranker_max_tokens_per_query_document_pair": 8192,
+            "embedding_cache_hit": true,
+            "embedding_ms": 0.07,
+            "qdrant_ms": 154.9,
+            "reranking_ms": 12612.56,
+            "retrieval_total_ms": 12767.68
+          },
+          "llm_calls": []
+        },
+        {
+          "sequence": 4,
+          "run_id": "229a6c88-c4d0-43fd-b391-b6d17da30f4d",
+          "run_started_at": "2026-08-29T17:18:10.830481+00:00",
+          "stage": "reasoning",
+          "retry_index": 0,
+          "duration_ms": 112739.232834,
+          "inputs": {
+            "retrieved_chunk_count": 5,
+            "evidence": {
+              "characters": 23654,
+              "utf8_bytes": 23702,
+              "whitespace_tokens": 3372
+            },
+            "prompt": {
+              "characters": 25223,
+              "utf8_bytes": 25271,
+              "whitespace_tokens": 3599
+            }
+          },
+          "outputs": {
+            "draft": {
+              "characters": 4246,
+              "utf8_bytes": 4250,
+              "whitespace_tokens": 586
+            },
+            "citation_marker_count": 9,
+            "llm_skipped": false,
+            "reasoning_num_predict_limit": 1300
+          },
+          "llm_calls": [
+            {
+              "operation": "generate",
+              "attempt": 1,
+              "model": "qwen3-14b-16k:latest",
+              "wall_ms": 112727.510625,
+              "prompt": {
+                "characters": 25223,
+                "utf8_bytes": 25271,
+                "whitespace_tokens": 3599
+              },
+              "prompt_eval_count": 6496,
+              "context_window": 16384,
+              "context_utilization": 0.396484375,
+              "num_predict_limit": 1300,
+              "response_characters": 4246,
+              "response_eval_count": 1300,
+              "done_reason": "length",
+              "ollama_total_duration_ms": 112641.644625,
+              "ollama_load_duration_ms": 35.436,
+              "ollama_prompt_eval_duration_ms": 65.884,
+              "ollama_eval_duration_ms": 106547.691,
+              "metrics_source": "ollama_response",
+              "response_tokens_per_second": 12.201109078938181
+            }
+          ]
+        },
+        {
+          "sequence": 5,
+          "run_id": "229a6c88-c4d0-43fd-b391-b6d17da30f4d",
+          "run_started_at": "2026-08-29T17:18:10.830481+00:00",
+          "stage": "verification",
+          "retry_index": 0,
+          "duration_ms": 25486.468167,
+          "inputs": {
+            "draft": {
+              "characters": 4246,
+              "utf8_bytes": 4250,
+              "whitespace_tokens": 586
+            },
+            "retrieved_chunk_count": 5,
+            "claim_marker_count": 9,
+            "valid_claim_count": 9,
+            "verification_items": {
+              "characters": 47841,
+              "utf8_bytes": 47933,
+              "whitespace_tokens": 6314
+            },
+            "prompt": {
+              "characters": 48117,
+              "utf8_bytes": 48209,
+              "whitespace_tokens": 6358
+            }
+          },
+          "outputs": {
+            "verified_claim_count": 9,
+            "unsupported_claim_count": 3,
+            "score": 0.6111111111111112,
+            "fallback_used": false,
+            "llm_skipped": false
+          },
+          "llm_calls": [
+            {
+              "operation": "structured",
+              "attempt": 1,
+              "model": "qwen3-14b-16k:latest",
+              "wall_ms": 25459.316542,
+              "prompt": {
+                "characters": 48117,
+                "utf8_bytes": 48209,
+                "whitespace_tokens": 6358
+              },
+              "prompt_eval_count": 11793,
+              "context_window": 16384,
+              "context_utilization": 0.71978759765625,
+              "num_predict_limit": 1800,
+              "response_characters": 507,
+              "response_eval_count": 182,
+              "done_reason": "stop",
+              "ollama_total_duration_ms": 25429.66725,
+              "ollama_load_duration_ms": 8.597917,
+              "ollama_prompt_eval_duration_ms": 113.206,
+              "ollama_eval_duration_ms": 16370.361,
+              "metrics_source": "ollama_response",
+              "response_tokens_per_second": 11.117653422548226,
+              "parse_status": "valid"
+            }
+          ]
+        },
+        {
+          "sequence": 6,
+          "run_id": "229a6c88-c4d0-43fd-b391-b6d17da30f4d",
+          "run_started_at": "2026-08-29T17:18:10.830481+00:00",
+          "stage": "response_generation",
+          "retry_index": 0,
+          "duration_ms": 1.069084,
+          "inputs": {
+            "draft": {
+              "characters": 4246,
+              "utf8_bytes": 4250,
+              "whitespace_tokens": 586
+            },
+            "retrieved_chunk_count": 5,
+            "verified_claim_count": 9
+          },
+          "outputs": {
+            "answer": {
+              "characters": 2026,
+              "utf8_bytes": 2030,
+              "whitespace_tokens": 301
+            },
+            "citation_count": 2,
+            "confidence_score": 0.5555555555555556,
+            "evidence_strength": "moderate"
+          },
+          "llm_calls": []
+        },
+        {
+          "sequence": 7,
+          "run_id": "229a6c88-c4d0-43fd-b391-b6d17da30f4d",
+          "run_started_at": "2026-08-29T17:18:10.830481+00:00",
+          "stage": "workflow_total",
+          "retry_index": 0,
+          "duration_ms": 161739.259125,
+          "inputs": {
+            "query": {
+              "characters": 437,
+              "utf8_bytes": 437,
+              "whitespace_tokens": 63
+            },
+            "history_messages": 0,
+            "role": "citizen",
+            "case_scoped": false
+          },
+          "outputs": {
+            "completed": true,
+            "citation_count": 2,
+            "retry_count": 0,
+            "evidence_strength": "moderate"
+          },
+          "llm_calls": []
+        }
+      ],
+      "llm_summary": {
+        "call_count": 3,
+        "actual_prompt_token_total": 18585,
+        "actual_prompt_token_observations": 3,
+        "max_prompt_tokens": 11793,
+        "max_context_window": 16384
+      },
+      "machine_before": {
+        "captured_at": "2026-08-29T17:18:10.797805+00:00",
+        "platform": "macOS-27.0-arm64-arm-64bit",
+        "machine": "arm64",
+        "python": "3.12.13",
+        "logical_cpu_count": 18,
+        "load_average": [
+          3.16064453125,
+          5.494140625,
+          5.330078125
+        ],
+        "process_max_rss_raw": 2399453184,
+        "ollama_ps": {
+          "available": true,
+          "returncode": 0,
+          "stdout": "NAME                    ID              SIZE     PROCESSOR    CONTEXT    UNTIL              \nqwen3-14b-16k:latest    351c0a45b605    11 GB    100% GPU     16384      4 minutes from now",
+          "stderr": ""
+        }
+      },
+      "machine_after": {
+        "captured_at": "2026-08-29T17:20:52.571379+00:00",
+        "platform": "macOS-27.0-arm64-arm-64bit",
+        "machine": "arm64",
+        "python": "3.12.13",
+        "logical_cpu_count": 18,
+        "load_average": [
+          4.41552734375,
+          5.07080078125,
+          5.1767578125
+        ],
+        "process_max_rss_raw": 2399453184,
+        "ollama_ps": {
+          "available": true,
+          "returncode": 0,
+          "stdout": "NAME                    ID              SIZE     PROCESSOR    CONTEXT    UNTIL              \nqwen3-14b-16k:latest    351c0a45b605    11 GB    100% GPU     16384      4 minutes from now",
+          "stderr": ""
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,1293 @@
+{
+  "schema_version": 1,
+  "started_at": "2026-08-31T04:43:39.318176+00:00",
+  "base_url": "http://localhost:8000",
+  "credentials_persisted": false,
+  "cases": {
+    "strong_article_fast": {
+      "query": "Explain the right to equality under Article 14 in plain language.",
+      "client_elapsed_ms": 41.502458,
+      "response": {
+        "session_id": "8c77f75e-6bf5-4c11-9d62-e96e6885df81",
+        "message_id": "ee80b687-87c3-45b1-a209-17f89f6a46e9",
+        "answer": "Fast evidence brief — the following verified corpus passages are the closest authorities located. This mode prioritises source inspection and does not synthesise a final legal opinion.\n\n1. Amendments in the “Model Prison Manual, 2016” and the “Model Prisons and Correctional Services Act, 2023” in compliance with the directions of the Hon’ble Supreme Court in W.P. (C) No. 1404 of 2023 dated 3.10.2024 (Amendments in the “Model Prison Manual, 2016” and the “Model Prisons and Correctional Services Act, 2023” in compliance with the directions of the Hon’ble Supreme Court in W.P. (C) No. 1404 of 2023 dated 3.10.2024, section 1897, pages 74–74): \"untouchability” led to the denial of civil and political rights of the caste-oppressed communities: \"The right of representation and the right to hold office under the State are the two most important rights that make up citizenship. But the untouchability of the untouchables puts these rights far beyond their reach. In a few places they do not even possess such insignificant rights as personal liberty and personal… [Source 1]\n\n2. Model Prison Manual 2016 (POLICE MANUAL, pages 174–175): LEGAL AID Constitution of Legal Services Authorities 16.01 Article 39A of the Constitution of India provides for free legal aid to the poor and weaker sections of the society and ensures justice for all. Articles 14 and 22(1) of the Constitution also make it obligatory for the State to ensure equality before law and a legal system which promotes justice on the basis of equal opportunity to all. In furtherance of the… [Source 2]\n\nCurrency notice: one or more retrieved records are not marked as current. Confirm amendments, commencement and repeal status before relying on them.",
+        "citations": [
+          {
+            "number": 1,
+            "chunk_id": "gold-chunk-fa1613735975133d48b8e8569c2b8f39",
+            "title": "Amendments in the “Model Prison Manual, 2016” and the “Model Prisons and Correctional Services Act, 2023” in compliance with the directions of the Hon’ble Supreme Court in W.P. (C) No. 1404 of 2023 dated 3.10.2024",
+            "source_type": "ACT",
+            "page_start": 74,
+            "page_end": 74,
+            "court": null,
+            "act_name": "Amendments in the “Model Prison Manual, 2016” and the “Model Prisons and Correctional Services Act, 2023” in compliance with the directions of the Hon’ble Supreme Court in W.P. (C) No. 1404 of 2023 dated 3.10.2024",
+            "section": "1897",
+            "source_url": null,
+            "excerpt": "\"untouchability” led to the denial of civil and political rights of the caste-oppressed communities: \"The right of representation and the right to hold office under the State are the two most important rights that make up citizenship. But the untouchability of the untouchables puts these rights far beyond their reach. In a few places they do not even possess such insignificant rights as personal liberty and personal security, and equality before law is not always assured to them. These are the interests of the untouchables. And as can be easily seen they can be represented by the untouchables alone. They are distinctively their own interests and none else can truly voice them.”198 117 Before the Simon Commission in 1928, Dr Ambedkar raised the demand of representation of caste-oppressed communities in government services. Dr Ambedkar also confronted the British government in the Round T…",
+            "retrieval_score": 0.5,
+            "verification_status": "unverified",
+            "current_status": "status_unverified"
+          },
+          {
+            "number": 2,
+            "chunk_id": "gold-chunk-800e6c288e60a23e39947ef183889522",
+            "title": "Model Prison Manual 2016",
+            "source_type": "POLICE_MANUAL",
+            "page_start": 174,
+            "page_end": 175,
+            "court": null,
+            "act_name": null,
+            "section": null,
+            "source_url": null,
+            "excerpt": "LEGAL AID Constitution of Legal Services Authorities 16.01 Article 39A of the Constitution of India provides for free legal aid to the poor and weaker sections of the society and ensures justice for all. Articles 14 and 22(1) of the Constitution also make it obligatory for the State to ensure equality before law and a legal system which promotes justice on the basis of equal opportunity to all. In furtherance of these, the Legal Services Authorities Act was enacted by the Parliament in 1987 to establish a nationwide uniform network for providing free and competent legal services to the weaker sections of the society on the basis of equal opportunity. 16.02 Under the Act, the National Legal Services Authority (NALSA) has been constituted under the Legal Services Authorities Act, 1987 (LSA Act) to monitor and evaluate implementation. 16.03 In every State, a State Legal Services Authority…",
+            "retrieval_score": 0.5,
+            "verification_status": "unverified",
+            "current_status": "status_unverified"
+          }
+        ],
+        "confidence_score": 0.6499999999999999,
+        "evidence_strength": "moderate",
+        "intent": {
+          "intent": "fast_evidence_research",
+          "entities": [],
+          "language": "English",
+          "complexity": "simple",
+          "retrieval_query": "Explain the right to equality under Article 14 in plain language."
+        },
+        "agent_trace": [
+          {
+            "node": "fast_retrieval",
+            "details": {
+              "result_count": 2,
+              "raw_result_count": 8,
+              "relevant_result_count": 3,
+              "unique_document_count": 2,
+              "mean_local_coverage": 0.5,
+              "focus_term_recall": 1.0,
+              "mandatory_term_match_rate": 1.0,
+              "distinctive_terms": [
+                "equality"
+              ],
+              "term_document_counts": {
+                "14": 2156,
+                "article": 2302,
+                "equality": 242,
+                "right": 2282
+              },
+              "confidence_method": "weighted_coverage_recall_x_mandatory_term_match_rate",
+              "diversity_selection": true,
+              "focus_tokens": [
+                "14",
+                "article",
+                "equality",
+                "right"
+              ],
+              "lexical_gate": 0.5,
+              "reranker_skipped": true,
+              "no_generative_claims": true,
+              "timings_ms": {
+                "embedding_ms": 0.0,
+                "qdrant_ms": 12.950958000146784,
+                "reranking_ms": 0.0,
+                "retrieval_total_ms": 28.427415993064642,
+                "embedding_cache_hit": false,
+                "workflow_total_ms": 31.6
+              }
+            }
+          },
+          {
+            "node": "adaptive_router",
+            "details": {
+              "requested_mode": "fast",
+              "selected_mode": "fast",
+              "reason": "user_selected",
+              "signals": [
+                "explicit_fast_mode"
+              ]
+            }
+          }
+        ],
+        "response_mode": "fast",
+        "requested_mode": "fast",
+        "routing_reason": "user_selected",
+        "routing_signals": [
+          "explicit_fast_mode"
+        ],
+        "timings_ms": {
+          "embedding_ms": 0.0,
+          "qdrant_ms": 12.950958000146784,
+          "reranking_ms": 0.0,
+          "retrieval_total_ms": 28.427415993064642,
+          "embedding_cache_hit": false,
+          "workflow_total_ms": 31.6,
+          "api_total_ms": 35.46
+        },
+        "pipeline_metrics": [],
+        "latency_target_ms": 5000,
+        "target_met": true,
+        "delivery_state": "complete",
+        "job_id": null,
+        "escalation_threshold": null
+      }
+    },
+    "correct_pocso_fast": {
+      "query": "how to file a pocso case",
+      "client_elapsed_ms": 98.781542,
+      "response": {
+        "session_id": "7e8a515e-e664-4211-8162-cd9638232cee",
+        "message_id": "0cadaa8c-b677-43d8-9641-4789eb7f6b81",
+        "answer": "Fast evidence brief — the following verified corpus passages are the closest authorities located. This mode prioritises source inspection and does not synthesise a final legal opinion.\n\n1. The Protection of Children from Sexual Offences Act, 2012 (The Protection of Children from Sexual Offences Act, 2012, section 4, pages 4–5): once or repeatedly; or (m) whoever commits penetrative sexual assault on a child below twelve years; or (n) whoever being a relative of the child through blood or adoption or marriag e or guardianship or in foster care or having a domestic relationship with a parent of the child or who is living in the same or shared household with the child, commits penetrative sexual assault on such child; or (0) whoever being, in… [Source 1]\n\n2. Age of Consent Under The Protection of children From Sexual Offences Act,2012 17 th September 2023 Click Here (Age of Consent Under The Protection of children From Sexual Offences Act,2012 17 th September 2023 Click Here, section 15, pages 87–89): stand being taken by a female in such an act, that it was a case ofconsensual sex, the other party. i.e., the male accused, stands convicted under the POCSO Act on the basis of the reasoning that the POCSO Act was never intended to exclude from its purview cases ofconsensual sex with the minor. t6 ld, at 23 U 80 15.4. The cases of consensual adolescent relationships have overwhelmed the judicial system, with the cou… [Source 2]\n\nCurrency notice: one or more retrieved records are not marked as current. Confirm amendments, commencement and repeal status before relying on them.",
+        "citations": [
+          {
+            "number": 1,
+            "chunk_id": "gold-chunk-56414c4b4feddfcc13e50351ad126912",
+            "title": "The Protection of Children from Sexual Offences Act, 2012",
+            "source_type": "ACT",
+            "page_start": 4,
+            "page_end": 5,
+            "court": null,
+            "act_name": "The Protection of Children from Sexual Offences Act, 2012",
+            "section": "4",
+            "source_url": null,
+            "excerpt": "once or repeatedly; or (m) whoever commits penetrative sexual assault on a child below twelve years; or (n) whoever being a relative of the child through blood or adoption or marriag e or guardianship or in foster care or having a domestic relationship with a parent of the child or who is living in the same or shared household with the child, commits penetrative sexual assault on such child; or (0) whoever being, in the ownership, or management, or staff, of any institution providing services to the child, commits penetrative sexual assault on the child; or (p) whoever being in a position of trust or authority of a child commits penetrative sexual assault on the child in an instituti ion or home of the child or anywhere else; or (gq) whoever commits penetrative sexual assault on a child knowing the child is pregnant; or (r) whoever commits penetrative sexual assault on a child and attem…",
+            "retrieval_score": 0.5714285714285714,
+            "verification_status": "unverified",
+            "current_status": "status_unverified"
+          },
+          {
+            "number": 2,
+            "chunk_id": "gold-chunk-9a44f706125839e094491bb1b5463fa5",
+            "title": "Age of Consent Under The Protection of children From Sexual Offences Act,2012 17 th September 2023 Click Here",
+            "source_type": "ACT",
+            "page_start": 87,
+            "page_end": 89,
+            "court": null,
+            "act_name": "Age of Consent Under The Protection of children From Sexual Offences Act,2012 17 th September 2023 Click Here",
+            "section": "15",
+            "source_url": null,
+            "excerpt": "stand being taken by a female in such an act, that it was a case ofconsensual sex, the other party. i.e., the male accused, stands convicted under the POCSO Act on the basis of the reasoning that the POCSO Act was never intended to exclude from its purview cases ofconsensual sex with the minor. t6 ld, at 23 U 80 15.4. The cases of consensual adolescent relationships have overwhelmed the judicial system, with the courts taking varied stands. However, one common trend that can be observed is that of the approach taken by High Courts in granting bail to the accused in such cases, which is otherwise often denied by the trial courts given the gravity of underlying offence. The High Courts, faced with an increasing number of bail applications and writ petitions or quashing of FIR cases, have laid down parameters to be considered by the trial courts in considering bail. These include certain r…",
+            "retrieval_score": 0.7142857142857143,
+            "verification_status": "unverified",
+            "current_status": "status_unverified"
+          }
+        ],
+        "confidence_score": 0.7071428571428571,
+        "evidence_strength": "moderate",
+        "intent": {
+          "intent": "fast_evidence_research",
+          "entities": [],
+          "language": "English",
+          "complexity": "simple",
+          "retrieval_query": "how to file a pocso case"
+        },
+        "agent_trace": [
+          {
+            "node": "fast_retrieval",
+            "details": {
+              "result_count": 2,
+              "raw_result_count": 8,
+              "relevant_result_count": 8,
+              "unique_document_count": 2,
+              "mean_local_coverage": 0.6428571428571428,
+              "focus_term_recall": 0.8571428571428571,
+              "mandatory_term_match_rate": 1.0,
+              "distinctive_terms": [
+                "pocso"
+              ],
+              "term_document_counts": {
+                "case": 6698,
+                "children": 956,
+                "file": 485,
+                "offences": 1854,
+                "pocso": 291,
+                "protection": 1429,
+                "sexual": 596
+              },
+              "confidence_method": "weighted_coverage_recall_x_mandatory_term_match_rate",
+              "diversity_selection": true,
+              "focus_tokens": [
+                "case",
+                "children",
+                "file",
+                "offences",
+                "pocso",
+                "protection",
+                "sexual"
+              ],
+              "lexical_gate": 0.5,
+              "reranker_skipped": true,
+              "no_generative_claims": true,
+              "timings_ms": {
+                "embedding_ms": 0.0,
+                "qdrant_ms": 54.053250001743436,
+                "reranking_ms": 0.0,
+                "retrieval_total_ms": 79.83108398912009,
+                "embedding_cache_hit": false,
+                "workflow_total_ms": 82.52
+              }
+            }
+          },
+          {
+            "node": "adaptive_router",
+            "details": {
+              "requested_mode": "fast",
+              "selected_mode": "fast",
+              "reason": "user_selected",
+              "signals": [
+                "explicit_fast_mode"
+              ]
+            }
+          }
+        ],
+        "response_mode": "fast",
+        "requested_mode": "fast",
+        "routing_reason": "user_selected",
+        "routing_signals": [
+          "explicit_fast_mode"
+        ],
+        "timings_ms": {
+          "embedding_ms": 0.0,
+          "qdrant_ms": 54.053250001743436,
+          "reranking_ms": 0.0,
+          "retrieval_total_ms": 79.83108398912009,
+          "embedding_cache_hit": false,
+          "workflow_total_ms": 82.52,
+          "api_total_ms": 89.87
+        },
+        "pipeline_metrics": [],
+        "latency_target_ms": 5000,
+        "target_met": true,
+        "delivery_state": "complete",
+        "job_id": null,
+        "escalation_threshold": null
+      }
+    },
+    "typo_pocos_auto_deep": {
+      "query": "how to file a pocos case?",
+      "fast_client_elapsed_ms": 29.981917,
+      "initial_response": {
+        "session_id": "0d184ce3-1b1f-45b7-a9d6-2cb48c595178",
+        "message_id": null,
+        "answer": "Searching more thoroughly because the quick source match was not strong enough.",
+        "citations": [],
+        "confidence_score": 0.0,
+        "evidence_strength": "insufficient",
+        "intent": {
+          "intent": "fast_evidence_research",
+          "entities": [],
+          "language": "English",
+          "complexity": "simple",
+          "retrieval_query": "how to file a pocos case?"
+        },
+        "agent_trace": [
+          {
+            "node": "fast_retrieval",
+            "details": {
+              "result_count": 0,
+              "raw_result_count": 8,
+              "relevant_result_count": 0,
+              "unique_document_count": 0,
+              "mean_local_coverage": 0.0,
+              "focus_term_recall": 0.0,
+              "mandatory_term_match_rate": 0.0,
+              "distinctive_terms": [
+                "pocos"
+              ],
+              "term_document_counts": {
+                "case": 6698,
+                "file": 485,
+                "pocos": 0
+              },
+              "confidence_method": "weighted_coverage_recall_x_mandatory_term_match_rate",
+              "diversity_selection": true,
+              "focus_tokens": [
+                "case",
+                "file",
+                "pocos"
+              ],
+              "lexical_gate": 0.5,
+              "reranker_skipped": true,
+              "no_generative_claims": true,
+              "timings_ms": {
+                "embedding_ms": 0.0,
+                "qdrant_ms": 5.993665996356867,
+                "reranking_ms": 0.0,
+                "retrieval_total_ms": 15.929582994431257,
+                "embedding_cache_hit": false,
+                "workflow_total_ms": 17.44
+              }
+            }
+          },
+          {
+            "node": "adaptive_router",
+            "details": {
+              "requested_mode": "fast",
+              "selected_mode": "fast",
+              "reason": "user_selected",
+              "signals": [
+                "explicit_fast_mode"
+              ]
+            }
+          }
+        ],
+        "response_mode": "deep",
+        "requested_mode": "fast",
+        "routing_reason": "fast_confidence_below_escalation_threshold",
+        "routing_signals": [
+          "explicit_fast_mode",
+          "auto_escalated_low_fast_confidence"
+        ],
+        "timings_ms": {
+          "embedding_ms": 0.0,
+          "qdrant_ms": 5.993665996356867,
+          "reranking_ms": 0.0,
+          "retrieval_total_ms": 15.929582994431257,
+          "embedding_cache_hit": false,
+          "workflow_total_ms": 17.44,
+          "api_total_ms": 25.35
+        },
+        "pipeline_metrics": [],
+        "latency_target_ms": 300000,
+        "target_met": null,
+        "delivery_state": "searching_more_thoroughly",
+        "job_id": "cd1755a7-b1d9-408a-b0da-3acae7453996",
+        "escalation_threshold": 0.6
+      },
+      "job_elapsed_ms": 482910.543791,
+      "progress_observations": [
+        {
+          "observed_at": "2026-08-31T04:43:39.813521+00:00",
+          "status": "queued",
+          "progress": 0
+        },
+        {
+          "observed_at": "2026-08-31T04:43:41.847250+00:00",
+          "status": "running",
+          "progress": 10
+        },
+        {
+          "observed_at": "2026-08-31T04:43:49.967102+00:00",
+          "status": "running",
+          "progress": 25
+        },
+        {
+          "observed_at": "2026-08-31T04:44:51.417499+00:00",
+          "status": "running",
+          "progress": 50
+        },
+        {
+          "observed_at": "2026-08-31T04:46:34.344623+00:00",
+          "status": "running",
+          "progress": 75
+        },
+        {
+          "observed_at": "2026-08-31T04:47:46.928030+00:00",
+          "status": "running",
+          "progress": 80
+        },
+        {
+          "observed_at": "2026-08-31T04:51:42.715063+00:00",
+          "status": "succeeded",
+          "progress": 100
+        }
+      ],
+      "terminal_job": {
+        "id": "cd1755a7-b1d9-408a-b0da-3acae7453996",
+        "type": "deep_review",
+        "status": "succeeded",
+        "progress": 100,
+        "attempt_count": 1,
+        "max_attempts": 3,
+        "cancel_requested": false,
+        "result": {
+          "answer": "I could not find enough reliable support in the indexed legal corpus for this answer.",
+          "intent": {
+            "intent": "Procedural guidance",
+            "entities": [],
+            "language": "English",
+            "complexity": "complex",
+            "retrieval_query": "how to file a POCSO case"
+          },
+          "citations": [],
+          "message_id": "52bec105-2ed5-46b1-b18f-843e7586cbdd",
+          "session_id": "0d184ce3-1b1f-45b7-a9d6-2cb48c595178",
+          "timings_ms": {
+            "retrieval_0": {
+              "total_ms": 61577.93,
+              "qdrant_ms": 161.27,
+              "embedding_ms": 827.51,
+              "reranking_ms": 60587.37,
+              "result_count": 5,
+              "candidate_count": 20,
+              "embedding_cache_hit": false,
+              "reranker_max_length": 8192,
+              "lexical_distinctive_terms": [],
+              "reranker_input_characters": 82477,
+              "reranker_input_utf8_bytes": 82793,
+              "reranker_input_chunk_count": 20,
+              "lexical_term_document_counts": {},
+              "reranker_pair_input_characters": 82957,
+              "reranker_pair_input_utf8_bytes": 83273,
+              "reranker_query_characters_per_pair": 24,
+              "reranker_query_utf8_bytes_per_pair": 24
+            },
+            "retrieval_1": {
+              "total_ms": 99603.09,
+              "qdrant_ms": 382.96,
+              "embedding_ms": 2114.09,
+              "reranking_ms": 97105.58,
+              "result_count": 8,
+              "candidate_count": 40,
+              "embedding_cache_hit": false,
+              "reranker_max_length": 8192,
+              "lexical_distinctive_terms": [],
+              "reranker_input_characters": 106796,
+              "reranker_input_utf8_bytes": 113373,
+              "reranker_input_chunk_count": 40,
+              "lexical_term_document_counts": {},
+              "reranker_pair_input_characters": 109356,
+              "reranker_pair_input_utf8_bytes": 115933,
+              "reranker_query_characters_per_pair": 64,
+              "reranker_query_utf8_bytes_per_pair": 64
+            },
+            "retrieval_2": {
+              "total_ms": 88504.69,
+              "qdrant_ms": 210.53,
+              "embedding_ms": 1.08,
+              "reranking_ms": 88292.42,
+              "result_count": 8,
+              "candidate_count": 40,
+              "embedding_cache_hit": true,
+              "reranker_max_length": 8192,
+              "lexical_distinctive_terms": [],
+              "reranker_input_characters": 106796,
+              "reranker_input_utf8_bytes": 113373,
+              "reranker_input_chunk_count": 40,
+              "lexical_term_document_counts": {},
+              "reranker_pair_input_characters": 109356,
+              "reranker_pair_input_utf8_bytes": 115933,
+              "reranker_query_characters_per_pair": 64,
+              "reranker_query_utf8_bytes_per_pair": 64
+            },
+            "reasoning_0_ms": 101509.42,
+            "reasoning_1_ms": 46138.35,
+            "reasoning_2_ms": 1246.39,
+            "verification_0_ms": 73371.4,
+            "verification_1_ms": 4.94,
+            "verification_2_ms": 2.04,
+            "workflow_total_ms": 481466.119387,
+            "query_understanding_ms": 9280.35,
+            "response_generation_ms": 3.38
+          },
+          "agent_trace": [
+            {
+              "node": "role_context",
+              "details": {
+                "role": "citizen",
+                "objective": "Explain the located law and procedure in plain language so a member of the public can understand practical next steps.",
+                "agent_label": "Citizen legal information assistant",
+                "case_scoped": false,
+                "safety_boundary": "Do not present research as personalised legal advice, predict an outcome, or invent a police/court procedure not established by the evidence.",
+                "specialist_agent_id": "procedure_navigator",
+                "specialist_agent_label": "Procedure Navigator"
+              }
+            },
+            {
+              "node": "query_understanding",
+              "details": {
+                "intent": "Procedural guidance",
+                "entities": [],
+                "language": "English",
+                "complexity": "complex",
+                "legal_term_corrections": [
+                  {
+                    "to": "POCSO",
+                    "from": "pocos"
+                  }
+                ]
+              }
+            },
+            {
+              "node": "retrieval",
+              "details": {
+                "query": "how to file a POCSO case",
+                "retry": 0,
+                "chunk_ids": [
+                  "gold-chunk-beac28b316dc66d2485cc63824e80b06",
+                  "gold-chunk-b8f6da00bd2e102738adf1c72134733d",
+                  "gold-chunk-694cd116e141b359c33c4f51397235a6",
+                  "gold-chunk-0a505dd4488f6b8607edbaed14dd20d2",
+                  "gold-chunk-dfedf1d2375eb12264203c8d6d5775a7"
+                ],
+                "timings_ms": {
+                  "total_ms": 61577.93,
+                  "qdrant_ms": 161.27,
+                  "embedding_ms": 827.51,
+                  "reranking_ms": 60587.37,
+                  "result_count": 5,
+                  "candidate_count": 20,
+                  "embedding_cache_hit": false,
+                  "reranker_max_length": 8192,
+                  "lexical_distinctive_terms": [],
+                  "reranker_input_characters": 82477,
+                  "reranker_input_utf8_bytes": 82793,
+                  "reranker_input_chunk_count": 20,
+                  "lexical_term_document_counts": {},
+                  "reranker_pair_input_characters": 82957,
+                  "reranker_pair_input_utf8_bytes": 83273,
+                  "reranker_query_characters_per_pair": 24,
+                  "reranker_query_utf8_bytes_per_pair": 24
+                },
+                "collections": [
+                  "global_legal_corpus"
+                ],
+                "result_count": 5,
+                "case_scope_applied": false
+              }
+            },
+            {
+              "node": "reasoning",
+              "details": {
+                "citation_markers": 10,
+                "answer_characters": 1762
+              }
+            },
+            {
+              "node": "verification",
+              "details": {
+                "score": 0.4,
+                "claims": 10,
+                "unsupported": 1
+              }
+            },
+            {
+              "node": "retrieval",
+              "details": {
+                "query": "how to file a pocos case?  governing law authoritative provision",
+                "retry": 1,
+                "chunk_ids": [
+                  "gold-chunk-82cc757caf87ce0eed0ae85734928b4b",
+                  "gold-chunk-0143a94f19c7fe4d51dab1f98242426e",
+                  "gold-chunk-72c2c741c73c93a500bcf6e0b92588a8",
+                  "gold-chunk-3dcbc7af69eee83225bace594144661a",
+                  "gold-chunk-8ded8f1dfc364e53d53d30bc3c6508df",
+                  "gold-chunk-4e3a438416ed93dbdfa6ad3239b4e01f",
+                  "gold-chunk-e1f7f7fa8f77528317b8144b6c9f3ef1",
+                  "gold-chunk-99c765db3682778c8144b5c2a2f3d182"
+                ],
+                "timings_ms": {
+                  "total_ms": 99603.09,
+                  "qdrant_ms": 382.96,
+                  "embedding_ms": 2114.09,
+                  "reranking_ms": 97105.58,
+                  "result_count": 8,
+                  "candidate_count": 40,
+                  "embedding_cache_hit": false,
+                  "reranker_max_length": 8192,
+                  "lexical_distinctive_terms": [],
+                  "reranker_input_characters": 106796,
+                  "reranker_input_utf8_bytes": 113373,
+                  "reranker_input_chunk_count": 40,
+                  "lexical_term_document_counts": {},
+                  "reranker_pair_input_characters": 109356,
+                  "reranker_pair_input_utf8_bytes": 115933,
+                  "reranker_query_characters_per_pair": 64,
+                  "reranker_query_utf8_bytes_per_pair": 64
+                },
+                "collections": [
+                  "global_legal_corpus"
+                ],
+                "result_count": 8,
+                "case_scope_applied": false
+              }
+            },
+            {
+              "node": "reasoning",
+              "details": {
+                "citation_markers": 0,
+                "answer_characters": 85
+              }
+            },
+            {
+              "node": "verification",
+              "details": {
+                "score": 0.0,
+                "claims": 0,
+                "unsupported": 0
+              }
+            },
+            {
+              "node": "retrieval",
+              "details": {
+                "query": "how to file a pocos case?  governing law authoritative provision",
+                "retry": 2,
+                "chunk_ids": [
+                  "gold-chunk-82cc757caf87ce0eed0ae85734928b4b",
+                  "gold-chunk-0143a94f19c7fe4d51dab1f98242426e",
+                  "gold-chunk-72c2c741c73c93a500bcf6e0b92588a8",
+                  "gold-chunk-3dcbc7af69eee83225bace594144661a",
+                  "gold-chunk-8ded8f1dfc364e53d53d30bc3c6508df",
+                  "gold-chunk-4e3a438416ed93dbdfa6ad3239b4e01f",
+                  "gold-chunk-e1f7f7fa8f77528317b8144b6c9f3ef1",
+                  "gold-chunk-99c765db3682778c8144b5c2a2f3d182"
+                ],
+                "timings_ms": {
+                  "total_ms": 88504.69,
+                  "qdrant_ms": 210.53,
+                  "embedding_ms": 1.08,
+                  "reranking_ms": 88292.42,
+                  "result_count": 8,
+                  "candidate_count": 40,
+                  "embedding_cache_hit": true,
+                  "reranker_max_length": 8192,
+                  "lexical_distinctive_terms": [],
+                  "reranker_input_characters": 106796,
+                  "reranker_input_utf8_bytes": 113373,
+                  "reranker_input_chunk_count": 40,
+                  "lexical_term_document_counts": {},
+                  "reranker_pair_input_characters": 109356,
+                  "reranker_pair_input_utf8_bytes": 115933,
+                  "reranker_query_characters_per_pair": 64,
+                  "reranker_query_utf8_bytes_per_pair": 64
+                },
+                "collections": [
+                  "global_legal_corpus"
+                ],
+                "result_count": 8,
+                "case_scope_applied": false
+              }
+            },
+            {
+              "node": "reasoning",
+              "details": {
+                "citation_markers": 0,
+                "answer_characters": 85
+              }
+            },
+            {
+              "node": "verification",
+              "details": {
+                "score": 0.0,
+                "claims": 0,
+                "unsupported": 0
+              }
+            },
+            {
+              "node": "response_generation",
+              "details": {
+                "citations": 0,
+                "evidence_strength": "insufficient"
+              }
+            }
+          ],
+          "response_mode": "deep",
+          "requested_mode": "deep",
+          "confidence_score": 0.0,
+          "pipeline_metrics": [
+            {
+              "stage": "role_context",
+              "inputs": {
+                "query": {
+                  "characters": 25,
+                  "utf8_bytes": 25,
+                  "whitespace_tokens": 6
+                },
+                "case_scoped": false,
+                "history_messages": 0
+              },
+              "run_id": "71bd997e-787b-46cf-902a-e40e36baa447",
+              "outputs": {
+                "role": "citizen",
+                "specialist_agent_id": "procedure_navigator"
+              },
+              "sequence": 1,
+              "llm_calls": [],
+              "duration_ms": 0.190084,
+              "retry_index": 0,
+              "run_started_at": "2026-08-31T04:43:40.168426+00:00"
+            },
+            {
+              "stage": "query_understanding",
+              "inputs": {
+                "query": {
+                  "characters": 25,
+                  "utf8_bytes": 25,
+                  "whitespace_tokens": 6
+                },
+                "prompt": {
+                  "characters": 1015,
+                  "utf8_bytes": 1015,
+                  "whitespace_tokens": 140
+                },
+                "history": {
+                  "characters": 0,
+                  "utf8_bytes": 0,
+                  "whitespace_tokens": 0
+                },
+                "history_messages": 0
+              },
+              "run_id": "71bd997e-787b-46cf-902a-e40e36baa447",
+              "outputs": {
+                "entity_count": 0,
+                "fallback_used": false,
+                "retrieval_query": {
+                  "characters": 24,
+                  "utf8_bytes": 24,
+                  "whitespace_tokens": 6
+                },
+                "legal_term_correction_count": 1
+              },
+              "sequence": 2,
+              "llm_calls": [
+                {
+                  "model": "qwen3-14b-16k:latest",
+                  "prompt": {
+                    "characters": 1015,
+                    "utf8_bytes": 1015,
+                    "whitespace_tokens": 140
+                  },
+                  "attempt": 1,
+                  "wall_ms": 9262.942753,
+                  "operation": "structured",
+                  "done_reason": "stop",
+                  "parse_status": "valid",
+                  "context_window": 16384,
+                  "metrics_source": "ollama_response",
+                  "num_predict_limit": 1800,
+                  "prompt_eval_count": 212,
+                  "context_utilization": 0.012939453125,
+                  "response_characters": 138,
+                  "response_eval_count": 45,
+                  "ollama_eval_duration_ms": 3759.085,
+                  "ollama_load_duration_ms": 4515.397167,
+                  "ollama_total_duration_ms": 9239.9275,
+                  "response_tokens_per_second": 11.97099826154503,
+                  "ollama_prompt_eval_duration_ms": 934.624,
+                  "time_to_first_response_token_ms": 5506.358003
+                }
+              ],
+              "duration_ms": 9266.262962,
+              "retry_index": 0,
+              "run_started_at": "2026-08-31T04:43:40.168426+00:00"
+            },
+            {
+              "stage": "retrieval",
+              "inputs": {
+                "query": {
+                  "characters": 24,
+                  "utf8_bytes": 24,
+                  "whitespace_tokens": 6
+                },
+                "result_limit": 5,
+                "target_collection_count": 1,
+                "candidate_limit_per_collection": 20
+              },
+              "run_id": "71bd997e-787b-46cf-902a-e40e36baa447",
+              "outputs": {
+                "qdrant_ms": 161.27,
+                "embedding_ms": 827.51,
+                "reranking_ms": 60587.37,
+                "result_count": 5,
+                "candidate_count": 20,
+                "retrieval_total_ms": 61577.93,
+                "embedding_cache_hit": false,
+                "reranker_input_characters": 82477,
+                "reranker_input_utf8_bytes": 82793,
+                "reranker_input_chunk_count": 20,
+                "reranker_pair_input_characters": 82957,
+                "reranker_pair_input_utf8_bytes": 83273,
+                "reranker_query_characters_per_pair": 24,
+                "reranker_query_utf8_bytes_per_pair": 24,
+                "reranker_max_tokens_per_query_document_pair": 8192
+              },
+              "sequence": 3,
+              "llm_calls": [],
+              "duration_ms": 61581.958695,
+              "retry_index": 0,
+              "run_started_at": "2026-08-31T04:43:40.168426+00:00"
+            },
+            {
+              "stage": "reasoning",
+              "inputs": {
+                "prompt": {
+                  "characters": 30131,
+                  "utf8_bytes": 30287,
+                  "whitespace_tokens": 3825
+                },
+                "evidence": {
+                  "characters": 27346,
+                  "utf8_bytes": 27490,
+                  "whitespace_tokens": 3412
+                },
+                "retrieved_chunk_count": 5
+              },
+              "run_id": "71bd997e-787b-46cf-902a-e40e36baa447",
+              "outputs": {
+                "draft": {
+                  "characters": 1762,
+                  "utf8_bytes": 1762,
+                  "whitespace_tokens": 217
+                },
+                "llm_skipped": false,
+                "citation_marker_count": 10,
+                "structured_claim_contract": true,
+                "reasoning_num_predict_limit": 1800
+              },
+              "sequence": 4,
+              "llm_calls": [
+                {
+                  "model": "qwen3-14b-16k:latest",
+                  "prompt": {
+                    "characters": 30131,
+                    "utf8_bytes": 30287,
+                    "whitespace_tokens": 3825
+                  },
+                  "attempt": 1,
+                  "wall_ms": 101476.875088,
+                  "operation": "structured",
+                  "done_reason": "stop",
+                  "parse_status": "valid",
+                  "context_window": 16384,
+                  "metrics_source": "ollama_response",
+                  "num_predict_limit": 1800,
+                  "prompt_eval_count": 6480,
+                  "context_utilization": 0.3955078125,
+                  "response_characters": 2292,
+                  "response_eval_count": 737,
+                  "ollama_eval_duration_ms": 73335.804,
+                  "ollama_load_duration_ms": 26.955208,
+                  "ollama_total_duration_ms": 101396.228166,
+                  "response_tokens_per_second": 10.04966141777078,
+                  "ollama_prompt_eval_duration_ms": 27906.584,
+                  "time_to_first_response_token_ms": 28095.428262
+                }
+              ],
+              "duration_ms": 101496.684297,
+              "retry_index": 0,
+              "run_started_at": "2026-08-31T04:43:40.168426+00:00"
+            },
+            {
+              "stage": "verification",
+              "inputs": {
+                "draft": {
+                  "characters": 1762,
+                  "utf8_bytes": 1762,
+                  "whitespace_tokens": 217
+                },
+                "prompt": {
+                  "characters": 50248,
+                  "utf8_bytes": 50488,
+                  "whitespace_tokens": 6303
+                },
+                "valid_claim_count": 10,
+                "claim_marker_count": 10,
+                "verification_items": {
+                  "characters": 49972,
+                  "utf8_bytes": 50212,
+                  "whitespace_tokens": 6259
+                },
+                "retrieved_chunk_count": 5
+              },
+              "run_id": "71bd997e-787b-46cf-902a-e40e36baa447",
+              "outputs": {
+                "score": 0.4,
+                "llm_skipped": false,
+                "fallback_used": false,
+                "verified_claim_count": 10,
+                "unsupported_claim_count": 1
+              },
+              "sequence": 5,
+              "llm_calls": [
+                {
+                  "model": "qwen3-14b-16k:latest",
+                  "prompt": {
+                    "characters": 50248,
+                    "utf8_bytes": 50488,
+                    "whitespace_tokens": 6303
+                  },
+                  "attempt": 1,
+                  "wall_ms": 73345.665701,
+                  "operation": "structured",
+                  "done_reason": "stop",
+                  "parse_status": "valid",
+                  "context_window": 16384,
+                  "metrics_source": "ollama_response",
+                  "num_predict_limit": 1800,
+                  "prompt_eval_count": 10386,
+                  "context_utilization": 0.6339111328125,
+                  "response_characters": 591,
+                  "response_eval_count": 202,
+                  "ollama_eval_duration_ms": 21283.238,
+                  "ollama_load_duration_ms": 9.483333,
+                  "ollama_total_duration_ms": 73318.658667,
+                  "response_tokens_per_second": 9.491037031113404,
+                  "ollama_prompt_eval_duration_ms": 51577.43,
+                  "time_to_first_response_token_ms": 52043.645482
+                }
+              ],
+              "duration_ms": 73360.762368,
+              "retry_index": 0,
+              "run_started_at": "2026-08-31T04:43:40.168426+00:00"
+            },
+            {
+              "stage": "retry",
+              "inputs": {
+                "previous_verification_score": 0.4
+              },
+              "run_id": "71bd997e-787b-46cf-902a-e40e36baa447",
+              "outputs": {
+                "next_retry_index": 1
+              },
+              "sequence": 6,
+              "llm_calls": [],
+              "duration_ms": 0.043209,
+              "retry_index": 1,
+              "run_started_at": "2026-08-31T04:43:40.168426+00:00"
+            },
+            {
+              "stage": "retrieval",
+              "inputs": {
+                "query": {
+                  "characters": 64,
+                  "utf8_bytes": 64,
+                  "whitespace_tokens": 10
+                },
+                "result_limit": 8,
+                "target_collection_count": 1,
+                "candidate_limit_per_collection": 40
+              },
+              "run_id": "71bd997e-787b-46cf-902a-e40e36baa447",
+              "outputs": {
+                "qdrant_ms": 382.96,
+                "embedding_ms": 2114.09,
+                "reranking_ms": 97105.58,
+                "result_count": 8,
+                "candidate_count": 40,
+                "retrieval_total_ms": 99603.09,
+                "embedding_cache_hit": false,
+                "reranker_input_characters": 106796,
+                "reranker_input_utf8_bytes": 113373,
+                "reranker_input_chunk_count": 40,
+                "reranker_pair_input_characters": 109356,
+                "reranker_pair_input_utf8_bytes": 115933,
+                "reranker_query_characters_per_pair": 64,
+                "reranker_query_utf8_bytes_per_pair": 64,
+                "reranker_max_tokens_per_query_document_pair": 8192
+              },
+              "sequence": 7,
+              "llm_calls": [],
+              "duration_ms": 99604.338754,
+              "retry_index": 1,
+              "run_started_at": "2026-08-31T04:43:40.168426+00:00"
+            },
+            {
+              "stage": "reasoning",
+              "inputs": {
+                "prompt": {
+                  "characters": 38812,
+                  "utf8_bytes": 39062,
+                  "whitespace_tokens": 6223
+                },
+                "evidence": {
+                  "characters": 36027,
+                  "utf8_bytes": 36265,
+                  "whitespace_tokens": 5810
+                },
+                "retrieved_chunk_count": 8
+              },
+              "run_id": "71bd997e-787b-46cf-902a-e40e36baa447",
+              "outputs": {
+                "draft": {
+                  "characters": 85,
+                  "utf8_bytes": 85,
+                  "whitespace_tokens": 15
+                },
+                "llm_skipped": false,
+                "citation_marker_count": 0,
+                "structured_claim_contract": true,
+                "reasoning_num_predict_limit": 1800
+              },
+              "sequence": 8,
+              "llm_calls": [
+                {
+                  "model": "qwen3-14b-16k:latest",
+                  "prompt": {
+                    "characters": 38812,
+                    "utf8_bytes": 39062,
+                    "whitespace_tokens": 6223
+                  },
+                  "attempt": 1,
+                  "wall_ms": 46117.655688,
+                  "operation": "structured",
+                  "done_reason": "stop",
+                  "parse_status": "valid",
+                  "context_window": 16384,
+                  "metrics_source": "ollama_response",
+                  "num_predict_limit": 1800,
+                  "prompt_eval_count": 10070,
+                  "context_utilization": 0.6146240234375,
+                  "response_characters": 51,
+                  "response_eval_count": 17,
+                  "ollama_eval_duration_ms": 1166.304,
+                  "ollama_load_duration_ms": 40.16675,
+                  "ollama_total_duration_ms": 46001.137083,
+                  "response_tokens_per_second": 14.575959612588141,
+                  "ollama_prompt_eval_duration_ms": 43893.225,
+                  "time_to_first_response_token_ms": 44889.500979
+                }
+              ],
+              "duration_ms": 46126.999813,
+              "retry_index": 1,
+              "run_started_at": "2026-08-31T04:43:40.168426+00:00"
+            },
+            {
+              "stage": "verification",
+              "inputs": {
+                "draft": {
+                  "characters": 85,
+                  "utf8_bytes": 85,
+                  "whitespace_tokens": 15
+                },
+                "prompt": {
+                  "characters": 0,
+                  "utf8_bytes": 0,
+                  "whitespace_tokens": 0
+                },
+                "valid_claim_count": 0,
+                "claim_marker_count": 0,
+                "verification_items": {
+                  "characters": 0,
+                  "utf8_bytes": 0,
+                  "whitespace_tokens": 0
+                },
+                "retrieved_chunk_count": 8
+              },
+              "run_id": "71bd997e-787b-46cf-902a-e40e36baa447",
+              "outputs": {
+                "score": 0.0,
+                "llm_skipped": true,
+                "fallback_used": false,
+                "verified_claim_count": 0,
+                "unsupported_claim_count": 0
+              },
+              "sequence": 9,
+              "llm_calls": [],
+              "duration_ms": 2.779167,
+              "retry_index": 1,
+              "run_started_at": "2026-08-31T04:43:40.168426+00:00"
+            },
+            {
+              "stage": "retry",
+              "inputs": {
+                "previous_verification_score": 0.0
+              },
+              "run_id": "71bd997e-787b-46cf-902a-e40e36baa447",
+              "outputs": {
+                "next_retry_index": 2
+              },
+              "sequence": 10,
+              "llm_calls": [],
+              "duration_ms": 0.351833,
+              "retry_index": 2,
+              "run_started_at": "2026-08-31T04:43:40.168426+00:00"
+            },
+            {
+              "stage": "retrieval",
+              "inputs": {
+                "query": {
+                  "characters": 64,
+                  "utf8_bytes": 64,
+                  "whitespace_tokens": 10
+                },
+                "result_limit": 8,
+                "target_collection_count": 1,
+                "candidate_limit_per_collection": 40
+              },
+              "run_id": "71bd997e-787b-46cf-902a-e40e36baa447",
+              "outputs": {
+                "qdrant_ms": 210.53,
+                "embedding_ms": 1.08,
+                "reranking_ms": 88292.42,
+                "result_count": 8,
+                "candidate_count": 40,
+                "retrieval_total_ms": 88504.69,
+                "embedding_cache_hit": true,
+                "reranker_input_characters": 106796,
+                "reranker_input_utf8_bytes": 113373,
+                "reranker_input_chunk_count": 40,
+                "reranker_pair_input_characters": 109356,
+                "reranker_pair_input_utf8_bytes": 115933,
+                "reranker_query_characters_per_pair": 64,
+                "reranker_query_utf8_bytes_per_pair": 64,
+                "reranker_max_tokens_per_query_document_pair": 8192
+              },
+              "sequence": 11,
+              "llm_calls": [],
+              "duration_ms": 88508.866873,
+              "retry_index": 2,
+              "run_started_at": "2026-08-31T04:43:40.168426+00:00"
+            },
+            {
+              "stage": "reasoning",
+              "inputs": {
+                "prompt": {
+                  "characters": 38812,
+                  "utf8_bytes": 39062,
+                  "whitespace_tokens": 6223
+                },
+                "evidence": {
+                  "characters": 36027,
+                  "utf8_bytes": 36265,
+                  "whitespace_tokens": 5810
+                },
+                "retrieved_chunk_count": 8
+              },
+              "run_id": "71bd997e-787b-46cf-902a-e40e36baa447",
+              "outputs": {
+                "draft": {
+                  "characters": 85,
+                  "utf8_bytes": 85,
+                  "whitespace_tokens": 15
+                },
+                "llm_skipped": false,
+                "citation_marker_count": 0,
+                "structured_claim_contract": true,
+                "reasoning_num_predict_limit": 1800
+              },
+              "sequence": 12,
+              "llm_calls": [
+                {
+                  "model": "qwen3-14b-16k:latest",
+                  "prompt": {
+                    "characters": 38812,
+                    "utf8_bytes": 39062,
+                    "whitespace_tokens": 6223
+                  },
+                  "attempt": 1,
+                  "wall_ms": 1223.740751,
+                  "operation": "structured",
+                  "done_reason": "stop",
+                  "parse_status": "valid",
+                  "context_window": 16384,
+                  "metrics_source": "ollama_response",
+                  "num_predict_limit": 1800,
+                  "prompt_eval_count": 10070,
+                  "context_utilization": 0.6146240234375,
+                  "response_characters": 51,
+                  "response_eval_count": 17,
+                  "ollama_eval_duration_ms": 1013.439,
+                  "ollama_load_duration_ms": 17.111875,
+                  "ollama_total_duration_ms": 1147.578666,
+                  "response_tokens_per_second": 16.774566599469726,
+                  "ollama_prompt_eval_duration_ms": 60.314,
+                  "time_to_first_response_token_ms": 189.6465
+                }
+              ],
+              "duration_ms": 1241.555459,
+              "retry_index": 2,
+              "run_started_at": "2026-08-31T04:43:40.168426+00:00"
+            },
+            {
+              "stage": "verification",
+              "inputs": {
+                "draft": {
+                  "characters": 85,
+                  "utf8_bytes": 85,
+                  "whitespace_tokens": 15
+                },
+                "prompt": {
+                  "characters": 0,
+                  "utf8_bytes": 0,
+                  "whitespace_tokens": 0
+                },
+                "valid_claim_count": 0,
+                "claim_marker_count": 0,
+                "verification_items": {
+                  "characters": 0,
+                  "utf8_bytes": 0,
+                  "whitespace_tokens": 0
+                },
+                "retrieved_chunk_count": 8
+              },
+              "run_id": "71bd997e-787b-46cf-902a-e40e36baa447",
+              "outputs": {
+                "score": 0.0,
+                "llm_skipped": true,
+                "fallback_used": false,
+                "verified_claim_count": 0,
+                "unsupported_claim_count": 0
+              },
+              "sequence": 13,
+              "llm_calls": [],
+              "duration_ms": 0.16,
+              "retry_index": 2,
+              "run_started_at": "2026-08-31T04:43:40.168426+00:00"
+            },
+            {
+              "stage": "response_generation",
+              "inputs": {
+                "draft": {
+                  "characters": 85,
+                  "utf8_bytes": 85,
+                  "whitespace_tokens": 15
+                },
+                "verified_claim_count": 0,
+                "retrieved_chunk_count": 8
+              },
+              "run_id": "71bd997e-787b-46cf-902a-e40e36baa447",
+              "outputs": {
+                "answer": {
+                  "characters": 85,
+                  "utf8_bytes": 85,
+                  "whitespace_tokens": 15
+                },
+                "citation_count": 0,
+                "confidence_score": 0.0,
+                "evidence_strength": "insufficient"
+              },
+              "sequence": 14,
+              "llm_calls": [],
+              "duration_ms": 0.125291,
+              "retry_index": 2,
+              "run_started_at": "2026-08-31T04:43:40.168426+00:00"
+            },
+            {
+              "stage": "workflow_total",
+              "inputs": {
+                "role": "citizen",
+                "query": {
+                  "characters": 25,
+                  "utf8_bytes": 25,
+                  "whitespace_tokens": 6
+                },
+                "case_scoped": false,
+                "history_messages": 0
+              },
+              "run_id": "71bd997e-787b-46cf-902a-e40e36baa447",
+              "outputs": {
+                "completed": true,
+                "retry_count": 2,
+                "citation_count": 0,
+                "evidence_strength": "insufficient"
+              },
+              "sequence": 15,
+              "llm_calls": [],
+              "duration_ms": 481466.119387,
+              "retry_index": 2,
+              "run_started_at": "2026-08-31T04:43:40.168426+00:00"
+            }
+          ],
+          "evidence_strength": "insufficient"
+        },
+        "error_code": null,
+        "error_message": null,
+        "created_at": "2026-08-31T04:43:39.778245Z",
+        "updated_at": "2026-08-31T04:51:41.614219Z",
+        "started_at": "2026-08-31T04:43:40.154534Z",
+        "completed_at": "2026-08-31T04:51:41.632721Z"
+      }
+    }
+  },
+  "acceptance": {},
+  "test_user_id": "e1777fcb-f040-4952-9ec3-4becb3559b3a"
+}

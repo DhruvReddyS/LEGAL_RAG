@@ -1,6 +1,6 @@
 # Project progress and architecture log
 
-Last consolidated: **2026-08-29 IST**
+Last consolidated: **2026-08-31 IST**
 
 ## Purpose and evidence policy
 
@@ -16,10 +16,12 @@ together.
 
 | Phase | State | Accepted scope | Important remaining work |
 | --- | --- | --- | --- |
+| Final-plan Phase 0 triage | Complete | Five sequential instrumented Deep reproductions; the 900-token truncation defect was corrected with a 1,800-token reasoning ceiling and 2/2 live `done_reason=stop` confirmations; teammate/guide sign-off explicitly confirmed | The user approved continuation under the calibrated contract in [DEEP_LATENCY_TARGET_CALIBRATION.md](DEEP_LATENCY_TARGET_CALIBRATION.md); Phase 1.1 is in progress |
+| Final-plan Phase 1 responsiveness | Not accepted | Durable Deep/OCR/document-analysis jobs, persisted SSE progress, cancellation, bounded concurrency, rate limits, verified structured Citizen answers and a low-latency Fast evidence lane are implemented; final mixed Fast p95 was 92.944966 ms | Two-job Deep service p95 was 326820.57725 ms against the 300000 ms ceiling; see [DEEP_LATENCY_ACCEPTANCE.md](DEEP_LATENCY_ACCEPTANCE.md) |
 | P0 / Tier 0 | Complete | Monorepo, Compose, async SQLAlchemy/Alembic, PostgreSQL, Qdrant, MinIO, JWT/RBAC, ownership and audit foundations | Production secret rotation/operations remain deployment duties |
 | P1 / Tier 1 | Complete | OCR ingestion, BGE-M3 dense+sparse vectors, hybrid retrieval/reranking, LangGraph verification, chat API, citizen UI and Tauri shell | None for the accepted MVP definition |
-| P2 / Tier 2 | Partial, substantial | Case workspaces, isolated evidence, FIR/defence workflows, role consoles, Fast/Auto RAG, admin governance, Document Analyzer and Evidence Inspector | Document Studio/export, judgment tools, amendment tracker, feedback, durable jobs and streaming |
-| Deep performance | Not accepted | Functional local Deep flows and a 46.25-second analyzer run exist | General synchronous 14B Deep exceeded 180 seconds under stress |
+| P2 / Tier 2 | Partial, substantial | Case workspaces, isolated evidence, FIR/defence workflows, role consoles, Fast/Auto RAG, admin governance, Document Analyzer, Evidence Inspector and durable jobs/streaming | Authoritative completion-plan Phase 2 accuracy evaluation must not start until Phase 1 closes; later Document Studio/export, selected judgment/current-law tool and feedback follow the plan |
+| Deep performance | Not accepted | Final mixed run: enqueue 16.737542 ms, progress 536.505708 ms, Fast p95 92.944966 ms, Deep E2E 235215.636292 ms; cancellation gates passed | Worst queued Deep service exceeded the ceiling: 332972.397 ms and two-job service p95 326820.57725 ms; see [DEEP_LATENCY_ACCEPTANCE.md](DEEP_LATENCY_ACCEPTANCE.md) |
 | P3–P7 | Pending | Plan only | Case intelligence, courtroom, academic evaluation, multilingual/voice and other stretch work |
 | Desktop distribution | Public capstone preview released | Tauri v2 clients for macOS arm64, macOS x64 and Windows x64; signed updater artifacts; public v0.3.0 release | OS publisher signing/notarization and clean-machine friend validation |
 | Four-user scalable release | Software/release complete; network onboarding pending | Runtime-selectable private backend, loopback hardening, shared-host launcher and public three-target release | Install/invite through Tailscale and run clean Windows/Mac acceptance |

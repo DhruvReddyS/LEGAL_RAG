@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "completed_at": "2026-08-31T09:24:32.833312+00:00",
+  "credentials_persisted": false,
+  "test_user_id": "a18c8249-3c42-4703-852e-fa650dbde8e9",
+  "query": "Article 14 equality",
+  "client_elapsed_ms": 67.237125,
+  "response": {
+    "session_id": "ec06018b-6494-40f2-b7f4-7eb0a697a885",
+    "message_id": "9e996b49-c3e7-4085-836e-218cd0d86729",
+    "answer": "Fast evidence brief — the following verified corpus passages are the closest authorities located. This mode prioritises source inspection and does not synthesise a final legal opinion.\n\n1. Amendments in the “Model Prison Manual, 2016” and the “Model Prisons and Correctional Services Act, 2023” in compliance with the directions of the Hon’ble Supreme Court in W.P. (C) No. 1404 of 2023 dated 3.10.2024 (Amendments in the “Model Prison Manual, 2016” and the “Model Prisons and Correctional Services Act, 2023” in compliance with the directions of the Hon’ble Supreme Court in W.P. (C) No. 1404 of 2023 dated 3.10.2024, section 681, pages 113–115): under the Constitution. (ii) Can Caste be a Basis in Classification? 161 The petitioner has averred that the Prison Manuals violate Article 14 of the Constitution of India in so far as they privilege a particular section of the society based entirely on its caste identity. They cast disparate burdens on prisoners based on their caste-identity. 162 A valid classification under Article 14 presupposes a definite yardst… [Source 1]\n\n2. Model Prison Manual 2016 (POLICE MANUAL, pages 174–175): LEGAL AID Constitution of Legal Services Authorities 16.01 Article 39A of the Constitution of India provides for free legal aid to the poor and weaker sections of the society and ensures justice for all. Articles 14 and 22(1) of the Constitution also make it obligatory for the State to ensure equality before law and a legal system which promotes justice on the basis of equal opportunity to all. In furtherance of the… [Source 2]\n\nCurrency notice: one or more retrieved records are not marked as current. Confirm amendments, commencement and repeal status before relying on them.",
+    "citations": [
+      {
+        "number": 1,
+        "chunk_id": "gold-chunk-77afd447cb82e83a310c17ae91a26402",
+        "title": "Amendments in the “Model Prison Manual, 2016” and the “Model Prisons and Correctional Services Act, 2023” in compliance with the directions of the Hon’ble Supreme Court in W.P. (C) No. 1404 of 2023 dated 3.10.2024",
+        "source_type": "ACT",
+        "page_start": 113,
+        "page_end": 115,
+        "court": null,
+        "act_name": "Amendments in the “Model Prison Manual, 2016” and the “Model Prisons and Correctional Services Act, 2023” in compliance with the directions of the Hon’ble Supreme Court in W.P. (C) No. 1404 of 2023 dated 3.10.2024",
+        "section": "681",
+        "source_url": null,
+        "excerpt": "under the Constitution. (ii) Can Caste be a Basis in Classification? 161 The petitioner has averred that the Prison Manuals violate Article 14 of the Constitution of India in so far as they privilege a particular section of the society based entirely on its caste identity. They cast disparate burdens on prisoners based on their caste-identity. 162 A valid classification under Article 14 presupposes a definite yardstick to distinguish the classes created, and the difference must be real, pertinent and discernible.243 The State is free to recognise degrees of harm as long as the basis of classification is not arbitrary, artificial, or evasive. The line between the two classes must be clear and not illusory, vague, and indeterminate. 163 The impugned rules are challenged on the ground that first, they directly identify caste as a means to allocate intramural labour, food-duties; second, by…",
+        "retrieval_score": 0.6666666666666666,
+        "verification_status": "unverified",
+        "current_status": "status_unverified"
+      },
+      {
+        "number": 2,
+        "chunk_id": "gold-chunk-800e6c288e60a23e39947ef183889522",
+        "title": "Model Prison Manual 2016",
+        "source_type": "POLICE_MANUAL",
+        "page_start": 174,
+        "page_end": 175,
+        "court": null,
+        "act_name": null,
+        "section": null,
+        "source_url": null,
+        "excerpt": "LEGAL AID Constitution of Legal Services Authorities 16.01 Article 39A of the Constitution of India provides for free legal aid to the poor and weaker sections of the society and ensures justice for all. Articles 14 and 22(1) of the Constitution also make it obligatory for the State to ensure equality before law and a legal system which promotes justice on the basis of equal opportunity to all. In furtherance of these, the Legal Services Authorities Act was enacted by the Parliament in 1987 to establish a nationwide uniform network for providing free and competent legal services to the weaker sections of the society on the basis of equal opportunity. 16.02 Under the Act, the National Legal Services Authority (NALSA) has been constituted under the Legal Services Authorities Act, 1987 (LSA Act) to monitor and evaluate implementation. 16.03 In every State, a State Legal Services Authority…",
+        "retrieval_score": 0.6666666666666666,
+        "verification_status": "unverified",
+        "current_status": "status_unverified"
+      }
+    ],
+    "confidence_score": 0.7666666666666666,
+    "evidence_strength": "strong",
+    "intent": {
+      "intent": "fast_evidence_research",
+      "entities": [],
+      "language": "English",
+      "complexity": "simple",
+      "retrieval_query": "Article 14 equality"
+    },
+    "agent_trace": [
+      {
+        "node": "fast_retrieval",
+        "details": {
+          "result_count": 2,
+          "raw_result_count": 8,
+          "relevant_result_count": 2,
+          "unique_document_count": 2,
+          "mean_local_coverage": 0.6666666666666666,
+          "focus_term_recall": 1.0,
+          "mandatory_term_match_rate": 1.0,
+          "distinctive_terms": [
+            "equality"
+          ],
+          "term_document_counts": {
+            "14": 2156,
+            "article": 2302,
+            "equality": 242
+          },
+          "confidence_method": "weighted_coverage_recall_x_mandatory_term_match_rate",
+          "diversity_selection": true,
+          "focus_tokens": [
+            "14",
+            "article",
+            "equality"
+          ],
+          "lexical_gate": 0.5,
+          "reranker_skipped": true,
+          "no_generative_claims": true,
+          "timings_ms": {
+            "embedding_ms": 0.0,
+            "qdrant_ms": 26.31025000300724,
+            "reranking_ms": 0.0,
+            "retrieval_total_ms": 40.06729100365192,
+            "embedding_cache_hit": false,
+            "workflow_total_ms": 43.71
+          }
+        }
+      },
+      {
+        "node": "adaptive_router",
+        "details": {
+          "requested_mode": "fast",
+          "selected_mode": "fast",
+          "reason": "user_selected",
+          "signals": [
+            "explicit_fast_mode"
+          ]
+        }
+      }
+    ],
+    "response_mode": "fast",
+    "requested_mode": "fast",
+    "routing_reason": "user_selected",
+    "routing_signals": [
+      "explicit_fast_mode"
+    ],
+    "timings_ms": {
+      "embedding_ms": 0.0,
+      "qdrant_ms": 26.31025000300724,
+      "reranking_ms": 0.0,
+      "retrieval_total_ms": 40.06729100365192,
+      "embedding_cache_hit": false,
+      "workflow_total_ms": 43.71,
+      "api_total_ms": 56.16
+    },
+    "pipeline_metrics": [],
+    "latency_target_ms": 5000,
+    "target_met": true,
+    "delivery_state": "complete",
+    "job_id": null,
+    "escalation_threshold": null
+  },
+  "acceptance_a_passed": true
+}
