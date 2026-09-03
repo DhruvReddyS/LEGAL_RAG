@@ -125,8 +125,9 @@ services:
       JOB_ENQUEUES_PER_MINUTE: ${JOB_ENQUEUES_PER_MINUTE:-6}
       LEGACY_SYNC_LONG_RUNNING_ENABLED: ${LEGACY_SYNC_LONG_RUNNING_ENABLED:-true}
       WARM_QUERY_MODELS_ON_STARTUP: ${WARM_QUERY_MODELS_ON_STARTUP:-true}
+      EXPECT_ACCELERATED_INFERENCE: ${EXPECT_ACCELERATED_INFERENCE:-false}
       OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
-      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3-14b-40k:latest}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3-14b-16k:latest}
       OLLAMA_GENERATION_CONCURRENCY: ${OLLAMA_GENERATION_CONCURRENCY:-1}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       JWT_REFRESH_SECRET_KEY: ${JWT_REFRESH_SECRET_KEY}
@@ -164,7 +165,7 @@ services:
         - CMD
         - python
         - -c
-        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=5)
       interval: 10s
       timeout: 5s
       retries: 5

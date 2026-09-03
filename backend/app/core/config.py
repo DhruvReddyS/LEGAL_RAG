@@ -46,6 +46,9 @@ class Settings(BaseSettings):
     job_enqueues_per_minute: int = Field(default=6, ge=1, le=120)
     legacy_sync_long_running_enabled: bool = True
     warm_query_models_on_startup: bool = True
+    # Opt-in guard: a CPU-only inference path runs correctly but several
+    # times slower, which is the easiest failure to misattribute.
+    expect_accelerated_inference: bool = False
     ollama_base_url: str = "http://localhost:11434"
     ollama_model: str = "qwen3-14b-16k:latest"
     ollama_generation_concurrency: int = Field(default=1, ge=1, le=4)

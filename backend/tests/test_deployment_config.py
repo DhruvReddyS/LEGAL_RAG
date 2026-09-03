@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import re
+from pathlib import Path
+
 import pytest
 from pydantic import ValidationError
 
@@ -69,3 +72,45 @@ def test_trusted_hosts_are_explicit_and_deduplicated() -> None:
 
     with pytest.raises(ValidationError, match="invalid trusted host"):
         Settings(_env_file=None, trusted_hosts="*")
+
+
+def _compose_defaults() -> dict[str, str]:
+    """Extract `${VAR:-default}` values from the backend service environment."""
+    compose = (
+        Path(__file__).resolve().parents[2] / "docker" / "docker-compose.yml"
+    ).read_text(encoding="utf-8")
+    return dict(re.findall(r"^\s+([A-Z0-9_]+): \$\{[A-Z0-9_]+:-(.+?)\}$", compose, re.M))
+
+
+def test_compose_inference_defaults_match_application_defaults() -> None:
+    """A clone that runs compose without .env must use the benchmarked model.
+
+    The compose default previously named a different model than config.py, so
+    a default run silently used a model no recorded measurement was taken
+    against.
+    """
+    defaults = _compose_defaults()
+    settings = Settings(_env_file=None)
+
+    assert defaults["OLLAMA_MODEL"] == settings.ollama_model
+    assert defaults["EMBEDDING_MODEL"] == settings.embedding_model
+    assert int(defaults["EMBEDDING_DIMENSION"]) == settings.embedding_dimension
+    assert defaults["QDRANT_DENSE_VECTOR_NAME"] == settings.qdrant_dense_vector_name
+    assert defaults["QDRANT_SPARSE_VECTOR_NAME"] == settings.qdrant_sparse_vector_name
+
+
+def test_container_healthchecks_probe_readiness_not_liveness() -> None:
+    """A liveness probe reports healthy while Qdrant is unreachable."""
+    root = Path(__file__).resolve().parents[2]
+    for relative in ("docker/docker-compose.yml", "docker/Dockerfile.backend"):
+        content = (root / relative).read_text(encoding="utf-8")
+        assert "127.0.0.1:8000/health/ready" in content, relative
+        assert "127.0.0.1:8000/health'" not in content, relative
+
+
+def test_accelerated_inference_is_opt_in() -> None:
+    assert Settings(_env_file=None).expect_accelerated_inference is False
+    assert (
+        Settings(_env_file=None, expect_accelerated_inference=True).expect_accelerated_inference
+        is True
+    )

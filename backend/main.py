@@ -28,6 +28,11 @@ from app.services.fast_research import FastLegalResearchService
 from app.services.job_worker import DurableJobWorker
 from app.core.config import settings
 from app.core.http_security import DesktopOriginSecurityMiddleware
+from app.services.health import (
+    assert_accelerated_inference,
+    log_runtime_profile,
+    readiness_report,
+)
 
 
 logger = logging.getLogger("legal_rag.http")
@@ -36,6 +41,9 @@ REQUEST_ID_RE = re.compile(r"^[A-Za-z0-9._-]{1,64}$")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Fail fast rather than serving a silently degraded deployment.
+    assert_accelerated_inference()
+    log_runtime_profile(logger)
     retrieval_service = HybridRetrievalService()
     app.state.retrieval_service = retrieval_service
     app.state.legal_rag_workflow = LegalRAGWorkflow(retrieval_service)
@@ -118,9 +126,29 @@ app.include_router(jobs_router)
 app.include_router(citizen_intake_router)
 
 
+@app.get("/health/live", tags=["system"])
+async def liveness_check() -> JSONResponse:
+    """Report whether the API process is running. Never touches a dependency."""
+    return JSONResponse(
+        content={"status": "alive", "api_compatibility": "1"},
+        headers={"Cache-Control": "no-store"},
+    )
+
+
+@app.get("/health/ready", tags=["system"])
+async def readiness_check() -> JSONResponse:
+    """Report whether every dependency needed to serve a request is reachable."""
+    ready, payload = await readiness_report()
+    return JSONResponse(
+        content=payload,
+        status_code=200 if ready else 503,
+        headers={"Cache-Control": "no-store"},
+    )
+
+
 @app.get("/health", tags=["system"])
 async def health_check() -> JSONResponse:
-    """Report whether the API process is healthy."""
+    """Liveness alias retained for the packaged desktop client's probe."""
     return JSONResponse(
         content={"status": "healthy", "api_compatibility": "1"},
         headers={"Cache-Control": "no-store"},
