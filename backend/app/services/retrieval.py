@@ -338,6 +338,7 @@ class HybridRetrievalService:
         rerank: bool = True,
         lexical_only: bool = False,
         lexical_terms: set[str] | None = None,
+        reference_sections: set[str] | None = None,
         exclude_candidate_ids: set[tuple[str, str]] | None = None,
     ) -> tuple[list[RetrievalHit], RetrievalTimings]:
         if self._closed:
@@ -362,6 +363,7 @@ class HybridRetrievalService:
             rerank=rerank,
             lexical_only=lexical_only,
             lexical_terms=lexical_terms,
+            reference_sections=reference_sections,
             exclude_candidate_ids=exclude_candidate_ids,
         )
 
@@ -372,6 +374,7 @@ class HybridRetrievalService:
         terms: set[str],
         candidate_limit: int,
         result_limit: int,
+        reference_sections: set[str] | None = None,
     ) -> tuple[list[RetrievalHit], RetrievalTimings]:
         started = perf_counter()
         query_filter = target.filters.to_qdrant()
@@ -408,9 +411,60 @@ class HybridRetrievalService:
             points, _ = points_result
             return term, list(points), int(count_result.count)
 
+        async def points_for_section(section: str, topic_terms: list[str]) -> list[Any]:
+            """Fetch a provision by its section number directly.
+
+            A full-text scroll is unranked, so a common word returns an
+            arbitrary page of its matches: "equality" matches 242 documents and
+            the Constitution's Article 14 was simply not in the 32 that came
+            back. Section is an indexed keyword, so asking for it by number is
+            both exact and cheap, and it is the only way a question naming a
+            provision reliably retrieves that provision.
+            """
+            # Narrowed by the query's rarest terms. A section number alone is
+            # ambiguous - "14" exists in the Prisons Act, the IPC, the Evidence
+            # Act and hundreds more - and an unranked scroll would return an
+            # arbitrary sixteen of them, which is how the Constitution's
+            # Article 14 stayed invisible to a question about equality.
+            collected: list[Any] = []
+            for term in topic_terms[:2] or [None]:
+                conditions = [
+                    *base_conditions,
+                    models.FieldCondition(
+                        key="section", match=models.MatchValue(value=section)
+                    ),
+                ]
+                if term is not None:
+                    conditions.append(
+                        models.FieldCondition(key="text", match=models.MatchText(text=term))
+                    )
+                points, _ = await self.client.scroll(
+                    collection_name=target.collection_name,
+                    scroll_filter=models.Filter(must=conditions),
+                    limit=8,
+                    with_payload=True,
+                    with_vectors=False,
+                )
+                collected.extend(points)
+            return collected
+
         qdrant_started = perf_counter()
         term_results = await asyncio.gather(
             *(matching_points(term) for term in sorted(terms))
+        )
+        # The rarest terms carry the topic. Ordering by document frequency here
+        # means the section lookup below searches for "equality" rather than
+        # "right", which appears in 2,282 documents and selects nothing.
+        rarest = [
+            term
+            for term, _, _ in sorted(term_results, key=lambda item: item[2])
+            if not term.isdigit()
+        ]
+        section_results = await asyncio.gather(
+            *(
+                points_for_section(section, rarest)
+                for section in sorted(reference_sections or ())
+            )
         )
         qdrant_ms = (perf_counter() - qdrant_started) * 1000
         term_document_counts = {
@@ -444,6 +498,9 @@ class HybridRetrievalService:
             )
         by_id: dict[str, Any] = {}
         match_counts: dict[str, int] = {}
+        for points in section_results:
+            for point in points:
+                by_id[str(point.id)] = point
         for _, points, _ in term_results:
             for point in points:
                 point_id = str(point.id)
@@ -522,8 +579,33 @@ class HybridRetrievalService:
                 for acronym in requested_acronyms
             )
 
+        requested_sections = {section.casefold() for section in (reference_sections or ())}
+
+        def exact_section_match(hit: RetrievalHit) -> bool:
+            """The provision the question actually named.
+
+            Nothing outranks this. Asked about Article 14, the Constitution's
+            Article 14 is the answer; it previously lost to any document whose
+            source_type happened to be "act", which is how a question about
+            equality returned the Model Prison Manual.
+            """
+            return (
+                str(hit.payload.get("section") or "").casefold().strip()
+                in requested_sections
+                if requested_sections
+                else False
+            )
+
         hits.sort(
             key=lambda hit: (
+                # A section number alone is ambiguous: "14" exists in the
+                # Prisons Act, the IPC, the Evidence Act and 380 other
+                # documents. Ranking on it alone buried the Constitution's
+                # Article 14 under every unrelated section 14 in the corpus.
+                # The provision the question means is the one that matches the
+                # number *and* carries the topic word - here, "equality".
+                exact_section_match(hit) and required_legal_entity_match(hit),
+                exact_section_match(hit),
                 required_legal_entity_match(hit),
                 named_act_title_match(hit),
                 str(hit.payload.get("source_type") or "").casefold() == "act",
@@ -677,6 +759,7 @@ class HybridRetrievalService:
         rerank: bool = True,
         lexical_only: bool = False,
         lexical_terms: set[str] | None = None,
+        reference_sections: set[str] | None = None,
         exclude_candidate_ids: set[tuple[str, str]] | None = None,
     ) -> tuple[list[RetrievalHit], RetrievalTimings]:
         if self._closed:
@@ -702,6 +785,7 @@ class HybridRetrievalService:
                 terms=terms,
                 candidate_limit=candidate_limit,
                 result_limit=result_limit,
+                reference_sections=reference_sections,
             )
 
         started = perf_counter()

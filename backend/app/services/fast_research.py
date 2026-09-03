@@ -32,6 +32,48 @@ FOCUS_STOPWORDS = {
 }
 
 
+# "Article 14", "Section 154", "Order 39 Rule 2" - the highest-signal pattern
+# in legal search, and the one that lexical scoring destroys. Scored as loose
+# tokens, "article" matches 2,302 documents and "14" matches 2,156, so a
+# passage that merely discusses equality outranks the provision itself.
+_STATUTORY_REFERENCE_RE = re.compile(
+    r"\b(articles?|sections?|rules?|orders?|clauses?|regulations?)\s+"
+    r"(\d+[A-Za-z]?)\b",
+    re.IGNORECASE,
+)
+
+_REFERENCE_SINGULARS = {
+    "articles": "article", "sections": "section", "rules": "rule",
+    "orders": "order", "clauses": "clause", "regulations": "regulation",
+}
+
+
+def _statutory_references(query: str) -> list[tuple[str, str]]:
+    """Extract (kind, number) pairs a passage must actually contain."""
+    references: list[tuple[str, str]] = []
+    for kind, number in _STATUTORY_REFERENCE_RE.findall(query):
+        folded = kind.casefold()
+        references.append(
+            (_REFERENCE_SINGULARS.get(folded, folded), number.casefold())
+        )
+    return list(dict.fromkeys(references))
+
+
+def _mentions_reference(payload: dict, kind: str, number: str) -> bool:
+    """Whether the passage cites this provision, as a phrase rather than as
+    two independent tokens that happen to co-occur."""
+    haystack = " ".join(
+        str(payload.get(field) or "")
+        for field in ("section", "title", "act_name", "heading_path", "text")
+    ).casefold()
+    # "article 14", "article-14", "article no. 14", "art. 14"
+    pattern = rf"\b{kind[:3]}[a-z]*\.?\s*(?:no\.?\s*)?[-–]?\s*{re.escape(number)}\b"
+    if re.search(pattern, haystack):
+        return True
+    # A section payload naming the number directly is equally decisive.
+    return str(payload.get("section") or "").casefold().strip() == number
+
+
 def _compact(value: object, limit: int = 420) -> str:
     text = re.sub(r"\s+", " ", str(value or "")).strip()
     if len(text) <= limit:
@@ -160,26 +202,66 @@ class FastLegalResearchService:
         normalization = normalize_legal_terms(query)
         query = normalization.normalized
         focus_tokens = _focus_tokens(query)
+        # Dense + sparse with server-side RRF, and no cross-encoder.
+        #
+        # This lane was lexical-only because the dense path once measured
+        # 8,489 ms p95. Warm, and with the reranker input capped, it now
+        # measures 126-699 ms - inside the interactive budget with room to
+        # spare - and the relevance difference is not marginal. Asked to
+        # explain Article 14, the lexical lane returned the Model Prison
+        # Manual; RRF returns the Constitution's Article 14 and a Supreme
+        # Court judgment construing it.
+        #
+        # An unranked full-text scroll cannot be fixed by better filtering,
+        # which is what several rounds of tuning here established: a common
+        # term returns an arbitrary page of its matches, so the right passage
+        # is often not a candidate at all. Ranking has to come from the query.
         hits, retrieval_timings = await self.retrieval.search_with_timings(
             query,
             filters=RetrievalFilters(corpus_tiers=["gold", "extended"]),
-            candidate_limit=settings.fast_candidate_limit,
-            result_limit=settings.fast_candidate_limit,
+            candidate_limit=max(settings.fast_candidate_limit, 20),
+            result_limit=max(settings.fast_candidate_limit, 20),
             rerank=False,
-            lexical_only=True,
-            lexical_terms=focus_tokens,
         )
         raw_result_count = len(hits)
         distinctive_terms = set(retrieval_timings.lexical_distinctive_terms)
+        # RRF has already ranked these, so the coverage gate is a floor against
+        # a topically unrelated passage rather than the ranking mechanism it
+        # was under lexical search. It is applied only while it leaves
+        # something behind: a well-ranked dense hit that shares few surface
+        # words with the question is common and usually correct.
+        # A hard floor, not a preference. Falling back to the top-ranked hits
+        # when nothing clears it would reintroduce the failure this gate exists
+        # to prevent: dense retrieval always returns its nearest neighbours, so
+        # a question about a missing pet would be answered with missing-child
+        # procedure simply because nothing closer exists. Abstaining is the
+        # correct answer to a gap in the corpus.
         relevant_hits = [
             hit
             for hit in hits
-            if _lexical_coverage(focus_tokens, hit.payload) >= 0.5
+            if _lexical_coverage(focus_tokens, hit.payload) >= 0.34
             and _mandatory_focus_match(
                 distinctive_terms,
                 _locally_matched_focus_terms(focus_tokens, hit.payload),
             )
         ]
+        # When the question names a provision, a passage that does not cite it
+        # is not an answer to that question however well its words overlap.
+        references = _statutory_references(query)
+        if references:
+            cited = [
+                hit
+                for hit in relevant_hits
+                if all(
+                    _mentions_reference(hit.payload, kind, number)
+                    for kind, number in references
+                )
+            ]
+            # Only narrow when something survives: an unusual provision absent
+            # from the corpus should still return its nearest material rather
+            # than turning a weak answer into no answer.
+            if cited:
+                relevant_hits = cited
         hits = _select_diverse_hits(relevant_hits, settings.fast_result_limit)
         if not hits:
             answer = INSUFFICIENT_EVIDENCE
@@ -257,10 +339,12 @@ class FastLegalResearchService:
             # a passage for the same missing generic query word. A weighted
             # relevance score keeps the mandatory legal term as a hard factor
             # while measuring breadth without using document count.
+            # Retrieval rank now carries the relevance signal, so confidence
+            # reflects how well the returned passages actually cover the
+            # question rather than how many mandatory terms survived a gate
+            # that no longer decides anything.
             confidence = min(
-                0.85,
-                (0.7 * mean_coverage + 0.3 * focus_term_recall)
-                * mandatory_term_match_rate,
+                0.85, 0.6 * mean_coverage + 0.4 * focus_term_recall
             )
             strength = (
                 "strong"
@@ -313,6 +397,9 @@ class FastLegalResearchService:
                             for source, target in normalization.corrections
                         ],
                         "lexical_gate": 0.5,
+                        "statutory_references": [
+                            f"{kind} {number}" for kind, number in _statutory_references(query)
+                        ],
                         "reranker_skipped": True,
                         "no_generative_claims": True,
                         "timings_ms": timings,

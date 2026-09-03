@@ -69,14 +69,11 @@ async def test_fast_research_is_retrieval_only_and_exposes_currency_warning() ->
         history=[],
     )
 
-    assert retrieval.calls[0]["candidate_limit"] == 8
-    assert retrieval.calls[0]["result_limit"] == 8
+    # Dense + sparse with server-side RRF, and no cross-encoder: the fast lane
+    # takes its ranking from the query rather than from an unranked full-text
+    # scroll, but still runs no reranker and no model.
     assert retrieval.calls[0]["rerank"] is False
-    assert retrieval.calls[0]["lexical_only"] is True
-    # "police" is retained. It is among the most discriminative tokens in an
-    # Indian legal corpus and was previously stripped as a stopword, which left
-    # procedural citizen questions with almost nothing to match on.
-    assert retrieval.calls[0]["lexical_terms"] == {"police", "record", "information"}
+    assert retrieval.calls[0].get("lexical_only") is not True
     assert "does not synthesise a final legal opinion" in result["final_answer"]
     assert "Currency notice" in result["final_answer"]
     assert [item.chunk_id for item in result["citations"]] == ["chunk-a", "chunk-b"]
@@ -188,7 +185,13 @@ async def test_fast_research_requires_rare_distinctive_term_and_surfaces_pocso()
     assert result["agent_trace"][0].details["distinctive_terms"] == ["pocso"]
     assert result["citations"][0].verification_status == "unverified"
     assert result["confidence_score"] >= 0.6
-    assert retrieval.calls[0]["lexical_terms"].issuperset(
+    # The acronym is expanded for matching even though the query is now sent
+    # whole to dense retrieval: the expansion is what lets a passage naming
+    # "Protection of Children from Sexual Offences" satisfy a question that
+    # only says "POCSO".
+    from app.services.fast_research import _focus_tokens
+
+    assert _focus_tokens("what does POCSO require").issuperset(
         {"pocso", "protection", "children", "sexual", "offences"}
     )
 
@@ -271,8 +274,10 @@ async def test_fast_lane_corrects_a_misspelled_acronym() -> None:
         query="how do I file a pocos case", role="citizen", case_id=None, history=[]
     )
 
-    assert "pocso" in retrieval.calls[0]["lexical_terms"]
-    assert "pocos" not in retrieval.calls[0]["lexical_terms"]
+    # The corrected term reaches retrieval, whichever transport it uses.
+    sent = retrieval.calls[0].get("query", "")
+    assert "POCSO" in sent
+    assert "pocos" not in sent.casefold()
     corrections = result["agent_trace"][0].details["legal_term_corrections"]
     assert corrections == [{"from": "pocos", "to": "POCSO"}]
 
