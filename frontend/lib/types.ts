@@ -287,6 +287,16 @@ export interface AgentCitation {
 export type RequestedResponseMode = "auto" | "fast" | "deep";
 export type SelectedResponseMode = "fast" | "deep";
 
+export interface PipelineStageMetric {
+  sequence: number;
+  stage: string;
+  retry_index: number;
+  duration_ms: number;
+  inputs: Record<string, unknown>;
+  outputs: Record<string, unknown>;
+  llm_calls: Array<Record<string, unknown>>;
+}
+
 export interface ChatQueryResponse {
   session_id: string;
   message_id: string;
@@ -300,9 +310,33 @@ export interface ChatQueryResponse {
   requested_mode: RequestedResponseMode;
   routing_reason: string;
   routing_signals: string[];
-  timings_ms: Record<string, number | boolean>;
+  timings_ms: Record<string, unknown>;
+  pipeline_metrics: PipelineStageMetric[];
   latency_target_ms: number;
   target_met: boolean | null;
+  delivery_state: "complete" | "searching_more_thoroughly";
+  job_id: string | null;
+  escalation_threshold: number | null;
+}
+
+export interface DeepReviewJob {
+  id: string;
+  status: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+  progress: number;
+  result: {
+    session_id: string;
+    message_id: string;
+    answer: string;
+    citations: AgentCitation[];
+    confidence_score: number;
+    evidence_strength: "strong" | "moderate" | "insufficient";
+    intent: Record<string, unknown>;
+    agent_trace: Array<{ node: string; details: Record<string, unknown> }>;
+    timings_ms: Record<string, unknown>;
+    pipeline_metrics: PipelineStageMetric[];
+  } | null;
+  error_code: string | null;
+  error_message: string | null;
 }
 
 export interface IngestionProgress {
@@ -322,6 +356,10 @@ export interface IngestionProgress {
 }
 
 export interface ChatMessage {
+  documents?: CitizenDocument[];
+  stopped?: boolean;
+  clientElapsedMs?: number;
+  category?: string;
   id: string;
   role: "user" | "assistant";
   content: string;
@@ -336,9 +374,18 @@ export interface ChatMessage {
   routingReason?: string;
   routingSignals?: string[];
   agentLabel?: string;
-  timingsMs?: Record<string, number | boolean>;
+  timingsMs?: Record<string, unknown>;
+  pipelineMetrics?: PipelineStageMetric[];
   latencyTargetMs?: number;
   targetMet?: boolean | null;
+}
+
+export interface CitizenDocument {
+  id: string;
+  filename: string;
+  media_type: string;
+  pages: Array<{ page: number; text: string }>;
+  truncated: boolean;
 }
 
 export interface ChatSession {

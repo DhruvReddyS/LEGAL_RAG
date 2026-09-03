@@ -60,13 +60,13 @@ export default function DesktopUpdater() {
           ↑
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-slate-950">Aegis {update.version} is available</p>
-          <p className="mt-1 text-xs leading-5 text-slate-600">
+          <p className="text-sm font-semibold text-slate-950">Corpusil {update.version} is available</p>
+          <p className="mt-1 text-xs leading-5 text-[#a9b9af]">
             {status === "installing"
               ? message
               : status === "error"
                 ? message
-                : update.body || "Install the verified GitHub Release and restart Aegis."}
+                : update.body || "Install the verified GitHub Release and restart Corpusil."}
           </p>
           <div className="mt-3 flex items-center gap-2">
             <button
@@ -81,7 +81,7 @@ export default function DesktopUpdater() {
               <button
                 type="button"
                 onClick={() => setUpdate(null)}
-                className="rounded-lg px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100"
+                className="rounded-lg px-3 py-2 text-xs font-medium text-[#a9b9af] hover:bg-slate-100"
               >
                 Later
               </button>

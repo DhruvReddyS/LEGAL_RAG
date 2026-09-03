@@ -1,17 +1,20 @@
 "use client";
 
-import { BookOpenText, BriefcaseBusiness, CheckCircle2, ChevronRight, Command, Database, Gauge, Landmark, LogOut, Menu, ScanSearch, Search, ShieldCheck, UserRound } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ArrowDown, BookOpenText, BriefcaseBusiness, Check, FilePenLine, Fingerprint, HelpCircle, History, LogOut, Menu, MessageSquare, MoreHorizontal, Pencil, Pin, PinOff, Plus, Scale, ScanSearch, Settings, ShieldCheck, Trash2, Undo2, X, Zap } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import AuthModal from "@/components/AuthModal";
+import BrandLogo from "@/components/BrandLogo";
 import ChatInput from "@/components/ChatInput";
 import MessageBubble from "@/components/MessageBubble";
+import CitizenGuideDialog from "@/components/CitizenGuideDialog";
+import UploadPrivacy from "@/components/UploadPrivacy";
+import { legalCategory } from "@/lib/answer-presentation";
 import ProfessionalWorkspace from "@/components/ProfessionalWorkspace";
-import RoleDashboard from "@/components/RoleDashboard";
-import CommandPalette from "@/components/CommandPalette";
+import { useDialogFocus } from "@/components/useDialogFocus";
 import AdminWorkspace from "@/components/AdminWorkspace";
 import DesktopReadiness from "@/components/DesktopReadiness";
-import { ApiError, chatWithCorpus, getIngestionProgress, getMe, logout, refreshSession } from "@/lib/api";
-import type { ChatMessage, IngestionProgress, RequestedResponseMode, User } from "@/lib/types";
+import { ApiError, cancelDeepReviewJob, chatWithCorpus, getDeepReviewJob, getIngestionProgress, getMe, logout, refreshSession } from "@/lib/api";
+import type { ChatMessage, CitizenDocument, IngestionProgress, RequestedResponseMode, User } from "@/lib/types";
 
 const ROLE_EXPERIENCES = {
   citizen: {
@@ -80,6 +83,16 @@ function newMessage(role: ChatMessage["role"], content: string): ChatMessage {
   return { id: crypto.randomUUID(), role, content, timestamp: Date.now() };
 }
 
+type SavedChat = {
+  id: string;
+  title: string;
+  messages: ChatMessage[];
+  sessionId: string | null;
+  updatedAt?: number;
+  pinned?: boolean;
+  customTitle?: boolean;
+};
+
 export default function HomePage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
@@ -87,10 +100,38 @@ export default function HomePage() {
   const [user, setUser] = useState<User | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [view, setView] = useState<"dashboard" | "research" | "workspace">("dashboard");
+  const [activeChatId, setActiveChatId] = useState<string | null>(null);
+  const [draftVersion, setDraftVersion] = useState(0);
+  const [view, setView] = useState<"research" | "workspace">("research");
   const [mobileNav, setMobileNav] = useState(false);
-  const [commandOpen, setCommandOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
+  const [citizenGuideSlide, setCitizenGuideSlide] = useState<number | null>(null);
+  const [animate, setAnimate] = useState(true);
+  const [theme, setTheme] = useState<"paper" | "ink">("paper");
+  useEffect(() => { document.documentElement.dataset.theme = theme; }, [theme]);
+  const [rememberHistory, setRememberHistory] = useState(true);
+  const [history, setHistory] = useState<SavedChat[]>([]);
+  const [historyReady, setHistoryReady] = useState(false);
+  const [chatMenuId, setChatMenuId] = useState<string | null>(null);
+  const [renamingChatId, setRenamingChatId] = useState<string | null>(null);
+  const [renameDraft, setRenameDraft] = useState("");
+  const [deletedChat, setDeletedChat] = useState<SavedChat | null>(null);
+  const [historyNotice, setHistoryNotice] = useState("");
+  const closeSettings = () => setSettingsOpen(false);
+  const closeGuide = () => setGuideOpen(false);
+  const settingsRef = useDialogFocus(settingsOpen, closeSettings);
+  const guideRef = useDialogFocus(guideOpen, closeGuide);
   const [responseMode, setResponseMode] = useState<RequestedResponseMode>("auto");
+  const [compactNavigation, setCompactNavigation] = useState(false);
+  const latestMessage = useRef<HTMLDivElement>(null);
+  const activeRequest = useRef<{ controller: AbortController; assistantId: string; jobId?: string } | null>(null);
+  const [awayFromLatest, setAwayFromLatest] = useState(false);
+  useEffect(() => {
+    const check = () => setAwayFromLatest(document.documentElement.scrollHeight - window.innerHeight - window.scrollY > 280);
+    window.addEventListener("scroll", check, { passive: true });
+    return () => { window.removeEventListener("scroll", check); activeRequest.current?.controller.abort(); };
+  }, []);
   const experience = ROLE_EXPERIENCES[(user?.role as keyof typeof ROLE_EXPERIENCES) ?? "citizen"] ?? ROLE_EXPERIENCES.citizen;
 
   useEffect(() => {
@@ -105,128 +146,269 @@ export default function HomePage() {
     return () => { mounted = false; clearInterval(interval); };
   }, []);
 
-  const submit = async (query: string) => {
-    if (!query.trim() || loading || !user) return;
-    setView("research");
-    const assistantId = crypto.randomUUID();
-    const agentLabel = user.role === "police" ? "Police Procedure Research Agent" : user.role === "advocate" ? "Advocate Authority Research Agent" : "Citizen Legal Navigator";
-    setMessages((current) => [...current, newMessage("user", query.trim()), { id: assistantId, role: "assistant", content: "", timestamp: Date.now(), loading: true, requestedMode: responseMode, agentLabel }]);
-    setLoading(true);
-    try {
-      const response = await chatWithCorpus(query.trim(), sessionId, responseMode);
-      setSessionId(response.session_id);
-      setMessages((current) => current.map((message) => message.id === assistantId ? { ...message, content: response.answer, loading: false, citations: response.citations, confidenceScore: response.confidence_score, evidenceStrength: response.evidence_strength, responseMode: response.response_mode, requestedMode: response.requested_mode, routingReason: response.routing_reason, routingSignals: response.routing_signals, timingsMs: response.timings_ms, latencyTargetMs: response.latency_target_ms, targetMet: response.target_met } : message));
-    } catch (error) {
-      const detail = error instanceof ApiError ? error.message : "The legal corpus is unavailable. Confirm the backend is healthy and try again.";
-      setMessages((current) => current.map((item) => item.id === assistantId ? { ...item, content: "", loading: false, error: detail } : item));
-    } finally { setLoading(false); }
-  };
-
-  const signOut = async () => { await logout().catch(() => undefined); setUser(null); setMessages([]); setSessionId(null); };
-  const hasProfessionalWorkspace = user?.role === "police" || user?.role === "advocate";
-  const hasOperationsWorkspace = hasProfessionalWorkspace || user?.role === "admin";
-  const resetResearch = () => { setMessages([]); setSessionId(null); setView("research"); };
-  const navigate = (target: "dashboard" | "research" | "workspace") => { setView(target); setMobileNav(false); };
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 1023px)");
+    const update = () => setCompactNavigation(media.matches);
+    update(); media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
 
   useEffect(() => {
-    const handleShortcut = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") { event.preventDefault(); setCommandOpen((open) => !open); return; }
-      if (event.key === "Escape") { setCommandOpen(false); return; }
-      const target = event.target as HTMLElement | null;
-      if (target?.matches("input, textarea, select, [contenteditable='true']")) return;
-      if (event.key.toLowerCase() === "d") navigate("dashboard");
-      if (event.key.toLowerCase() === "r") navigate("research");
-      if (event.key.toLowerCase() === "c" && hasOperationsWorkspace) navigate("workspace");
-      if (event.key.toLowerCase() === "a" && hasProfessionalWorkspace) { navigate("workspace"); window.setTimeout(() => document.getElementById("document-analyzer")?.scrollIntoView({ behavior: "smooth", block: "start" }), 80); }
-      if (event.key.toLowerCase() === "n") resetResearch();
-    };
-    window.addEventListener("keydown", handleShortcut);
-    return () => window.removeEventListener("keydown", handleShortcut);
-  }, [hasOperationsWorkspace, hasProfessionalWorkspace]);
+    if (messages.length) latestMessage.current?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
+  }, [messages.length]);
 
-  const navButton = (target: "dashboard" | "research" | "workspace", label: string, icon: React.ReactNode, shortcut: string) => (
-    <button onClick={() => { setView(target); setMobileNav(false); }} className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${view === target ? "bg-white/10 text-white" : "text-slate-400 hover:bg-white/5 hover:text-slate-200"}`}>
-      {icon}<span>{label}</span>{view === target ? <ChevronRight size={15} className="ml-auto" /> : <kbd className="ml-auto text-[9px] font-medium text-slate-600">{shortcut}</kbd>}
-    </button>
-  );
+  useEffect(() => {
+    if (!user) { setHistory([]); setHistoryReady(false); return; }
+    try {
+      const saved = JSON.parse(sessionStorage.getItem("corpusil-chats:" + user.id) || "[]");
+      setHistory(Array.isArray(saved) ? saved.filter(item => typeof item.id === "string" && typeof item.title === "string" && Array.isArray(item.messages)).slice(0, 20) : []);
+      const preferences = JSON.parse(sessionStorage.getItem("corpusil-preferences:" + user.id) || "{}");
+      setAnimate(preferences.animate !== false);
+      setTheme(preferences.theme === "ink" ? "ink" : "paper");
+      setRememberHistory(preferences.rememberHistory !== false);
+      if (["auto", "fast", "deep"].includes(preferences.mode)) setResponseMode(preferences.mode);
+    } catch { setHistory([]); }
+    setHistoryReady(true);
+  }, [user]);
 
-  const viewLabel = view === "dashboard" ? "Command centre" : view === "research" ? experience.nav : experience.workspace;
+  useEffect(() => {
+    if (!user || !historyReady || loading || !activeChatId || !messages.length) return;
+    setHistory(current => {
+      const existing = current.find(item => item.id === activeChatId);
+      const savedChat: SavedChat = {
+        id: activeChatId,
+        title: existing?.customTitle ? existing.title : messages.find(message => message.role === "user")?.content.slice(0, 90) || "Untitled chat",
+        messages,
+        sessionId,
+        updatedAt: Date.now(),
+        pinned: existing?.pinned,
+        customTitle: existing?.customTitle,
+      };
+      return [savedChat, ...current.filter(item => item.id !== activeChatId)].slice(0, 20);
+    });
+  }, [messages, sessionId, loading, user, historyReady, activeChatId]);
 
-  if (!authChecked) {
-    return <main className="flex min-h-screen items-center justify-center bg-[#0b1729]"><div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-white" aria-label="Loading secure workspace" /></main>;
-  }
+  useEffect(() => {
+    if (!user || !historyReady) return;
+    try {
+      sessionStorage.setItem("corpusil-preferences:" + user.id, JSON.stringify({ animate, rememberHistory, mode: responseMode, theme }));
+      if (rememberHistory) sessionStorage.setItem("corpusil-chats:" + user.id, JSON.stringify(history, (key, value) => key === "pages" ? [] : value));
+      else sessionStorage.removeItem("corpusil-chats:" + user.id);
+    } catch { /* Browsers with storage disabled keep history in memory. */ }
+  }, [history, user, historyReady, rememberHistory, animate, responseMode, theme]);
 
-  if (!user) {
-    return <main className="min-h-screen"><AuthModal onSuccess={setUser} progress={progress} /></main>;
-  }
+  const stopResearch = () => {
+    const active = activeRequest.current;
+    if (!active) return;
+    active.controller.abort(); activeRequest.current = null;
+    setLoading(false);
+    setMessages(current => current.map(message => message.id === active.assistantId ? { ...message, loading: false, stopped: true, content: "Response stopped." } : message));
+    if (active.jobId) void cancelDeepReviewJob(active.jobId).catch(() => {
+      setMessages(current => current.map(message => message.id === active.assistantId ? { ...message, content: "Stopped here. The server could not confirm cancellation and may finish the queued review." } : message));
+    });
+  };
 
-  return (
-    <main className="min-h-screen bg-[#f4f6f8] text-[#101828]">
-      <DesktopReadiness />
-      <aside className={`fixed inset-y-0 left-0 z-40 flex w-[258px] flex-col bg-[#0b1729] px-4 py-5 text-white transition-transform lg:translate-x-0 ${mobileNav ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="flex items-center gap-3 px-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/10"><Landmark size={20} /></div>
-          <div><p className="text-sm font-semibold">Aegis Legal</p><p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Intelligence console</p></div>
-        </div>
-        <div className="mt-9 px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-600">Workspace</div>
-        <nav className="mt-2 space-y-1">
-          {navButton("dashboard", "Command centre", <Gauge size={17} />, "D")}
-          {navButton("research", experience.nav, <Search size={17} />, "R")}
-          {hasOperationsWorkspace && navButton("workspace", experience.workspace, <BriefcaseBusiness size={17} />, "C")}
-          {hasProfessionalWorkspace && <button onClick={() => { navigate("workspace"); window.setTimeout(() => document.getElementById("document-analyzer")?.scrollIntoView({ behavior: "smooth", block: "start" }), 80); }} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 transition hover:bg-white/5 hover:text-slate-200"><ScanSearch size={17} /><span>Document Analyzer</span><kbd className="ml-auto text-[9px] font-medium text-slate-600">A</kbd></button>}
-        </nav>
-        <button onClick={() => setCommandOpen(true)} className="mt-5 flex w-full items-center gap-3 rounded-xl border border-white/10 bg-white/[.035] px-3 py-2.5 text-left text-xs text-slate-400 transition hover:bg-white/[.07] hover:text-white"><Command size={15} /><span className="flex-1">Quick command</span><kbd className="rounded border border-white/10 px-1.5 py-0.5 text-[9px]">⌘K</kbd></button>
-        <div className="mt-8 px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-600">System</div>
-        <div className="mt-2 rounded-xl border border-white/10 bg-white/[0.035] p-3">
-          <div className="flex items-center justify-between"><span className="text-xs font-medium text-slate-300">Global corpus</span><span className="flex items-center gap-1.5 text-[10px] font-medium text-[#72d1c9]"><span className="h-1.5 w-1.5 rounded-full bg-[#72d1c9]" />ONLINE</span></div>
-          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-[#42a9b2]" style={{ width: `${progress?.percent ?? 0}%` }} /></div>
-          <div className="mt-3 grid grid-cols-2 gap-2 text-xs"><div><p className="font-semibold text-white">{progress?.canonical_documents?.toLocaleString() ?? "—"}</p><p className="text-[10px] text-slate-500">Gold sources</p></div><div><p className="font-semibold text-white">{(progress?.global_points ?? progress?.qdrant_points)?.toLocaleString() ?? "—"}</p><p className="text-[10px] text-slate-500">Passages</p></div></div>
-        </div>
-        {user && <div className="mt-auto border-t border-white/10 pt-4"><div className="flex items-center gap-3 px-2"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#1d344d] text-xs font-semibold">{user.name?.slice(0, 2).toUpperCase()}</div><div className="min-w-0 flex-1"><p className="truncate text-xs font-medium">{user.name}</p><p className="truncate text-[10px] capitalize text-slate-500">{user.role} access</p></div><button onClick={signOut} className="rounded-lg p-2 text-slate-500 hover:bg-white/5 hover:text-white" aria-label="Sign out"><LogOut size={16} /></button></div></div>}
-      </aside>
-      {mobileNav && <button aria-label="Close navigation" className="fixed inset-0 z-30 bg-[#0b1729]/50 lg:hidden" onClick={() => setMobileNav(false)} />}
+  const submit = async (query: string, documents: CitizenDocument[] = [], regenerate = false, editIndex?: number) => {
+    if (!query.trim() || loading || !user) return;
+    const requestStarted = performance.now();
+    setView("research");
+    const assistantId = crypto.randomUUID();
+    const operation = { controller: new AbortController(), assistantId, jobId: undefined as string | undefined };
+    activeRequest.current = operation;
+    const branchIndex = editIndex ?? (regenerate ? messages.map(message => message.role).lastIndexOf("user") : -1);
+    if (branchIndex >= 0 || !activeChatId) setActiveChatId(crypto.randomUUID());
+    const baseMessages = branchIndex >= 0 ? messages.slice(0, branchIndex) : messages;
+    const priorMessages = branchIndex >= 0 ? baseMessages.filter(message => !message.error && !message.stopped && message.content.trim()).slice(-8).map(message => ({ role: message.role, content: message.content.slice(0, 4000) })) : [];
+    const targetSession = branchIndex >= 0 ? null : sessionId;
+    if (branchIndex >= 0) setSessionId(null);
+    const agentLabel = user.role === "police" ? "Police Procedure Research Agent" : user.role === "advocate" ? "Advocate Authority Research Agent" : "Citizen Legal Navigator";
+    const availableDocuments = documents.filter(document => document.pages.length > 0);
+    setMessages([...baseMessages, { ...newMessage("user", query.trim()), documents: availableDocuments }, { id: assistantId, role: "assistant", content: "", timestamp: Date.now(), loading: true, requestedMode: availableDocuments.length ? "deep" : responseMode, agentLabel, documents: availableDocuments, category: legalCategory(query) }]);
+    setLoading(true);
+    try {
+      const response = await chatWithCorpus(query.trim(), targetSession, availableDocuments.length ? "deep" : responseMode, availableDocuments, operation.controller.signal, priorMessages);
+      if (operation.controller.signal.aborted) return;
+      setSessionId(response.session_id);
+      if (response.delivery_state === "searching_more_thoroughly" && response.job_id) {
+        operation.jobId = response.job_id;
+        setMessages((current) => current.map((message) => message.id === assistantId ? {
+          ...message,
+          content: "Searching more thoroughly because the quick source match was not strong enough…",
+          loading: true,
+          responseMode: "deep",
+          requestedMode: response.requested_mode,
+          routingReason: response.routing_reason,
+          routingSignals: response.routing_signals,
+        } : message));
+        while (true) {
+          await new Promise((resolve) => window.setTimeout(resolve, 1000));
+          if (operation.controller.signal.aborted) return;
+          const job = await getDeepReviewJob(response.job_id, operation.controller.signal);
+          if (operation.controller.signal.aborted) return;
+          setMessages((current) => current.map((message) => message.id === assistantId ? {
+            ...message,
+            content: `Searching more thoroughly… ${job.progress}%`,
+            loading: true,
+          } : message));
+          if (job.status === "succeeded" && job.result) {
+            const result = job.result;
+            setMessages((current) => current.map((message) => message.id === assistantId ? {
+              ...message,
+              content: result.answer,
+              loading: false,
+              citations: result.citations,
+              confidenceScore: result.confidence_score,
+              evidenceStrength: result.evidence_strength,
+              responseMode: "deep",
+              requestedMode: response.requested_mode,
+              routingReason: response.routing_reason,
+              routingSignals: response.routing_signals,
+              timingsMs: result.timings_ms,
+              pipelineMetrics: result.pipeline_metrics,
+              latencyTargetMs: response.latency_target_ms,
+              targetMet: null,
+              clientElapsedMs: Math.round(performance.now() - requestStarted),
+            } : message));
+            break;
+          }
+          if (job.status === "failed" || job.status === "cancelled") {
+            throw new ApiError(job.error_message || `Deep Review ${job.status}.`, 500);
+          }
+        }
+        return;
+      }
+      setMessages((current) => current.map((message) => message.id === assistantId ? { ...message, content: response.answer, loading: false, citations: response.citations, confidenceScore: response.confidence_score, evidenceStrength: response.evidence_strength, responseMode: response.response_mode, requestedMode: response.requested_mode, routingReason: response.routing_reason, routingSignals: response.routing_signals, timingsMs: response.timings_ms, pipelineMetrics: response.pipeline_metrics, latencyTargetMs: response.latency_target_ms, targetMet: response.target_met, clientElapsedMs: Math.round(performance.now() - requestStarted) } : message));
+    } catch (error) {
+      if (operation.controller.signal.aborted) return;
+      const detail = error instanceof ApiError ? error.message : "The legal corpus is unavailable. Confirm the backend is healthy and try again.";
+      setMessages((current) => current.map((item) => item.id === assistantId ? { ...item, content: "", loading: false, error: detail } : item));
+    } finally { if (activeRequest.current === operation) { activeRequest.current = null; setLoading(false); } }
+  };
 
-      <div className="min-h-screen lg:pl-[258px]">
-        <header className="sticky top-0 z-20 flex h-[70px] items-center justify-between border-b border-[#e4e7ec] bg-white/95 px-5 backdrop-blur md:px-8">
-          <div className="flex items-center gap-3"><button aria-label="Open navigation" onClick={() => setMobileNav(true)} className="rounded-lg border border-[#e4e7ec] p-2 lg:hidden"><Menu size={18} /></button><div><p className="text-xs text-[#667085]">Workspace / <span className="text-[#344054]">{viewLabel}</span></p><h1 className="mt-0.5 text-sm font-semibold">{view === "dashboard" ? `${experience.badge} command centre` : view === "research" ? "Global Legal Corpus" : experience.workspace}</h1></div></div>
-          <div className="flex items-center gap-2 sm:gap-3"><button onClick={() => setCommandOpen(true)} className="hidden items-center gap-2 rounded-xl border border-[#e4e7ec] bg-white px-3 py-2 text-xs font-medium text-[#667085] shadow-sm hover:bg-[#f9fafb] md:flex"><Search size={14} />Search commands <kbd className="ml-2 rounded border border-[#d0d5dd] px-1.5 py-0.5 text-[9px]">⌘K</kbd></button><div className="hidden items-center gap-2 rounded-full border border-[#d7eadf] bg-[#f1faf5] px-3 py-1.5 text-xs font-medium text-[#16734a] sm:flex"><ShieldCheck size={14} />Private deployment</div>{user && <div className="flex h-9 w-9 items-center justify-center rounded-full border border-[#d0d5dd] bg-white text-[#475467]"><UserRound size={17} /></div>}</div>
-        </header>
+  const signOut = async () => { await logout().catch(() => undefined); setUser(null); setMessages([]); setSessionId(null); setActiveChatId(null); setView("research"); setResponseMode("auto"); setMobileNav(false); };
+  const hasProfessionalWorkspace = user?.role === "police" || user?.role === "advocate";
+  const hasOperationsWorkspace = hasProfessionalWorkspace || user?.role === "admin";
+  const resetResearch = () => { setMessages([]); setSessionId(null); setActiveChatId(crypto.randomUUID()); setDraftVersion(value => value + 1); setView("research"); window.scrollTo({ top: 0, behavior: "auto" }); };
+  const openSavedChat = (item: SavedChat) => {
+    setChatMenuId(null);
+    setActiveChatId(item.id);
+    setMessages(item.messages);
+    setSessionId(item.sessionId);
+    setDraftVersion(value => value + 1);
+    setView("research");
+    setMobileNav(false);
+    window.scrollTo({ top: 0, behavior: "auto" });
+  };
+  const togglePinned = (item: SavedChat) => {
+    if (!item.pinned && history.filter(chat => chat.pinned).length >= 5) {
+      setHistoryNotice("You can pin up to 5 chats. Unpin one to add another.");
+      setChatMenuId(null);
+      return;
+    }
+    setHistory(current => current.map(chat => chat.id === item.id ? { ...chat, pinned: !chat.pinned } : chat));
+    setHistoryNotice(item.pinned ? "Chat moved back to recent." : "Chat pinned for quick access.");
+    setChatMenuId(null);
+  };
+  const saveChatTitle = (item: SavedChat) => {
+    const title = renameDraft.trim().slice(0, 90);
+    if (title) setHistory(current => current.map(chat => chat.id === item.id ? { ...chat, title, customTitle: true } : chat));
+    setRenamingChatId(null);
+    setChatMenuId(null);
+  };
+  const deleteChat = (item: SavedChat) => {
+    setDeletedChat(item);
+    setHistory(current => current.filter(chat => chat.id !== item.id));
+    setChatMenuId(null);
+    setHistoryNotice("Chat deleted.");
+    if (activeChatId === item.id) resetResearch();
+  };
+  const openTool = (id?: string) => {
+    setView("workspace"); setMobileNav(false);
+    if (id) window.setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: animate ? "smooth" : "auto", block: "start" }), 80);
+  };
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => { if (event.key === "Escape") { setMobileNav(false); setSettingsOpen(false); setGuideOpen(false); setChatMenuId(null); setRenamingChatId(null); } };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, []);
 
-        {view === "dashboard" && user ? <RoleDashboard user={user} progress={progress} onNavigate={navigate} onResearch={submit} /> : view === "workspace" && user?.role === "admin" ? <AdminWorkspace /> : view === "workspace" && user && hasProfessionalWorkspace ? <ProfessionalWorkspace user={user} /> : (
-          <section className="mx-auto flex min-h-[calc(100vh-70px)] max-w-[1180px] flex-col px-5 py-7 md:px-8 md:py-9">
-            {messages.length === 0 ? (
-              <>
-                <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
-                  <div><p className="eyebrow">{experience.eyebrow}</p><h2 className="mt-2 text-3xl font-semibold tracking-[-0.035em] text-[#101828] md:text-[38px]">{experience.heading}</h2><p className="mt-3 max-w-2xl text-sm leading-6 text-[#667085]">{experience.description}</p></div>
-                  <div className="space-y-2 text-right"><div className="flex items-center justify-end gap-2 text-xs text-[#667085]"><CheckCircle2 size={16} className="text-[#16825d]" />Corpus validation passed</div><span className="inline-flex rounded-full bg-[#eef6f7] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#167184]">{experience.badge}</span></div>
-                </div>
+  if (!authChecked) return <main className="grid min-h-screen place-items-center"><Scale size={24} className="text-neutral-400" aria-label="Loading workspace" /></main>;
+  if (!user) return <AuthModal onSuccess={setUser} progress={progress} />;
 
-                <div className="panel mt-8 overflow-hidden">
-                  <div className="border-b border-[#eaecf0] px-5 py-4"><div className="flex items-center justify-between"><div className="flex items-center gap-2 text-sm font-semibold"><BookOpenText size={17} className="text-[#167184]" />New research</div><span className="rounded-full bg-[#eef6f7] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#167184]">Citation controlled</span></div></div>
-                  <div className="px-5 pb-2 pt-5"><ChatInput onSend={submit} loading={loading} disabled={!user} placeholder={user ? experience.placeholder : "Sign in to begin research"} mode={responseMode} onModeChange={setResponseMode} /></div>
-                </div>
+  const role = user.role;
+  const tools = role === "citizen" ? [
+    { title: "Know your rights", icon: ShieldCheck, guideIndex: 0 },
+    { title: "Report an incident", icon: FilePenLine, guideIndex: 1 },
+    { title: "Understand a document", icon: BookOpenText, guideIndex: 2 },
+  ] : role === "police" ? [
+    { title: "Investigations", icon: Fingerprint, target: "" },
+    { title: "FIR drafting", icon: FilePenLine, target: "role-agent-tool" },
+    { title: "Evidence & documents", icon: ScanSearch, target: "document-analyzer" },
+  ] : role === "advocate" ? [
+    { title: "Client matters", icon: BriefcaseBusiness, target: "" },
+    { title: "Build a strategy", icon: Scale, target: "role-agent-tool" },
+    { title: "Review documents", icon: ScanSearch, target: "document-analyzer" },
+  ] : [{ title: "Manage workspace", icon: Settings, target: "" }];
+  const pinnedChats = history.filter(item => item.pinned).sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0));
+  const recentChats = history.filter(item => !item.pinned).sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0));
+  const chatRow = (item: SavedChat) => <div className={`chat-history-row ${item.id === activeChatId ? "selected" : ""}`} key={item.id}>
+    {renamingChatId === item.id ? <form className="chat-rename" onSubmit={event => { event.preventDefault(); saveChatTitle(item); }}><input autoFocus aria-label="Rename chat" value={renameDraft} maxLength={90} onChange={event => setRenameDraft(event.target.value)} onKeyDown={event => { if (event.key === "Escape") setRenamingChatId(null); }}/><button aria-label="Save chat name" disabled={!renameDraft.trim()}><Check size={13}/></button></form> : <button disabled={loading} className="chat-open" aria-current={item.id === activeChatId ? "page" : undefined} title={item.title} onClick={() => openSavedChat(item)}>{item.pinned ? <Pin size={13}/> : <MessageSquare size={14}/>}<span>{item.title}</span></button>}
+    {renamingChatId !== item.id && <button className="chat-menu-trigger" aria-label={`Chat options for ${item.title}`} aria-expanded={chatMenuId === item.id} onClick={() => setChatMenuId(current => current === item.id ? null : item.id)}><MoreHorizontal size={15}/></button>}
+    {chatMenuId === item.id && <div className="chat-menu" role="menu"><button role="menuitem" onClick={() => togglePinned(item)}>{item.pinned ? <PinOff size={14}/> : <Pin size={14}/>} {item.pinned ? "Unpin" : "Pin chat"}</button><button role="menuitem" onClick={() => { setRenamingChatId(item.id); setRenameDraft(item.title); setChatMenuId(null); }}><Pencil size={14}/>Rename</button><button role="menuitem" className="is-danger" onClick={() => deleteChat(item)}><Trash2 size={14}/>Delete</button></div>}
+  </div>;
 
-                <div className="mt-7 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                  {experience.suggestions.map((suggestion) => <button key={suggestion.text} onClick={() => submit(suggestion.text)} disabled={loading} className="group panel p-5 text-left transition hover:-translate-y-0.5 hover:border-[#a9cbd0] hover:shadow-[0_8px_25px_rgba(16,24,40,.07)] disabled:opacity-50"><span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#167184]">{suggestion.title}</span><p className="mt-3 text-sm font-medium leading-6 text-[#344054]">{suggestion.text}</p><ChevronRight size={16} className="mt-5 text-[#98a2b3] transition group-hover:translate-x-1 group-hover:text-[#167184]" /></button>)}
-                </div>
-
-                <div className="mt-7 grid gap-4 md:grid-cols-3">
-                  <div className="panel flex items-center gap-4 p-5"><div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#eef6f7] text-[#167184]"><Database size={20} /></div><div><p className="text-xl font-semibold">{progress?.canonical_documents?.toLocaleString() ?? "—"}</p><p className="text-xs text-[#667085]">Canonical legal sources</p></div></div>
-                  <div className="panel flex items-center gap-4 p-5"><div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#f0f3fa] text-[#365899]"><BookOpenText size={20} /></div><div><p className="text-xl font-semibold">{(progress?.global_points ?? progress?.qdrant_points)?.toLocaleString() ?? "—"}</p><p className="text-xs text-[#667085]">Searchable legal passages</p></div></div>
-                  <div className="panel flex items-center gap-4 p-5"><div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#eef8f2] text-[#16825d]"><ShieldCheck size={20} /></div><div><p className="text-xl font-semibold">Verified</p><p className="text-xs text-[#667085]">Gold + governed extended</p></div></div>
-                </div>
-              </>
-            ) : (
-              <div className="mx-auto flex w-full max-w-[900px] flex-1 flex-col">
-                <div className="mb-6 flex items-end justify-between"><div><p className="eyebrow">Research matter</p><h2 className="mt-1 text-2xl font-semibold tracking-tight">Grounded legal analysis</h2></div><button onClick={resetResearch} className="button-secondary">New research</button></div>
-                <div className="space-y-4">{messages.map((message) => <MessageBubble key={message.id} message={message} />)}</div>
-                <div className="sticky bottom-0 mt-auto bg-gradient-to-t from-[#f4f6f8] via-[#f4f6f8] to-transparent pt-8"><ChatInput onSend={submit} loading={loading} disabled={!user} mode={responseMode} onModeChange={setResponseMode} /></div>
-              </div>
-            )}
-          </section>
-        )}
-      </div>
-      {user && <CommandPalette open={commandOpen} user={user} onClose={() => setCommandOpen(false)} onNavigate={navigate} onResearch={submit} />}
-    </main>
-  );
+  return <main data-role={role} data-motion={animate ? "on" : "off"} className="app-shell">
+    <aside aria-label="Main navigation" aria-hidden={compactNavigation && !mobileNav} ref={node => { if(node) node.inert = compactNavigation && !mobileNav; }} className={`app-sidebar ${mobileNav ? "is-open" : ""}`}>
+      <div className="sidebar-brand"><BrandLogo /><button className="icon-button lg:hidden" onClick={() => setMobileNav(false)} aria-label="Close navigation"><X size={18} /></button></div>
+      <button disabled={loading} className="new-chat-button" onClick={() => { resetResearch(); setMobileNav(false); }}><Plus size={18} />New chat</button>
+      <nav className="feature-nav" aria-label="Features">{tools.map(tool => <button key={tool.title} onClick={() => { if ("guideIndex" in tool) { setCitizenGuideSlide(tool.guideIndex); setMobileNav(false); } else openTool(tool.target); }}><tool.icon size={18} strokeWidth={1.65} /><span>{tool.title}</span></button>)}</nav>
+      <div className="chat-history">{pinnedChats.length > 0 && <><div className="history-heading"><span>Pinned <b>{pinnedChats.length}/5</b></span><Pin size={13}/></div>{pinnedChats.map(chatRow)}</>}<div className="history-heading"><span>Recent chats</span><History size={14}/></div>{recentChats.length ? recentChats.map(chatRow) : !pinnedChats.length && <p>Your conversations will appear here.</p>}</div>
+      <div className="sidebar-bottom"><button onClick={() => { setMobileNav(false); role === "citizen" ? setCitizenGuideSlide(0) : setGuideOpen(true); }}><HelpCircle size={17} />Getting started</button><button onClick={() => { setMobileNav(false); setSettingsOpen(true); }}><Settings size={17} />Settings<span className="ml-auto text-[11px] capitalize text-neutral-400">{role}</span></button></div>
+    </aside>
+    {mobileNav && <button aria-label="Dismiss navigation" className="sidebar-scrim" onClick={() => setMobileNav(false)} />}
+    {historyNotice && <div className="history-toast" role="status"><span>{historyNotice}</span>{deletedChat && historyNotice === "Chat deleted." && <button onClick={() => { setHistory(current => [deletedChat, ...current.filter(item => item.id !== deletedChat.id)].slice(0, 20)); setDeletedChat(null); setHistoryNotice("Chat restored."); }}><Undo2 size={13}/>Undo</button>}<button aria-label="Dismiss notification" onClick={() => { setHistoryNotice(""); setDeletedChat(null); }}><X size={13}/></button></div>}
+    <div className="app-content" ref={node => { if(node) node.inert = compactNavigation && mobileNav; }}>
+      <header className="workspace-header"><button className="icon-button lg:hidden" aria-label="Open navigation" onClick={() => setMobileNav(true)}><Menu size={20} /></button><span>{view === "workspace" ? role === "police" ? "Investigation workspace" : role === "advocate" ? "Your matter workspace" : "Administration" : " "}</span>{view === "workspace" && <button className="text-sm text-neutral-500" onClick={() => setView("research")}><MessageSquare size={16} className="mr-2 inline" />Back to chat</button>}</header>
+      {view === "workspace" && hasOperationsWorkspace ? role === "admin" ? <AdminWorkspace /> : <ProfessionalWorkspace user={user} /> :
+      <section className={`chat-workspace ${messages.length ? "has-conversation" : ""}`}>
+        {!messages.length ? <div className="chat-welcome">
+          <div className="welcome-symbol"><Scale size={32} strokeWidth={1.3} /></div>
+          <h1>{role === "citizen" ? "Let’s make sense of the law." : role === "police" ? "What are you investigating?" : role === "advocate" ? "Where does your argument begin?" : "What would you like to research?"}</h1>
+          <p>{role === "citizen" ? "Ask in your own words. We’ll start from there." : role === "police" ? "Explore procedure, preserve evidence, and build your record." : role === "advocate" ? "Find authority. Explore both sides. Refine your position." : "Explore your legal corpus."}</p>
+          <ChatInput key={`${sessionId}:${draftVersion}`} onSend={submit} onStop={stopResearch} loading={loading} mode={responseMode} onModeChange={setResponseMode} placeholder={experience.placeholder} />
+          <div className="prompt-shortcuts">{experience.suggestions.map((suggestion,index) => { const Icon = [FilePenLine, ScanSearch, ShieldCheck, BookOpenText][index]; return <button key={suggestion.title} disabled={loading} onClick={() => void submit(suggestion.text)}><Icon size={16} strokeWidth={1.6} />{suggestion.title}</button>; })}</div>
+          <button className="guide-invite" onClick={() => role === "citizen" ? setCitizenGuideSlide(0) : setGuideOpen(true)}><HelpCircle size={14} />First time here? Take a quick look</button>
+        </div> : <>
+          <div className="conversation">{messages.map((message,index) => <div key={message.id} ref={index === messages.length-1 ? latestMessage : undefined}><MessageBubble message={message} onEdit={!loading && !message.documents?.some(document => !document.pages.length) ? (text) => void submit(text, message.documents, false, index) : undefined} onForgetDocuments={() => { const ids = new Set(message.documents?.map(document => document.id)); const clear = (items: ChatMessage[]) => items.map(item => ({...item, documents: item.documents?.map(document => ids.has(document.id) ? {...document, pages: []} : document)})); setMessages(clear); setHistory(current => current.map(item => ({...item, messages: clear(item.messages)}))); }} onRegenerate={!loading && message.role === "assistant" && index === messages.length-1 ? () => { const question=messages.slice(0,index).reverse().find(item=>item.role==="user"); if(question) void submit(question.content, question.documents, true); } : undefined} /></div>)}</div>
+          {awayFromLatest && <button className="jump-latest" aria-label="Jump to latest message" onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: animate ? "smooth" : "auto" })}><ArrowDown size={17}/></button>}
+          <div className="conversation-composer"><ChatInput key={`${sessionId}:${draftVersion}`} onSend={submit} onStop={stopResearch} loading={loading} mode={responseMode} onModeChange={setResponseMode} /></div>
+        </>}
+      </section>}
+    </div>
+    <CitizenGuideDialog open={citizenGuideSlide !== null} initialSlide={citizenGuideSlide ?? 0} onClose={() => setCitizenGuideSlide(null)} onStart={(prompt) => { setCitizenGuideSlide(null); void submit(prompt); }}/>
+    {settingsOpen && <div className="modal-backdrop" onMouseDown={() => setSettingsOpen(false)}><div ref={settingsRef} role="dialog" aria-modal="true" aria-label="Settings" className="settings-dialog" onMouseDown={event => event.stopPropagation()}>
+      <div className="dialog-heading settings-heading"><div><h2>Settings</h2><p>Make the workspace feel right for you.</p></div><button aria-label="Close settings" className="icon-button" onClick={() => setSettingsOpen(false)}><X size={18} /></button></div>
+      <div className="settings-account"><div><strong>{user.name}</strong><span>{user.email}</span></div><b>{role}</b></div>
+      <section className="settings-section"><h3>Experience</h3>
+        <div className="setting-block"><div className="setting-copy"><strong>Appearance</strong><small>A calm palette for daytime or low light.</small></div><div className="theme-choice" role="group" aria-label="Appearance"><button aria-pressed={theme === "paper"} onClick={() => setTheme("paper")}><i className="paper-swatch"/>Light</button><button aria-pressed={theme === "ink"} onClick={() => setTheme("ink")}><i className="ink-swatch"/>Dark</button></div></div>
+        <div className="setting-block setting-stack"><div className="setting-copy"><strong>Default research depth</strong><small>You can still change this beside any question.</small></div><div className="mode-choice" role="group" aria-label="Default response mode">{(["auto","fast","deep"] as RequestedResponseMode[]).map(mode => <button key={mode} aria-pressed={responseMode === mode} onClick={() => setResponseMode(mode)}>{mode === "auto" ? "Auto" : mode === "fast" ? "Fast" : "Deep review"}</button>)}</div></div>
+        <label className="setting-block"><span className="setting-copy"><strong>Ambient motion</strong><small>Includes the scales and subtle background glow.</small></span><span className="premium-switch"><input type="checkbox" checked={animate} onChange={event => setAnimate(event.target.checked)} /><i/></span></label>
+      </section>
+      <section className="settings-section"><h3>History & privacy</h3>
+        <label className="setting-block"><span className="setting-copy"><strong>Remember chats in this tab</strong><small>Keep up to 20 conversations. Nothing is synced across devices.</small></span><span className="premium-switch"><input type="checkbox" checked={rememberHistory} onChange={event => setRememberHistory(event.target.checked)} /><i/></span></label>
+        <details className="settings-privacy"><summary>Documents, voice & retention<span>View details</span></summary><UploadPrivacy/><p>Voice uses your browser’s recognition service. English is currently validated; transcripts remain editable and never send automatically.</p></details>
+      </section>
+      <section className="settings-section"><h3>Corpus connection</h3><div className="corpus-status"><span className={progress?.validation_status === "pass" ? "is-online" : ""}/><div><strong>{progress?.validation_status === "pass" ? "Verified corpus ready" : "Corpus status unavailable"}</strong><small>{progress ? `${progress.canonical_documents.toLocaleString()} sources · ${(progress.global_points ?? progress.qdrant_points).toLocaleString()} searchable passages` : "Reconnect to check source availability."}</small></div></div></section>
+      <div className="settings-actions"><button disabled={loading} onClick={() => { setHistory([]); setMessages([]); setSessionId(null); setActiveChatId(crypto.randomUUID()); setDraftVersion(value => value + 1); }}>Clear this tab’s history</button><button disabled={loading} onClick={() => { setSettingsOpen(false); void signOut(); }}><LogOut size={15} />Sign out</button></div>
+      <details className="desktop-details"><summary>Desktop app status</summary><DesktopReadiness /></details>
+    </div></div>}
+    {guideOpen && <div className="modal-backdrop" onMouseDown={() => setGuideOpen(false)}><div ref={guideRef} role="dialog" aria-modal="true" aria-label="Getting started" className="guide-dialog" onMouseDown={event=>event.stopPropagation()}>
+      <div className="dialog-heading"><div><p className="text-xs text-neutral-400">A quick introduction</p><h2>From question to clarity.</h2></div><button className="icon-button" aria-label="Close guide" onClick={() => setGuideOpen(false)}><X size={18} /></button></div>
+      <div className="visual-guide">
+        <section><div className="guide-picture"><MessageSquare size={44} strokeWidth={1.3} /><span className="guide-line long" /><span className="guide-line" /></div><span className="step-number">01</span><h3>{role==="citizen" ? "Tell us what happened" : "Start with the facts"}</h3><p>Ask a question in chat. Include the details that matter, without unnecessary personal information.</p></section>
+        <section><div className="guide-picture"><Scale size={48} strokeWidth={1.3} /><span className="guide-dots"><i/><i/><i/></span></div><span className="step-number">02</span><h3>Choose your depth</h3><p>Auto picks a workflow. Fast finds source passages; Deep Review works through a fuller analysis.</p></section>
+        <section><div className="guide-picture"><BookOpenText size={46} strokeWidth={1.3} /><ShieldCheck className="guide-check" size={23} /></div><span className="step-number">03</span><h3>{role==="citizen" ? "Check the source" : "Build on the evidence"}</h3><p>{role==="citizen" ? "Expand a citation to read the passage. Copy useful references and return to past chats in the sidebar." : "Open your matter workspace to add evidence, review documents and prepare a draft or strategy."}</p></section>
+      </div><button className="button-primary mt-8" onClick={()=>setGuideOpen(false)}>Got it, let’s begin</button><p className="mt-4 text-xs text-neutral-400">Research support, not a substitute for professional judgement.</p>
+    </div></div>}
+  </main>;
 }

@@ -1,87 +1,58 @@
 "use client";
+import { ArrowUp, ChevronDown, FileText, Image as ImageIcon, Mic, Paperclip, Square, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { extractCitizenDocument } from "@/lib/api";
+import type { CitizenDocument, RequestedResponseMode } from "@/lib/types";
+import AttachmentDialog from "./AttachmentDialog";
 
-import { ArrowUp, BrainCircuit, Loader2, Paperclip, Route, ShieldCheck, Zap } from "lucide-react";
-import { useCallback, useRef, useEffect } from "react";
-import type { RequestedResponseMode } from "@/lib/types";
+type Recognition = { lang: string; continuous: boolean; interimResults: boolean; start: () => void; stop: () => void; abort: () => void; onresult: ((event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null; onerror: ((event: { error: string }) => void) | null; onend: (() => void) | null };
+type SpeechWindow = Window & { SpeechRecognition?: new () => Recognition; webkitSpeechRecognition?: new () => Recognition };
+interface ChatInputProps { onSend: (message: string, documents?: CitizenDocument[]) => void; onStop?: () => void; disabled?: boolean; loading?: boolean; placeholder?: string; mode?: RequestedResponseMode; onModeChange?: (mode: RequestedResponseMode) => void; }
 
-interface ChatInputProps {
-  onSend: (message: string) => void;
-  disabled?: boolean;
-  loading?: boolean;
-  placeholder?: string;
-  mode?: RequestedResponseMode;
-  onModeChange?: (mode: RequestedResponseMode) => void;
-}
-
-export default function ChatInput({
-  onSend,
-  disabled = false,
-  loading = false,
-  placeholder = "Ask about Indian law, acts, judgments…",
-  mode = "auto",
-  onModeChange,
-}: ChatInputProps) {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  const adjustHeight = useCallback(() => {
-    const el = textareaRef.current;
-    if (!el) return;
-    el.style.height = "auto";
-    el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
-  }, []);
-
-  useEffect(() => {
-    adjustHeight();
-  }, [adjustHeight]);
-
-  const handleSubmit = () => {
-    const value = textareaRef.current?.value.trim();
-    if (!value || disabled || loading) return;
-    onSend(value);
-    if (textareaRef.current) {
-      textareaRef.current.value = "";
-      textareaRef.current.style.height = "auto";
-    }
+export default function ChatInput({ onSend, onStop, disabled = false, loading = false, placeholder = "Ask a follow-up…", mode = "auto", onModeChange }: ChatInputProps) {
+  const [value, setValue] = useState("");
+  const [documents, setDocuments] = useState<CitizenDocument[]>([]);
+  const [extracting, setExtracting] = useState(false);
+  const [error, setError] = useState("");
+  const [privacy, setPrivacy] = useState(false);
+  const [voiceInfo, setVoiceInfo] = useState(false);
+  const [recording, setRecording] = useState(false);
+  const [voiceSupported, setVoiceSupported] = useState(false);
+  const input = useRef<HTMLTextAreaElement>(null);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const recognition = useRef<Recognition | null>(null);
+  const mounted = useRef(true);
+  const busy = disabled || loading || extracting;
+  useEffect(() => { mounted.current = true; const host = window as SpeechWindow; setVoiceSupported(Boolean(host.SpeechRecognition || host.webkitSpeechRecognition)); return () => { mounted.current = false; if (recognition.current) { recognition.current.onresult = recognition.current.onend = recognition.current.onerror = null; recognition.current.abort(); } }; }, []);
+  useEffect(() => { if (input.current) { input.current.style.height = "auto"; input.current.style.height = Math.min(input.current.scrollHeight, 200) + "px"; } }, [value]);
+  const send = () => { if ((!value.trim() && !documents.length) || busy || recording) return; onSend(value.trim() || "Please explain the legal issues in my attached document and the source-supported next steps.", documents); setValue(""); setDocuments([]); setError(""); };
+  const startVoice = () => {
+    const host = window as SpeechWindow;
+    const Constructor = host.SpeechRecognition || host.webkitSpeechRecognition;
+    if (!Constructor) return;
+    const session = new Constructor(); recognition.current = session;
+    session.lang = "en-IN"; session.continuous = true; session.interimResults = true;
+    const prefix = value.trim();
+    session.onresult = event => { const text = Array.from(event.results).map(result => result[0]?.transcript || "").join(" "); setValue([prefix, text].filter(Boolean).join(" ")); };
+    session.onend = () => setRecording(false);
+    session.onerror = event => { setError(`Voice input stopped (${event.error}). You can still type your question.`); setRecording(false); };
+    try { session.start(); setRecording(true); setVoiceInfo(false); setError(""); } catch { setError("Microphone unavailable. Please type your question."); }
   };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit();
-    }
-  };
-
-  return (
-    <div className="mx-auto w-full px-0 pb-4 pt-1">
-      {onModeChange && <div className="mb-3 flex flex-wrap items-center justify-between gap-2"><div className="inline-flex rounded-xl border border-[#e4e7ec] bg-[#f8fafc] p-1"><button type="button" onClick={() => onModeChange("auto")} className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${mode === "auto" ? "bg-[#0b1729] text-white shadow-sm" : "text-[#667085]"}`}><Route size={13} />Auto</button><button type="button" onClick={() => onModeChange("fast")} className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${mode === "fast" ? "bg-white text-[#167184] shadow-sm" : "text-[#667085]"}`}><Zap size={13} />Fast evidence</button><button type="button" onClick={() => onModeChange("deep")} className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${mode === "deep" ? "bg-[#0b1729] text-white shadow-sm" : "text-[#667085]"}`}><BrainCircuit size={13} />Deep review</button></div><p className="text-[11px] text-[#98a2b3]">{mode === "auto" ? "Automatically selects the fastest safe workflow" : mode === "fast" ? "Target: complete evidence brief within 5 seconds" : "Multi-agent reasoning, verification and bounded retry"}</p></div>}
-      <div className="relative flex items-end rounded-2xl border border-[#d0d5dd] bg-white shadow-[0_3px_12px_rgba(16,24,40,0.06)] transition focus-within:border-[#167184] focus-within:ring-4 focus-within:ring-[#167184]/10">
-        <button type="button" disabled className="m-2.5 mr-0 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[#98a2b3]" title="Document attachment is available in case workspaces">
-          <Paperclip size={17} />
-        </button>
-        <textarea
-          ref={textareaRef}
-          rows={1}
-          disabled={disabled || loading}
-          placeholder={placeholder}
-          onInput={adjustHeight}
-          onKeyDown={handleKeyDown}
-          aria-label="Legal research question"
-          className="max-h-[200px] min-h-[60px] flex-1 resize-none bg-transparent px-3 py-[19px] text-sm text-[#101828] placeholder-[#98a2b3] outline-none disabled:opacity-50"
-        />
-        <button
-          onClick={handleSubmit}
-          disabled={disabled || loading}
-          className="m-2.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#0b1729] text-white transition hover:bg-[#172941] disabled:cursor-not-allowed disabled:opacity-30"
-          title="Send"
-        >
-          {loading ? (
-            <Loader2 size={16} className="animate-spin" />
-          ) : (
-            <ArrowUp size={16} />
-          )}
-        </button>
-      </div>
-      <div className="mt-2 flex items-center justify-center gap-1.5 text-[11px] text-[#98a2b3]"><ShieldCheck size={12} /> Answers are limited to retrieved verified corpus evidence</div>
-    </div>
-  );
+  return <div className="composer-wrap"><div className="composer">
+    {documents.length > 0 && <div className="attachment-row">{documents.map((doc, index) => <span className="attachment-chip" key={doc.id}>{doc.media_type === "application/pdf" ? <FileText size={15}/> : <ImageIcon size={15}/>}<span title={doc.filename}>D{index + 1} · {doc.filename}</span><button disabled={busy} aria-label={`Remove ${doc.filename}`} onClick={() => setDocuments(current => current.filter(item => item.id !== doc.id))}><X size={14}/></button></span>)}</div>}
+    <div className="composer-input-row"><button className="icon-button" disabled={busy || recording || documents.length >= 3} aria-label="Attach a document or image" onClick={() => setPrivacy(current => !current)}><Paperclip size={19}/></button><textarea ref={input} value={value} maxLength={4000} onChange={event => setValue(event.target.value)} onKeyDown={event => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); send(); } }} disabled={busy} rows={1} placeholder={placeholder} aria-label="Legal research question"/><button className={`icon-button mic-button ${recording ? "is-recording" : ""}`} disabled={busy || !voiceSupported} title={voiceSupported ? "Dictate in English; review before sending" : "Voice input unavailable in this browser"} aria-label={recording ? "Stop recording" : "Start voice input"} aria-pressed={recording} onClick={() => { if (recording) recognition.current?.stop(); else setVoiceInfo(current => !current); }}>{recording ? <Square size={16}/> : <Mic size={19}/>}</button>{loading && onStop ? <button onClick={onStop} aria-label="Stop response" title="Stop response" className="send-button"><Square size={14} fill="currentColor"/></button> : <button onClick={send} disabled={busy || recording || (!value.trim() && !documents.length)} aria-label="Send question" className="send-button"><ArrowUp size={19}/></button>}</div>
+    <div className="composer-toolbar"><label className="mode-picker"><select aria-label="Response mode" value={documents.length ? "deep" : mode} disabled={busy || Boolean(documents.length)} onChange={event => onModeChange?.(event.target.value as RequestedResponseMode)}><option value="auto">Auto</option><option value="fast">Fast evidence</option><option value="deep">Deep review</option></select><ChevronDown size={13}/></label><span>{extracting ? "Extracting document text…" : recording ? "Recording · stop to review" : documents.length ? "Documents use Deep review" : "PDFs & images · voice where supported"}</span></div>
+    <input ref={fileInput} type="file" accept="application/pdf,image/png,image/jpeg,image/webp" className="sr-only" tabIndex={-1} aria-label="Choose document" onChange={async event => {
+      const file = event.target.files?.[0]; event.target.value = ""; if (!file) return;
+      if (file.size > 10 * 1024 * 1024) { setError("Choose a file smaller than 10 MiB."); return; }
+      setExtracting(true); setError("");
+      try { const document = await extractCitizenDocument(file); if (mounted.current) { setDocuments(current => [...current, document]); if (document.truncated) setError("Only the first 12,000 characters were extracted. Use a shorter document for complete review."); } }
+      catch (cause) { if (mounted.current) setError(cause instanceof Error ? cause.message : "Extraction failed. Try another file."); }
+      finally { if (mounted.current) setExtracting(false); }
+    }}/>
+  </div>
+  <AttachmentDialog open={privacy} onClose={() => setPrivacy(false)} onChoose={() => { setPrivacy(false); fileInput.current?.click(); }}/>
+  {voiceInfo && <section className="intake-disclosure" aria-label="Voice privacy"><p>Your browser’s speech-recognition service may send audio to its provider. English (India) is enabled; Hindi and regional-language recognition are not validated. Review and edit the transcript before sending. Corpus does not upload or store your audio.</p><button className="button-secondary" onClick={startVoice}>Allow voice input</button><button className="answer-text-action" onClick={() => setVoiceInfo(false)}>Cancel</button></section>}
+  {error && <p className="composer-status" role="status">{error}</p>}
+  </div>;
 }

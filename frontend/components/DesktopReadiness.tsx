@@ -59,7 +59,7 @@ function StatusDot({ ready }: { ready: boolean }) {
   return (
     <span
       className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
-        ready ? "bg-[#e9f8ef] text-[#16825d]" : "bg-[#fff4ed] text-[#b54708]"
+        ready ? "bg-[#e9f8ef] text-[#2e6b50]" : "bg-[#fff4ed] text-[#b54708]"
       }`}
     >
       {ready ? <Check size={14} strokeWidth={2.5} /> : <AlertTriangle size={14} />}
@@ -224,7 +224,7 @@ export default function DesktopReadiness() {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-5 right-5 z-[70] flex items-center gap-2 rounded-full border border-[#d0d5dd] bg-white px-3.5 py-2 text-xs font-semibold text-[#344054] shadow-[0_10px_30px_rgba(16,24,40,.14)] transition hover:-translate-y-0.5 hover:border-[#aab5c2]"
+          className="fixed bottom-5 right-5 z-[70] flex items-center gap-2 rounded-full border border-[#cbc4b9] bg-white px-3.5 py-2 text-xs font-semibold text-[#35413e] shadow-[0_10px_30px_rgba(16,24,40,.14)] transition hover:-translate-y-0.5 hover:border-[#aab5c2]"
           aria-label="Open desktop system readiness"
         >
           <span className={`h-2 w-2 rounded-full ${ready ? "bg-[#20a36b]" : "bg-[#e5822c]"}`} />
@@ -240,14 +240,14 @@ export default function DesktopReadiness() {
             aria-labelledby="desktop-readiness-title"
             className="relative w-full max-w-[940px] overflow-hidden rounded-[26px] border border-white/15 bg-[#f7f9fb] shadow-[0_32px_100px_rgba(3,12,25,.45)]"
           >
-            <div className="relative overflow-hidden bg-[#0b1729] px-6 py-6 text-white md:px-8 md:py-7">
+            <div className="relative overflow-hidden bg-[#10201d] px-6 py-6 text-white md:px-8 md:py-7">
               <div className="absolute inset-0 opacity-40 [background-image:radial-gradient(circle_at_85%_10%,rgba(80,190,198,.35),transparent_28%)]" />
               <div className="relative flex items-start justify-between gap-5">
                 <div className="flex items-start gap-4">
                   <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/10 text-[#8ed4d9]"><Laptop size={23} /></span>
                   <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-[.2em] text-[#8ed4d9]">{remoteMode ? "Private shared deployment" : "Private desktop runtime"}</p>
-                    <h2 id="desktop-readiness-title" className="mt-1.5 text-2xl font-semibold tracking-[-.03em]">{remoteMode ? "Connect to your Aegis server" : "Prepare your local AI workspace"}</h2>
+                    <p className="text-[10px] font-semibold text-[#8ed4d9]">{remoteMode ? "Private shared deployment" : "Private desktop runtime"}</p>
+                    <h2 id="desktop-readiness-title" className="mt-1.5 text-2xl font-semibold tracking-[-.03em]">{remoteMode ? "Connect to your Corpusil server" : "Prepare your local AI workspace"}</h2>
                     <p className="mt-2 max-w-2xl text-xs leading-5 text-slate-400">{remoteMode ? "This desktop is a secure client. Retrieval, storage and Ollama run on the private server selected below—your friends do not need Docker, Ollama or models on their own devices." : "In local-host mode, this Mac runs the backend, retrieves verified sources and uses its installed Ollama model for grounded generation."}</p>
                   </div>
                 </div>
@@ -258,8 +258,8 @@ export default function DesktopReadiness() {
             <div className="p-5 md:p-7">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="text-sm font-semibold text-[#1d2939]">System readiness</p>
-                  <p className="mt-1 text-xs text-[#667085]">{loading ? `Checking ${remoteMode ? "private server" : "local services"}…` : remoteMode ? `${healthyCount}/1 required remote service available` : readiness ? `${healthyCount}/3 local runtime services detected` : "Waiting for system information"}</p>
+                  <p className="text-sm font-semibold text-[#263831]">System readiness</p>
+                  <p className="mt-1 text-xs text-[#65716e]">{loading ? `Checking ${remoteMode ? "private server" : "local services"}…` : remoteMode ? `${healthyCount}/1 required remote service available` : readiness ? `${healthyCount}/3 local runtime services detected` : "Waiting for system information"}</p>
                 </div>
                 <button onClick={() => void refresh()} disabled={loading || pulling} className="button-secondary h-10 text-xs">
                   <RefreshCw size={14} className={loading ? "animate-spin" : ""} />Check again
@@ -269,56 +269,56 @@ export default function DesktopReadiness() {
               {error && <div role="alert" className="mt-4 flex items-start gap-2 rounded-xl border border-[#fecdca] bg-[#fef3f2] px-4 py-3 text-xs leading-5 text-[#b42318]"><AlertTriangle size={15} className="mt-0.5 shrink-0" /><span>{error}</span></div>}
 
               {!remoteMode && <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <div className="rounded-2xl border border-[#e4e7ec] bg-white p-4"><div className="flex items-center justify-between"><Cpu size={17} className="text-[#167184]" /><span className="text-[9px] font-semibold uppercase tracking-wider text-[#98a2b3]">Device</span></div><p className="mt-4 text-sm font-semibold capitalize text-[#344054]">{readiness?.platform ?? "Detecting…"}</p><p className="mt-1 text-xs text-[#98a2b3]">{readiness?.arch ?? "Architecture"}</p></div>
-                <div className="rounded-2xl border border-[#e4e7ec] bg-white p-4"><div className="flex items-center justify-between"><MemoryStick size={17} className="text-[#76512f]" /><span className="text-[9px] font-semibold uppercase tracking-wider text-[#98a2b3]">Memory</span></div><p className="mt-4 text-sm font-semibold text-[#344054]">{formatBytes(readiness?.total_memory_bytes ?? 0)}</p><p className="mt-1 text-xs text-[#98a2b3]">Total system RAM</p></div>
-                <div className="rounded-2xl border border-[#e4e7ec] bg-white p-4"><div className="flex items-center justify-between"><HardDrive size={17} className="text-[#6554a3]" /><span className="text-[9px] font-semibold uppercase tracking-wider text-[#98a2b3]">Storage</span></div><p className="mt-4 text-sm font-semibold text-[#344054]">{formatBytes(readiness?.available_disk_bytes ?? 0)}</p><p className="mt-1 text-xs text-[#98a2b3]">Available for models</p></div>
-                <div className="rounded-2xl border border-[#e4e7ec] bg-white p-4"><div className="flex items-center justify-between"><Database size={17} className="text-[#245b9e]" /><span className="text-[9px] font-semibold uppercase tracking-wider text-[#98a2b3]">Models</span></div><p className="mt-4 text-sm font-semibold text-[#344054]">{models.length || "None"}</p><p className="mt-1 truncate text-xs text-[#98a2b3]" title={models.join(", ")}>{models[0] ?? "Install one below"}</p></div>
+                <div className="rounded-2xl border border-[#ded7cc] bg-white p-4"><div className="flex items-center justify-between"><Cpu size={17} className="text-[#785130]" /><span className="text-[9px] font-semibold text-[#75817b]">Device</span></div><p className="mt-4 text-sm font-semibold capitalize text-[#35413e]">{readiness?.platform ?? "Detecting…"}</p><p className="mt-1 text-xs text-[#75817b]">{readiness?.arch ?? "Architecture"}</p></div>
+                <div className="rounded-2xl border border-[#ded7cc] bg-white p-4"><div className="flex items-center justify-between"><MemoryStick size={17} className="text-[#76512f]" /><span className="text-[9px] font-semibold text-[#75817b]">Memory</span></div><p className="mt-4 text-sm font-semibold text-[#35413e]">{formatBytes(readiness?.total_memory_bytes ?? 0)}</p><p className="mt-1 text-xs text-[#75817b]">Total system RAM</p></div>
+                <div className="rounded-2xl border border-[#ded7cc] bg-white p-4"><div className="flex items-center justify-between"><HardDrive size={17} className="text-[#785130]" /><span className="text-[9px] font-semibold text-[#75817b]">Storage</span></div><p className="mt-4 text-sm font-semibold text-[#35413e]">{formatBytes(readiness?.available_disk_bytes ?? 0)}</p><p className="mt-1 text-xs text-[#75817b]">Available for models</p></div>
+                <div className="rounded-2xl border border-[#ded7cc] bg-white p-4"><div className="flex items-center justify-between"><Database size={17} className="text-[#285047]" /><span className="text-[9px] font-semibold text-[#75817b]">Models</span></div><p className="mt-4 text-sm font-semibold text-[#35413e]">{models.length || "None"}</p><p className="mt-1 truncate text-xs text-[#75817b]" title={models.join(", ")}>{models[0] ?? "Install one below"}</p></div>
               </div>}
 
               <div className={`mt-5 grid gap-3 ${remoteMode ? "lg:grid-cols-[1.2fr_.8fr]" : "lg:grid-cols-3"}`}>
                 {!remoteMode && <>
-                <div className="rounded-2xl border border-[#e4e7ec] bg-white p-4">
-                  <div className="flex items-start gap-3"><StatusDot ready={Boolean(readiness?.ollama_reachable)} /><div className="min-w-0"><p className="text-sm font-semibold text-[#344054]">Ollama model runtime</p><p className="mt-1 text-xs text-[#667085]">{readiness?.ollama_reachable ? `Connected${readiness.ollama_version ? ` · ${readiness.ollama_version}` : ""}` : "Required for private local generation"}</p></div></div>
-                  {!readiness?.ollama_reachable && <button onClick={openOllamaDownload} className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-[#167184]">Download Ollama <ExternalLink size={12} /></button>}
+                <div className="rounded-2xl border border-[#ded7cc] bg-white p-4">
+                  <div className="flex items-start gap-3"><StatusDot ready={Boolean(readiness?.ollama_reachable)} /><div className="min-w-0"><p className="text-sm font-semibold text-[#35413e]">Ollama model runtime</p><p className="mt-1 text-xs text-[#65716e]">{readiness?.ollama_reachable ? `Connected${readiness.ollama_version ? ` / ${readiness.ollama_version}` : ""}` : "Required for private local generation"}</p></div></div>
+                  {!readiness?.ollama_reachable && <button onClick={openOllamaDownload} className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-[#785130]">Download Ollama <ExternalLink size={12} /></button>}
                 </div>
-                <div className="rounded-2xl border border-[#e4e7ec] bg-white p-4">
-                  <div className="flex items-start gap-3"><StatusDot ready={Boolean(readiness?.docker_reachable)} /><div><p className="text-sm font-semibold text-[#344054]">Docker engine</p><p className="mt-1 text-xs text-[#667085]">{readiness?.docker_reachable ? "Available for the Aegis service stack" : "Open Docker Desktop before starting services"}</p></div></div>
+                <div className="rounded-2xl border border-[#ded7cc] bg-white p-4">
+                  <div className="flex items-start gap-3"><StatusDot ready={Boolean(readiness?.docker_reachable)} /><div><p className="text-sm font-semibold text-[#35413e]">Docker engine</p><p className="mt-1 text-xs text-[#65716e]">{readiness?.docker_reachable ? "Available for the Corpusil service stack" : "Open Docker Desktop before starting services"}</p></div></div>
                 </div>
                 </>}
-                <div className="rounded-2xl border border-[#e4e7ec] bg-white p-4">
-                  <div className="flex items-start gap-3"><StatusDot ready={Boolean(backendProbe?.reachable)} /><div className="min-w-0 flex-1"><p className="text-sm font-semibold text-[#344054]">Aegis backend</p><p className="mt-1 text-xs text-[#667085]">{backendProbe?.reachable ? `Connected · ${backendProbe.latencyMs ?? 0} ms` : "Connect this app to a local or private backend"}</p><p className="mt-1 truncate text-[10px] text-[#98a2b3]" title={backendUrl}>{backendUrl}</p></div></div>
-                  <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2"><button onClick={() => { setBackendDraft(backendUrl); setConnectionEditorOpen((current) => !current); }} className="flex items-center gap-1.5 text-xs font-semibold text-[#167184]"><Globe2 size={12} />{connectionEditorOpen ? "Close settings" : "Switch backend"}</button>{!backendProbe?.reachable && backendUrl === DEFAULT_BACKEND_URL && <button onClick={copyStartCommand} className="flex items-center gap-1.5 text-xs font-semibold text-[#167184]">{copied ? <Check size={12} /> : <Clipboard size={12} />}{copied ? "Command copied" : "Copy start command"}</button>}</div>
+                <div className="rounded-2xl border border-[#ded7cc] bg-white p-4">
+                  <div className="flex items-start gap-3"><StatusDot ready={Boolean(backendProbe?.reachable)} /><div className="min-w-0 flex-1"><p className="text-sm font-semibold text-[#35413e]">Corpusil backend</p><p className="mt-1 text-xs text-[#65716e]">{backendProbe?.reachable ? `Connected / ${backendProbe.latencyMs ?? 0} ms` : "Connect this app to a local or private backend"}</p><p className="mt-1 truncate text-[10px] text-[#75817b]" title={backendUrl}>{backendUrl}</p></div></div>
+                  <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2"><button onClick={() => { setBackendDraft(backendUrl); setConnectionEditorOpen((current) => !current); }} className="flex items-center gap-1.5 text-xs font-semibold text-[#785130]"><Globe2 size={12} />{connectionEditorOpen ? "Close settings" : "Switch backend"}</button>{!backendProbe?.reachable && backendUrl === DEFAULT_BACKEND_URL && <button onClick={copyStartCommand} className="flex items-center gap-1.5 text-xs font-semibold text-[#785130]">{copied ? <Check size={12} /> : <Clipboard size={12} />}{copied ? "Command copied" : "Copy start command"}</button>}</div>
                 </div>
-                {remoteMode && <div className="rounded-2xl border border-[#d7e2ef] bg-[#f3f7fc] p-4"><div className="flex items-start gap-3"><span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-[#245b9e]"><Server size={14} /></span><div><p className="text-sm font-semibold text-[#2d4f78]">Host-managed AI services</p><p className="mt-1 text-xs leading-5 text-[#617892]">Docker, Ollama, legal models, Qdrant and storage are checked and maintained on the shared host. They are optional on this client device.</p></div></div></div>}
+                {remoteMode && <div className="rounded-2xl border border-[#d7e2ef] bg-[#f3f7fc] p-4"><div className="flex items-start gap-3"><span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-[#285047]"><Server size={14} /></span><div><p className="text-sm font-semibold text-[#2d4f78]">Host-managed AI services</p><p className="mt-1 text-xs leading-5 text-[#617892]">Docker, Ollama, legal models, Qdrant and storage are checked and maintained on the shared host. They are optional on this client device.</p></div></div></div>}
               </div>
 
               {connectionEditorOpen && (
                 <div className="mt-5 rounded-2xl border border-[#cdd8e5] bg-white p-5 shadow-[0_8px_24px_rgba(16,24,40,.04)]">
-                  <div className="flex items-start justify-between gap-4"><div><p className="flex items-center gap-2 text-sm font-semibold text-[#1d2939]"><Globe2 size={16} className="text-[#167184]" />Private backend connection</p><p className="mt-1.5 max-w-2xl text-xs leading-5 text-[#667085]">Use localhost on the backend machine or enter its private HTTPS address on another device. Only the server address is stored; passwords and tokens remain in secure HTTP-only cookies.</p></div><span className="shrink-0 rounded-full bg-[#eef6f7] px-2.5 py-1 text-[9px] font-semibold uppercase tracking-wider text-[#167184]">Runtime setting</span></div>
-                  <label className="mt-4 block text-xs font-medium text-[#344054]">Backend base URL<input value={backendDraft} onChange={(event) => { setBackendDraft(event.target.value); setTestedBackendUrl(null); }} placeholder="https://aegis-device.example.ts.net" spellCheck={false} className="field mt-2 h-11 font-mono text-xs" /></label>
-                  <div className="mt-3 flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><p className="text-[10px] leading-4 text-[#98a2b3]">Remote addresses require HTTPS and must expose a healthy <code>/health</code> endpoint to this device.</p><div className="flex shrink-0 flex-wrap gap-2"><button onClick={testBackend} disabled={connectionTesting} className="button-secondary h-10 text-xs">{connectionTesting ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}Test connection</button><button onClick={saveBackend} disabled={!backendProbe?.reachable || testedBackendUrl !== normalizedBackendDraft} className="button-primary h-10 text-xs"><Check size={14} />Save & reconnect</button></div></div>
+                  <div className="flex items-start justify-between gap-4"><div><p className="flex items-center gap-2 text-sm font-semibold text-[#263831]"><Globe2 size={16} className="text-[#785130]" />Private backend connection</p><p className="mt-1.5 max-w-2xl text-xs leading-5 text-[#65716e]">Use localhost on the backend machine or enter its private HTTPS address on another device. Only the server address is stored; passwords and tokens remain in secure HTTP-only cookies.</p></div><span className="shrink-0 rounded-full bg-[#f1e7dc] px-2.5 py-1 text-[9px] font-semibold text-[#785130]">Runtime setting</span></div>
+                  <label className="mt-4 block text-xs font-medium text-[#35413e]">Backend base URL<input value={backendDraft} onChange={(event) => { setBackendDraft(event.target.value); setTestedBackendUrl(null); }} placeholder="https://aegis-device.example.ts.net" spellCheck={false} className="field mt-2 h-11 font-mono text-xs" /></label>
+                  <div className="mt-3 flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><p className="text-[10px] leading-4 text-[#75817b]">Remote addresses require HTTPS and must expose a healthy <code>/health</code> endpoint to this device.</p><div className="flex shrink-0 flex-wrap gap-2"><button onClick={testBackend} disabled={connectionTesting} className="button-secondary h-10 text-xs">{connectionTesting ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}Test connection</button><button onClick={saveBackend} disabled={!backendProbe?.reachable || testedBackendUrl !== normalizedBackendDraft} className="button-primary h-10 text-xs"><Check size={14} />Save & reconnect</button></div></div>
                   {backendProbe?.reachable && testedBackendUrl === normalizedBackendDraft && <div role="status" className="mt-3 flex items-center gap-2 rounded-xl border border-[#d7eadf] bg-[#f3faf6] px-3 py-2.5 text-xs text-[#276749]"><CheckCircle2 size={14} />Health check passed in {backendProbe.latencyMs} ms. Save to reconnect authentication and API calls.</div>}
-                  {hasRuntimeBackendOverride() && <button onClick={resetBackend} className="mt-4 text-[11px] font-semibold text-[#667085] underline decoration-[#cbd2da] underline-offset-4 hover:text-[#344054]">Reset to {DEFAULT_BACKEND_URL}</button>}
+                  {hasRuntimeBackendOverride() && <button onClick={resetBackend} className="mt-4 text-[11px] font-semibold text-[#65716e] underline decoration-[#cbd2da] underline-offset-4 hover:text-[#35413e]">Reset to {DEFAULT_BACKEND_URL}</button>}
                 </div>
               )}
 
               {!remoteMode && readiness?.ollama_reachable && (models.length === 0 || modelInstallerOpen) && (
                 <div className="mt-5 rounded-2xl border border-[#c9dfe2] bg-[#f2fafb] p-5">
-                  <div className="flex items-start gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-[#167184] shadow-sm"><Download size={17} /></span><div className="min-w-0 flex-1"><div className="flex items-start justify-between gap-3"><div><p className="text-sm font-semibold text-[#244b53]">Install a local legal reasoning model</p><p className="mt-1 text-xs leading-5 text-[#53747a]">The recommended model matches this project’s default backend profile. Download time depends on your connection and the model may require substantial disk space.</p></div>{models.length > 0 && <button onClick={() => setModelInstallerOpen(false)} aria-label="Close model installer" className="rounded-lg p-1.5 text-[#789197] hover:bg-white"><X size={14} /></button>}</div></div></div>
+                  <div className="flex items-start gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-[#785130] shadow-sm"><Download size={17} /></span><div className="min-w-0 flex-1"><div className="flex items-start justify-between gap-3"><div><p className="text-sm font-semibold text-[#244b53]">Install a local legal reasoning model</p><p className="mt-1 text-xs leading-5 text-[#53747a]">The recommended model matches this project’s default backend profile. Download time depends on your connection and the model may require substantial disk space.</p></div>{models.length > 0 && <button onClick={() => setModelInstallerOpen(false)} aria-label="Close model installer" className="rounded-lg p-1.5 text-[#789197] hover:bg-white"><X size={14} /></button>}</div></div></div>
                   <div className="mt-4 flex flex-col gap-2 sm:flex-row"><input value={model} onChange={(event) => setModel(event.target.value)} disabled={pulling} aria-label="Ollama model name" className="field h-10 flex-1 bg-white" /><button onClick={pullModel} disabled={pulling || !model.trim()} className="button-primary h-10 whitespace-nowrap text-xs">{pulling ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}{pulling ? "Downloading model…" : "Install model"}</button></div>
                 </div>
               )}
 
               {!remoteMode && models.length > 0 && (
                 <div className="mt-5 rounded-2xl border border-[#d7eadf] bg-[#f3faf6] p-4">
-                  <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start"><div className="flex min-w-0 items-start gap-3"><CheckCircle2 size={18} className="mt-0.5 shrink-0 text-[#16825d]" /><div className="min-w-0"><p className="text-sm font-semibold text-[#245a42]">Local model available</p><div className="mt-2 flex flex-wrap gap-2">{models.map((item) => <span key={item} className="rounded-full border border-[#cde5d7] bg-white px-2.5 py-1 text-[10px] font-medium text-[#35664f]">{item}</span>)}</div></div></div>{!modelInstallerOpen && <button onClick={() => setModelInstallerOpen(true)} className="shrink-0 text-xs font-semibold text-[#167184]">Install another model</button>}</div>
+                  <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start"><div className="flex min-w-0 items-start gap-3"><CheckCircle2 size={18} className="mt-0.5 shrink-0 text-[#2e6b50]" /><div className="min-w-0"><p className="text-sm font-semibold text-[#245a42]">Local model available</p><div className="mt-2 flex flex-wrap gap-2">{models.map((item) => <span key={item} className="rounded-full border border-[#cde5d7] bg-white px-2.5 py-1 text-[10px] font-medium text-[#35664f]">{item}</span>)}</div></div></div>{!modelInstallerOpen && <button onClick={() => setModelInstallerOpen(true)} className="shrink-0 text-xs font-semibold text-[#785130]">Install another model</button>}</div>
                 </div>
               )}
 
-              <div className="mt-6 flex flex-col-reverse items-stretch justify-between gap-3 border-t border-[#e4e7ec] pt-5 sm:flex-row sm:items-center">
-                <p className="flex items-center gap-2 text-[11px] text-[#667085]"><CircleDot size={12} className="text-[#20a36b]" />{remoteMode ? "Prompts and evidence go only to the selected private Aegis server, not a public AI provider." : "Prompts and evidence stay in this local Aegis deployment; no public AI provider is used."}</p>
+              <div className="mt-6 flex flex-col-reverse items-stretch justify-between gap-3 border-t border-[#ded7cc] pt-5 sm:flex-row sm:items-center">
+                <p className="flex items-center gap-2 text-[11px] text-[#65716e]"><CircleDot size={12} className="text-[#20a36b]" />{remoteMode ? "Prompts and evidence go only to the selected private Corpusil server, not a public AI provider." : "Prompts and evidence stay in this local Corpusil deployment; no public AI provider is used."}</p>
                 <button onClick={dismiss} disabled={!ready} className="button-primary h-11 px-5 disabled:opacity-50">
-                  {ready ? <><Sparkles size={15} />Enter Aegis<ChevronRight size={14} /></> : <><Server size={15} />Complete required setup</>}
+                  {ready ? <><Sparkles size={15} />Enter Corpusil<ChevronRight size={14} /></> : <><Server size={15} />Complete required setup</>}
                 </button>
               </div>
             </div>

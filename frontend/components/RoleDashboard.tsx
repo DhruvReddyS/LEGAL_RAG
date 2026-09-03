@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  ArrowRight, BadgeCheck, BookOpenCheck, Bot, BriefcaseBusiness, CheckCircle2,
+  ArrowRight, BadgeCheck, BookOpenCheck, Bot, BriefcaseBusiness, CheckCircle2, Database,
   ClipboardCheck, FileSearch, Fingerprint, Gauge, Landmark, LockKeyhole,
   Scale, Search, ShieldCheck, Sparkles, UploadCloud, UsersRound,
 } from "lucide-react";
@@ -23,8 +23,8 @@ const ROLE_DASHBOARD = {
     eyebrow: "Citizen legal access",
     title: "Understand your rights. Know your next step.",
     description: "A guided legal information workspace that translates verified authority into understandable procedures without pretending to replace a lawyer.",
-    accent: "#1f7a7f",
-    tint: "#e9f7f5",
+    accent: "#285047",
+    tint: "#f1e7dc",
     icon: UsersRound,
     agents: [
       { name: "Procedure Navigator", detail: "Turns a legal issue into a clear sequence of practical steps.", icon: ClipboardCheck, query: "Explain how to report a cognizable offence and what information I should preserve." },
@@ -37,8 +37,8 @@ const ROLE_DASHBOARD = {
     eyebrow: "Police intelligence console",
     title: "Procedure-led investigation. Evidence you can defend.",
     description: "A controlled operational workspace for lawful investigation, evidence integrity, scoped case search and fact-faithful FIR review drafts.",
-    accent: "#245b9e",
-    tint: "#edf4ff",
+    accent: "#285047",
+    tint: "#edf1ed",
     icon: Fingerprint,
     agents: [
       { name: "FIR Review Agent", detail: "Preserves uncertainty, flags missing fields and grounds provisions.", icon: ClipboardCheck, workspace: true },
@@ -95,47 +95,29 @@ export default function RoleDashboard({ user, progress, onNavigate, onResearch }
     else if ("query" in agent && agent.query) onResearch(agent.query);
   };
 
-  return (
-    <section className="mx-auto max-w-[1480px] px-5 py-7 md:px-8 md:py-9">
-      <div className="mb-7 flex flex-col justify-between gap-3 md:flex-row md:items-end">
-        <div><p className="text-xs font-medium text-[#667085]">{dateLabel}</p><h2 className="mt-1 text-2xl font-semibold tracking-[-0.03em] md:text-[30px]">Welcome back, {firstName}</h2></div>
-        <div className="flex items-center gap-2 text-xs text-[#667085]"><span className="h-2 w-2 rounded-full bg-[#20a36b] shadow-[0_0_0_4px_rgba(32,163,107,.1)]" />All intelligence services operational</div>
+  const workflow = <ol className="workflow-rail">{profile.workflow.map((step, index) => <li key={step}><span>{String(index + 1).padStart(2, "0")}</span><div><p>{step}</p><small>{index === profile.workflow.length - 1 ? "Professional judgement remains essential" : "A guided step in your workflow"}</small></div></li>)}</ol>;
+  const capabilities = <div className={user.role === "citizen" ? "citizen-capabilities" : "capability-list"}>{profile.agents.map(agent => <button key={agent.name} onClick={() => launchAgent(agent)} className="premium-card"><agent.icon size={21} /><div><h3>{agent.name.replace(" Agent", "")}</h3><p>{agent.detail}</p></div></button>)}</div>;
+  const matterList = <div className="panel overflow-hidden"><div className="flex justify-between border-b border-[#ded7cc] p-5"><h3 className="font-semibold">{user.role === "police" ? "Investigation register" : "Client matter folio"}</h3><span className="text-xs text-[#65716e]">{cases.length} matter{cases.length === 1 ? "" : "s"}</span></div>{cases.length ? cases.slice(0, 4).map(item => <button key={item.id} onClick={() => onNavigate("workspace")} className="flex w-full items-center justify-between gap-3 border-b border-[#eee7dc] p-5 text-left transition hover:bg-[#faf3eb]"><span className="min-w-0 truncate text-sm">{item.title}</span><span className="text-xs capitalize text-[#785130]">{item.status}</span></button>) : <div className="p-7"><p className="display-type text-xl">A clear record starts here.</p><p className="mt-2 text-sm leading-6 text-[#65716e]">Open a matter to organise documents, evidence and your working analysis.</p></div>}<button className="button-secondary m-5" onClick={() => onNavigate("workspace")}>Open {user.role === "police" ? "case operations" : "matter workspace"}</button></div>;
+  return <section className={"role-home role-home-" + user.role}>
+    <div className="mb-8 flex flex-wrap items-center justify-between gap-2 border-b border-[#ded7cc] pb-4 text-xs text-[#65716e]"><p>{dateLabel}</p><p>Welcome, {firstName}</p></div>
+    {user.role === "citizen" ? <>
+      <div className="citizen-intro">
+        <div><p className="eyebrow">Your legal starting point</p><h1>Understand your rights.<br /><em>Know your next step.</em></h1><p className="intro-copy">You do not need to speak the language of law to understand where you stand. Start with a question. We will help you find the authority behind the answer.</p><button onClick={() => onNavigate("research")} className="button-primary mt-7"><Search size={17} />Ask a legal question</button><p className="mt-4 text-xs text-[#65716e]">Plain language. Traceable sources. Clear limitations.</p></div>
+        <aside className="citizen-note"><BookOpenCheck size={28} /><p className="display-type mt-6 text-3xl leading-tight">An answer is only as useful as the evidence behind it.</p><p className="mt-5 text-sm leading-7">Open the cited passage, see the source, and understand what an answer does—and does not—establish.</p><div className="mt-8 border-t border-[#cdbb9e] pt-5"><span className="display-type text-3xl">{progress?.canonical_documents?.toLocaleString() ?? "—"}</span><p className="mt-1 text-xs">Canonical authorities in the corpus</p></div></aside>
       </div>
-
-      <div className="relative overflow-hidden rounded-[26px] bg-[#0a1729] px-6 py-7 text-white shadow-[0_20px_50px_rgba(11,23,41,.18)] md:px-9 md:py-9">
-        <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_82%_18%,rgba(90,198,204,.35),transparent_24%),linear-gradient(120deg,transparent_45%,rgba(255,255,255,.04))]" />
-        <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(280px,.65fr)] lg:items-end">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.06] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[.18em] text-[#9ddbe0]"><profile.icon size={13} />{profile.eyebrow}</div>
-            <h1 className="mt-5 max-w-4xl text-3xl font-semibold leading-[1.08] tracking-[-.04em] md:text-[44px]">{profile.title}</h1>
-            <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-300">{profile.description}</p>
-            <div className="mt-7 flex flex-wrap gap-3"><button onClick={() => onNavigate("research")} className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-[#0b1729] transition hover:bg-[#edf5f6]"><Sparkles size={16} />Start intelligent research</button>{(professional || user.role === "admin") && <button onClick={() => onNavigate("workspace")} className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/[.06] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"><BriefcaseBusiness size={16} />{user.role === "admin" ? "Open administration" : "Open case operations"}</button>}</div>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-2xl border border-white/10 bg-white/[.055] p-4 backdrop-blur"><p className="text-2xl font-semibold">{progress?.canonical_documents?.toLocaleString() ?? "—"}</p><p className="mt-1 text-[11px] text-slate-400">Canonical authorities</p></div>
-            <div className="rounded-2xl border border-white/10 bg-white/[.055] p-4 backdrop-blur"><p className="text-2xl font-semibold">{progress?.global_points ? `${(progress.global_points / 1000).toFixed(1)}K` : progress?.qdrant_points ? `${(progress.qdrant_points / 1000).toFixed(1)}K` : "—"}</p><p className="mt-1 text-[11px] text-slate-400">Searchable passages</p></div>
-            <div className="rounded-2xl border border-white/10 bg-white/[.055] p-4 backdrop-blur"><p className="text-2xl font-semibold">&lt;5s</p><p className="mt-1 text-[11px] text-slate-400">Fast research target</p></div>
-            <div className="rounded-2xl border border-white/10 bg-white/[.055] p-4 backdrop-blur"><p className="text-2xl font-semibold">{professional ? cases.filter((item) => item.status === "open").length : "Gold"}</p><p className="mt-1 text-[11px] text-slate-400">{professional ? "Open private matters" : "Evidence quality"}</p></div>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-7 grid gap-6 xl:grid-cols-[minmax(0,1.5fr)_minmax(290px,.5fr)]">
-        <div>
-          <div className="mb-4 flex items-end justify-between"><div><p className="eyebrow">Your specialist agents</p><h3 className="mt-1.5 text-xl font-semibold tracking-tight">Purpose-built for {user.role === "citizen" ? "everyday legal needs" : `${user.role} work`}</h3></div><span className="hidden text-xs text-[#98a2b3] sm:block">Grounded · isolated · auditable</span></div>
-          <div className="grid gap-4 md:grid-cols-2">
-            {profile.agents.map((agent, index) => <button key={agent.name} onClick={() => launchAgent(agent)} className="group relative overflow-hidden rounded-2xl border border-[#e4e7ec] bg-white p-5 text-left shadow-[0_1px_2px_rgba(16,24,40,.03)] transition hover:-translate-y-0.5 hover:border-[#b8c9cf] hover:shadow-[0_12px_30px_rgba(16,24,40,.08)]"><div className="flex items-start justify-between"><div className="flex h-11 w-11 items-center justify-center rounded-xl" style={{ background: profile.tint, color: profile.accent }}><agent.icon size={20} /></div><span className="rounded-full bg-[#f6f8fa] px-2 py-1 text-[9px] font-semibold uppercase tracking-[.13em] text-[#667085]">Agent {String(index + 1).padStart(2, "0")}</span></div><h4 className="mt-5 text-sm font-semibold text-[#1d2939]">{agent.name}</h4><p className="mt-2 min-h-10 text-xs leading-5 text-[#667085]">{agent.detail}</p><div className="mt-5 flex items-center gap-1.5 text-xs font-semibold" style={{ color: profile.accent }}>Open capability <ArrowRight size={13} className="transition group-hover:translate-x-1" /></div></button>)}
-          </div>
-        </div>
-
-        <div className="space-y-5">
-          <div className="panel overflow-hidden">
-            <div className="border-b border-[#eaecf0] px-5 py-4"><p className="text-sm font-semibold">Recommended workflow</p></div>
-            <div className="p-5">{profile.workflow.map((step, index) => <div key={step} className="flex gap-3 pb-5 last:pb-0"><div className="flex flex-col items-center"><span className="flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-semibold" style={{ background: profile.tint, color: profile.accent }}>{index + 1}</span>{index < profile.workflow.length - 1 && <span className="mt-1 h-full w-px bg-[#e4e7ec]" />}</div><div className="pt-1"><p className="text-xs font-medium text-[#344054]">{step}</p><p className="mt-1 text-[10px] text-[#98a2b3]">{index === profile.workflow.length - 1 ? "Human review required" : "Evidence trail preserved"}</p></div></div>)}</div>
-          </div>
-          <div className="rounded-2xl border border-[#dce8e2] bg-[#f5fbf7] p-5"><div className="flex items-start gap-3"><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-[#16825d] shadow-sm"><LockKeyhole size={17} /></div><div><p className="text-sm font-semibold text-[#1d4936]">Privacy boundary active</p><p className="mt-1.5 text-xs leading-5 text-[#4e7161]">{professional ? "Private evidence is restricted to owned matters and your professional role collection." : user.role === "admin" ? "Administrative mutations require explicit permissions and every account or corpus operation is audit logged." : "Citizen research is restricted to the verified global legal corpus."}</p></div></div></div>
-        </div>
-      </div>
-    </section>
-  );
+      <h2 className="mb-5 mt-12 text-2xl">A little direction, when you need it.</h2>{capabilities}
+      <p className="mt-7 flex items-start gap-2 text-xs leading-5 text-[#65716e]"><ShieldCheck size={16} className="shrink-0" />Corpusil provides legal information. Important decisions should be reviewed with a qualified professional.</p>
+    </> : user.role === "police" ? <>
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-5"><div><p className="eyebrow">Police operations desk</p><h1 className="mt-3 text-4xl leading-tight">Procedure first.<br />A defensible record follows.</h1></div><button className="button-primary" onClick={() => onNavigate("workspace")}><ClipboardCheck size={17} />Open investigation</button></div>
+      <div className="police-desk"><aside className="operational-rail"><p className="mb-6 text-sm font-semibold">Investigation workflow</p>{workflow}<p className="mt-6 border-t border-white/15 pt-5 text-xs leading-6 text-[#d1ad77]">Private evidence is restricted to your authorised role and matter.</p></aside><div className="min-w-0 space-y-6">{matterList}<div><h2 className="mb-4 text-2xl">Procedure & evidence tools</h2>{capabilities}</div></div></div>
+    </> : user.role === "advocate" ? <>
+      <div className="advocate-heading"><p className="eyebrow">Counsel’s working desk</p><h1>Build the argument.<br /><em>Test every assumption.</em></h1><p className="intro-copy">A considered position starts with both sides: governing authority, disputed evidence and the strongest opposing case.</p></div>
+      <div className="advocate-desk"><div className="drafting-feature"><Scale size={27} className="text-[#d1ad77]" /><h2 className="mt-6 text-3xl">The strategy brief</h2><p className="mt-4 max-w-md text-sm leading-7 text-white/70">Bring allegations, facts and procedural history together. Develop a two-sided analysis before committing to a legal position.</p><div className="my-7 grid grid-cols-2 gap-5 border-y border-white/15 py-5 text-sm"><p>Supporting position<span className="mt-2 block text-xs text-white/50">Evidence & governing authority</span></p><p>Opposing position<span className="mt-2 block text-xs text-white/50">Challenges & distinctions</span></p></div><button onClick={() => onNavigate("workspace")} className="button-secondary"><Scale size={16} />Prepare a strategy brief</button></div>{matterList}</div>
+      <h2 className="mb-4 mt-9 text-2xl">At the authority desk</h2>{capabilities}
+    </> : <>
+      <div className="mb-7 flex flex-wrap items-end justify-between gap-5"><div><p className="eyebrow">Corpus governance</p><h1 className="mt-3 text-4xl">Trust is an operational discipline.</h1><p className="intro-copy">Manage professional access, source quality and the publication trail.</p></div><button className="button-primary" onClick={() => onNavigate("workspace")}><Gauge size={16} />Open administration</button></div>
+      <div className="admin-register"><div><Database size={22} /><strong>{progress?.canonical_documents?.toLocaleString() ?? "—"}</strong><span>Canonical sources</span></div><div><BookOpenCheck size={22} /><strong>{(progress?.global_points ?? progress?.qdrant_points)?.toLocaleString() ?? "—"}</strong><span>Indexed passages</span></div><div><ShieldCheck size={22} /><strong>{progress ? "Connected" : "Unavailable"}</strong><span>Corpus status endpoint</span></div></div>
+      <div className="mt-8 grid gap-7 lg:grid-cols-[1.4fr_1fr]"><div><h2 className="mb-5 text-2xl">Management & inspection</h2>{capabilities}<div className="mt-6 border-l-2 border-[#a57843] py-2 pl-5 text-sm leading-7 text-[#65716e]">Gold sources remain immutable. Extended sources move through staging, validation and publication. Review the queue and audit trail in administration.</div></div><div className="panel p-6"><h2 className="mb-6 text-2xl">Governance sequence</h2>{workflow}</div></div>
+    </>}
+  </section>;
 }

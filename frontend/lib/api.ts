@@ -20,6 +20,7 @@ import type {
   CaseDocumentListResponse,
   DocumentAnalysisResponse,
   SourceInspectorResponse,
+  DeepReviewJob,
 } from "./types";
 import { DEFAULT_BACKEND_URL, getRuntimeBackendUrl } from "./runtime-backend";
 
@@ -151,6 +152,12 @@ export async function getMe(): Promise<User> {
   return request<User>("/auth/me", {}, false);
 }
 
+export async function extractCitizenDocument(file: File): Promise<import("@/lib/types").CitizenDocument> {
+  const form = new FormData();
+  form.append("file", file);
+  return request<import("@/lib/types").CitizenDocument>("/citizen/documents/extract", { method: "POST", body: form });
+}
+
 export async function searchCorpus(
   query: string,
   resultLimit = 5,
@@ -173,15 +180,29 @@ export async function chatWithCorpus(
   query: string,
   sessionId?: string | null,
   responseMode: RequestedResponseMode = "auto",
+  documents: import("@/lib/types").CitizenDocument[] = [],
+  signal?: AbortSignal,
+  priorMessages: Array<{ role: "user" | "assistant"; content: string }> = [],
 ): Promise<ChatQueryResponse> {
   return request<ChatQueryResponse>("/chat/query", {
     method: "POST",
+    signal,
     body: JSON.stringify({
       query,
       session_id: sessionId ?? null,
       response_mode: responseMode,
+      documents: documents.map(({ filename, pages }) => ({ filename, pages })),
+      prior_messages: priorMessages,
     }),
   });
+}
+
+export async function getDeepReviewJob(jobId: string, signal?: AbortSignal): Promise<DeepReviewJob> {
+  return request<DeepReviewJob>(`/jobs/${jobId}`, { signal });
+}
+
+export async function cancelDeepReviewJob(jobId: string): Promise<DeepReviewJob> {
+  return request<DeepReviewJob>(`/jobs/${jobId}/cancel`, { method: "POST" });
 }
 
 export async function getIngestionProgress(): Promise<IngestionProgress> {
