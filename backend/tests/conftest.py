@@ -49,6 +49,16 @@ _DATABASE_BACKED_MODULES = frozenset(
     }
 )
 
+# Modules that put bytes in MinIO. These need object storage on top of the
+# database, and S3_ENDPOINT_URL usually names a host only the compose network
+# can resolve.
+_OBJECT_STORAGE_MODULES = frozenset(
+    {
+        "test_storage_integration",
+        "test_case_document_indexing_integration",
+    }
+)
+
 # Starting the FastAPI lifespan boots the durable job worker, which claims
 # against PostgreSQL on its first poll.
 _LIFESPAN_TESTS = frozenset({"test_application_lifespan_owns_one_service_and_closes_it"})
@@ -80,10 +90,31 @@ def _database_endpoint() -> tuple[str, int]:
     return parts.hostname or "localhost", port
 
 
+def _object_storage_endpoint() -> tuple[str, int]:
+    """Resolve the configured object-storage host and port.
+
+    S3_ENDPOINT_URL carries the name the *backend container* uses to reach
+    MinIO, which does not resolve on a developer's machine. A suite run
+    natively should say so and skip, rather than fail with a name-resolution
+    error that looks like a broken test.
+    """
+    url = os.environ.get("S3_ENDPOINT_URL", "http://localhost:9000")
+    parts = urlsplit(url)
+    try:
+        port = parts.port or (443 if parts.scheme == "https" else 80)
+    except ValueError:
+        port = 9000
+    return parts.hostname or "localhost", port
+
+
 def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line(
         "markers",
         "integration: requires live PostgreSQL (and, for some tests, Qdrant or MinIO)",
+    )
+    config.addinivalue_line(
+        "markers",
+        "object_storage: requires MinIO reachable at S3_ENDPOINT_URL",
     )
 
 
@@ -101,6 +132,8 @@ def pytest_collection_modifyitems(
         )
         if needs_database:
             item.add_marker(pytest.mark.integration)
+        if module in _OBJECT_STORAGE_MODULES:
+            item.add_marker(pytest.mark.object_storage)
 
 
 @pytest.fixture(autouse=True)
@@ -118,6 +151,26 @@ def _require_database(request: pytest.FixtureRequest) -> None:
     pytest.skip(
         f"PostgreSQL unreachable at {host}:{port}; "
         "start docker/docker-compose.yml or set RUN_INTEGRATION=1 to fail instead"
+    )
+
+
+@pytest.fixture(autouse=True)
+def _require_object_storage(request: pytest.FixtureRequest) -> None:
+    if request.node.get_closest_marker("object_storage") is None:
+        return
+    host, port = _object_storage_endpoint()
+    if _tcp_reachable(host, port):
+        return
+    if os.environ.get("RUN_INTEGRATION") == "1":
+        pytest.fail(
+            f"RUN_INTEGRATION=1 but object storage is unreachable at {host}:{port}. "
+            "Run the suite inside the compose network, or point S3_ENDPOINT_URL at "
+            "the host-published address (S3_PUBLIC_ENDPOINT_URL)."
+        )
+    pytest.skip(
+        f"Object storage unreachable at {host}:{port}; "
+        "S3_ENDPOINT_URL names the compose-internal host, which does not "
+        "resolve outside the container network"
     )
 
 

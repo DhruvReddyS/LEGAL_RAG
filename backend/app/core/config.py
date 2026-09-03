@@ -1,14 +1,23 @@
 from functools import lru_cache
+from pathlib import Path
 from typing import Literal
 from urllib.parse import urlsplit
 
 from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# Anchored to the repository, not to the working directory. A relative ".env"
+# is resolved against the process's cwd, so the same command run from the repo
+# root and from backend/ loaded two different configurations -- and the second
+# one fell back to the development credential defaults silently, producing
+# authentication failures against real services rather than a missing-config
+# error. Configuration must not depend on where a process was launched.
+_REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=(_REPOSITORY_ROOT / ".env", ".env"),
         env_file_encoding="utf-8",
         extra="ignore",
         case_sensitive=False,
