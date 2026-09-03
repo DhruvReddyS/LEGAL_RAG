@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import uuid
+import asyncio
+from contextlib import suppress
+import hashlib
 from decimal import Decimal
 from time import perf_counter
 from typing import Annotated
@@ -15,14 +18,32 @@ from app.core.database import get_db_session
 from app.core.config import settings
 from app.core.permissions import CHAT_USE
 from app.core.rbac import require_permission
-from app.models import AuditLog, Case, ChatMessage, ChatSession, User
-from app.models.enums import ChatMessageRole, UserRole
+from app.models import AuditLog, Case, ChatMessage, ChatSession, Job, User
+from app.models.enums import ChatMessageRole, JobStatus, JobType, UserRole
 from app.schemas.chat import ChatQueryRequest, ChatQueryResponse, ChatSessionResponse
 from app.schemas.agents import AgentTraceEvent
 from app.services.adaptive_routing import route_legal_query
+from app.services.rate_limit import RateLimitExceeded, user_rate_limiter
+from app.services.jobs import append_job_event
 
 
 router = APIRouter(prefix="/chat", tags=["chat"])
+
+
+async def run_while_connected(http_request: Request, coroutine):
+    """Cancel synchronous research when its browser request is stopped/disconnected."""
+    task = asyncio.create_task(coroutine)
+    try:
+        while not task.done():
+            await asyncio.wait({task}, timeout=0.25)
+            if not task.done() and await http_request.is_disconnected():
+                raise HTTPException(499, "Research stopped by client")
+        return await task
+    finally:
+        if not task.done():
+            task.cancel()
+            with suppress(asyncio.CancelledError):
+                await task
 
 
 def get_workflow(request: Request) -> LegalRAGWorkflow:
@@ -65,26 +86,61 @@ async def query_chat(
         chat_session = ChatSession(user_id=user.id, case_id=request.case_id, title=request.query[:120])
         session.add(chat_session)
         await session.flush()
-        history: list[dict[str, str]] = []
+        history: list[dict[str, str]] = [message.model_dump() for message in request.prior_messages]
+        for message in request.prior_messages:
+            session.add(ChatMessage(session_id=chat_session.id, role=ChatMessageRole(message.role), content=message.content, citations=[]))
     else:
+        if request.prior_messages:
+            raise HTTPException(409, "Edited conversations must start a new session")
         chat_session = await _owned_session(session, request.session_id, user)
         if request.case_id is not None and request.case_id != chat_session.case_id:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="case_id does not match the existing chat session")
         history = [{"role": message.role.value, "content": message.content} for message in chat_session.messages[-8:]]
 
-    session.add(ChatMessage(session_id=chat_session.id, role=ChatMessageRole.USER, content=request.query, citations=[]))
+    user_message = ChatMessage(
+        session_id=chat_session.id,
+        role=ChatMessageRole.USER,
+        content=request.query,
+        citations=[],
+    )
+    session.add(user_message)
+    await session.flush()
+    from app.services.citizen_context import select_document_context
+    document_context = select_document_context(request.query, request.documents)
     routing = route_legal_query(
         query=request.query,
-        requested_mode=request.response_mode,
+        requested_mode="deep" if document_context else request.response_mode,
         case_id=chat_session.case_id,
     )
+    if routing.selected_mode == "deep" and not settings.legacy_sync_long_running_enabled:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Synchronous Deep Review is disabled; enqueue /jobs/deep-review",
+        )
+    try:
+        await user_rate_limiter.admit(
+            str(user.id),
+            "chat_fast" if routing.selected_mode == "fast" else "chat_sync_deep",
+            limit=(
+                settings.fast_requests_per_minute
+                if routing.selected_mode == "fast"
+                else settings.sync_deep_requests_per_minute
+            ),
+        )
+    except RateLimitExceeded as exc:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Per-user request limit reached",
+            headers={"Retry-After": str(exc.retry_after_seconds)},
+        ) from exc
     runner = http_request.app.state.fast_research_service if routing.selected_mode == "fast" else workflow
-    result = await runner.run(
+    result = await run_while_connected(http_request, runner.run(
         query=request.query,
         role=user.role.value,
         case_id=str(chat_session.case_id) if chat_session.case_id else None,
         history=history,
-    )
+        **({"document_context": document_context} if document_context else {}),
+    ))
     result["agent_trace"] = [
         *result["agent_trace"],
         AgentTraceEvent(
@@ -97,6 +153,97 @@ async def query_chat(
             },
         ),
     ]
+    if (
+        routing.selected_mode == "fast"
+        and result["confidence_score"] < settings.fast_auto_escalation_threshold
+    ):
+        try:
+            await user_rate_limiter.admit(
+                str(user.id),
+                "job_enqueue",
+                limit=settings.job_enqueues_per_minute,
+            )
+        except RateLimitExceeded as exc:
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="Per-user job enqueue limit reached",
+                headers={"Retry-After": str(exc.retry_after_seconds)},
+            ) from exc
+        fingerprint = hashlib.sha256(
+            f"{user.id}:{user_message.id}:{request.query}".encode("utf-8")
+        ).hexdigest()
+        job = Job(
+            user_id=user.id,
+            type=JobType.DEEP_REVIEW,
+            status=JobStatus.QUEUED,
+            progress=0,
+            idempotency_key=f"auto:{user_message.id}",
+            payload={
+                "request_fingerprint": fingerprint,
+                "query": request.query,
+                "role": user.role.value,
+                "chat_session_id": str(chat_session.id),
+                "case_id": str(chat_session.case_id) if chat_session.case_id else None,
+                "history": history,
+                "user_message_id": str(user_message.id),
+                "auto_escalated_from_fast": True,
+                "fast_confidence_score": result["confidence_score"],
+                "fast_escalation_threshold": settings.fast_auto_escalation_threshold,
+            },
+            max_attempts=3,
+        )
+        session.add(job)
+        await session.flush()
+        append_job_event(
+            session,
+            job,
+            event_type="status",
+            stage="searching_more_thoroughly",
+            data={
+                "status": JobStatus.QUEUED.value,
+                "fast_confidence_score": result["confidence_score"],
+                "threshold": settings.fast_auto_escalation_threshold,
+            },
+        )
+        trace = [event.model_dump(mode="json") for event in result["agent_trace"]]
+        session.add(
+            AuditLog(
+                user_id=user.id,
+                action="chat.auto_escalated",
+                resource_type="job",
+                resource_id=job.id,
+                metadata_={
+                    "chat_session_id": str(chat_session.id),
+                    "fast_confidence_score": result["confidence_score"],
+                    "threshold": settings.fast_auto_escalation_threshold,
+                    "fast_citation_count": len(result["citations"]),
+                    "agent_trace": trace,
+                },
+            )
+        )
+        await session.commit()
+        timings = dict(result.get("timings", {}))
+        timings["api_total_ms"] = round((perf_counter() - request_started) * 1000, 2)
+        return ChatQueryResponse(
+            session_id=chat_session.id,
+            answer="Searching more thoroughly because the quick source match was not strong enough.",
+            citations=[],
+            confidence_score=result["confidence_score"],
+            evidence_strength="insufficient",
+            intent=result["intent"],
+            agent_trace=result["agent_trace"],
+            response_mode="deep",
+            requested_mode=routing.requested_mode,
+            routing_reason="fast_confidence_below_escalation_threshold",
+            routing_signals=[*routing.signals, "auto_escalated_low_fast_confidence"],
+            timings_ms=timings,
+            pipeline_metrics=result.get("stage_metrics", []),
+            latency_target_ms=settings.deep_latency_target_ms,
+            target_met=None,
+            delivery_state="searching_more_thoroughly",
+            job_id=job.id,
+            escalation_threshold=settings.fast_auto_escalation_threshold,
+        )
     citations = [citation.model_dump(mode="json") for citation in result["citations"]]
     assistant_message = ChatMessage(
         session_id=chat_session.id,
@@ -124,6 +271,7 @@ async def query_chat(
                 "routing_reason": routing.reason,
                 "routing_signals": list(routing.signals),
                 "timings_ms": result.get("timings", {}),
+                "pipeline_metrics": result.get("stage_metrics", []),
                 "agent_trace": trace,
             },
         )
@@ -147,6 +295,7 @@ async def query_chat(
         routing_reason=routing.reason,
         routing_signals=list(routing.signals),
         timings_ms=timings,
+        pipeline_metrics=result.get("stage_metrics", []),
         latency_target_ms=latency_target_ms,
         target_met=target_met,
     )

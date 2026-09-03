@@ -7,9 +7,17 @@ from app.services.retrieval import RetrievalHit, RetrievalTimings
 
 
 class FakeRetrieval:
-    def __init__(self, hits: list[RetrievalHit]) -> None:
+    def __init__(
+        self,
+        hits: list[RetrievalHit],
+        *,
+        distinctive_terms: list[str] | None = None,
+        term_document_counts: dict[str, int] | None = None,
+    ) -> None:
         self.hits = hits
         self.calls: list[dict] = []
+        self.distinctive_terms = distinctive_terms or []
+        self.term_document_counts = term_document_counts or {}
 
     async def search_with_timings(self, query: str, **kwargs):
         self.calls.append({"query": query, **kwargs})
@@ -19,6 +27,8 @@ class FakeRetrieval:
             reranking_ms=0.0,
             total_ms=455.0,
             embedding_cache_hit=True,
+            lexical_distinctive_terms=self.distinctive_terms,
+            lexical_term_document_counts=self.term_document_counts,
         )
 
 
@@ -62,12 +72,15 @@ async def test_fast_research_is_retrieval_only_and_exposes_currency_warning() ->
     assert retrieval.calls[0]["candidate_limit"] == 8
     assert retrieval.calls[0]["result_limit"] == 8
     assert retrieval.calls[0]["rerank"] is False
+    assert retrieval.calls[0]["lexical_only"] is True
+    assert retrieval.calls[0]["lexical_terms"] == {"record", "information"}
     assert "does not synthesise a final legal opinion" in result["final_answer"]
     assert "Currency notice" in result["final_answer"]
     assert [item.chunk_id for item in result["citations"]] == ["chunk-a", "chunk-b"]
     assert result["agent_trace"][0].details["no_generative_claims"] is True
     assert result["timings"]["embedding_cache_hit"] is True
     assert result["timings"]["reranking_ms"] == 0
+    assert all(item.verification_status == "unverified" for item in result["citations"])
 
 
 @pytest.mark.asyncio
@@ -123,3 +136,105 @@ async def test_fast_research_does_not_pad_with_duplicate_authorities() -> None:
 
     assert [item.chunk_id for item in result["citations"]] == ["doc-a-1"]
     assert result["agent_trace"][0].details["unique_document_count"] == 1
+
+
+@pytest.mark.asyncio
+async def test_fast_research_bad_generic_match_cannot_report_high_confidence() -> None:
+    unrelated = hit("generic-a", "doc-generic", "Unrelated judgment", current=True)
+    unrelated.payload["text"] = "The party may file the case before the appropriate court."
+
+    result = await FastLegalResearchService(
+        FakeRetrieval([unrelated], distinctive_terms=["pocso"])
+    ).run(  # type: ignore[arg-type]
+        query="how to file a pocso case",
+        role="citizen",
+        case_id=None,
+        history=[],
+    )
+
+    assert result["confidence_score"] <= 0.45
+    assert result["evidence_strength"] == "insufficient"
+    assert all(item.verification_status == "unverified" for item in result["citations"])
+
+
+@pytest.mark.asyncio
+async def test_fast_research_requires_rare_distinctive_term_and_surfaces_pocso() -> None:
+    generic = hit("generic-a", "doc-generic", "Unrelated judgment", current=True)
+    generic.payload["text"] = "The party may file the case before the appropriate court."
+    pocso = hit(
+        "pocso-a",
+        "doc-pocso",
+        "The Protection of Children from Sexual Offences Act, 2012",
+        current=True,
+    )
+    pocso.payload["text"] = "A person may file a POCSO case under the prescribed procedure."
+    retrieval = FakeRetrieval(
+        [generic, pocso],
+        distinctive_terms=["pocso"],
+        term_document_counts={"case": 6698, "file": 485, "pocso": 291},
+    )
+
+    result = await FastLegalResearchService(retrieval).run(  # type: ignore[arg-type]
+        query="how to file a pocso case",
+        role="citizen",
+        case_id=None,
+        history=[],
+    )
+
+    assert [item.chunk_id for item in result["citations"]] == ["pocso-a"]
+    assert result["agent_trace"][0].details["distinctive_terms"] == ["pocso"]
+    assert result["citations"][0].verification_status == "unverified"
+    assert result["confidence_score"] >= 0.6
+    assert retrieval.calls[0]["lexical_terms"].issuperset(
+        {"pocso", "protection", "children", "sexual", "offences"}
+    )
+
+
+@pytest.mark.asyncio
+async def test_full_act_name_satisfies_acronym_mandatory_gate() -> None:
+    act = hit(
+        "pocso-act",
+        "doc-pocso-act",
+        "The Protection of Children from Sexual Offences Act, 2012",
+        current=True,
+    )
+    act.payload["text"] = "Protection of children from sexual offences is governed by this Act."
+    retrieval = FakeRetrieval([act], distinctive_terms=["pocso"])
+
+    result = await FastLegalResearchService(retrieval).run(  # type: ignore[arg-type]
+        query="pocso case",
+        role="citizen",
+        case_id=None,
+        history=[],
+    )
+
+    assert [citation.chunk_id for citation in result["citations"]] == ["pocso-act"]
+
+
+def test_presentation_words_are_not_legal_focus_terms() -> None:
+    from app.services.fast_research import _focus_tokens
+
+    assert _focus_tokens(
+        "Explain the right to equality under Article 14 in plain language."
+    ) == {"right", "equality", "article", "14"}
+
+
+@pytest.mark.asyncio
+async def test_high_relevance_fast_match_is_labelled_strong() -> None:
+    authority = hit("article-14", "constitution", "Article 14 authority", current=True)
+    authority.payload["text"] = "Article 14 guarantees equality before the law and equal protection."
+    retrieval = FakeRetrieval(
+        [authority],
+        distinctive_terms=["equality"],
+        term_document_counts={"article": 2302, "14": 2156, "equality": 242},
+    )
+
+    result = await FastLegalResearchService(retrieval).run(  # type: ignore[arg-type]
+        query="Article 14 equality",
+        role="citizen",
+        case_id=None,
+        history=[],
+    )
+
+    assert result["confidence_score"] >= 0.75
+    assert result["evidence_strength"] == "strong"

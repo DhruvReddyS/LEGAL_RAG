@@ -21,8 +21,11 @@ from app.routers.storage import router as storage_router
 from app.routers.retrieval import router as retrieval_router
 from app.routers.admin import router as admin_router
 from app.routers.document_analysis import router as document_analysis_router
+from app.routers.jobs import router as jobs_router
+from app.routers.citizen_intake import router as citizen_intake_router
 from app.services.retrieval import HybridRetrievalService
 from app.services.fast_research import FastLegalResearchService
+from app.services.job_worker import DurableJobWorker
 from app.core.config import settings
 from app.core.http_security import DesktopOriginSecurityMiddleware
 
@@ -37,11 +40,20 @@ async def lifespan(app: FastAPI):
     app.state.retrieval_service = retrieval_service
     app.state.legal_rag_workflow = LegalRAGWorkflow(retrieval_service)
     app.state.fast_research_service = FastLegalResearchService(retrieval_service)
+    app.state.job_worker = DurableJobWorker(
+        app.state.legal_rag_workflow,
+        poll_interval_ms=settings.job_poll_interval_ms,
+    )
     if settings.warm_query_models_on_startup:
         await retrieval_service.warmup()
+    if settings.job_worker_enabled:
+        await app.state.job_worker.start()
     try:
         yield
     finally:
+        if settings.job_worker_enabled:
+            await app.state.job_worker.stop()
+        await app.state.legal_rag_workflow.llm.close()
         await retrieval_service.close()
 
 
@@ -102,6 +114,8 @@ app.include_router(storage_router)
 app.include_router(retrieval_router)
 app.include_router(admin_router)
 app.include_router(document_analysis_router)
+app.include_router(jobs_router)
+app.include_router(citizen_intake_router)
 
 
 @app.get("/health", tags=["system"])

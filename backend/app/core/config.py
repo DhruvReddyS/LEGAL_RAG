@@ -37,10 +37,18 @@ class Settings(BaseSettings):
     fast_candidate_limit: int = Field(default=8, ge=4, le=40)
     fast_result_limit: int = Field(default=4, ge=1, le=10)
     fast_latency_target_ms: int = Field(default=5000, ge=500, le=30000)
-    deep_latency_target_ms: int = Field(default=60000, ge=5000, le=300000)
+    fast_auto_escalation_threshold: float = Field(default=0.6, ge=0.0, le=1.0)
+    deep_latency_target_ms: int = Field(default=300000, ge=5000, le=600000)
+    job_worker_enabled: bool = True
+    job_poll_interval_ms: int = Field(default=500, ge=100, le=5000)
+    fast_requests_per_minute: int = Field(default=30, ge=1, le=600)
+    sync_deep_requests_per_minute: int = Field(default=2, ge=1, le=60)
+    job_enqueues_per_minute: int = Field(default=6, ge=1, le=120)
+    legacy_sync_long_running_enabled: bool = True
     warm_query_models_on_startup: bool = True
     ollama_base_url: str = "http://localhost:11434"
     ollama_model: str = "qwen3-14b-16k:latest"
+    ollama_generation_concurrency: int = Field(default=1, ge=1, le=4)
     jwt_secret_key: SecretStr = SecretStr("development-access-secret-change-me")
     jwt_refresh_secret_key: SecretStr = SecretStr("development-refresh-secret-change-me")
     jwt_algorithm: str = "HS256"

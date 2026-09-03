@@ -7,12 +7,16 @@ from app.schemas.agents import AgentCitation, AgentTraceEvent, QueryIntent
 from app.core.config import settings
 from app.services.generation import INSUFFICIENT_EVIDENCE
 from app.services.retrieval import HybridRetrievalService, RetrievalFilters
+from app.services.legal_term_normalization import LEGAL_ACRONYM_EXPANSIONS
 
 
 FOCUS_STOPWORDS = {
     "a", "an", "and", "are", "be", "can", "do", "does", "for", "from", "how", "i",
     "in", "is", "it", "law", "legal", "may", "must", "of", "on", "or", "police",
     "report", "request", "should", "the", "to", "under", "what", "when", "which", "with",
+    "address", "details", "disclosed", "facts", "passages", "relevant", "show", "statutory",
+    "steps", "verified",
+    "explain", "explanation", "language", "plain", "please", "understand",
 }
 
 
@@ -24,22 +28,64 @@ def _compact(value: object, limit: int = 420) -> str:
 
 
 def _focus_tokens(query: str) -> set[str]:
-    return {
+    tokens = {
         token
         for token in re.findall(r"[a-z0-9]+", query.casefold())
         if len(token) > 1 and token not in FOCUS_STOPWORDS
     }
+    for token in tuple(tokens):
+        tokens.update(LEGAL_ACRONYM_EXPANSIONS.get(token, ()))
+    return tokens
+
+
+def _payload_windows(payload: dict) -> list[set[str]]:
+    title_tokens = re.findall(r"[a-z0-9]+", str(payload.get("title") or "").casefold())[:40]
+    body = " ".join(
+        str(payload.get(field) or "")
+        for field in ("act_name", "section", "court", "text")
+    ).casefold()
+    document_tokens = [*title_tokens, *re.findall(r"[a-z0-9]+", body)]
+    # Corpus chunks can be long and contain unrelated terms hundreds of words
+    # apart. Relevance requires query concepts to co-occur locally, preventing
+    # a missing-child or evidence-law passage from matching a missing-pet query
+    # merely because both words appear somewhere in the chunk.
+    window_size = 50
+    if len(document_tokens) <= window_size:
+        return [set(document_tokens)]
+    return [
+        set(document_tokens[start : start + window_size])
+        for start in range(0, len(document_tokens), window_size // 2)
+    ]
 
 
 def _lexical_coverage(query_tokens: set[str], payload: dict) -> float:
     if not query_tokens:
         return 1.0
-    searchable = " ".join(
-        str(payload.get(field) or "")
-        for field in ("title", "act_name", "section", "court", "text")
-    ).casefold()
-    document_tokens = set(re.findall(r"[a-z0-9]+", searchable))
-    return len(query_tokens & document_tokens) / len(query_tokens)
+    return max(
+        (len(query_tokens & window) / len(query_tokens) for window in _payload_windows(payload)),
+        default=0.0,
+    )
+
+
+def _locally_matched_focus_terms(query_tokens: set[str], payload: dict) -> set[str]:
+    """Return query terms that occur in at least one local relevance window."""
+    matched: set[str] = set()
+    for window in _payload_windows(payload):
+        matched.update(query_tokens & window)
+    return matched
+
+
+def _mandatory_focus_match(
+    mandatory_terms: set[str],
+    matched_terms: set[str],
+) -> bool:
+    for term in mandatory_terms:
+        if term in matched_terms:
+            continue
+        expansion = set(LEGAL_ACRONYM_EXPANSIONS.get(term, ()))
+        if not expansion or not expansion.issubset(matched_terms):
+            return False
+    return True
 
 
 def _document_key(hit: object) -> str:
@@ -85,16 +131,27 @@ class FastLegalResearchService:
     async def run(self, *, query: str, role: str, case_id: str | None, history: list[dict[str, str]]) -> dict:
         del role, case_id, history
         started = perf_counter()
+        focus_tokens = _focus_tokens(query)
         hits, retrieval_timings = await self.retrieval.search_with_timings(
             query,
             filters=RetrievalFilters(corpus_tiers=["gold", "extended"]),
             candidate_limit=settings.fast_candidate_limit,
             result_limit=settings.fast_candidate_limit,
             rerank=False,
+            lexical_only=True,
+            lexical_terms=focus_tokens,
         )
-        focus_tokens = _focus_tokens(query)
         raw_result_count = len(hits)
-        relevant_hits = [hit for hit in hits if _lexical_coverage(focus_tokens, hit.payload) >= 0.5]
+        distinctive_terms = set(retrieval_timings.lexical_distinctive_terms)
+        relevant_hits = [
+            hit
+            for hit in hits
+            if _lexical_coverage(focus_tokens, hit.payload) >= 0.5
+            and _mandatory_focus_match(
+                distinctive_terms,
+                _locally_matched_focus_terms(focus_tokens, hit.payload),
+            )
+        ]
         hits = _select_diverse_hits(relevant_hits, settings.fast_result_limit)
         if not hits:
             answer = INSUFFICIENT_EVIDENCE
@@ -104,7 +161,7 @@ class FastLegalResearchService:
         else:
             citations = []
             lines = [
-                "Fast evidence brief — the following verified corpus passages are the closest authorities located. "
+                "Fast evidence brief — the following governed corpus passages are the closest authorities located. "
                 "This mode prioritises source inspection and does not synthesise a final legal opinion."
             ]
             for number, hit in enumerate(hits, 1):
@@ -122,7 +179,9 @@ class FastLegalResearchService:
                     source_url=payload.get("source_url") or None,
                     excerpt=_compact(payload.get("text"), 900),
                     retrieval_score=hit.reranker_score,
-                    verification_status="verified",
+                    # Fast mode performs retrieval only. It has not run the
+                    # claim/source verifier used by Deep Review.
+                    verification_status="unverified",
                     current_status=(
                         "current"
                         if payload.get("is_current") is True
@@ -145,8 +204,43 @@ class FastLegalResearchService:
                 )
             answer = "\n\n".join(lines)
             unique_documents = len({str(hit.payload.get("canonical_document_id") or hit.point_id) for hit in hits})
-            confidence = min(0.78, 0.48 + 0.08 * unique_documents)
-            strength = "moderate" if unique_documents >= 2 else "insufficient"
+            coverage_scores = [_lexical_coverage(focus_tokens, hit.payload) for hit in hits]
+            matched_focus_terms = set().union(
+                *(
+                    _locally_matched_focus_terms(focus_tokens, hit.payload)
+                    for hit in hits
+                )
+            )
+            focus_term_recall = (
+                len(matched_focus_terms) / len(focus_tokens) if focus_tokens else 0.0
+            )
+            mandatory_term_match_rate = (
+                sum(
+                    _mandatory_focus_match(
+                        distinctive_terms,
+                        _locally_matched_focus_terms(focus_tokens, hit.payload),
+                    )
+                    for hit in hits
+                )
+                / len(hits)
+            )
+            mean_coverage = sum(coverage_scores) / len(coverage_scores)
+            # Coverage and recall overlap, so multiplying them double-penalises
+            # a passage for the same missing generic query word. A weighted
+            # relevance score keeps the mandatory legal term as a hard factor
+            # while measuring breadth without using document count.
+            confidence = min(
+                0.85,
+                (0.7 * mean_coverage + 0.3 * focus_term_recall)
+                * mandatory_term_match_rate,
+            )
+            strength = (
+                "strong"
+                if confidence >= 0.75
+                else "moderate"
+                if confidence >= settings.fast_auto_escalation_threshold
+                else "insufficient"
+            )
 
         total_ms = round((perf_counter() - started) * 1000, 2)
         timings = {
@@ -178,6 +272,12 @@ class FastLegalResearchService:
                         "raw_result_count": raw_result_count,
                         "relevant_result_count": len(relevant_hits),
                         "unique_document_count": len({_document_key(hit) for hit in hits}),
+                        "mean_local_coverage": mean_coverage if hits else 0.0,
+                        "focus_term_recall": focus_term_recall if hits else 0.0,
+                        "mandatory_term_match_rate": mandatory_term_match_rate if hits else 0.0,
+                        "distinctive_terms": sorted(distinctive_terms),
+                        "term_document_counts": retrieval_timings.lexical_term_document_counts,
+                        "confidence_method": "weighted_coverage_recall_x_mandatory_term_match_rate",
                         "diversity_selection": True,
                         "focus_tokens": sorted(focus_tokens),
                         "lexical_gate": 0.5,

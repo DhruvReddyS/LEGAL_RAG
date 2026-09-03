@@ -7,7 +7,7 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy import delete, select
 
 from app.core.database import AsyncSessionLocal
-from app.models import AuditLog, User
+from app.models import AuditLog, Job, User
 from app.routers.chat import get_workflow
 from app.schemas.agents import AgentCitation, AgentTraceEvent, QueryIntent
 from main import app
@@ -32,6 +32,22 @@ class FakeWorkflow:
             "evidence_strength": "strong",
             "intent": QueryIntent(retrieval_query="mandatory FIR registration"),
             "agent_trace": [AgentTraceEvent(node="verification", details={"score": 0.9})],
+        }
+
+
+class FakeFastResearch:
+    def __init__(self, confidence: float) -> None:
+        self.confidence = confidence
+
+    async def run(self, **_: object) -> dict:
+        return {
+            "final_answer": "A retrieval-only preview that must not be shown when weak.",
+            "citations": [],
+            "confidence_score": self.confidence,
+            "evidence_strength": "moderate" if self.confidence >= 0.6 else "insufficient",
+            "intent": QueryIntent(retrieval_query="test query"),
+            "agent_trace": [AgentTraceEvent(node="fast_retrieval", details={"score": self.confidence})],
+            "timings": {"workflow_total_ms": 1.25},
         }
 
 
@@ -95,6 +111,104 @@ async def test_chat_persistence_and_session_ownership() -> None:
                 assert audit is not None
                 assert audit.metadata_["agent_trace"][0]["node"] == "verification"
     finally:
+        app.dependency_overrides.pop(get_workflow, None)
+        async with AsyncSessionLocal() as session:
+            if user_ids:
+                await session.execute(delete(AuditLog).where(AuditLog.user_id.in_(user_ids)))
+                await session.execute(delete(User).where(User.id.in_(user_ids)))
+                await session.commit()
+
+
+@pytest.mark.asyncio
+async def test_low_confidence_fast_result_is_hidden_and_auto_escalated() -> None:
+    suffix = uuid.uuid4().hex
+    user_ids: list[uuid.UUID] = []
+    original_fast = getattr(app.state, "fast_research_service", None)
+    app.state.fast_research_service = FakeFastResearch(0.2)
+    app.dependency_overrides[get_workflow] = lambda: FakeWorkflow()
+    transport = ASGITransport(app=app)
+    try:
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            response = await client.post(
+                "/auth/register",
+                json={
+                    "name": "Escalation User",
+                    "email": f"escalate-{suffix}@example.com",
+                    "password": "CorrectHorseBattery99!",
+                    "role": "citizen",
+                },
+            )
+            body = response.json()
+            user_ids.append(uuid.UUID(body["user"]["id"]))
+            created = await client.post(
+                "/chat/query",
+                headers={"Authorization": f"Bearer {body['access_token']}"},
+                json={"query": "An intentionally weak source match", "response_mode": "fast"},
+            )
+            assert created.status_code == 200, created.text
+            result = created.json()
+            assert result["delivery_state"] == "searching_more_thoroughly"
+            assert result["response_mode"] == "deep"
+            assert result["citations"] == []
+            assert result["message_id"] is None
+            assert result["job_id"] is not None
+            assert result["confidence_score"] == 0.2
+
+            async with AsyncSessionLocal() as session:
+                job = await session.get(Job, uuid.UUID(result["job_id"]))
+                assert job is not None
+                assert job.payload["auto_escalated_from_fast"] is True
+                assert job.payload["fast_confidence_score"] == 0.2
+    finally:
+        if original_fast is None:
+            del app.state.fast_research_service
+        else:
+            app.state.fast_research_service = original_fast
+        app.dependency_overrides.pop(get_workflow, None)
+        async with AsyncSessionLocal() as session:
+            if user_ids:
+                await session.execute(delete(AuditLog).where(AuditLog.user_id.in_(user_ids)))
+                await session.execute(delete(User).where(User.id.in_(user_ids)))
+                await session.commit()
+
+
+@pytest.mark.asyncio
+async def test_strong_fast_result_is_not_auto_escalated() -> None:
+    suffix = uuid.uuid4().hex
+    user_ids: list[uuid.UUID] = []
+    original_fast = getattr(app.state, "fast_research_service", None)
+    app.state.fast_research_service = FakeFastResearch(0.8)
+    app.dependency_overrides[get_workflow] = lambda: FakeWorkflow()
+    transport = ASGITransport(app=app)
+    try:
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            response = await client.post(
+                "/auth/register",
+                json={
+                    "name": "Strong Fast User",
+                    "email": f"strong-{suffix}@example.com",
+                    "password": "CorrectHorseBattery99!",
+                    "role": "citizen",
+                },
+            )
+            body = response.json()
+            user_ids.append(uuid.UUID(body["user"]["id"]))
+            created = await client.post(
+                "/chat/query",
+                headers={"Authorization": f"Bearer {body['access_token']}"},
+                json={"query": "Article 14 equality", "response_mode": "fast"},
+            )
+            assert created.status_code == 200, created.text
+            result = created.json()
+            assert result["delivery_state"] == "complete"
+            assert result["response_mode"] == "fast"
+            assert result["job_id"] is None
+            assert result["message_id"] is not None
+    finally:
+        if original_fast is None:
+            del app.state.fast_research_service
+        else:
+            app.state.fast_research_service = original_fast
         app.dependency_overrides.pop(get_workflow, None)
         async with AsyncSessionLocal() as session:
             if user_ids:
