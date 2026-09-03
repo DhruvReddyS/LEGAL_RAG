@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+import uuid
+from contextvars import ContextVar
+from datetime import datetime, timezone
+from typing import Awaitable, Callable
 from langgraph.graph import END, StateGraph
-from time import perf_counter
+from time import perf_counter, perf_counter_ns
 
 from app.agents.query_understanding import query_understanding_node
 from app.agents.reasoning_agent import reasoning_node
@@ -13,6 +17,13 @@ from app.services.llm import OllamaClient
 from app.services.retrieval import HybridRetrievalService
 from app.agents.role_profiles import get_role_profile, select_specialist_agent
 from app.schemas.agents import AgentTraceEvent
+from app.services.pipeline_telemetry import append_stage_metric, text_size
+
+
+ProgressCallback = Callable[[str, str, dict], Awaitable[None]]
+_progress_callback: ContextVar[ProgressCallback | None] = ContextVar(
+    "legal_rag_progress_callback", default=None
+)
 
 
 class LegalRAGWorkflow:
@@ -44,7 +55,14 @@ class LegalRAGWorkflow:
         self.graph = graph.compile()
 
     @staticmethod
+    async def _notify(stage: str, transition: str, data: dict | None = None) -> None:
+        callback = _progress_callback.get()
+        if callback is not None:
+            await callback(stage, transition, data or {})
+
+    @staticmethod
     def _role_context(state: AgentState) -> dict:
+        started_ns = perf_counter_ns()
         profile = get_role_profile(state.get("role", "citizen"))
         specialist = select_specialist_agent(
             profile.role,
@@ -66,54 +84,161 @@ class LegalRAGWorkflow:
                 },
             )
         )
+        stage_metrics = append_stage_metric(
+            state,
+            stage="role_context",
+            started_ns=started_ns,
+            inputs={
+                "query": text_size(str(state.get("query") or "")),
+                "history_messages": len(state.get("history", [])),
+                "case_scoped": bool(state.get("case_id")),
+            },
+            outputs={
+                "role": profile.role,
+                "specialist_agent_id": specialist.id,
+            },
+        )
         return {
             "specialist_agent_id": specialist.id,
             "specialist_agent_label": specialist.label,
             "specialist_agent_objective": specialist.objective,
             "agent_trace": trace,
+            "stage_metrics": stage_metrics,
         }
 
     async def _understand(self, state: AgentState) -> dict:
+        await self._notify("query_understanding", "started")
         started = perf_counter()
         result = await query_understanding_node(state, self.llm)
+        await self._notify("query_understanding", "completed")
         return {**result, "timings": {**state.get("timings", {}), "query_understanding_ms": round((perf_counter() - started) * 1000, 2)}}
 
     async def _retrieve(self, state: AgentState) -> dict:
-        return await retrieval_node(state, self.retrieval)
+        await self._notify("retrieval", "started")
+        result = await retrieval_node(state, self.retrieval)
+        await self._notify(
+            "retrieval",
+            "completed",
+            {"candidate_count": len(result.get("retrieved_chunks", []))},
+        )
+        return result
 
     async def _reason(self, state: AgentState) -> dict:
+        await self._notify("reasoning", "started")
         started = perf_counter()
         result = await reasoning_node(state, self.llm)
-        return {**result, "timings": {**state.get("timings", {}), "reasoning_ms": round((perf_counter() - started) * 1000, 2)}}
+        await self._notify("reasoning", "completed")
+        retry_index = int(state.get("retry_count", 0))
+        return {**result, "timings": {**state.get("timings", {}), f"reasoning_{retry_index}_ms": round((perf_counter() - started) * 1000, 2)}}
 
     async def _verify(self, state: AgentState) -> dict:
+        await self._notify("verification", "started")
         started = perf_counter()
         result = await verification_node(state, self.llm)
-        return {**result, "timings": {**state.get("timings", {}), "verification_ms": round((perf_counter() - started) * 1000, 2)}}
+        verification = result.get("verification_result")
+        await self._notify(
+            "verification",
+            "completed",
+            {"score": verification.score if verification is not None else None},
+        )
+        retry_index = int(state.get("retry_count", 0))
+        return {**result, "timings": {**state.get("timings", {}), f"verification_{retry_index}_ms": round((perf_counter() - started) * 1000, 2)}}
 
-    @staticmethod
-    def _respond(state: AgentState) -> dict:
+    async def _respond(self, state: AgentState) -> dict:
+        await self._notify("response_generation", "started")
         started = perf_counter()
         result = response_generation_node(state)
+        await self._notify(
+            "response_generation",
+            "completed",
+            {"citation_count": len(result.get("citations", []))},
+        )
         return {**result, "timings": {**state.get("timings", {}), "response_generation_ms": round((perf_counter() - started) * 1000, 2)}}
 
     @staticmethod
     def _retry(state: AgentState) -> dict:
-        return {"retry_count": int(state.get("retry_count", 0)) + 1}
+        started_ns = perf_counter_ns()
+        next_retry = int(state.get("retry_count", 0)) + 1
+        return {
+            "retry_count": next_retry,
+            "stage_metrics": append_stage_metric(
+                state,
+                stage="retry",
+                started_ns=started_ns,
+                retry_index=next_retry,
+                inputs={"previous_verification_score": state["verification_result"].score},
+                outputs={"next_retry_index": next_retry},
+            ),
+        }
 
     @staticmethod
     def _route_after_verification(state: AgentState) -> str:
         return "retry" if state["verification_result"].score < 0.5 and int(state.get("retry_count", 0)) < 2 else "proceed"
 
-    async def run(self, *, query: str, role: str, case_id: str | None, history: list[dict[str, str]]) -> AgentState:
-        return await self.graph.ainvoke(
-            AgentState(
-                query=query,
-                role=role,
-                case_id=case_id,
-                history=history[-8:],
-                retry_count=0,
-                agent_trace=[],
-                timings={},
-            )
+    async def run(
+        self,
+        *,
+        query: str,
+        role: str,
+        case_id: str | None,
+        history: list[dict[str, str]],
+        progress_callback: ProgressCallback | None = None,
+        document_context: str = "",
+    ) -> AgentState:
+        workflow_started_ns = perf_counter_ns()
+        run_id = str(uuid.uuid4())
+        initial_state = AgentState(
+            query=query,
+            document_context=document_context,
+            role=role,
+            case_id=case_id,
+            history=history[-8:],
+            retry_count=0,
+            agent_trace=[],
+            timings={},
+            run_id=run_id,
+            started_at=datetime.now(timezone.utc).isoformat(),
+            stage_metrics=[],
         )
+        callback_token = _progress_callback.set(progress_callback)
+        try:
+            result = await self.graph.ainvoke(initial_state)
+        except Exception as exc:
+            append_stage_metric(
+                initial_state,
+                stage="workflow_total",
+                started_ns=workflow_started_ns,
+                inputs={
+                    "query": text_size(query),
+                    "history_messages": len(history[-8:]),
+                    "role": role,
+                    "case_scoped": bool(case_id),
+                },
+                outputs={"completed": False, "error_type": type(exc).__name__},
+            )
+            raise
+        finally:
+            _progress_callback.reset(callback_token)
+        result["stage_metrics"] = append_stage_metric(
+            result,
+            stage="workflow_total",
+            started_ns=workflow_started_ns,
+            retry_index=int(result.get("retry_count", 0)),
+            inputs={
+                "query": text_size(query),
+                "history_messages": len(history[-8:]),
+                "role": role,
+                "case_scoped": bool(case_id),
+            },
+            outputs={
+                "completed": True,
+                "citation_count": len(result.get("citations", [])),
+                "retry_count": int(result.get("retry_count", 0)),
+                "evidence_strength": result.get("evidence_strength"),
+            },
+        )
+        result["timings"] = {
+            **result.get("timings", {}),
+            "workflow_total_ms": result["stage_metrics"][-1]["duration_ms"],
+        }
+        return result

@@ -16,6 +16,9 @@ class QueryIntent(BaseModel):
 class ClaimVerification(BaseModel):
     claim: str
     chunk_id: str
+    category: Literal[
+        "direct_answer", "legal_basis", "application", "next_step", "limit"
+    ] = "legal_basis"
     verdict: Literal["yes", "partial", "no"]
     reason: str = ""
 

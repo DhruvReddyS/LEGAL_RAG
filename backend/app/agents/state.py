@@ -8,6 +8,7 @@ from app.services.retrieval import RetrievalHit
 
 class AgentState(TypedDict, total=False):
     query: str
+    document_context: str
     role: str
     case_id: str | None
     specialist_agent_id: str
@@ -26,3 +27,6 @@ class AgentState(TypedDict, total=False):
     retry_count: int
     agent_trace: list[AgentTraceEvent]
     timings: dict[str, Any]
+    run_id: str
+    started_at: str
+    stage_metrics: list[dict[str, Any]]
