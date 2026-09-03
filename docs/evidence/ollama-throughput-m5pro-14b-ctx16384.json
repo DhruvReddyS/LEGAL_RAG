@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-03T02:15:58.697968+00:00",
+  "model": "qwen3-14b-16k:latest",
+  "num_ctx": 16384,
+  "num_predict": 200,
+  "host": {
+    "platform": "macOS-27.0-arm64-arm-64bit",
+    "machine": "arm64",
+    "python": "3.12.13",
+    "chip": "Apple M5 Pro",
+    "memory_bytes": "25769803776"
+  },
+  "gpu_residency": "NAME                    ID              SIZE     PROCESSOR    CONTEXT    UNTIL              \nqwen3-14b-16k:latest    351c0a45b605    11 GB    100% GPU     16384      4 minutes from now",
+  "records": [
+    {
+      "target_prompt_tokens": 500,
+      "repeat": 1,
+      "prompt_tokens": 619,
+      "output_tokens": 54,
+      "load_ms": 4.61,
+      "prefill_ms": 1688.85,
+      "decode_ms": 3760.53,
+      "prefill_tokens_per_second": 366.52,
+      "decode_tokens_per_second": 14.36,
+      "done_reason": "stop"
+    },
+    {
+      "target_prompt_tokens": 6500,
+      "repeat": 1,
+      "prompt_tokens": 7704,
+      "output_tokens": 54,
+      "load_ms": 2.36,
+      "prefill_ms": 31643.69,
+      "decode_ms": 3980.97,
+      "prefill_tokens_per_second": 243.46,
+      "decode_tokens_per_second": 13.56,
+      "done_reason": "stop"
+    },
+    {
+      "target_prompt_tokens": 13000,
+      "repeat": 1,
+      "prompt_tokens": 15374,
+      "output_tokens": 54,
+      "load_ms": 7.43,
+      "prefill_ms": 45422.85,
+      "decode_ms": 4594.77,
+      "prefill_tokens_per_second": 338.46,
+      "decode_tokens_per_second": 11.75,
+      "done_reason": "stop"
+    }
+  ]
+}
