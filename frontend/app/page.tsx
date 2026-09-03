@@ -353,6 +353,19 @@ export default function HomePage() {
           content: message.content,
           citations: message.citations,
           confidenceScore: message.confidence_score ?? undefined,
+          // evidence_strength is not a stored column, so a restored answer
+          // showed "Limited evidence" whatever it had originally been graded.
+          // Derived from the stored score using the same thresholds
+          // response_generation applies when it publishes.
+          evidenceStrength:
+            message.confidence_score == null
+              ? undefined
+              : message.confidence_score > 0.85
+                ? "strong"
+                : message.confidence_score >= 0.5
+                  ? "moderate"
+                  : "insufficient",
+          responseMode: message.citations.length ? "deep" : undefined,
           timestamp: Date.parse(message.created_at),
         }));
         setMessages(restored);
