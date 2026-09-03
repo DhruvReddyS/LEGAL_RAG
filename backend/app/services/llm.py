@@ -17,6 +17,16 @@ from app.services.pipeline_telemetry import text_size
 T = TypeVar("T", bound=BaseModel)
 
 
+class LLMUnavailableError(RuntimeError):
+    """The model host could not be reached at all.
+
+    Subclasses RuntimeError so every existing `except RuntimeError` fallback -
+    query understanding's regex intent, verification's abstain-on-failure -
+    keeps working unchanged. The distinct type lets the API answer 503 for an
+    outage instead of 500, which reads as a defect in this service.
+    """
+
+
 class OllamaClient:
     """Small, testable boundary around the self-hosted Ollama API."""
 
@@ -112,7 +122,12 @@ class OllamaClient:
                         body.update(chunk)
                     body["response"] = "".join(pieces)
         except (httpx.RequestError, ValueError) as exc:
-            error = RuntimeError(f"Ollama generation failed ({type(exc).__name__})")
+            error_type = (
+                LLMUnavailableError
+                if isinstance(exc, (httpx.ConnectError, httpx.ConnectTimeout, httpx.ReadTimeout))
+                else RuntimeError
+            )
+            error = error_type(f"Ollama generation failed ({type(exc).__name__})")
             error.telemetry_metrics = [  # type: ignore[attr-defined]
                 self._failure_metric(
                     prompt,
@@ -451,6 +466,11 @@ class OllamaClient:
                     "failed to parse grammar" in str(exc).casefold()
                 ):
                     grammar_fallback = True
-        error = RuntimeError(f"Ollama structured output failed after {attempts} attempts")
+        error_type = (
+            LLMUnavailableError
+            if isinstance(last_error, LLMUnavailableError)
+            else RuntimeError
+        )
+        error = error_type(f"Ollama structured output failed after {attempts} attempts")
         error.telemetry_metrics = metrics  # type: ignore[attr-defined]
         raise error from last_error

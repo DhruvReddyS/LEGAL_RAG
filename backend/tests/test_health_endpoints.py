@@ -149,3 +149,85 @@ def test_accelerated_inference_assertion_passes_on_mps(monkeypatch) -> None:
     monkeypatch.setattr(health, "inference_devices", lambda: {"embedding": "mps", "reranking": "mps"})
 
     health.assert_accelerated_inference()  # must not raise
+
+
+async def test_a_vector_store_outage_is_503_not_500() -> None:
+    """Losing Qdrant surfaced as Internal Server Error.
+
+    That reads as a defect in this service and tells a caller nothing about
+    whether retrying helps.
+    """
+    from fastapi import APIRouter
+    from qdrant_client.http.exceptions import ResponseHandlingException
+
+    from main import app
+
+    probe = APIRouter()
+
+    @probe.get("/__probe_vector_outage")
+    async def _raise() -> None:
+        raise ResponseHandlingException("connection to qdrant:6333 refused")
+
+    app.include_router(probe)
+    try:
+        async with await _client(app) as client:
+            response = await client.get("/__probe_vector_outage")
+    finally:
+        app.router.routes = [
+            route
+            for route in app.router.routes
+            if getattr(route, "path", None) != "/__probe_vector_outage"
+        ]
+
+    assert response.status_code == 503
+    assert response.headers["Retry-After"] == "15"
+    # The host and port in the exception must not travel to the caller.
+    assert "6333" not in response.text
+    assert "try again" in response.json()["detail"].casefold()
+
+
+async def test_a_model_host_outage_is_503_and_names_the_alternative() -> None:
+    """Reasoning has no fallback by design, so losing Ollama is an outage."""
+    from fastapi import APIRouter
+
+    from app.services.llm import LLMUnavailableError
+    from main import app
+
+    probe = APIRouter()
+
+    @probe.get("/__probe_model_outage")
+    async def _raise() -> None:
+        raise LLMUnavailableError("Ollama generation failed (ConnectError)")
+
+    app.include_router(probe)
+    try:
+        async with await _client(app) as client:
+            response = await client.get("/__probe_model_outage")
+    finally:
+        app.router.routes = [
+            route
+            for route in app.router.routes
+            if getattr(route, "path", None) != "/__probe_model_outage"
+        ]
+
+    assert response.status_code == 503
+    assert response.headers["Retry-After"] == "30"
+    # A citizen who cannot use Deep can still use Fast; say so.
+    assert "fast" in response.json()["detail"].casefold()
+
+
+def test_the_outage_type_still_triggers_existing_runtime_error_fallbacks() -> None:
+    """Query understanding and verification both fall back on RuntimeError.
+
+    Introducing a distinct type must not bypass them, or an outage would turn
+    a graceful abstention into a crash.
+    """
+    from app.services.llm import LLMUnavailableError
+
+    assert issubclass(LLMUnavailableError, RuntimeError)
+
+    try:
+        raise LLMUnavailableError("unreachable")
+    except RuntimeError:
+        caught = True
+    assert caught

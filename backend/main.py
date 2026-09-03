@@ -9,6 +9,9 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
+from qdrant_client.http.exceptions import ResponseHandlingException
+
+from app.services.llm import LLMUnavailableError
 
 from app.agents.orchestrator import LegalRAGWorkflow
 from app.routers.auth import router as auth_router
@@ -86,6 +89,60 @@ app.add_middleware(
     allowed_origins=settings.cors_origin_list,
     allow_private_network=settings.cors_allow_private_network,
 )
+
+
+@app.exception_handler(ResponseHandlingException)
+async def vector_store_unavailable(request: Request, exc: ResponseHandlingException) -> JSONResponse:
+    """A dependency being down is 503, not 500.
+
+    Losing Qdrant surfaced as Internal Server Error, which reads as a defect in
+    this service and tells a caller nothing about whether retrying helps. The
+    exception message can carry a host and port, so only the fact of the outage
+    is returned.
+    """
+    logger.error(
+        json.dumps(
+            {
+                "event": "vector_store_unavailable",
+                "request_id": getattr(request.state, "request_id", None),
+                "path": request.url.path,
+                "error_type": type(exc).__name__,
+            },
+            separators=(",", ":"),
+        )
+    )
+    return JSONResponse(
+        status_code=503,
+        content={
+            "detail": "The legal corpus is temporarily unavailable. Please try again shortly."
+        },
+        headers={"Retry-After": "15", "Cache-Control": "no-store"},
+    )
+
+
+@app.exception_handler(LLMUnavailableError)
+async def model_host_unavailable(request: Request, exc: LLMUnavailableError) -> JSONResponse:
+    """Reasoning has no fallback, by design: there is no safe way to invent a
+    legal answer. Losing the model host is therefore an outage, not a defect."""
+    logger.error(
+        json.dumps(
+            {
+                "event": "model_host_unavailable",
+                "request_id": getattr(request.state, "request_id", None),
+                "path": request.url.path,
+                "error_type": type(exc).__name__,
+            },
+            separators=(",", ":"),
+        )
+    )
+    return JSONResponse(
+        status_code=503,
+        content={
+            "detail": "Deep review is temporarily unavailable. "
+            "Fast evidence search still works, or try again shortly."
+        },
+        headers={"Retry-After": "30", "Cache-Control": "no-store"},
+    )
 
 
 @app.middleware("http")
