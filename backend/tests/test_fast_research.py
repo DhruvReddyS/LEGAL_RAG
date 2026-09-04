@@ -363,3 +363,64 @@ class TestDistinctiveTermsAreNotReadFromTimings:
             "published; the mandatory-term gate is not being applied"
         )
         assert result["citations"] == []
+
+
+class TestAQuestionThatNamesNoSubject:
+    """A query of nothing but stopwords must not be answered.
+
+    Vector search always returns its nearest neighbours, and every relevance
+    test in this lane is vacuously satisfied when there are no terms to test:
+    `_lexical_coverage` divided by an empty token set and returned 1.0, and
+    the mandatory-term gate had nothing to require. Measured before this was
+    fixed, "what is that?" came back at *moderate* confidence citing the Model
+    Prison Manual -- an unrelated passage presented as an answer to a question
+    the system could not have understood.
+    """
+
+    @pytest.mark.parametrize("query", ["what is that?", "how do i", "the", "?"])
+    @pytest.mark.asyncio
+    async def test_it_is_declined_rather_than_answered(self, query: str) -> None:
+        unrelated = hit("x", "doc-x", "Model Prison Manual", current=True)
+        unrelated.payload["text"] = (
+            "Prisoners shall be allotted work according to capacity."
+        )
+
+        result = await FastLegalResearchService(FakeRetrieval([unrelated])).run(  # type: ignore[arg-type]
+            query=query, role="citizen", case_id=None, history=[]
+        )
+
+        assert result["evidence_strength"] == "insufficient"
+        assert result["confidence_score"] == 0.0
+        assert result["citations"] == []
+        assert (
+            result["agent_trace"][0].details["abstention_reason"]
+            == "no_searchable_terms"
+        )
+
+    def test_coverage_of_nothing_is_not_perfect_coverage(self) -> None:
+        """The permissive default that made the above possible.
+
+        Kept at 0.0 so the failure cannot return through a different caller.
+        """
+        from app.services.fast_research import _lexical_coverage
+
+        assert _lexical_coverage(set(), {"text": "any passage at all"}) == 0.0
+
+    @pytest.mark.asyncio
+    async def test_a_real_question_is_unaffected(self) -> None:
+        """The guard must not swallow questions that do name a subject."""
+        passage = hit("a", "doc-a", "Code of Criminal Procedure", current=True)
+        passage.payload["text"] = (
+            "The officer in charge of a police station shall reduce the "
+            "information relating to the commission of a cognizable offence "
+            "to writing."
+        )
+
+        result = await FastLegalResearchService(FakeRetrieval([passage])).run(  # type: ignore[arg-type]
+            query="must police reduce information to writing?",
+            role="citizen",
+            case_id=None,
+            history=[],
+        )
+
+        assert result["citations"] != []

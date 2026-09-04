@@ -6,6 +6,30 @@
       "document_id": "gold-doc-46f72e49527676b064e142cd",
       "sha256": "13e2b6eb66add222c7262ccaa0b08d58e48ca22cdf0953f6541123ef039de239"
     },
+    "gold-canonical-434d4ee93837cf9037617a7b": {
+      "chunk_count": 31,
+      "completed_at": "2026-09-04T05:06:26.232927+00:00",
+      "document_id": "gold-doc-dffb5aa132039b623f124c0c",
+      "sha256": "434d4ee93837cf9037617a7b8866c1c9fb651d88401b419e64d7569f05ab207e"
+    },
+    "gold-canonical-44ac8aa22b340162bce834bf": {
+      "chunk_count": 2,
+      "completed_at": "2026-09-04T05:05:56.737787+00:00",
+      "document_id": "gold-doc-a9ed9f62ebe515b1963913f3",
+      "sha256": "44ac8aa22b340162bce834bf4e997b493bcdbbb06722f2029523d2b1da371cb8"
+    },
+    "gold-canonical-5e60e2afe30d0fe7eca4f812": {
+      "chunk_count": 383,
+      "completed_at": "2026-09-04T05:05:21.030814+00:00",
+      "document_id": "gold-doc-4fc9cd46fd30dd1e806ff44e",
+      "sha256": "5e60e2afe30d0fe7eca4f8126301146b76c86a444e690581f81eb564843517fe"
+    },
+    "gold-canonical-86ae202053a6ca67994ffe40": {
+      "chunk_count": 40,
+      "completed_at": "2026-09-04T05:05:49.432108+00:00",
+      "document_id": "gold-doc-dc8946bacecdd430014b3e67",
+      "sha256": "86ae202053a6ca67994ffe407a187c35f8b327777feae623f8f74f457b13682b"
+    },
     "gold-canonical-c9da896e7a16c481a4623578": {
       "chunk_count": 310,
       "completed_at": "2026-09-04T04:59:30.959664+00:00",

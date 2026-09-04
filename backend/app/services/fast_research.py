@@ -119,8 +119,14 @@ def _payload_windows(payload: dict) -> list[set[str]]:
 
 
 def _lexical_coverage(query_tokens: set[str], payload: dict) -> float:
+    # A query with nothing to match is not matched by everything. Returning
+    # 1.0 here made every passage clear the relevance floor, so "what is
+    # that?" -- all stopwords, no focus terms -- was answered at moderate
+    # confidence with whichever passage the vector search happened to return.
+    # The lane refuses such a query outright before reaching this, and this
+    # stays 0.0 so the failure mode cannot come back through another caller.
     if not query_tokens:
-        return 1.0
+        return 0.0
     return max(
         (len(query_tokens & window) / len(query_tokens) for window in _payload_windows(payload)),
         default=0.0,
@@ -188,6 +194,53 @@ class FastLegalResearchService:
     def __init__(self, retrieval: HybridRetrievalService) -> None:
         self.retrieval = retrieval
 
+    def _no_searchable_terms(
+        self,
+        query: str,
+        normalization: object,
+        started: float,
+    ) -> dict:
+        """Decline a question that names no subject.
+
+        Retrieval would happily return its nearest neighbours -- a vector
+        search always does -- and every relevance test downstream is vacuously
+        satisfied when there are no terms to test. Measured before this
+        existed, "what is that?" came back at moderate confidence citing the
+        Model Prison Manual.
+        """
+        total_ms = round((perf_counter() - started) * 1000, 2)
+        return {
+            "final_answer": INSUFFICIENT_EVIDENCE,
+            "citations": [],
+            "confidence_score": 0.0,
+            "evidence_strength": "insufficient",
+            "intent": QueryIntent(
+                intent="fast_evidence_research",
+                entities=[],
+                language="English",
+                complexity="simple",
+                retrieval_query=query,
+            ),
+            "agent_trace": [
+                AgentTraceEvent(
+                    node="fast_retrieval",
+                    details={
+                        "result_count": 0,
+                        "raw_result_count": 0,
+                        "relevant_result_count": 0,
+                        "unique_document_count": 0,
+                        "focus_tokens": [],
+                        "abstention_reason": "no_searchable_terms",
+                        "legal_term_corrections": [
+                            {"from": source, "to": target}
+                            for source, target in getattr(normalization, "corrections", ())
+                        ],
+                    },
+                )
+            ],
+            "timings": {"workflow_total_ms": total_ms},
+        }
+
     async def run(
         self,
         *,
@@ -208,6 +261,12 @@ class FastLegalResearchService:
         normalization = normalize_legal_terms(query)
         query = normalization.normalized
         focus_tokens = _focus_tokens(query)
+        if not focus_tokens:
+            # Nothing in the question names a subject, so there is nothing a
+            # passage could be relevant *to*. Retrieval would still return its
+            # nearest neighbours and every relevance test downstream would be
+            # vacuously satisfied.
+            return self._no_searchable_terms(query, normalization, started)
         # Dense + sparse with server-side RRF, and no cross-encoder.
         #
         # This lane was lexical-only because the dense path once measured
@@ -239,7 +298,7 @@ class FastLegalResearchService:
                 collection_name=GLOBAL_LEGAL_CORPUS, filters=corpus_filters
             ),
         )
-        (hits, retrieval_timings), (_, distinctive) = await asyncio.gather(
+        (hits, retrieval_timings), (term_counts, distinctive) = await asyncio.gather(
             search, term_frequencies
         )
         raw_result_count = len(hits)
@@ -411,7 +470,9 @@ class FastLegalResearchService:
                         "focus_term_recall": focus_term_recall if hits else 0.0,
                         "mandatory_term_match_rate": mandatory_term_match_rate if hits else 0.0,
                         "distinctive_terms": sorted(distinctive_terms),
-                        "term_document_counts": retrieval_timings.lexical_term_document_counts,
+                        # The counts this lane computed, not the lexical
+                        # path's, which no longer runs here and reports empty.
+                        "term_document_counts": term_counts,
                         "confidence_method": "weighted_coverage_recall_x_mandatory_term_match_rate",
                         "diversity_selection": True,
                         "focus_tokens": sorted(focus_tokens),
