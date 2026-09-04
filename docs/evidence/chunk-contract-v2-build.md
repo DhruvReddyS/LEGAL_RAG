@@ -93,3 +93,16 @@ the chunk files, and the embedding cache. Each is now keyed by collection. The
 embedding cache was the dangerous one: v1 embedded `chunk.text`, v2 embeds
 `embed_text`, and a chunk id can survive a re-chunk unchanged, so a shared cache
 returns a well-formed vector describing the previous contract's text.
+
+## Embedding throughput
+
+Measured on the corpus itself, mid-run, with the vector store the only other
+load (Ollama had unloaded its model, so the GPU was free):
+
+| Batch size | Points indexed per minute | Full rebuild |
+|---:|---:|---:|
+| 8 (previous default) | 92 | ~4.4 h |
+| 32 | 503 | ~40 min |
+
+A 5.5x difference from one parameter. The default is now 32; lower it on a
+machine with less memory, or when a large model is resident on the GPU.
