@@ -185,6 +185,25 @@ def chunks_dir_for(root: Path, collection: str | None = None) -> Path:
     return root / f"processed/chunks.{name}"
 
 
+def embedding_cache_dir_for(root: Path, collection: str | None = None) -> Path:
+    """Where cached vectors for one collection live.
+
+    The complete-cache file is named for the document alone, so a second
+    collection writing here would overwrite the first collection's vectors and
+    leave it unrestorable. The vectors are also contract-dependent in a way the
+    filename cannot express: v1 embedded `chunk.text`, the current contract
+    embeds `embed_text`, and a chunk id can survive a re-chunk unchanged. A
+    shared cache would hand back a vector of the old text under the new one.
+
+    The default collection keeps the original path so existing vectors are
+    found.
+    """
+    name = collection or settings.qdrant_global_collection
+    if name == DEFAULT_GLOBAL_COLLECTION:
+        return root / "cache/embeddings"
+    return root / f"cache/embeddings.{name}"
+
+
 def checkpoint_path_for(root: Path, collection: str | None = None) -> Path:
     """Where the ingestion ledger for one collection lives.
 
@@ -241,7 +260,7 @@ async def run_pipeline(options: PipelineOptions, *, corpus_root: Path | None = N
         ]
     result = PipelineResult()
     checkpoint = CheckpointStore(checkpoint_path_for(root))
-    cache = EmbeddingCache(root / "cache/embeddings")
+    cache = EmbeddingCache(embedding_cache_dir_for(root))
     embedder = None if options.dry_run else BGEM3Embedder()
     qdrant = None
     if not options.dry_run:

@@ -119,3 +119,49 @@ class TestRechunkSkipsExtraction:
         source = inspect.getsource(pipeline.run_pipeline)
         assert "rebuilding = options.force or options.rechunk" in source
         assert "None if rebuilding else cache.load" in source
+
+
+class TestEmbeddingCacheIsolation:
+    """Cached vectors are contract-dependent, and the cache filename cannot
+    say so: it names the document only. v1 embedded `chunk.text`, the current
+    contract embeds `embed_text`, and a chunk id can survive a re-chunk
+    unchanged -- so a shared cache hands back a vector of the old text under
+    the new one. That corruption is invisible: the vector is well-formed and
+    merely describes something else."""
+
+    def test_the_default_collection_keeps_the_original_cache(self) -> None:
+        from app.ingestion.pipeline import DEFAULT_GLOBAL_COLLECTION, embedding_cache_dir_for
+
+        assert embedding_cache_dir_for(Path("/kb"), DEFAULT_GLOBAL_COLLECTION) == Path(
+            "/kb/cache/embeddings"
+        )
+
+    def test_a_parallel_collection_caches_elsewhere(self) -> None:
+        from app.ingestion.pipeline import embedding_cache_dir_for
+
+        assert embedding_cache_dir_for(Path("/kb"), "global_legal_corpus_v2") == Path(
+            "/kb/cache/embeddings.global_legal_corpus_v2"
+        )
+
+    def test_a_rebuild_cannot_overwrite_the_live_vectors(self) -> None:
+        from app.ingestion.pipeline import DEFAULT_GLOBAL_COLLECTION, embedding_cache_dir_for
+
+        live = embedding_cache_dir_for(Path("/kb"), DEFAULT_GLOBAL_COLLECTION)
+        rebuild = embedding_cache_dir_for(Path("/kb"), "global_legal_corpus_v2")
+        assert live != rebuild
+
+    def test_every_per_collection_path_is_distinct(self) -> None:
+        """The three kinds of shared state a parallel build would corrupt."""
+        from app.ingestion.pipeline import (
+            checkpoint_path_for,
+            chunks_dir_for,
+            embedding_cache_dir_for,
+        )
+
+        for collection in ("global_legal_corpus", "global_legal_corpus_v2"):
+            paths = {
+                checkpoint_path_for(Path("/kb"), collection),
+                chunks_dir_for(Path("/kb"), collection),
+                embedding_cache_dir_for(Path("/kb"), collection),
+            }
+            assert len(paths) == 3, collection
