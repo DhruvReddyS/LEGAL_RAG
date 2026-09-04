@@ -57,7 +57,7 @@ Three properties drive the design:
   Citizen question                                          │
         │                                                   ▼
         ▼                                          ┌──────────────────┐
-  Admission → Safety screen → Router ──fast──────→ │ Lexical retrieval│ → evidence brief
+  Admission → Safety screen → Router ──fast──────→ │ Hybrid retrieval │ → evidence brief
                                   │                └──────────────────┘
                                   └──deep──→ LangGraph: understand → retrieve
                                                      → reason → verify → respond
@@ -321,13 +321,24 @@ Any signal → Deep. No signal → Fast. A case-scoped matter always goes Deep.
 
 ## 7. The Fast lane
 
-`services/fast_research.py`. **Be clear about what this is: a lexical evidence
-brief, not RAG.** It runs no dense retrieval, no reranker and no LLM.
+`services/fast_research.py`. **Be clear about what this is: an evidence brief,
+not a synthesised answer.** It retrieves and cites; it runs no reranker and no
+LLM.
 
-Why: the dense path measured **8,489 ms p95** on this hardware, which blew the
-five-second target. The lexical lane returns in **~70–95 ms**. That is a real
-engineering trade, and the cost is real too — for conceptual questions it can
-return a topically wrong document.
+It was lexical-only for a long time, because the dense path measured
+**8,489 ms p95** on this hardware and blew the five-second target. Warm, and
+with the reranker input capped, dense+sparse fusion now measures **~180–230 ms**
+end to end, and the relevance difference was not marginal: asked to explain
+Article 14, the lexical lane returned the Model Prison Manual, while RRF
+returns the Constitution's Article 14 and a Supreme Court judgment construing
+it. Escalations to Deep fell from 4/8 to 3/8 on the acceptance set.
+
+That switch also carried a cost that took a golden set to find. The lexical
+path is the only thing that computes which query terms are rare enough to be
+required, and the lane kept reading that field after it had stopped travelling
+that path. It arrived empty, the requirement became vacuous, and abstention
+accuracy fell to 0.33 — four of six known corpus gaps answered rather than
+declined. The lane now computes those terms itself.
 
 How it works:
 
@@ -789,23 +800,66 @@ measured token rates, not a timing.
 
 ## 17. Honest limitations
 
-1. **The corpus cannot say what is current.** `is_current` is false for all 381
-   documents. Supersession is now plumbed end to end and indexed, but no document
-   is marked superseded. Populating this is corpus work.
-2. **Fast mode is not RAG.** Lexical only. Renaming it, or restoring dense
-   retrieval once throughput allows, would be more honest than the current label.
-3. **Retrieval contains tuned constants.** The fallback phrase, the SOP title
-   promotion, the procedure anchor list. They help the queries they were tuned
-   against and are unmeasured elsewhere.
-4. **Verification deletes valid content.** One entailment criterion across five
-   claim categories — see [§12.1](#121-a-known-structural-weakness).
-5. **No retrieval-quality measurement exists.** Extensive latency evidence, zero
-   Recall@k, nDCG or citation accuracy. This is the largest gap, and it gates
-   fixing 3 and 4 safely.
-6. **Deep is slow.** ~120 s projected at best. Honest progress reporting is
-   currently doing more for the experience than further optimisation would.
-7. **The SSE stream is unused.** Built and tested; the client polls.
-8. **"12 specialist agents" is prompt variation.** Five graph nodes are real.
+1. **The corpus cannot say what is current.** `current_status` is
+   `"current/verify"` or similar for all 419 manifest rows, so `is_current` is
+   false everywhere — deliberately, since an unverified status must not be
+   asserted as current. Consequence: the currency caveat appears on every
+   answer and therefore carries no information.
+2. **Repealed law outnumbers current law five to one.** 5,387 chunks are the
+   IPC, CrPC and Indian Evidence Act, repealed on 1 July 2024; their
+   replacements total 1,026. Retrieval now names the repeal and prefers the
+   provision in force by a three-place rank penalty, but the imbalance is a
+   corpus problem and the preference is a mitigation, not a fix. The old codes
+   are deliberately still retrievable: they govern conduct from before the
+   repeal.
+3. **Two known retrieval failures.** `search-of-place` and `phone-stolen` are
+   missed by every configuration. Both relevance phrases exist verbatim in the
+   corpus, so these are retrieval failures, not bad specifications.
+   `phone-stolen` is a vocabulary gap — the citizen writes "my phone was
+   stolen", the corpus writes "information relating to the commission of a
+   cognizable offence".
+4. **Two corpus gaps are answered rather than declined.**
+   `consumer-complaint` and `posh-workplace`. Both contain a topical term the
+   corpus holds in passing — "complaint" appears in 752 chunks — so the
+   distinctive-term rule finds something to require and something that
+   satisfies it.
+5. **Verification uses one entailment criterion across five claim categories.**
+   See [§12.1](#121-a-known-structural-weakness). Directly measured at 1.000
+   with all five categories passing, so the predicted failure did not
+   reproduce; the structural concern stands, the evidence for it does not.
+6. **Sub-provision structural roles do not survive the chunk size.** 1,201
+   chunks contain a proviso and none are labelled one, because the patterns
+   are anchored at the start of a chunk and a 700-token chunk contains many
+   provisos. The roles that do work are provision, definition and the
+   parser-driven judgment roles.
+7. **Deep is slow.** 78–85 s after the reranker and evidence caps. Honest
+   progress reporting is still doing more for the experience than further
+   optimisation would.
+8. **The SSE stream is unused.** Built and tested; the client polls.
+9. **"12 specialist agents" is prompt variation.** Five graph nodes are real.
+10. **242 lines of retrieval code are unreachable.** The lexical-only path is
+    never invoked, and it is the only thing that populates
+    `lexical_distinctive_terms` — which the Fast lane read after it had stopped
+    travelling that path, silently disabling the abstention gate. Fixed;
+    the dead path remains.
+
+### What changed, and what it was measured at
+
+Against golden set v2 on the live collection, Fast lane (hybrid):
+
+| | R@1 | R@5 | MRR | nDCG@10 | abstention | wrongly declined |
+|---|---:|---:|---:|---:|---:|---:|
+| before this work | 0.53* | 0.73* | 0.630* | 0.625* | 0.33 | not measured |
+| now | 0.44 | 0.72 | 0.555 | 0.577 | 0.67 | 0.00 |
+
+\* measured against golden set v1, which had 21 items rather than 24, credited
+only the repealed Code of Criminal Procedure on two of them, and did not
+measure false abstention. The recall columns are not directly comparable; the
+abstention column is.
+
+The number that moved most is the one that matters most here: the system now
+declines twice as many questions it has no source for, and declines nothing it
+can answer.
 
 ---
 
@@ -836,4 +890,8 @@ measured token rates, not a timing.
 
 **Health:** `python scripts/verify_retrieval_health.py --with-model`
 **Throughput:** `python scripts/ollama_throughput_baseline.py`
-**Tests:** 253 passing (`RUN_INTEGRATION=1` with the compose stack up)
+**Tests:** 516 passing, 4 skipped (`RUN_INTEGRATION=1` with the compose stack
+up; the skips are worker tests that require no other job worker on the same
+database)
+**Retrieval quality:** `python scripts/evaluate_retrieval.py`
+**Evidence:** `docs/evidence/chunk-contract-v2-build.md`
