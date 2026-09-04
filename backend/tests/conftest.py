@@ -56,6 +56,7 @@ _OBJECT_STORAGE_MODULES = frozenset(
     {
         "test_storage_integration",
         "test_case_document_indexing_integration",
+        "test_cross_tenant_integration",
     }
 )
 
@@ -125,6 +126,10 @@ def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line(
         "markers",
         "object_storage: requires MinIO reachable at S3_ENDPOINT_URL",
+    )
+    config.addinivalue_line(
+        "markers",
+        "redteam: adversarial cross-tenant checks; reported as their own CI group",
     )
     config.addinivalue_line(
         "markers",
