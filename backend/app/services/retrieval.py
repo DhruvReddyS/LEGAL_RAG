@@ -146,6 +146,25 @@ class RetrievalTarget:
 RERANKER_INPUT_CHARACTERS = 2500
 
 
+def _distinctive_from_counts(counts: dict[str, int]) -> list[str]:
+    """Which of a query's terms are rare enough to be required.
+
+    A term absent from the corpus is the strongest possible signal that the
+    question is outside it, so when any term has zero matches those alone are
+    required. Otherwise the rarest band is required: the cutoff sits a little
+    above the minimum so a near-tie does not depend on which of two equally
+    rare words happened to be rarer.
+    """
+    if not counts:
+        return []
+    zero_frequency = sorted(term for term, count in counts.items() if count == 0)
+    if zero_frequency:
+        return zero_frequency
+    minimum = min(counts.values())
+    cutoff = max(minimum, int(minimum * 1.35))
+    return sorted(term for term, count in counts.items() if count <= cutoff)
+
+
 class BGEReranker:
     # bge-reranker-v2-m3 supports an 8192-token context. Using that full context
     # prevents the current 700-word legal chunks from being silently cut down to
@@ -480,22 +499,7 @@ class HybridRetrievalService:
                 reranking_ms=0.0,
                 total_ms=(perf_counter() - started) * 1000,
             )
-        zero_frequency_terms = sorted(
-            term for term, count in term_document_counts.items() if count == 0
-        )
-        if zero_frequency_terms:
-            distinctive_terms = zero_frequency_terms
-        else:
-            minimum_frequency = min(term_document_counts.values())
-            distinctive_cutoff = max(
-                minimum_frequency,
-                int(minimum_frequency * 1.35),
-            )
-            distinctive_terms = sorted(
-                term
-                for term, count in term_document_counts.items()
-                if count <= distinctive_cutoff
-            )
+        distinctive_terms = _distinctive_from_counts(term_document_counts)
         by_id: dict[str, Any] = {}
         match_counts: dict[str, int] = {}
         for points in section_results:
@@ -748,6 +752,49 @@ class HybridRetrievalService:
             if key:
                 source_clusters.append(shingles)
         return representatives
+
+    async def distinctive_query_terms(
+        self,
+        terms: set[str],
+        *,
+        target: RetrievalTarget,
+    ) -> tuple[dict[str, int], list[str]]:
+        """The query terms rare enough to carry its topic.
+
+        This used to be computed only inside the lexical path, so when the Fast
+        lane moved to dense+sparse RRF it silently stopped being computed at
+        all: `_mandatory_focus_match` was handed an empty set, which it treats
+        as "nothing required", leaving an unweighted coverage floor as the only
+        gate. A question whose defining word is absent from the corpus could
+        then be answered by a passage sharing its filler words -- exactly the
+        abstention failure measured against the golden set.
+
+        Frequencies come from the collection being searched, so the notion of
+        "rare" follows the corpus rather than a hardcoded list.
+        """
+        cleaned = {term.casefold().strip() for term in terms if term.strip()}
+        cleaned = {term for term in cleaned if len(term) > 1}
+        if not cleaned:
+            return {}, []
+
+        base = target.filters.to_qdrant()
+        base_conditions = list(base.must or []) if base else []
+
+        async def count_for(term: str) -> tuple[str, int]:
+            result = await self.client.count(
+                collection_name=target.collection_name,
+                count_filter=models.Filter(
+                    must=[
+                        *base_conditions,
+                        models.FieldCondition(key="text", match=models.MatchText(text=term)),
+                    ]
+                ),
+                exact=True,
+            )
+            return term, int(result.count)
+
+        counts = dict(await asyncio.gather(*(count_for(term) for term in sorted(cleaned))))
+        return counts, _distinctive_from_counts(counts)
 
     async def search_across_collections_with_timings(
         self,

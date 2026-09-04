@@ -31,6 +31,16 @@ class FakeRetrieval:
             lexical_term_document_counts=self.term_document_counts,
         )
 
+    async def distinctive_query_terms(self, terms, *, target):
+        """The Fast lane computes these itself now.
+
+        It stopped being able to read them from the timings when the lane moved
+        off the lexical path, which is what let the mandatory-term gate quietly
+        become a no-op.
+        """
+        del terms, target
+        return dict(self.term_document_counts), list(self.distinctive_terms)
+
 
 def hit(chunk_id: str, document_id: str, title: str, *, current: bool) -> RetrievalHit:
     return RetrievalHit(
@@ -290,3 +300,66 @@ def test_three_letter_acronyms_are_correctable_without_becoming_ambiguous() -> N
     assert normalize_legal_terms("under ipa section 302").normalized == "under IPC section 302"
     # Ambiguity must still refuse: bns and bnss are both one edit from "bnss".
     assert normalize_legal_terms("under bnss rules").normalized == "under bnss rules"
+
+
+class TestDistinctiveTermsAreNotReadFromTimings:
+    """The regression this class exists to prevent.
+
+    `lexical_distinctive_terms` is populated only by the lexical retrieval
+    path. When the Fast lane moved to dense+sparse RRF it stopped travelling
+    that path, so the field arrived empty and `_mandatory_focus_match` -- which
+    treats an empty requirement set as "nothing required" -- became a no-op.
+    The only surviving gate was an unweighted coverage floor, and abstention
+    against the golden set fell to 0.33: four of six known corpus gaps were
+    answered rather than declined.
+
+    Nothing failed. The suite kept passing because the test double supplied
+    the field through the timings, faithfully reproducing a path production no
+    longer used. So the double below deliberately returns *empty* timings and
+    supplies the terms only through the method, which is where the lane must
+    now get them.
+    """
+
+    class TimingsWithoutDistinctiveTerms(FakeRetrieval):
+        async def search_with_timings(self, query: str, **kwargs):
+            hits, timings = await super().search_with_timings(query, **kwargs)
+            # As the RRF path really behaves: no lexical term statistics.
+            timings.lexical_distinctive_terms = []
+            timings.lexical_term_document_counts = {}
+            return hits, timings
+
+    @pytest.mark.asyncio
+    async def test_the_gate_still_applies_when_timings_carry_nothing(self) -> None:
+        # This passage must clear the coverage floor, or the floor rejects it
+        # first and the mandatory-term gate is never reached -- which is what
+        # made two earlier versions of this test pass against the bug it was
+        # written to catch. Of {landlord, security, deposit, returned} it
+        # carries three, so coverage is 0.75 against a floor of 0.34, and the
+        # one term it lacks is the one that decides the topic. The query is
+        # also free of acronyms, whose expansion adds tokens the passage
+        # cannot match and pushes coverage back under the floor.
+        generic = hit("generic-a", "doc-generic", "Unrelated judgment", current=True)
+        generic.payload["text"] = (
+            "The security amount shall be returned as a deposit to the party "
+            "on the conclusion of the proceedings."
+        )
+        retrieval = self.TimingsWithoutDistinctiveTerms(
+            [generic],
+            distinctive_terms=["landlord"],
+            term_document_counts={
+                "security": 1129, "deposit": 152, "returned": 261, "landlord": 37
+            },
+        )
+
+        result = await FastLegalResearchService(retrieval).run(  # type: ignore[arg-type]
+            query="landlord security deposit returned",
+            role="citizen",
+            case_id=None,
+            history=[],
+        )
+
+        assert result["evidence_strength"] == "insufficient", (
+            "a passage that does not contain the query's distinctive term was "
+            "published; the mandatory-term gate is not being applied"
+        )
+        assert result["citations"] == []

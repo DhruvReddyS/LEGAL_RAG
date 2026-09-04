@@ -1,12 +1,18 @@
 from __future__ import annotations
 
+import asyncio
 import re
 from time import perf_counter
 
 from app.schemas.agents import AgentCitation, AgentTraceEvent, QueryIntent
 from app.core.config import settings
 from app.services.generation import INSUFFICIENT_EVIDENCE
-from app.services.retrieval import HybridRetrievalService, RetrievalFilters
+from app.ingestion.init_qdrant import GLOBAL_LEGAL_CORPUS
+from app.services.retrieval import (
+    HybridRetrievalService,
+    RetrievalFilters,
+    RetrievalTarget,
+)
 from app.services.legal_term_normalization import (
     LEGAL_ACRONYM_EXPANSIONS,
     normalize_legal_terms,
@@ -216,15 +222,32 @@ class FastLegalResearchService:
         # which is what several rounds of tuning here established: a common
         # term returns an arbitrary page of its matches, so the right passage
         # is often not a candidate at all. Ranking has to come from the query.
-        hits, retrieval_timings = await self.retrieval.search_with_timings(
+        corpus_filters = RetrievalFilters(corpus_tiers=["gold", "extended"])
+        # Run the frequency lookup alongside the search rather than after it.
+        # These are Qdrant counts with no embedding step, so concurrently they
+        # cost the lane nothing measurable.
+        search = self.retrieval.search_with_timings(
             query,
-            filters=RetrievalFilters(corpus_tiers=["gold", "extended"]),
+            filters=corpus_filters,
             candidate_limit=max(settings.fast_candidate_limit, 20),
             result_limit=max(settings.fast_candidate_limit, 20),
             rerank=False,
         )
+        term_frequencies = self.retrieval.distinctive_query_terms(
+            focus_tokens,
+            target=RetrievalTarget(
+                collection_name=GLOBAL_LEGAL_CORPUS, filters=corpus_filters
+            ),
+        )
+        (hits, retrieval_timings), (_, distinctive) = await asyncio.gather(
+            search, term_frequencies
+        )
         raw_result_count = len(hits)
-        distinctive_terms = set(retrieval_timings.lexical_distinctive_terms)
+        # Computed here rather than taken from the timings. The lexical path
+        # populated `lexical_distinctive_terms`; this lane no longer uses that
+        # path, so reading it returned an empty set and made the mandatory-term
+        # gate below a no-op -- the abstention regression the golden set found.
+        distinctive_terms = set(distinctive)
         # RRF has already ranked these, so the coverage gate is a floor against
         # a topically unrelated passage rather than the ranking mechanism it
         # was under lexical search. It is applied only while it leaves
