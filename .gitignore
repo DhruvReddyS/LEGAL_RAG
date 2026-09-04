@@ -24,9 +24,13 @@ frontend/src-tauri/gen/
 # mappings, VERSION, README, and human-readable reports visible to Git.
 data/legal_kb/cache/
 data/legal_kb/processed/
-data/legal_kb/logs/ingestion_checkpoint.json
-data/legal_kb/logs/ingestion_checkpoint.json.lock
-data/legal_kb/logs/ingestion_checkpoint_claims/
+# Every collection gets its own ledger, so these are globs rather than exact
+# names: a parallel index writes ingestion_checkpoint.<collection>.json beside
+# the default one, and an exact-path rule silently let that generated state be
+# committed.
+data/legal_kb/logs/ingestion_checkpoint*.json
+data/legal_kb/logs/ingestion_checkpoint*.json.lock
+data/legal_kb/logs/ingestion_checkpoint*_claims/
 data/legal_kb/logs/page_range_repair_*.json
 
 # The verified corpus is 660+ MB and is distributed as a versioned release
