@@ -18,6 +18,7 @@ from app.core.config import settings
 from app.core.qdrant import create_qdrant_client
 from app.ingestion.embedder import BGEM3Embedder, resolve_embedding_device
 from app.ingestion.init_qdrant import GLOBAL_LEGAL_CORPUS
+from app.ingestion.supersession import replacement_for
 from app.ingestion.sparse import to_sparse_vector
 from app.services.legal_term_normalization import LEGAL_ACRONYM_EXPANSIONS
 
@@ -234,6 +235,44 @@ def _base_forms(term: str) -> tuple[str, ...]:
     if lowered.endswith("s") and not lowered.endswith("ss"):
         return (lowered[:-1],)
     return ()
+
+
+def _prefer_law_in_force(hits: list[RetrievalHit]) -> list[RetrievalHit]:
+    """Order by relevance, with a repealed provision giving way to a live one.
+
+    The corpus holds 5,387 chunks of the Indian Penal Code, the Code of
+    Criminal Procedure and the Indian Evidence Act against 1,026 of the
+    Sanhitas that replaced them on 1 July 2024. Retrieval is volume-sensitive,
+    so the repealed provision wins on weight of material: measured per topic,
+    "arrest without warrant" is 48 CrPC chunks to 23 BNSS.
+
+    The preference is a rank penalty rather than a score multiplier because the
+    ordering key is an RRF score in one lane and a cross-encoder logit in the
+    other. It is also deliberately mild: a repealed provision that is markedly
+    the better match still wins, because the old codes still govern conduct
+    from before the repeal and are sometimes the right answer.
+
+    Repeal is derived from the Act's name rather than read from the payload, so
+    this works against an index built before the field existed.
+    """
+    penalty = settings.repealed_rank_penalty
+    if penalty <= 0:
+        return sorted(hits, key=lambda hit: hit.reranker_score, reverse=True)
+
+    ordered = sorted(hits, key=lambda hit: hit.reranker_score, reverse=True)
+
+    def effective_rank(position_and_hit: tuple[int, RetrievalHit]) -> int:
+        position, hit = position_and_hit
+        payload = hit.payload or {}
+        repealed = bool(payload.get("replaced_by")) or bool(
+            replacement_for(payload.get("act_name"), payload.get("title"))
+        )
+        return position + (penalty if repealed else 0)
+
+    return [
+        hit
+        for _, hit in sorted(enumerate(ordered), key=effective_rank)
+    ]
 
 
 def _distinctive_from_counts(counts: dict[str, int]) -> list[str]:
@@ -1048,7 +1087,7 @@ class HybridRetrievalService:
             )
             for point, reranker_score in zip(candidates, reranker_scores, strict=True)
         ]
-        hits.sort(key=lambda hit: hit.reranker_score, reverse=True)
+        hits = _prefer_law_in_force(hits)
         timings = RetrievalTimings(
             embedding_ms=round(embedding_ms, 2),
             qdrant_ms=round(qdrant_ms, 2),

@@ -95,7 +95,17 @@ def test_parallel_processes_do_not_lose_checkpoint_entries(tmp_path: Path) -> No
     for process in processes:
         process.start()
     for process in processes:
-        process.join(timeout=10)
+        # Eight spawned interpreters contending for one lock. On a loaded
+        # machine -- a corpus rebuild running alongside the suite, say -- they
+        # take longer than ten seconds to start, and `exitcode` is then None
+        # rather than a failure code. Asserting `exitcode == 0` on that reads
+        # as "the lock lost an entry", which is the one thing this test exists
+        # to detect and was not what happened.
+        process.join(timeout=60)
+        assert process.exitcode is not None, (
+            "worker did not finish within 60s; the machine is loaded, which is "
+            "not the same as the checkpoint losing an entry"
+        )
         assert process.exitcode == 0
 
     checkpoint = json.loads(checkpoint_path.read_text(encoding="utf-8"))

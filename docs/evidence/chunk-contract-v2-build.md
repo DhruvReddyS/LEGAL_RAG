@@ -125,3 +125,37 @@ corrected numbers above time the embedder itself.
 The real optimisation available here is grouping chunks of similar length into
 a batch. It is not taken because the embedding cache saves resumable parts by
 contiguous start index, and reordering would break crash-resumability.
+
+## Retrieval quality on the live collection, golden set v2
+
+All hybrid (the deployed Fast lane), same collection, changes applied in order.
+`wrongly declined` is the share of *answerable* questions the abstention gate
+refused; without it, tightening abstention looks free.
+
+| Change | R@1 | R@5 | MRR | nDCG@10 | abstention | wrongly declined |
+|---|---:|---:|---:|---:|---:|---:|
+| Baseline (golden set v1, 21 items) | 0.53 | 0.73 | 0.630 | 0.625 | 0.33 | not measured |
+| Distinctive-term gate restored | 0.44 | 0.67 | 0.549 | 0.574 | 0.67 | 0.28 |
+| Colloquial and inflection fixes | 0.39 | 0.67 | 0.522 | 0.554 | 0.67 | 0.00 |
+| Prefer the law in force | 0.44 | 0.72 | 0.555 | 0.577 | 0.67 | 0.00 |
+
+The first row is not directly comparable: it was measured against golden set
+v1, which had 21 items, credited only the repealed Code of Criminal Procedure
+on two of them, and did not measure false abstention at all. It is kept here
+because it is the number that started this work.
+
+Reading the rest: abstention doubled and stayed doubled. The dip at the second
+step is the three currency items ceasing to be declined and beginning to fail
+on recall instead — the same defect, recorded where it belongs. The third step
+recovers it and more.
+
+Two items are missed by every configuration, `search-of-place` and
+`phone-stolen`. Both relevance phrases exist verbatim in the corpus, so these
+are retrieval failures rather than bad specifications; `phone-stolen` is the
+vocabulary-mismatch case the `embed_text` prefix exists to address, which is
+what the v2 collection is being built to test.
+
+Two gaps are still answered rather than declined, `consumer-complaint` and
+`posh-workplace`. Both have a topical term the corpus does contain in passing
+— "complaint" appears in 752 chunks — so the distinctive-term rule finds
+something to require and something that satisfies it.

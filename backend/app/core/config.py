@@ -47,6 +47,12 @@ class Settings(BaseSettings):
     qdrant_dense_vector_name: str = "dense"
     qdrant_sparse_vector_name: str = "sparse"
     query_embedding_cache_size: int = Field(default=256, ge=0, le=4096)
+    # How many rank places a repealed provision must beat an in-force one by to
+    # still outrank it. Expressed in ranks, not score: the ordering key is an
+    # RRF score in the Fast lane and a cross-encoder logit in Deep, which are
+    # not on the same scale, so a multiplicative penalty would mean two
+    # different things. 0 disables the preference.
+    repealed_rank_penalty: int = Field(default=3, ge=0, le=20)
     fast_candidate_limit: int = Field(default=8, ge=4, le=40)
     fast_result_limit: int = Field(default=4, ge=1, le=10)
     fast_latency_target_ms: int = Field(default=5000, ge=500, le=30000)
