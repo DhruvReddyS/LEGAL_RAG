@@ -54,7 +54,13 @@ _EMERGENCY_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
             r"\b(?:is|are|being)\s+(?:currently\s+)?"
             r"(?:hitting|beating|attacking|assaulting|strangling|threatening to kill)\b"
             r"|\b(?:he|she|they|someone)\s+(?:is|are)\s+going to kill\b"
-            r"|\bin danger right now\b|\bhelp me now\b",
+            # "help me now" is a real distress phrase and also how a citizen
+            # opens a polite request -- "can you help me now with the FIR
+            # procedure" was screened as immediate violence. Only the standalone
+            # cry counts, so a continuation that asks *about* something does not.
+            r"|\bin danger right now\b"
+            r"|\bhelp me (?:right )?now\b"
+            r"(?!\s+(?:with|to|understand|about|on|in|regarding|for|by)\b)",
             re.I,
         ),
     ),
@@ -79,7 +85,13 @@ _EMERGENCY_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
         "offence_in_progress",
         re.compile(
             r"\b(?:breaking into|someone is inside)\b.{0,30}\b(?:house|home|flat)\b"
-            r"|\bbeing kidnapped\b|\bbeing followed right now\b|\bheld against (?:my|her|his) will\b",
+            # "being kidnapped" alone screened "what is the punishment for
+            # being kidnapped?" as an emergency. A report needs someone it is
+            # happening to, or an explicit now.
+            r"|\b(?:i|we|she|he|they|someone|my\s+\w+)\s+(?:is|am|are)\s+being\s+kidnapped\b"
+            r"|\bbeing kidnapped\s+(?:right\s+)?now\b"
+            r"|\bbeing followed right now\b"
+            r"|\bheld against (?:my|her|his) will\b",
             re.I,
         ),
     ),
@@ -110,7 +122,7 @@ _EMERGENCY_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
         "child_at_risk",
         re.compile(
             r"\b(?:child|minor|girl|boy)\b.{0,40}\b(?:being abused|is being hurt|in danger)\b"
-            r"|\bchild marriage\b.{0,30}\btomorrow|today\b",
+            r"|\bchild marriage\b.{0,30}\b(?:tomorrow|today)\b",
             re.I,
         ),
     ),

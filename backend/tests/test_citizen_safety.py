@@ -165,3 +165,108 @@ class TestFinancialFraudInProgress:
     )
     def test_a_question_about_fraud_still_reaches_the_corpus(self, query: str) -> None:
         assert screen_citizen_query(query) is None, query
+
+
+class TestScreeningDoesNotFireOnOrdinaryWords:
+    """Two patterns matched far more than they were written to.
+
+    Both were found by running real citizen questions end to end rather than by
+    reading the regexes, and both replaced an answer with a helpline -- the
+    exact harm this module's docstring warns about, committed by the module
+    itself.
+    """
+
+    def test_the_word_today_is_not_a_child_emergency(self) -> None:
+        """`\\bchild marriage\\b.{0,30}\\btomorrow|today\\b` has no group around
+        its alternation, so it reads as "(child marriage ... tomorrow) OR
+        (today)". Every question containing "today" was an emergency.
+        """
+        for query in (
+            "What is the punishment for theft under the law in force today?",
+            "I will file the FIR today",
+            "Is the court open today?",
+        ):
+            assert screen_citizen_query(query) is None, query
+
+    def test_a_child_marriage_tomorrow_still_fires(self) -> None:
+        result = screen_citizen_query("the child marriage is happening tomorrow")
+
+        assert result is not None
+        assert result.reason == "child_at_risk"
+
+    def test_asking_for_help_with_a_procedure_is_not_distress(self) -> None:
+        """"help me now" is a real cry and also how a polite request opens."""
+        for query in (
+            "can you help me now with the FIR procedure",
+            "please help me now understand bail",
+            "help me now to file a complaint",
+        ):
+            assert screen_citizen_query(query) is None, query
+
+    def test_the_standalone_cry_still_fires(self) -> None:
+        for query in ("help me now, he is outside my door", "somebody help me now"):
+            result = screen_citizen_query(query)
+            assert result is not None, query
+            assert result.reason == "immediate_violence"
+
+
+def test_no_emergency_pattern_has_an_ungrouped_alternation() -> None:
+    """The bug above, as a rule rather than a case.
+
+    A top-level `|` inside a longer pattern silently widens both branches. A
+    branch that is a bare common word matches that word anywhere in any
+    question, which is how "today" became a child-protection emergency.
+    """
+    import re
+
+    from app.services.citizen_safety import _EMERGENCY_PATTERNS, _REFUSAL_PATTERNS
+
+    def top_level_branches(pattern: str) -> list[str]:
+        depth, parts, buf, index = 0, [], [], 0
+        while index < len(pattern):
+            char = pattern[index]
+            if char == "\\":
+                buf.append(pattern[index : index + 2])
+                index += 2
+                continue
+            if char == "(":
+                depth += 1
+            elif char == ")":
+                depth -= 1
+            if char == "|" and depth == 0:
+                parts.append("".join(buf))
+                buf = []
+            else:
+                buf.append(char)
+            index += 1
+        parts.append("".join(buf))
+        return parts
+
+    offenders = []
+    patterns = [(name, p) for name, p in _EMERGENCY_PATTERNS]
+    patterns += [(name, p) for name, _, p in _REFUSAL_PATTERNS]
+    for name, compiled in patterns:
+        for branch in top_level_branches(compiled.pattern):
+            bare = branch.replace(r"\b", "").strip()
+            if not bare:
+                continue
+            # A branch is safe if it constrains *who* or *when* -- a group, a
+            # lookaround, or enough words to be a phrase rather than a topic.
+            # A short bare phrase fires wherever those words appear, including
+            # in a question *about* the offence: "what is the punishment for
+            # being kidnapped" was screened as an emergency in progress.
+            constrained = any(token in branch for token in ("(?:", "(?!", "(?="))
+            if constrained or len(bare.split()) >= 4:
+                continue
+            if name == "self_harm":
+                # Deliberately exempt. Here the harms are not symmetric: a false
+                # positive shows someone a mental-health helpline, and a false
+                # negative misses someone in crisis. "feeling suicidal" stays a
+                # bare trigger, and narrowing it to satisfy this rule would be
+                # weakening a safety check to make a lint pass.
+                continue
+            offenders.append((name, bare))
+    assert not offenders, (
+        "these branches fire on a bare phrase and will match questions *about* "
+        f"the offence as well as reports of it: {offenders}"
+    )
