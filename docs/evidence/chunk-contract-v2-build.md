@@ -197,3 +197,30 @@ other chunks retrieves it. It is a vocabulary gap: the citizen writes "my
 phone was stolen" and the corpus writes "information relating to the
 commission of a cognizable offence". That is what the `embed_text` prefix and,
 beyond it, query expansion are for.
+
+## Rejected: removing the per-batch MPS allocator flush
+
+`_encode_batch` calls `torch.mps.empty_cache()` in a `finally`, so the
+allocator is flushed after every batch of eight and not only on the error path
+it was written for. With the rebuild appearing to run at roughly 57 chunks per
+minute against a benchmark of 282, this looked like the missing factor.
+
+Measured over 96 randomly sampled corpus chunks of varied length:
+
+| | chunks/min |
+|---|---:|
+| with the per-batch flush | 203 |
+| without it | 229 |
+
+1.13x. Not the gap, and the flush is what keeps a long document from
+exhausting MPS memory, so it stays.
+
+The gap was mostly my own doing: the readiness-warmed backend holds BGE-M3 and
+the reranker resident on the same GPU, and every evaluation run and benchmark
+in this session competed with the rebuild for it. Uncontended embedding of
+varied real chunks is ~203/min.
+
+Worth stating because the sampled profile pointed the wrong way too: `sample`
+showed 6,538 of ~7,000 frames inside `libBLAS`, which reads as CPU-bound work.
+The model is on `mps:0` in fp16 — those frames are the CPU-side threads around
+MPS dispatch, not the matmuls.
