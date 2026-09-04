@@ -66,3 +66,50 @@ class TestRepealedIsNotSuperseded:
 
         assert status == "status_unverified"
         assert replaced_by is None
+
+
+class TestLabellingMatchesRanking:
+    """The two halves must read repeal from the same place.
+
+    The ranking preference derives it from the Act's name so that it works
+    against an index built before the field existed. If the label only read
+    the payload, a repealed provision would be quietly demoted in the ordering
+    and then shown to the reader with no warning -- and the warning is the half
+    that actually reaches a citizen.
+    """
+
+    def test_a_repealed_act_is_labelled_without_the_payload_field(self) -> None:
+        status, replaced_by, repealed_on = citation_currency(
+            {"act_name": "The Code of Criminal Procedure, 1973 (Act No.2 of 1974)"}
+        )
+
+        assert status == "repealed"
+        assert replaced_by == "The Bharatiya Nagarik Suraksha Sanhita, 2023"
+        assert repealed_on == "2024-07-01"
+
+    def test_the_replacement_act_is_not_labelled_repealed(self) -> None:
+        status, _, _ = citation_currency(
+            {"act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023"}
+        )
+
+        assert status == "status_unverified"
+
+    def test_an_advisory_citing_a_repealed_section_is_not_repealed(self) -> None:
+        status, _, _ = citation_currency(
+            {"act_name": "Advisory on misuse of section 498A IPC"}
+        )
+
+        assert status == "status_unverified"
+
+    def test_an_explicit_payload_field_wins_over_derivation(self) -> None:
+        """A rebuilt index states it directly; derivation is the fallback."""
+        status, replaced_by, _ = citation_currency(
+            {
+                "act_name": "Some Act Not In The Table, 1950",
+                "replaced_by": "The Replacement Act, 2023",
+                "repealed_on": "2024-07-01",
+            }
+        )
+
+        assert status == "repealed"
+        assert replaced_by == "The Replacement Act, 2023"
