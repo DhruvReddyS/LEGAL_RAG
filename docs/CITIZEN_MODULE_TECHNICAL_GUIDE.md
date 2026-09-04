@@ -251,10 +251,10 @@ provision is in force, and every Deep answer carries a currency caveat. See
 3. **`require_permission(CHAT_USE)`** — resolves the user from a bearer token or
    the `legal_rag_access` HttpOnly cookie, then checks a database role →
    permission join. Not a hardcoded role check.
-4. **Session ownership** — an existing `session_id` must belong to the caller.
-5. **Rate limiting** — per-user sliding window: 30/min Fast, 2/min synchronous
+5. **Session ownership** — an existing `session_id` must belong to the caller.
+6. **Rate limiting** — per-user sliding window: 30/min Fast, 2/min synchronous
    Deep, 6/min job enqueue.
-6. **Disconnect guard** — `run_while_connected` polls the client connection and
+7. **Disconnect guard** — `run_while_connected` polls the client connection and
    cancels the workflow if the browser goes away, so an abandoned tab does not
    hold a generation slot for four minutes.
 
@@ -357,7 +357,7 @@ How it works:
    relevance; this is what stops a missing-child passage matching a missing-pet
    question.
 6. **Gate at 0.5 coverage** plus the mandatory distinctive term.
-7. **Select diverse authorities** — one best passage per distinct document.
+8. **Select diverse authorities** — one best passage per distinct document.
 
 **Confidence** = `min(0.85, (0.7·mean_coverage + 0.3·focus_recall) ·
 mandatory_match_rate)`. It is a lexical overlap measure, capped at 0.85, and the
@@ -812,32 +812,42 @@ measured token rates, not a timing.
    corpus problem and the preference is a mitigation, not a fix. The old codes
    are deliberately still retrievable: they govern conduct from before the
    repeal.
-3. **Two known retrieval failures.** `search-of-place` and `phone-stolen` are
+3. **The repeal label covers the Acts, not documents about them.** The rule
+   matches a name that *begins* with a repealed code, so the 5,387 chunks of
+   IPC/CrPC/Evidence Act text are labelled and an advisory citing section 498A
+   is not. That negative direction is deliberate and tested — a circular that
+   is still operative must not carry a "no longer in force" warning. The cost
+   is visible: "can you help me now with the FIR procedure" cites *Amendment in
+   Section 154 of the Code of Criminal Procedure* with no repeal marker, when
+   FIR registration is now BNSS s.173. Widening the rule to any document
+   mentioning a repealed Act would mislabel operative guidance, so this needs a
+   document-type signal rather than a looser name match.
+4. **Two known retrieval failures.** `search-of-place` and `phone-stolen` are
    missed by every configuration. Both relevance phrases exist verbatim in the
    corpus, so these are retrieval failures, not bad specifications.
    `phone-stolen` is a vocabulary gap — the citizen writes "my phone was
    stolen", the corpus writes "information relating to the commission of a
    cognizable offence".
-4. **Two corpus gaps are answered rather than declined.**
+5. **Two corpus gaps are answered rather than declined.**
    `consumer-complaint` and `posh-workplace`. Both contain a topical term the
    corpus holds in passing — "complaint" appears in 752 chunks — so the
    distinctive-term rule finds something to require and something that
    satisfies it.
-5. **Verification uses one entailment criterion across five claim categories.**
+6. **Verification uses one entailment criterion across five claim categories.**
    See [§12.1](#121-a-known-structural-weakness). Directly measured at 1.000
    with all five categories passing, so the predicted failure did not
    reproduce; the structural concern stands, the evidence for it does not.
-6. **Sub-provision structural roles do not survive the chunk size.** 1,201
+7. **Sub-provision structural roles do not survive the chunk size.** 1,201
    chunks contain a proviso and none are labelled one, because the patterns
    are anchored at the start of a chunk and a 700-token chunk contains many
    provisos. The roles that do work are provision, definition and the
    parser-driven judgment roles.
-7. **Deep is slow.** 78–85 s after the reranker and evidence caps. Honest
+8. **Deep is slow.** 78–85 s after the reranker and evidence caps. Honest
    progress reporting is still doing more for the experience than further
    optimisation would.
-8. **The SSE stream is unused.** Built and tested; the client polls.
-9. **"12 specialist agents" is prompt variation.** Five graph nodes are real.
-10. **242 lines of retrieval code are unreachable.** The lexical-only path is
+9. **The SSE stream is unused.** Built and tested; the client polls.
+10. **"12 specialist agents" is prompt variation.** Five graph nodes are real.
+11. **242 lines of retrieval code are unreachable.** The lexical-only path is
     never invoked, and it is the only thing that populates
     `lexical_distinctive_terms` — which the Fast lane read after it had stopped
     travelling that path, silently disabling the abstention gate. Fixed;
