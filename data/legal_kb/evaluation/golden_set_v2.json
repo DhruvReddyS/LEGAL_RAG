@@ -6,7 +6,8 @@
     "Relevance is expressed against Acts, section numbers and distinctive phrases, never chunk IDs. Chunk IDs are content-addressed and change on every re-chunk, which is precisely when this set is needed.",
     "Expected abstentions are scored alongside answerable questions. A corpus gap is not a retrieval failure, and a system that answers without a source is worse than one that declines.",
     "Coverage for every answerable item was confirmed against the live index before the item was written, so a failure here is a retrieval failure and not a missing document.",
-    "v2: two items credited only the repealed Code of Criminal Procedure. FIR registration is now BNSS s.173 and bail is BNSS Chapter XXXV, whose act_name contains no substring of 'criminal procedure', so retrieving the provision actually in force scored zero. Both codes are now acceptable: an offence committed before 1 July 2024 is still tried under the old Code, so neither is wrong, and a yardstick that only credits repealed law would penalise exactly the behaviour the corpus should move toward."
+    "v2: two items credited only the repealed Code of Criminal Procedure. FIR registration is now BNSS s.173 and bail is BNSS Chapter XXXV, whose act_name contains no substring of 'criminal procedure', so retrieving the provision actually in force scored zero. Both codes are now acceptable: an offence committed before 1 July 2024 is still tried under the old Code, so neither is wrong, and a yardstick that only credits repealed law would penalise exactly the behaviour the corpus should move toward.",
+    "v2 adds a 'currency' facet: items whose only acceptable sources are the in-force provisions. They exist because the corpus holds 5,387 chunks of the repealed IPC/CrPC/Evidence Act against 1,026 of their replacements, so retrieval is volume-biased toward law that no longer applies -- measured per topic, 'arrest without warrant' is CrPC 48 chunks to BNSS 23, and 'criminal conspiracy' is IPC 19 to BNS 7. Scoring these against the replacement only is deliberate: a citizen asking what the law is today is not served by the provision that governed until July 2024."
   ],
   "items": [
     {
@@ -259,6 +260,42 @@
       "expectation": "abstain",
       "topic": "out-of-scope",
       "note": "Entirely outside the corpus. A confident answer here would be fabrication."
+    },
+    {
+      "id": "theft-punishment-current",
+      "question": "What is the punishment for theft under the law in force today?",
+      "expectation": "answer",
+      "topic": "currency",
+      "relevant": [
+        {
+          "act": "nyaya sanhita"
+        }
+      ],
+      "note": "BNS replaced IPC s.378/379 on 1 July 2024. IPC carries 48 chunks mentioning theft against the BNS's 36."
+    },
+    {
+      "id": "arrest-without-warrant-current",
+      "question": "Under the current criminal procedure law, when may police arrest without a warrant?",
+      "expectation": "answer",
+      "topic": "currency",
+      "relevant": [
+        {
+          "act": "nagarik suraksha"
+        }
+      ],
+      "note": "BNSS replaced the CrPC. CrPC carries 48 chunks on this phrase against the BNSS's 23, so volume favours the repealed code."
+    },
+    {
+      "id": "conspiracy-current",
+      "question": "What does the criminal law currently in force say about criminal conspiracy?",
+      "expectation": "answer",
+      "topic": "currency",
+      "relevant": [
+        {
+          "act": "nyaya sanhita"
+        }
+      ],
+      "note": "IPC 19 chunks against the BNS's 7 - the widest volume gap of the topics sampled."
     }
   ]
 }
