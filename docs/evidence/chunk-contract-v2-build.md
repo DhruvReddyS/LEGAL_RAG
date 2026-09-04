@@ -96,13 +96,32 @@ returns a well-formed vector describing the previous contract's text.
 
 ## Embedding throughput
 
-Measured on the corpus itself, mid-run, with the vector store the only other
-load (Ollama had unloaded its model, so the GPU was free):
+Measured directly over 64 real corpus chunks on an idle GPU with 16.7 GB free,
+after a first attempt measured the wrong thing:
 
-| Batch size | Points indexed per minute | Full rebuild |
-|---:|---:|---:|
-| 8 (previous default) | 92 | ~4.4 h |
-| 32 | 503 | ~40 min |
+| Batch size | Chunks per minute |
+|---:|---:|
+| 8 | 282 |
+| 16 | 245 |
+| 32 | 191 |
 
-A 5.5x difference from one parameter. The default is now 32; lower it on a
-machine with less memory, or when a large model is resident on the GPU.
+Larger batches are slower. The encoder pads each batch to its longest member
+and legal chunk lengths vary by two orders of magnitude (median 822
+characters, p99 6,760, max 64,802), so a wider batch mostly buys padding. The
+default stays at 8.
+
+### The measurement that was wrong
+
+An earlier reading put batch 32 at 503 points per minute against batch 8 at
+92, and the default was raised on it. Both numbers were counted as points
+appearing in the vector store, which is not a throughput measure: a document
+is upserted only when it finishes, so the count sits still through a long
+document and then jumps by several hundred. The "5.5x speedup" was one such
+jump, and the following minute recorded zero.
+
+Sampling a rate needs a signal that advances continuously with the work. The
+corrected numbers above time the embedder itself.
+
+The real optimisation available here is grouping chunks of similar length into
+a batch. It is not taken because the embedding cache saves resumable parts by
+contiguous start index, and reordering would break crash-resumability.
