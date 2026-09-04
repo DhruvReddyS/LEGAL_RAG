@@ -14,6 +14,7 @@ from qdrant_client import models
 from app.core.config import settings
 from app.core.qdrant import create_qdrant_client
 from app.ingestion.init_qdrant import GLOBAL_LEGAL_CORPUS
+from app.ingestion.pipeline import checkpoint_path_for, chunks_dir_for
 from app.ingestion.metadata import iter_canonical_documents, load_manifest
 
 
@@ -153,7 +154,7 @@ def _load_expected_chunks(
     expected: dict[str, dict[str, dict[str, Any]]] = {}
     source_counts: Counter[str] = Counter()
     issues: list[str] = []
-    chunks_dir = root / "processed/chunks"
+    chunks_dir = chunks_dir_for(root)
     disk_ids = {path.stem for path in chunks_dir.glob("*.jsonl")}
     for canonical_id in sorted(disk_ids - canonical_ids):
         issues.append(f"orphan chunk file: {canonical_id}.jsonl")
@@ -202,7 +203,7 @@ async def build_ingestion_report(
     canonical = list(iter_canonical_documents(manifest))
     canonical_by_id = {item.canonical_document_id: item for item in canonical}
     canonical_ids = set(canonical_by_id)
-    checkpoint_path = root / "logs/ingestion_checkpoint.json"
+    checkpoint_path = checkpoint_path_for(root)
     checkpoint = (
         _load_json(checkpoint_path)
         if checkpoint_path.exists()

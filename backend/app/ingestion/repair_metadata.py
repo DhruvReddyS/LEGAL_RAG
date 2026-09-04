@@ -13,6 +13,7 @@ from app.core.config import settings
 from app.core.qdrant import create_qdrant_client
 from app.ingestion.chunker import LegalChunk
 from app.ingestion.init_qdrant import GLOBAL_LEGAL_CORPUS
+from app.ingestion.pipeline import chunks_dir_for
 from app.ingestion.metadata import iter_canonical_documents, load_manifest
 
 
@@ -35,7 +36,7 @@ async def normalize_gold_metadata(
     client = create_qdrant_client() if update_qdrant else None
     try:
         for document in documents:
-            path = root / "processed/chunks" / f"{document.canonical_document_id}.jsonl"
+            path = chunks_dir_for(root) / f"{document.canonical_document_id}.jsonl"
             if not path.exists():
                 continue
             chunks = [

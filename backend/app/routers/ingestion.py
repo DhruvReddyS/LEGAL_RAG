@@ -9,6 +9,7 @@ from qdrant_client import models
 from app.core.config import settings
 from app.core.qdrant import create_qdrant_client
 from app.ingestion.init_qdrant import GLOBAL_LEGAL_CORPUS
+from app.ingestion.pipeline import checkpoint_path_for, chunks_dir_for
 from app.ingestion.metadata import iter_canonical_documents, load_manifest
 
 router = APIRouter(prefix="/ingestion", tags=["ingestion"])
@@ -19,7 +20,7 @@ async def ingestion_progress() -> dict:
     """Return corpus embedding progress from the ingestion checkpoint."""
     kb_root = Path(settings.legal_kb_root)
     manifest_path = kb_root / "metadata" / "canonical_documents.jsonl"
-    checkpoint_path = kb_root / "logs" / "ingestion_checkpoint.json"
+    checkpoint_path = checkpoint_path_for(kb_root)
 
     total_documents = 0
     physical_documents = 0
@@ -38,7 +39,7 @@ async def ingestion_progress() -> dict:
 
     chunks_on_disk = sum(
         sum(1 for line in path.open(encoding="utf-8") if line.strip())
-        for path in (kb_root / "processed/chunks").glob("*.jsonl")
+        for path in chunks_dir_for(kb_root).glob("*.jsonl")
     )
 
     percent = round(completed_documents / total_documents * 100, 1) if total_documents else 0.0

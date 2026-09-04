@@ -10,7 +10,10 @@ from app.core.config import settings
 from app.core.qdrant import create_qdrant_client
 
 
-GLOBAL_LEGAL_CORPUS = "global_legal_corpus"
+# Bound once at import from settings. Fourteen modules import this name, so
+# resolving it here means the parallel-index cutover is a single env var
+# rather than fourteen call-site changes.
+GLOBAL_LEGAL_CORPUS = settings.qdrant_global_collection
 POLICE_CASE_DATA = "police_case_data"
 ADVOCATE_CASE_DATA = "advocate_case_data"
 

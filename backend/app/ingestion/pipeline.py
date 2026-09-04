@@ -31,6 +31,11 @@ from app.ingestion.structure import parse_legal_structure
 class PipelineOptions:
     resume: bool = False
     force: bool = False
+    # Re-run structure parsing and chunking from cached extracted text, without
+    # touching the PDFs. Every change to the chunk contract needs the corpus
+    # rebuilt, and re-OCRing 381 documents to change how they are split is a
+    # cost the extracted-text cache already paid.
+    rechunk: bool = False
     document_id: str | None = None
     limit: int | None = None
     dry_run: bool = False
@@ -160,6 +165,42 @@ class CheckpointStore:
             temporary.unlink(missing_ok=True)
 
 
+DEFAULT_GLOBAL_COLLECTION = "global_legal_corpus"
+
+
+def chunks_dir_for(root: Path, collection: str | None = None) -> Path:
+    """Where the chunk files for one collection live.
+
+    Chunks are an output of the chunking contract, not of the corpus, so two
+    collections built from different contracts must not share a directory.
+    Re-chunking in place would overwrite the files the live index was built
+    from, leaving it unreproducible and making `validate` compare the live
+    index against a newer contract's chunks.
+
+    The default collection keeps the original path so existing files are found.
+    """
+    name = collection or settings.qdrant_global_collection
+    if name == DEFAULT_GLOBAL_COLLECTION:
+        return root / "processed/chunks"
+    return root / f"processed/chunks.{name}"
+
+
+def checkpoint_path_for(root: Path, collection: str | None = None) -> Path:
+    """Where the ingestion ledger for one collection lives.
+
+    The ledger records which documents are already indexed, so it belongs to an
+    index rather than to the corpus. Two collections built in parallel that
+    shared a ledger would each skip the documents the other finished.
+
+    The default collection keeps the original unsuffixed filename so an existing
+    ledger is still found after this change.
+    """
+    name = collection or settings.qdrant_global_collection
+    if name == DEFAULT_GLOBAL_COLLECTION:
+        return root / "logs/ingestion_checkpoint.json"
+    return root / f"logs/ingestion_checkpoint.{name}.json"
+
+
 def select_shard(
     documents: list[CanonicalDocument], *, shard_index: int, shard_count: int
 ) -> list[CanonicalDocument]:
@@ -174,7 +215,7 @@ def _write_extracted(root: Path, extracted: ExtractedDocument, canonical_id: str
 
 
 def _write_chunks(root: Path, chunks: list[LegalChunk], canonical_id: str) -> None:
-    path = root / "processed/chunks" / f"{canonical_id}.jsonl"
+    path = chunks_dir_for(root) / f"{canonical_id}.jsonl"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
         "".join(chunk.model_dump_json() + "\n" for chunk in chunks),
@@ -199,7 +240,7 @@ async def run_pipeline(options: PipelineOptions, *, corpus_root: Path | None = N
             if options.document_id in {item.document_id, item.canonical_document_id}
         ]
     result = PipelineResult()
-    checkpoint = CheckpointStore(root / "logs/ingestion_checkpoint.json")
+    checkpoint = CheckpointStore(checkpoint_path_for(root))
     cache = EmbeddingCache(root / "cache/embeddings")
     embedder = None if options.dry_run else BGEM3Embedder()
     qdrant = None
@@ -215,7 +256,7 @@ async def run_pipeline(options: PipelineOptions, *, corpus_root: Path | None = N
                 continue
             if options.dry_run and options.resume and not options.force:
                 extracted_path = root / "processed/extracted_text" / f"{document.canonical_document_id}.json"
-                chunks_path = root / "processed/chunks" / f"{document.canonical_document_id}.jsonl"
+                chunks_path = chunks_dir_for(root) / f"{document.canonical_document_id}.jsonl"
                 if extracted_path.exists() and chunks_path.exists():
                     result.skipped_documents += 1
                     continue
@@ -234,8 +275,14 @@ async def run_pipeline(options: PipelineOptions, *, corpus_root: Path | None = N
                 try:
                     verify_document_checksum(document, root)
                     extracted_path = root / "processed/extracted_text" / f"{document.canonical_document_id}.json"
-                    chunks_path = root / "processed/chunks" / f"{document.canonical_document_id}.jsonl"
-                    if not options.force and extracted_path.exists() and chunks_path.exists():
+                    chunks_path = chunks_dir_for(root) / f"{document.canonical_document_id}.jsonl"
+                    reuse_chunks = (
+                        not options.force
+                        and not options.rechunk
+                        and extracted_path.exists()
+                        and chunks_path.exists()
+                    )
+                    if reuse_chunks:
                         extracted = ExtractedDocument.model_validate_json(
                             extracted_path.read_text(encoding="utf-8")
                         )
@@ -268,11 +315,25 @@ async def run_pipeline(options: PipelineOptions, *, corpus_root: Path | None = N
                         ]
                         _write_chunks(root, chunks, document.canonical_document_id)
                     else:
-                        extracted = await asyncio.to_thread(
-                            extract_pdf,
-                            root / document.local_path,
-                            document_id=document.document_id,
-                        )
+                        reused_extraction = options.rechunk and extracted_path.exists()
+                        if reused_extraction:
+                            extracted = ExtractedDocument.model_validate_json(
+                                extracted_path.read_text(encoding="utf-8")
+                            )
+                            # The same integrity check the cached-chunk path
+                            # makes. Text cached under one document's id but
+                            # belonging to another would silently mis-attribute
+                            # every citation drawn from it.
+                            if extracted.document_id != document.document_id:
+                                raise ValueError(
+                                    "Cached extracted text does not match the manifest"
+                                )
+                        else:
+                            extracted = await asyncio.to_thread(
+                                extract_pdf,
+                                root / document.local_path,
+                                document_id=document.document_id,
+                            )
                         units = parse_legal_structure(extracted, document.resolved_type())
                         chunks = chunk_structural_units(document, units)
                         # Furniture is classified at chunking and dropped here
@@ -284,7 +345,8 @@ async def run_pipeline(options: PipelineOptions, *, corpus_root: Path | None = N
                         chunks = [
                             chunk for chunk in chunks if chunk.quality == "indexed"
                         ]
-                        _write_extracted(root, extracted, document.canonical_document_id)
+                        if not reused_extraction:
+                            _write_extracted(root, extracted, document.canonical_document_id)
                         _write_chunks(root, chunks, document.canonical_document_id)
                     if not chunks:
                         raise ValueError("No chunks were produced")
@@ -306,12 +368,17 @@ async def run_pipeline(options: PipelineOptions, *, corpus_root: Path | None = N
 
                     assert embedder is not None and qdrant is not None
                     chunk_ids = [chunk.chunk_id for chunk in chunks]
-                    embeddings = None if options.force else cache.load(
+                    # A re-chunk invalidates the cache as thoroughly as --force
+                    # does: the text behind each id has changed even where an id
+                    # happens to survive, so a cached vector would describe the
+                    # old chunk.
+                    rebuilding = options.force or options.rechunk
+                    embeddings = None if rebuilding else cache.load(
                         document.canonical_document_id,
                         chunk_ids,
                     )
                     if embeddings is None:
-                        if options.force:
+                        if rebuilding:
                             cache.cleanup_parts(document.canonical_document_id)
                             prefix: list[EmbeddedText] = []
                         else:
@@ -403,6 +470,11 @@ def parse_args() -> PipelineOptions:
     parser = argparse.ArgumentParser(description="Ingest the verified canonical Gold corpus")
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--force", action="store_true")
+    parser.add_argument(
+        "--rechunk",
+        action="store_true",
+        help="Re-parse and re-chunk from cached extracted text, skipping OCR",
+    )
     parser.add_argument("--document-id")
     parser.add_argument("--limit", type=int)
     parser.add_argument("--dry-run", action="store_true")

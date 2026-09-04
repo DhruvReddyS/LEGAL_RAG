@@ -16,6 +16,7 @@ from qdrant_client import AsyncQdrantClient
 
 from app.core.qdrant import create_qdrant_client
 from app.ingestion.init_qdrant import GLOBAL_LEGAL_CORPUS
+from app.ingestion.pipeline import chunks_dir_for
 
 
 _TOKEN = re.compile(r"[^\W_]+", re.UNICODE)
@@ -210,7 +211,7 @@ def build_repair_plan(
     document_id: str | None = None,
     limit: int | None = None,
 ) -> list[DocumentRepair]:
-    chunks_dir = corpus_root / "processed/chunks"
+    chunks_dir = chunks_dir_for(corpus_root)
     extracted_dir = corpus_root / "processed/extracted_text"
     plans: list[DocumentRepair] = []
     for chunks_path in sorted(chunks_dir.glob("*.jsonl")):

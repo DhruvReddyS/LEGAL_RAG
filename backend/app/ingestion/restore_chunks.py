@@ -16,7 +16,7 @@ from app.ingestion.chunker import LegalChunk
 from app.ingestion.embedder import EmbeddingCache
 from app.ingestion.init_qdrant import GLOBAL_LEGAL_CORPUS
 from app.ingestion.metadata import CanonicalDocument, iter_canonical_documents, load_manifest
-from app.ingestion.pipeline import CheckpointStore
+from app.ingestion.pipeline import CheckpointStore, checkpoint_path_for, chunks_dir_for
 from app.ingestion.qdrant_writer import replace_document_chunks
 
 
@@ -31,7 +31,7 @@ def reconcile_embedding_cache(
     import gzip
 
     root = corpus_root or Path(settings.legal_kb_root)
-    chunk_file = root / "processed/chunks" / f"{canonical_document_id}.jsonl"
+    chunk_file = chunks_dir_for(root) / f"{canonical_document_id}.jsonl"
     chunk_ids = [
         str(json.loads(line)["chunk_id"])
         for line in chunk_file.read_text(encoding="utf-8").splitlines()
@@ -112,8 +112,8 @@ async def restore_document_chunks(
         raise ValueError(f"Unknown canonical document: {canonical_document_id}") from exc
 
     cache_path = root / "cache/embeddings"
-    chunk_file = root / "processed/chunks" / f"{canonical_document_id}.jsonl"
-    checkpoint = CheckpointStore(root / "logs/ingestion_checkpoint.json")
+    chunk_file = chunks_dir_for(root) / f"{canonical_document_id}.jsonl"
+    checkpoint = CheckpointStore(checkpoint_path_for(root))
     client = create_qdrant_client()
     try:
         points, next_offset = await client.scroll(

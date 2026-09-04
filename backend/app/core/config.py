@@ -37,6 +37,10 @@ class Settings(BaseSettings):
         default="postgresql+asyncpg://legal_rag:legal_rag_dev_only@localhost:5432/legal_rag"
     )
     qdrant_url: str = "http://localhost:6333"
+    # The corpus a re-index writes to and every reader queries. Building a
+    # new index in parallel and cutting over is a change to this value, so a
+    # rollback costs a restart rather than another full re-ingestion.
+    qdrant_global_collection: str = "global_legal_corpus"
     embedding_model: str = "BAAI/bge-m3"
     embedding_dimension: int = 1024
     embedding_device: str = "auto"
