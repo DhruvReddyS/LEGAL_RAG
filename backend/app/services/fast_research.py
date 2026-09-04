@@ -36,6 +36,22 @@ FOCUS_STOPWORDS = {
     # Presentation vocabulary: how to answer, not what about.
     "explain", "explanation", "language", "plain", "simple", "summarise",
     "summarize", "tell", "understand",
+    # Indefinite pronouns and light verbs. These name no subject, and in a
+    # legal corpus they are *rare* -- statutes say "any person", never
+    # "someone" -- so the rarest-term rule below would seize on them and
+    # require a word the corpus almost never uses. Measured: "someone" appears
+    # in 90 chunks, which made it the required term for "when can police
+    # arrest someone without a warrant" and rejected every correct passage.
+    "someone", "somebody", "anyone", "anybody", "something", "anything",
+    "everyone", "everybody", "get", "gets", "got", "give", "gives", "given",
+    "make", "makes", "take", "takes", "want", "wants", "need", "needs",
+    "know", "say", "says", "go", "going", "come", "put", "let",
+    # Temporal deixis. "What is the law today" and "the law currently in
+    # force" ask when, not what about, and legal prose does not date itself
+    # that way -- "currently" appears in 57 chunks. Left in, they became the
+    # required term and the question was declined for naming the present.
+    "today", "now", "currently", "current", "presently", "nowadays",
+    "recently", "still",
 }
 
 

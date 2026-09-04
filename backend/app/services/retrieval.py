@@ -212,6 +212,30 @@ _EXCERPT_STOPWORDS = frozenset(
 )
 
 
+def _base_forms(term: str) -> tuple[str, ...]:
+    """Cheap morphological variants of a query term.
+
+    Not a stemmer. It exists to answer one question: is this term rare because
+    the corpus does not discuss the topic, or rare because the corpus spells it
+    differently? "protections" appears in 35 chunks and "protection" in
+    thousands -- the topic is amply covered, and requiring the plural rejected
+    every correct passage about the protection of children.
+    """
+    lowered = term.casefold()
+    if len(lowered) < 4:
+        return ()
+    if lowered.endswith("ies"):
+        return (lowered[:-3] + "y",)
+    # "-es" drops only after a sibilant, where English adds it to make the
+    # plural pronounceable: witnesses, taxes, churches. Applying it generally
+    # turns "offences" into "offenc", a string the corpus never contains.
+    if lowered.endswith("es") and lowered[:-2].endswith(("s", "x", "z", "ch", "sh")):
+        return (lowered[:-2],)
+    if lowered.endswith("s") and not lowered.endswith("ss"):
+        return (lowered[:-1],)
+    return ()
+
+
 def _distinctive_from_counts(counts: dict[str, int]) -> list[str]:
     """Which of a query's terms are rare enough to be required.
 
@@ -859,7 +883,17 @@ class HybridRetrievalService:
             )
             return term, int(result.count)
 
-        counts = dict(await asyncio.gather(*(count_for(term) for term in sorted(cleaned))))
+        # A term's effective frequency is the highest among its spellings, so a
+        # rare inflection of a well-covered topic is not mistaken for a gap.
+        wanted: dict[str, tuple[str, ...]] = {
+            term: (term, *_base_forms(term)) for term in sorted(cleaned)
+        }
+        lookups = sorted({form for forms in wanted.values() for form in forms})
+        raw = dict(await asyncio.gather(*(count_for(form) for form in lookups)))
+        counts = {
+            term: max(raw.get(form, 0) for form in forms)
+            for term, forms in wanted.items()
+        }
         return counts, _distinctive_from_counts(counts)
 
     async def search_across_collections_with_timings(
