@@ -203,3 +203,62 @@ def test_a_bare_footnote_is_still_rejected() -> None:
     result = classify_quality(text)
     assert result.quality == "noise"
     assert result.reason == "amendment_footnote"
+
+
+class TestGazetteMasthead:
+    """Every Gazette of India PDF opens with a masthead.
+
+    The Devanagari in these scans is ISCII rendered through a Latin font, so it
+    arrives as "jftLVªh lañ" and "izkf/kdkj ls izdkf'kr" -- unreadable to a
+    reader and to an embedding model alike. They sit on the first page of the
+    most-queried Acts, and build_embed_text stamps each chunk with its Act
+    name, so an indexed masthead becomes a well-labelled candidate for every
+    query naming that Act while carrying no law at all.
+    """
+
+    def test_a_standalone_masthead_is_rejected(self) -> None:
+        text = (
+            "jftLVªh lañ Mhñ ,yñ—(,u)04@0007@2003—23     "
+            "REGISTERED NO. DL—(N)04/0007/2003—23"
+        )
+        result = classify_quality(text)
+
+        assert result.quality == "noise"
+        assert result.reason == "gazette_masthead"
+
+    def test_a_masthead_that_runs_into_the_act_is_kept(self) -> None:
+        """The case that makes this rule need three signals.
+
+        Chunk boundaries do not respect mastheads. A chunk can open on one and
+        carry on into section 1 of the Act; rejecting it would delete the
+        opening of the statute. Four such chunks exist in an eight-document
+        sample of the live corpus.
+        """
+        text = (
+            "PART II — Section 1\n izkf/kdkj ls izdkf'kr\n PUBLISHED BY AUTHORITY\n"
+            "An Act to consolidate and amend the law. Any person aggrieved may "
+            "apply to the Court for relief under this section."
+        )
+        assert classify_quality(text).quality == "indexed"
+
+    def test_english_masthead_words_alone_never_reject(self) -> None:
+        """"PUBLISHED BY AUTHORITY" and "EXTRAORDINARY" appear in ordinary
+        legal prose. Without the transliteration signal there is no masthead."""
+        for text in (
+            "The notification was published by authority of the State Government "
+            "in the Extraordinary Gazette on 1 April 2024.",
+            "The competent authority shall register the complaint forthwith and "
+            "furnish a copy to the informant.",
+        ):
+            assert classify_quality(text).quality == "indexed", text
+
+    def test_transliteration_alone_never_rejects(self) -> None:
+        """Devanagari-in-Latin also appears in bilingual provision text.
+
+        Only paired with masthead vocabulary does it indicate the cover page.
+        """
+        text = (
+            "vlk/kkj.k izkf/kdkj — the section applies where any person shall "
+            "be arrested without a warrant by an officer in charge."
+        )
+        assert classify_quality(text).quality == "indexed"

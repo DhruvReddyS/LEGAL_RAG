@@ -90,6 +90,21 @@ class Settings(BaseSettings):
     s3_generated_bucket: str = "legal-rag-generated"
     legal_kb_root: str = "/data/legal_kb"
 
+    @field_validator("legal_kb_root", mode="after")
+    @classmethod
+    def _anchor_to_the_repository(cls, value: str) -> str:
+        """Resolve a relative corpus path against the repository, not the cwd.
+
+        Inside the container this is an absolute /data/legal_kb bind mount and
+        is returned unchanged. Natively it is a path like ./data/legal_kb, and
+        resolving that against the working directory would mean the corpus is
+        found from the repository root and missing from backend/ -- the same
+        launch-location dependence the env file itself had.
+        """
+        if not value or Path(value).is_absolute():
+            return value
+        return str((_REPOSITORY_ROOT / value).resolve())
+
     @field_validator("cors_origins")
     @classmethod
     def validate_cors_origins(cls, value: str) -> str:

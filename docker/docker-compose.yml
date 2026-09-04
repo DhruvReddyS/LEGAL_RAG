@@ -150,8 +150,8 @@ services:
       S3_POLICE_BUCKET: ${S3_POLICE_BUCKET:-legal-rag-police}
       S3_ADVOCATE_BUCKET: ${S3_ADVOCATE_BUCKET:-legal-rag-advocate}
       S3_GENERATED_BUCKET: ${S3_GENERATED_BUCKET:-legal-rag-generated}
-      LEGAL_KB_ROOT: ${LEGAL_KB_ROOT:-/data/legal_kb}
-      HF_HOME: ${HF_HOME:-/data/legal_kb/cache/models}
+      LEGAL_KB_ROOT: /data/legal_kb
+      HF_HOME: /data/legal_kb/cache/models
     volumes:
       - ../data/legal_kb:/data/legal_kb
     ports:

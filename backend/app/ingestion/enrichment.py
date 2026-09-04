@@ -73,6 +73,25 @@ _OPERATIVE_LANGUAGE = re.compile(
     re.IGNORECASE,
 )
 
+# The masthead every Gazette of India PDF opens with. The Devanagari in these
+# scans is ISCII rendered through a Latin font, so "रजिस्ट्री सं" arrives as
+# "jftLVªh lañ" and "प्राधिकार से प्रकाशित" as "izkf/kdkj ls izdkf'kr". It is
+# unreadable to a reader and to an embedding model alike.
+#
+# These matter more than their count suggests. They sit on the first page of
+# the most-queried Acts -- the BNSS, the BNS, the Bharatiya Sakshya Adhiniyam --
+# and build_embed_text prefixes each chunk with its Act name, so an indexed
+# masthead becomes a well-labelled candidate for every query naming that Act,
+# carrying no law at all.
+_GAZETTE_TRANSLITERATION = re.compile(
+    r"jftLVªh|izkf/kdkj|izdkf'kr|Hkkjr\s+dk\s+jkti=|vlk/kkj\.k",
+)
+_GAZETTE_MASTHEAD = re.compile(
+    r"REGISTERED\s+NO\.|PUBLISHED\s+BY\s+AUTHORITY|"
+    r"THE\s+GAZETTE\s+OF\s+INDIA|EXTRAORDINARY",
+    re.IGNORECASE,
+)
+
 _MINIMUM_INDEXED_WORDS = 6
 
 
@@ -119,6 +138,15 @@ def classify_quality(
         return ChunkQuality("noise", "amendment_footnote")
     if _BARE_HEADING.match(stripped) and len(words) <= 8:
         return ChunkQuality("noise", "bare_heading")
+    if (
+        _GAZETTE_TRANSLITERATION.search(stripped)
+        and _GAZETTE_MASTHEAD.search(stripped)
+        and not _OPERATIVE_LANGUAGE.search(stripped)
+    ):
+        # Three signals, for the same reason the amendment-footnote rule needs
+        # three: a chunk that opens on the masthead can run on into section 1
+        # of the Act. Operative language anywhere in the chunk keeps it.
+        return ChunkQuality("noise", "gazette_masthead")
 
     if len(words) < minimum_words:
         # The escape hatch that keeps one-line provisions: a numbered section
