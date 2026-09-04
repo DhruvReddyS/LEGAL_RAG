@@ -4,6 +4,7 @@ import re
 from time import perf_counter_ns
 
 from app.schemas.agents import AgentCitation, AgentTraceEvent
+from app.services.citation_status import citation_currency
 from app.services.generation import INSUFFICIENT_EVIDENCE
 from app.services.pipeline_telemetry import append_stage_metric, text_size
 
@@ -104,6 +105,7 @@ def response_generation_node(state: dict) -> dict:
         if hit is None:
             continue
         payload = hit.payload
+        currency, replaced_by, repealed_on = citation_currency(payload)
         number = len(citations) + 1
         number_by_id[chunk_id] = number
         citations.append(
@@ -127,15 +129,9 @@ def response_generation_node(state: dict) -> dict:
                     if verdict_by_id.get(chunk_id) == "partial"
                     else "unverified"
                 ),
-                current_status=(
-                    "current"
-                    if payload.get("is_current") is True
-                    else "superseded"
-                    if payload.get("is_superseded") is True
-                    else "not_applicable"
-                    if payload.get("corpus_scope") == "private_case"
-                    else "status_unverified"
-                ),
+                current_status=currency,
+                replaced_by=replaced_by,
+                repealed_on=repealed_on,
             )
         )
     answer = MARKER_RE.sub(lambda match: f"[Source {number_by_id[match.group(1)]}]" if match.group(1) in number_by_id else "", answer)

@@ -45,7 +45,14 @@ class AgentCitation(BaseModel):
     excerpt: str
     retrieval_score: float | None = None
     verification_status: Literal["verified", "partial", "unverified"] = "unverified"
-    current_status: Literal["current", "superseded", "status_unverified", "not_applicable"] = "status_unverified"
+    current_status: Literal[
+        "current", "superseded", "repealed", "status_unverified", "not_applicable"
+    ] = "status_unverified"
+    # Named when the Act was repealed: 21% of the corpus is the IPC, CrPC and
+    # Evidence Act, replaced on 1 July 2024. They still govern conduct before
+    # that date, so they are cited rather than withheld -- but never silently.
+    replaced_by: str | None = None
+    repealed_on: str | None = None
 
 
 class AgentTraceEvent(BaseModel):

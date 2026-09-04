@@ -29,6 +29,8 @@ def _payload(chunk: LegalChunk) -> dict[str, object]:
         "decision_year": chunk.decision_year or 0,
         "is_current": chunk.is_current,
         "is_superseded": chunk.is_superseded,
+        "replaced_by": chunk.replaced_by,
+        "repealed_on": chunk.repealed_on,
         # Parent provision, so "the rest of this section" is answerable.
         "unit_id": chunk.unit_id,
         "unit_ordinal": chunk.unit_ordinal,

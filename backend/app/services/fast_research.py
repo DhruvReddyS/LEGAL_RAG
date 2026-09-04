@@ -6,6 +6,7 @@ from time import perf_counter
 
 from app.schemas.agents import AgentCitation, AgentTraceEvent, QueryIntent
 from app.core.config import settings
+from app.services.citation_status import citation_currency
 from app.services.generation import INSUFFICIENT_EVIDENCE
 from app.ingestion.init_qdrant import GLOBAL_LEGAL_CORPUS
 from app.services.retrieval import (
@@ -358,6 +359,7 @@ class FastLegalResearchService:
             ]
             for number, hit in enumerate(hits, 1):
                 payload = hit.payload
+                currency, replaced_by, repealed_on = citation_currency(payload)
                 citation = AgentCitation(
                     number=number,
                     chunk_id=str(payload.get("chunk_id") or hit.point_id),
@@ -374,19 +376,23 @@ class FastLegalResearchService:
                     # Fast mode performs retrieval only. It has not run the
                     # claim/source verifier used by Deep Review.
                     verification_status="unverified",
-                    current_status=(
-                        "current"
-                        if payload.get("is_current") is True
-                        else "superseded"
-                        if payload.get("is_superseded") is True
-                        else "status_unverified"
-                    ),
+                    current_status=currency,
+                    replaced_by=replaced_by,
+                    repealed_on=repealed_on,
                 )
                 citations.append(citation)
                 descriptor = citation.act_name or citation.court or citation.source_type.replace("_", " ")
                 section = f", section {citation.section}" if citation.section else ""
+                # Stated inline, not only in a field the interface may not
+                # render. A citizen reading a Penal Code provision has to be
+                # told it was replaced, in the same sentence that quotes it.
+                repeal_note = (
+                    f" [repealed {citation.repealed_on}; replaced by {citation.replaced_by}]"
+                    if citation.replaced_by
+                    else ""
+                )
                 lines.append(
-                    f"{number}. {citation.title} ({descriptor}{section}, pages {citation.page_start}–{citation.page_end}): "
+                    f"{number}. {citation.title} ({descriptor}{section}, pages {citation.page_start}–{citation.page_end}){repeal_note}: "
                     f"{_compact(payload.get('text'))} [Source {number}]"
                 )
             if any(hit.payload.get("is_current") is not True for hit in hits):

@@ -38,6 +38,7 @@ COLLECTIONS = (
             "decision_year": models.PayloadSchemaType.INTEGER,
             "is_current": models.PayloadSchemaType.BOOL,
             "is_superseded": models.PayloadSchemaType.BOOL,
+            "replaced_by": models.PayloadSchemaType.KEYWORD,
             "unit_id": models.PayloadSchemaType.KEYWORD,
             "structural_role": models.PayloadSchemaType.KEYWORD,
             "quality": models.PayloadSchemaType.KEYWORD,

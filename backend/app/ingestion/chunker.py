@@ -5,6 +5,7 @@ import re
 
 from pydantic import BaseModel, Field
 
+from app.ingestion.supersession import replacement_for
 from app.ingestion.citations import extract_references, resolve_act
 from app.ingestion.enrichment import (
     build_embed_text,
@@ -51,6 +52,12 @@ class LegalChunk(BaseModel):
     cited_provisions: list[str] = Field(default_factory=list)
     cited_cases: list[str] = Field(default_factory=list)
     superseded_by: str | None = None
+    # Distinct from `superseded_by`, which drives `is_superseded` and means
+    # "cannot ground a published claim". These two say the Act was repealed
+    # and name what replaced it, while leaving it able to answer questions
+    # about conduct before that date -- which the old codes still govern.
+    replaced_by: str | None = None
+    repealed_on: str | None = None
     verified_official: bool
     quality_status: str
     text: str
@@ -104,6 +111,8 @@ def chunk_structural_units(
     # Resolved once per document: an unqualified section reference inside an
     # Act means that Act.
     self_act = resolve_act(f"{document.act_name or ''} {document.title or ''}")
+    # Also once per document: whether this Act has been repealed, and by what.
+    replacement = replacement_for(document.act_name, document.title)
     for unit_index, unit in enumerate(units):
         if not unit.text.strip():
             continue
@@ -163,6 +172,8 @@ def chunk_structural_units(
                     cited_provisions=list(references.provisions),
                     cited_cases=list(references.cases),
                     superseded_by=document.superseded_by,
+                    replaced_by=replacement.replaced_by if replacement else None,
+                    repealed_on=replacement.repealed_on if replacement else None,
                     verified_official=document.verified_official,
                     quality_status=document.quality_status,
                     text=piece,
