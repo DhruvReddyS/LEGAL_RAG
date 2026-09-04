@@ -142,8 +142,74 @@ class RetrievalTarget:
 
 
 # Legal chunks average ~4,000 characters; this keeps the part that decides
-# relevance and drops the tail that only adds reranking cost.
+# relevance and drops the tail that only adds reranking cost. Reranking cost
+# grows worse than linearly with total input -- 45k characters measured 6.5s
+# and 81k measured 18.4s -- so the budget stays.
 RERANKER_INPUT_CHARACTERS = 2500
+
+
+def reranker_excerpt(text: str, query: str, *, budget: int = RERANKER_INPUT_CHARACTERS) -> str:
+    """The part of a chunk worth showing the cross-encoder.
+
+    Taking the first `budget` characters spends the budget on wherever the
+    chunk happens to start. 27.4% of chunks exceed it, losing 1,830 characters
+    on average, and always the tail -- so for a quarter of candidates the
+    cross-encoder scores an opening that may have nothing to do with the
+    question. Chunks that begin on a Gazette masthead or a heading are scored
+    almost entirely on furniture.
+
+    So centre the window on the query instead: score fixed-size windows by how
+    many distinct query terms they contain, and return the best one on a
+    sentence-ish boundary. Ties keep the earliest window, which preserves
+    today's behaviour for chunks where the opening really is the relevant part.
+    """
+    if len(text) <= budget:
+        return text
+
+    terms = {
+        term
+        for term in re.findall(r"[a-z0-9]{3,}", query.casefold())
+        if term not in _EXCERPT_STOPWORDS
+    }
+    if not terms:
+        return text[:budget]
+
+    stride = max(budget // 4, 1)
+    folded = text.casefold()
+    final_start = max(len(text) - budget, 0)
+    # The final window has to be an explicit candidate. With a fixed stride it
+    # is generated only when the chunk length happens to be a multiple of the
+    # stride, so the end of a chunk -- the part the front-truncation was losing
+    # in the first place -- was unreachable for most lengths.
+    starts = sorted({*range(0, final_start + 1, stride), final_start})
+    best_start, best_score = 0, -1
+    for start in starts:
+        window = folded[start : start + budget]
+        score = sum(1 for term in terms if term in window)
+        if score > best_score:
+            best_start, best_score = start, score
+    if best_score <= 0:
+        return text[:budget]
+
+    # Nudge to a boundary so the excerpt does not open mid-word.
+    if best_start > 0:
+        for separator in (". ", "\n", " "):
+            found = text.find(separator, best_start, best_start + 200)
+            if found != -1:
+                best_start = found + len(separator)
+                break
+    return text[best_start : best_start + budget]
+
+
+# Deliberately small: this decides where to point a window, not what a query
+# means, and over-filtering here would make every window score zero.
+_EXCERPT_STOPWORDS = frozenset(
+    {
+        "and", "any", "are", "can", "does", "for", "from", "how", "its",
+        "may", "not", "the", "that", "this", "under", "was", "what", "when",
+        "which", "who", "why", "will", "with", "you", "your",
+    }
+)
 
 
 def _distinctive_from_counts(counts: dict[str, int]) -> list[str]:
@@ -917,7 +983,7 @@ class HybridRetrievalService:
         # linearly with total input - 45k characters measured 6.5s and 81k
         # measured 18.4s - so this is the cheapest second in the pipeline.
         reranker_documents = [
-            str((point.payload or {}).get("text", ""))[:RERANKER_INPUT_CHARACTERS]
+            reranker_excerpt(str((point.payload or {}).get("text", "")), query)
             for point in candidates
         ]
         reranking_started = perf_counter()
