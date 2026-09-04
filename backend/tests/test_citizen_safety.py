@@ -270,3 +270,40 @@ def test_no_emergency_pattern_has_an_ungrouped_alternation() -> None:
         "these branches fire on a bare phrase and will match questions *about* "
         f"the offence as well as reports of it: {offenders}"
     )
+
+
+def test_no_golden_set_question_is_screened_before_retrieval() -> None:
+    """The yardstick must measure the path a citizen actually takes.
+
+    The evaluation harness calls retrieval directly, so it never sees this
+    screen. If a golden question were screened, the harness would be scoring
+    retrieval on a query the deployed pipeline never sends -- and a screening
+    false positive would show up as good retrieval numbers rather than as the
+    regression it is. That is not hypothetical: "What is the punishment for
+    theft under the law in force today?" was screened as a child-protection
+    emergency while scoring normally in the harness.
+    """
+    import json
+    from pathlib import Path
+
+    golden = (
+        Path(__file__).resolve().parents[2]
+        / "data"
+        / "legal_kb"
+        / "evaluation"
+        / "golden_set_v2.json"
+    )
+    if not golden.is_file():
+        pytest.skip("golden set is not present in this checkout")
+
+    items = json.loads(golden.read_text(encoding="utf-8"))["items"]
+    screened = [
+        (item["id"], result.reason)
+        for item in items
+        if (result := screen_citizen_query(item["question"])) is not None
+    ]
+
+    assert not screened, (
+        "these golden questions are screened before retrieval, so the harness "
+        f"measures a path no citizen takes: {screened}"
+    )
