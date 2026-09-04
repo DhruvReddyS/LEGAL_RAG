@@ -159,3 +159,41 @@ Two gaps are still answered rather than declined, `consumer-complaint` and
 `posh-workplace`. Both have a topical term the corpus does contain in passing
 — "complaint" appears in 752 chunks — so the distinctive-term rule finds
 something to require and something that satisfies it.
+
+## Rejected: filtering garbled OCR by a wordlike-token ratio
+
+`phone-stolen` is missed by every retrieval configuration, and inspecting what
+it *does* return suggested a cause. Rank 1 was the three-word fragment
+`FROM  THE  PHONE`; the e-FIR advisory — the right document — was retrieved,
+but the chunk was OCR wreckage about app stores rather than the procedure. The
+new quality classifier rejects the first of those and keeps the second, so the
+obvious next rule was to reject chunks whose tokens mostly are not words.
+
+Measured before implementing. Of 22,464 chunks with eight or more words, 610
+(2.7%) score below a wordlike-token ratio of 0.35. But the band is not
+furniture:
+
+| structural role | below 0.35 | share of that role |
+|---|---:|---:|
+| provision | 436 | 4.2% |
+| prose | 145 | 2.5% |
+| schedule | 6 | 12.2% |
+| reasoning | 15 | 0.4% |
+
+157 of the 610 (25.7%) contain operative legal language, and the examples are
+not marginal:
+
+    7. Rights of citizenship of certain migrants to Pakistan.—Notwithstanding ...
+    11. Parliament to regulate the right of citizenship by law.—Nothing in the ...
+
+Those are Articles 7 and 11 of the Constitution. They score low because the
+scanned text spaces its em-dashes and runs headings into the provision, not
+because they are damaged. The rule would have deleted them silently, which is
+the precise failure the classifier's own docstring is written against.
+
+Not implemented. The remedy for `phone-stolen` is not heavier filtering — the
+governing passage is not being retrieved at all, and no amount of deleting
+other chunks retrieves it. It is a vocabulary gap: the citizen writes "my
+phone was stolen" and the corpus writes "information relating to the
+commission of a cognizable offence". That is what the `embed_text` prefix and,
+beyond it, query expansion are for.
