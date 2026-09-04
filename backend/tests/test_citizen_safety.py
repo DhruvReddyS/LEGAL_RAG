@@ -116,3 +116,52 @@ def test_an_emergency_outranks_a_refusal_in_the_same_message() -> None:
 @pytest.mark.parametrize("query", ["", "   ", "\n\t "])
 def test_blank_input_is_not_intercepted(query: str) -> None:
     assert screen_citizen_query(query) is None
+
+
+class TestFinancialFraudInProgress:
+    """1930 was listed as a contact that nothing could reach.
+
+    For online financial fraud the first hour decides whether the transfer can
+    be frozen, so a citizen reporting one needs the number before they need the
+    law. Every other emergency category had a pattern; this one had only a
+    phone number in the footer of an answer it never triggered.
+    """
+
+    @pytest.mark.parametrize(
+        "query",
+        [
+            "I have been scammed online just now, money gone",
+            "someone made an unauthorised transaction on my card and money was debited",
+            "I got a phishing link, shared the OTP, and my account is emptied",
+            "fraudulent UPI transfer, my savings are gone",
+        ],
+    )
+    def test_a_report_of_money_lost_to_fraud_reaches_the_helpline(
+        self, query: str
+    ) -> None:
+        result = screen_citizen_query(query)
+
+        assert result is not None, query
+        assert result.kind == "emergency"
+        assert result.reason == "financial_fraud_in_progress"
+        assert "1930" in result.answer
+
+    @pytest.mark.parametrize(
+        "query",
+        [
+            # A fraud word alone is a research question, and this is the
+            # failure that matters: an emergency reply replaces the answer, so
+            # a false positive costs a citizen their answer exactly as a false
+            # refusal would.
+            "What is the punishment for fraud under the BNS?",
+            "How do I file a cyber crime complaint?",
+            "Explain the law on fraudulent transactions",
+            "Define cheating under the Indian Penal Code",
+            "Which section covers bank fraud by an employee?",
+            # Money moving, with no fraud at all.
+            "my money was debited by the bank as service charges",
+            "What is the procedure for filing an FIR?",
+        ],
+    )
+    def test_a_question_about_fraud_still_reaches_the_corpus(self, query: str) -> None:
+        assert screen_citizen_query(query) is None, query

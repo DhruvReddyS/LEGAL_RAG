@@ -84,6 +84,29 @@ _EMERGENCY_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
         ),
     ),
     (
+        # 1930 is listed as a contact but nothing reached it. For online
+        # financial fraud the first hour decides whether the transfer can be
+        # frozen, so a citizen reporting one needs the number before they need
+        # the law -- the corpus answer is worth less than the phone call.
+        #
+        # Three signals, matching the amendment-footnote discipline elsewhere:
+        # a fraud marker, something that holds money, and money actually
+        # moving. "What is the punishment for fraud?" carries only the first
+        # and stays a research question, which is the failure mode to avoid --
+        # an emergency reply replaces the answer, so a false positive costs a
+        # citizen their answer exactly as a false refusal would.
+        "financial_fraud_in_progress",
+        re.compile(
+            r"(?=.*\b(?:scam(?:med|mer|ming)?|frauds?|fraudulent|defrauded|"
+            r"phish\w*|unauthoris\w*|unauthoriz\w*)\b)"
+            r"(?=.*\b(?:money|amount|funds|rupees|savings|salary|account|"
+            r"upi|otp|card|wallet|bank)\b)"
+            r"(?=.*\b(?:debited|deducted|withdrawn|transferred|lost|gone|"
+            r"stolen|taken|emptied|siphoned)\b)",
+            re.I | re.S,
+        ),
+    ),
+    (
         "child_at_risk",
         re.compile(
             r"\b(?:child|minor|girl|boy)\b.{0,40}\b(?:being abused|is being hurt|in danger)\b"
