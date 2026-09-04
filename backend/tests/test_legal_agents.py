@@ -71,6 +71,52 @@ def test_response_generation_maps_only_retrieved_markers() -> None:
     assert result["evidence_strength"] == "strong"
 
 
+def test_a_claim_citing_an_unretrieved_chunk_is_never_published() -> None:
+    """The invariant: no claim may be published whose source was not retrieved.
+
+    The verifier grades a claim against the premise it was given, so a claim
+    carrying a chunk id that never came back from retrieval can still be
+    graded "yes" -- the model is capable of emitting an id it was not shown.
+    Publishing it would attach a citation to a source the answer does not have.
+
+    Its sibling above asserts the *positive* half of this, despite being named
+    for the whole of it: a retrieved marker is published. Nothing asserted that
+    an unretrieved one is dropped, which is the half that matters.
+    """
+    result = response_generation_node(
+        {
+            "draft_answer": (
+                "The proposition applies. [SRC:chunk-1] "
+                "An invented proposition. [SRC:chunk-99]"
+            ),
+            # chunk-99 is absent from retrieval.
+            "retrieved_chunks": [_hit()],
+            "verification_result": VerificationResult(
+                score=1,
+                supported_claims=2,
+                total_claims=2,
+                claims=[
+                    ClaimVerification(
+                        claim="The proposition applies.",
+                        chunk_id="chunk-1",
+                        verdict="yes",
+                    ),
+                    ClaimVerification(
+                        claim="An invented proposition.",
+                        chunk_id="chunk-99",
+                        verdict="yes",
+                    ),
+                ],
+            ),
+            "agent_trace": [],
+        }
+    )
+
+    assert "An invented proposition" not in result["final_answer"]
+    assert "chunk-99" not in result["final_answer"]
+    assert [citation.chunk_id for citation in result["citations"]] == ["chunk-1"]
+
+
 def test_response_generation_refuses_low_confidence_draft() -> None:
     result = response_generation_node(
         {
