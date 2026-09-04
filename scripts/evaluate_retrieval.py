@@ -33,7 +33,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
 
-DEFAULT_GOLDEN = ROOT / "data" / "legal_kb" / "evaluation" / "golden_set_v1.json"
+DEFAULT_GOLDEN = ROOT / "data" / "legal_kb" / "evaluation" / "golden_set_v2.json"
 
 CONFIGS = ("dense", "sparse", "hybrid", "reranked")
 
