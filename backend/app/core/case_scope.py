@@ -44,8 +44,16 @@ async def resolve_authorized_case_scope(
 
     query = select(Case)
     if mode == "case_specific":
+        # An administrator may reach a named matter -- support and audit need
+        # it, and naming it is what makes it authorised and auditable.
         query = query.where(Case.id == case_id)
-    if current_user.role is not UserRole.ADMIN:
+        if current_user.role is not UserRole.ADMIN:
+            query = query.where(Case.owner_id == current_user.id)
+    else:
+        # A general search is not an authorised matter. Exempting the admin
+        # from the owner filter here swept every case in the system into the
+        # private-corpus targets, so one general query returned other users'
+        # evidence -- which the admin role profile explicitly rules out.
         query = query.where(Case.owner_id == current_user.id)
     cases = list((await session.scalars(query)).all())
 
