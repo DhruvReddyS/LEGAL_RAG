@@ -257,6 +257,28 @@ async def evaluate(
     return report
 
 
+def _measurement_config() -> dict[str, Any]:
+    """What this measurement was taken under."""
+    from app.agents.prompt_registry import prompt_versions
+    from app.core.config import settings
+
+    return {
+        "embedding_model": settings.embedding_model,
+        "embedding_dimension": settings.embedding_dimension,
+        "generation_model": settings.ollama_model,
+        "reranker_input_characters": _reranker_budget(),
+        "repealed_rank_penalty": settings.repealed_rank_penalty,
+        "abstain_coverage_floor": ABSTAIN_COVERAGE_FLOOR,
+        "prompt_versions": prompt_versions(),
+    }
+
+
+def _reranker_budget() -> int:
+    from app.services.retrieval import RERANKER_INPUT_CHARACTERS
+
+    return RERANKER_INPUT_CHARACTERS
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--collection", default="global_legal_corpus")
@@ -284,6 +306,12 @@ def main() -> int:
                     "collection": arguments.collection,
                     "golden_set": arguments.golden.name,
                     "limit": arguments.limit,
+                    # The configuration a result was taken under, so a number
+                    # can be reproduced or explained rather than only quoted.
+                    # Retrieval sends no prompt, but the prompt versions are
+                    # recorded anyway: a result is only comparable to another
+                    # taken under the same build of the system.
+                    "config": _measurement_config(),
                     "configs": report,
                 },
                 indent=2,
