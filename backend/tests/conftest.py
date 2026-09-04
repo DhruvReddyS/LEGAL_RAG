@@ -59,6 +59,16 @@ _OBJECT_STORAGE_MODULES = frozenset(
     }
 )
 
+# Modules that drive DurableJobWorker directly. claim_next_job is unscoped by
+# design -- any worker takes the oldest queued job of a supported type -- so
+# these tests are only meaningful when no other worker polls the same database.
+_JOB_WORKER_MODULES = frozenset({"test_jobs_integration"})
+
+# Where a developer's own backend usually listens. If something is serving
+# there it is almost certainly the API, whose durable worker polls this same
+# database every JOB_POLL_INTERVAL_MS.
+_LOCAL_BACKEND_PORT = int(os.environ.get("BACKEND_PORT", "8000"))
+
 # Starting the FastAPI lifespan boots the durable job worker, which claims
 # against PostgreSQL on its first poll.
 _LIFESPAN_TESTS = frozenset({"test_application_lifespan_owns_one_service_and_closes_it"})
@@ -116,6 +126,10 @@ def pytest_configure(config: pytest.Config) -> None:
         "markers",
         "object_storage: requires MinIO reachable at S3_ENDPOINT_URL",
     )
+    config.addinivalue_line(
+        "markers",
+        "sole_job_worker: requires that no other job worker polls this database",
+    )
 
 
 def pytest_collection_modifyitems(
@@ -134,6 +148,8 @@ def pytest_collection_modifyitems(
             item.add_marker(pytest.mark.integration)
         if module in _OBJECT_STORAGE_MODULES:
             item.add_marker(pytest.mark.object_storage)
+        if module in _JOB_WORKER_MODULES:
+            item.add_marker(pytest.mark.sole_job_worker)
 
 
 @pytest.fixture(autouse=True)
@@ -172,6 +188,34 @@ def _require_object_storage(request: pytest.FixtureRequest) -> None:
         "S3_ENDPOINT_URL names the compose-internal host, which does not "
         "resolve outside the container network"
     )
+
+
+@pytest.fixture(autouse=True)
+def _require_sole_job_worker(request: pytest.FixtureRequest) -> None:
+    """Refuse to run worker tests while another worker competes for jobs.
+
+    claim_next_job takes the oldest queued job of a supported type for any
+    user -- the contract that makes it safe to run several workers in
+    production. It also means a backend running on this machine claims the job
+    a test just enqueued, within one poll interval, and then *executes* it
+    through the real Deep pipeline against Ollama.
+
+    The test then fails on `assert claimed == job_id` with no hint that another
+    process was involved, and only sometimes, because it is a race.
+    """
+    if request.node.get_closest_marker("sole_job_worker") is None:
+        return
+    if not _tcp_reachable("127.0.0.1", _LOCAL_BACKEND_PORT):
+        return
+    message = (
+        f"a service is listening on 127.0.0.1:{_LOCAL_BACKEND_PORT}; its durable "
+        "job worker polls this same database and will claim and execute the jobs "
+        "these tests enqueue. Stop the local backend, run with "
+        "JOB_WORKER_ENABLED=false, or point DATABASE_URL at another database."
+    )
+    if os.environ.get("RUN_INTEGRATION") == "1":
+        pytest.fail(f"RUN_INTEGRATION=1 but {message}")
+    pytest.skip(message)
 
 
 @pytest.fixture(scope="session", autouse=True)
