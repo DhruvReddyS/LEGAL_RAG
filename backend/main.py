@@ -34,6 +34,7 @@ from app.core.config import settings
 from app.core.http_security import DesktopOriginSecurityMiddleware
 from app.services.health import (
     assert_accelerated_inference,
+    assert_reasoning_model_tier,
     log_runtime_profile,
     readiness_report,
 )
@@ -47,6 +48,7 @@ REQUEST_ID_RE = re.compile(r"^[A-Za-z0-9._-]{1,64}$")
 async def lifespan(app: FastAPI):
     # Fail fast rather than serving a silently degraded deployment.
     assert_accelerated_inference()
+    assert_reasoning_model_tier()
     log_runtime_profile(logger)
     retrieval_service = HybridRetrievalService()
     app.state.retrieval_service = retrieval_service

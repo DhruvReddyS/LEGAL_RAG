@@ -13,6 +13,8 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
+import re
 from dataclasses import dataclass, field
 from time import perf_counter
 from typing import Any
@@ -137,6 +139,60 @@ def assert_accelerated_inference() -> None:
             "EXPECT_ACCELERATED_INFERENCE is set but "
             + ", ".join(f"{name} resolved to {devices[name]}" for name in unaccelerated)
             + ". Run the backend natively on an Apple Silicon or CUDA host, or unset the flag."
+        )
+
+
+# Below this many billion parameters a model is a small tier: fine for
+# classification or routing, not fine for reasoning, verification or response
+# generation. The verifier decides whether a claim is entailed by its source,
+# and a weaker judge there does not fail loudly -- it approves claims it should
+# have refused, which reads downstream as a *higher* verification score.
+SMALL_MODEL_PARAMETER_BILLIONS = 8.0
+
+# "qwen3:4b", "phi3:3.8b", "llama3.2:1b" -- the size as tagged by the registry.
+_PARAMETER_COUNT = re.compile(r"[:\-](\d+(?:\.\d+)?)\s*b\b", re.IGNORECASE)
+
+# The escape hatch is deliberately verbose. Anyone who needs it is doing
+# something the rest of this function argues against, and should have to say so.
+ALLOW_SMALL_MODEL_ENV = "ALLOW_SMALL_REASONING_MODEL"
+
+
+def is_small_tier_model(name: str) -> bool:
+    """Whether a model name advertises a parameter count too small to judge.
+
+    A name that states no size is not treated as small: guessing from an
+    unlabelled name would block legitimate models, and this check exists to
+    catch the deliberate, plausible swap rather than to police naming.
+    """
+    sizes = [float(match) for match in _PARAMETER_COUNT.findall(name or "")]
+    return any(size < SMALL_MODEL_PARAMETER_BILLIONS for size in sizes)
+
+
+def assert_reasoning_model_tier() -> None:
+    """Fail startup when the generation model is too small to verify claims.
+
+    The PRD rule is that the small tier never touches reasoning, verification
+    or response generation, and that it is enforced at boot rather than by
+    convention. One model currently serves all three roles, so the check is on
+    that model.
+
+    It exists because the tempting change is a plausible one: this machine has
+    qwen3:4b installed, it decodes roughly three times faster than the 14B, and
+    swapping OLLAMA_MODEL to it would look like a latency win. What it would
+    actually do is put a weaker judge on claim verification, whose failure mode
+    is approving unsupported claims -- which raises the verification score
+    while making the answers less trustworthy.
+    """
+    if os.environ.get(ALLOW_SMALL_MODEL_ENV) == "1":
+        return
+    model = settings.ollama_model
+    if is_small_tier_model(model):
+        raise RuntimeError(
+            f"OLLAMA_MODEL is {model!r}, which advertises a small parameter "
+            "count. This model performs reasoning, claim verification and "
+            "response generation, and a weaker judge there approves claims it "
+            "should refuse rather than failing visibly. Use the 14B tier, or "
+            f"set {ALLOW_SMALL_MODEL_ENV}=1 to override deliberately."
         )
 
 
