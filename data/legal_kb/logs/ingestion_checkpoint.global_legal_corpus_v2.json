@@ -1,0 +1,17 @@
+{
+  "completed": {
+    "gold-canonical-13e2b6eb66add222c7262cca": {
+      "chunk_count": 155,
+      "completed_at": "2026-09-04T04:59:55.342510+00:00",
+      "document_id": "gold-doc-46f72e49527676b064e142cd",
+      "sha256": "13e2b6eb66add222c7262ccaa0b08d58e48ca22cdf0953f6541123ef039de239"
+    },
+    "gold-canonical-c9da896e7a16c481a4623578": {
+      "chunk_count": 310,
+      "completed_at": "2026-09-04T04:59:30.959664+00:00",
+      "document_id": "gold-doc-9bd2fe15d4d541eb6a2f34e4",
+      "sha256": "c9da896e7a16c481a46235789f74f545b7a9ed7f3a5c8049d0b1b9252c6731f4"
+    }
+  },
+  "failed": {}
+}
