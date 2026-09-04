@@ -17,7 +17,11 @@ from qdrant_client import AsyncQdrantClient, models
 from app.core.config import settings
 from app.core.qdrant import create_qdrant_client
 from app.ingestion.embedder import BGEM3Embedder, resolve_embedding_device
-from app.ingestion.init_qdrant import GLOBAL_LEGAL_CORPUS
+from app.ingestion.init_qdrant import (
+    ADVOCATE_CASE_DATA,
+    GLOBAL_LEGAL_CORPUS,
+    POLICE_CASE_DATA,
+)
 from app.ingestion.supersession import replacement_for
 from app.ingestion.sparse import to_sparse_vector
 from app.services.legal_term_normalization import LEGAL_ACRONYM_EXPANSIONS
@@ -235,6 +239,35 @@ def _base_forms(term: str) -> tuple[str, ...]:
     if lowered.endswith("s") and not lowered.endswith("ss"):
         return (lowered[:-1],)
     return ()
+
+
+# Collections holding one matter's private evidence. A query against these
+# without a case scope returns every matter in them.
+CASE_SCOPED_COLLECTIONS = frozenset({POLICE_CASE_DATA, ADVOCATE_CASE_DATA})
+
+
+def _assert_case_scoped(targets: list[RetrievalTarget]) -> None:
+    """Refuse a private-corpus query that names no case.
+
+    `RetrievalFilters.case_ids` is applied only when it is non-empty, which is
+    the right behaviour for the public corpus and a disclosure for a private
+    one: an empty list there does not mean "this case", it means "every case".
+
+    Every call site today sets it. That is the point -- the isolation is
+    currently held by three call sites all remembering, and police and advocate
+    are about to add more. Convention is the wrong mechanism for the boundary
+    between one investigation's evidence and another's, so it fails here
+    instead of returning someone else's material.
+    """
+    for target in targets:
+        if target.collection_name not in CASE_SCOPED_COLLECTIONS:
+            continue
+        if not target.filters.case_ids:
+            raise ValueError(
+                f"{target.collection_name!r} holds private case evidence and was "
+                "queried with no case_ids. An empty case filter is not applied, "
+                "so this would have returned every matter in the collection."
+            )
 
 
 def _prefer_law_in_force(hits: list[RetrievalHit]) -> list[RetrievalHit]:
@@ -960,6 +993,7 @@ class HybridRetrievalService:
             raise ValueError("result_limit must be between 1 and candidate_limit")
         if len({target.collection_name for target in targets}) != len(targets):
             raise ValueError("retrieval target collections must be unique")
+        _assert_case_scoped(targets)
         if lexical_only:
             if len(targets) != 1:
                 raise ValueError("lexical-only retrieval supports exactly one collection")
