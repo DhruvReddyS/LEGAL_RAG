@@ -90,15 +90,44 @@ async def _retrieve(
     return [hit.payload for hit in hits]
 
 
-def _abstained(question: str, payloads: list[dict[str, Any]]) -> bool:
-    """Whether the Fast lane's relevance gate would leave nothing to publish."""
-    from app.services.fast_research import _focus_tokens, _lexical_coverage
+async def _abstained(
+    service: Any,
+    question: str,
+    payloads: list[dict[str, Any]],
+    *,
+    collection: str,
+) -> bool:
+    """Whether the Fast lane's relevance gate would leave nothing to publish.
+
+    Both halves of the gate, not just the floor. An earlier version applied
+    only `_lexical_coverage`, while claiming in a comment to measure deployed
+    behaviour -- so it scored an idealised lane and would have credited the
+    mandatory-term requirement with nothing.
+    """
+    from app.services.fast_research import (
+        _focus_tokens,
+        _lexical_coverage,
+        _locally_matched_focus_terms,
+        _mandatory_focus_match,
+    )
+    from app.services.retrieval import RetrievalFilters, RetrievalTarget
 
     if not payloads:
         return True
     focus = _focus_tokens(question)
+    _, distinctive = await service.distinctive_query_terms(
+        focus,
+        target=RetrievalTarget(
+            collection_name=collection,
+            filters=RetrievalFilters(corpus_tiers=["gold", "extended"]),
+        ),
+    )
+    required = set(distinctive)
     return not any(
         _lexical_coverage(focus, payload) >= ABSTAIN_COVERAGE_FLOOR
+        and _mandatory_focus_match(
+            required, _locally_matched_focus_terms(focus, payload)
+        )
         for payload in payloads
     )
 
@@ -125,6 +154,7 @@ async def evaluate(
             started = time.perf_counter()
             results = []
             abstain_correct = 0
+            false_abstentions = 0
             per_item: list[dict[str, Any]] = []
 
             for item in items:
@@ -136,7 +166,9 @@ async def evaluate(
                     limit=limit,
                 )
                 if item.expectation == "abstain":
-                    correct = _abstained(item.question, payloads)
+                    correct = await _abstained(
+                        service, item.question, payloads, collection=collection
+                    )
                     abstain_correct += correct
                     per_item.append(
                         {"id": item.id, "expectation": "abstain", "abstained": correct}
@@ -144,6 +176,15 @@ async def evaluate(
                     continue
                 outcome = score(item, payloads)
                 results.append(outcome)
+                # The cost side of the abstention gate. Tightening it to
+                # decline more corpus gaps is only an improvement if it does
+                # not also start declining questions the corpus can answer,
+                # and that trade is invisible if only gaps are scored.
+                wrongly_declined = await _abstained(
+                    service, item.question, payloads, collection=collection
+                )
+                if wrongly_declined:
+                    false_abstentions += 1
                 per_item.append(
                     {
                         "id": item.id,
@@ -151,6 +192,7 @@ async def evaluate(
                         "first_rank": outcome.first_rank,
                         "recall_at_5": outcome.recall_at(5),
                         "recall_at_20": outcome.recall_at(20),
+                        "wrongly_abstained": wrongly_declined,
                     }
                 )
 
@@ -163,6 +205,9 @@ async def evaluate(
                 "ndcg_at_10": statistics.mean(r.ndcg_at(10) for r in results),
                 "abstention_accuracy": (
                     abstain_correct / len(abstentions) if abstentions else None
+                ),
+                "false_abstention_rate": (
+                    false_abstentions / len(answerable) if answerable else None
                 ),
                 "seconds_per_query": elapsed / max(len(items), 1),
             }
@@ -177,7 +222,10 @@ async def evaluate(
                 f"nDCG@10 {summary['ndcg_at_10']:.3f}"
             )
             abstention = summary["abstention_accuracy"]
+            false_rate = summary["false_abstention_rate"]
             trailer = f"  {summary['seconds_per_query'] * 1000:.0f} ms/query"
+            if false_rate is not None:
+                trailer = f"  wrongly declined {false_rate:.2f}" + trailer
             if abstention is not None:
                 trailer = f"  abstention {abstention:.2f}" + trailer
             print(trailer)
@@ -189,6 +237,13 @@ async def evaluate(
             ]
             if missed:
                 print(f"  missed entirely : {', '.join(missed)}")
+            wrongly_declined_ids = [
+                row["id"]
+                for row in per_item
+                if row["expectation"] == "answer" and row.get("wrongly_abstained")
+            ]
+            if wrongly_declined_ids:
+                print(f"  declined an answerable question: {', '.join(wrongly_declined_ids)}")
             wrongly_answered = [
                 row["id"]
                 for row in per_item
