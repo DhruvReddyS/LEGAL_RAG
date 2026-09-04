@@ -55,6 +55,25 @@ export default function SourceInspector({
             <div className="rounded-xl border border-[#e9e5ef] p-3"><dt className="text-[10px] font-semibold text-[#75817b]">Current-law status</dt><dd className="mt-1 text-xs font-medium capitalize text-[#54515d]">{label(source.current_status)}</dd></div>
           </dl>
 
+          {/* A repealed Act is still shown, because it governs conduct from
+              before the repeal - but never without saying so, and never
+              without naming what replaced it. */}
+          {source.current_status === "repealed" && source.replaced_by ? (
+            <div className="mt-3 flex items-start gap-3 rounded-xl border border-[#f0d8ad] bg-[#fff8eb] p-4">
+              <CircleAlert size={17} className="mt-0.5 shrink-0 text-[#b7791f]" />
+              <div>
+                <p className="text-xs font-semibold text-[#54515d]">
+                  This Act was repealed{source.repealed_on ? ` on ${source.repealed_on}` : ""}
+                </p>
+                <p className="mt-1 text-xs leading-5 text-[#827b8c]">
+                  It was replaced by {source.replaced_by}. It still applies to conduct
+                  from before that date, so it may be the right authority for an older
+                  matter — but not for anything happening now.
+                </p>
+              </div>
+            </div>
+          ) : null}
+
           <section className="mt-5 rounded-2xl border border-[#dce4ea] bg-[#faf7f2] p-5">
             <div className="flex items-center gap-2 text-xs font-semibold text-[#54515d]"><FileText size={15} className="text-[#897499]" />Retrieved passage</div>
             <blockquote className="mt-3 whitespace-pre-wrap text-sm leading-6 text-[#4c5d57]">{source.excerpt}</blockquote>
@@ -62,7 +81,7 @@ export default function SourceInspector({
 
           <div className={`mt-5 flex items-start gap-3 rounded-xl border p-4 ${verified ? "border-[#cce6d7] bg-[#f1faf5]" : "border-[#f0d8ad] bg-[#fff8eb]"}`}>
             {verified ? <CheckCircle2 size={17} className="mt-0.5 shrink-0 text-[#2e6b50]" /> : <CircleAlert size={17} className="mt-0.5 shrink-0 text-[#b7791f]" />}
-            <div><p className="text-xs font-semibold text-[#54515d]">{verified ? "Source reference verified" : "Professional verification required"}</p><p className="mt-1 text-xs leading-5 text-[#827b8c]">{source.current_status === "status_unverified" ? "The source is grounded, but its current/superseded legal status has not yet passed consolidation review." : source.scope === "private_case" ? "This passage is private evidence, so current-law status is not applicable." : "Review the passage in its original context before relying on it."}</p></div>
+            <div><p className="text-xs font-semibold text-[#54515d]">{verified ? "Source reference verified" : "Professional verification required"}</p><p className="mt-1 text-xs leading-5 text-[#827b8c]">{source.current_status === "repealed" ? "This Act has been repealed. Check the replacement named above before relying on it for anything current." : source.current_status === "status_unverified" ? "The source is grounded, but its current/superseded legal status has not yet passed consolidation review." : source.scope === "private_case" ? "This passage is private evidence, so current-law status is not applicable." : "Review the passage in its original context before relying on it."}</p></div>
           </div>
         </div>
         <footer className="flex items-center gap-2 border-t border-[#e9e5ef] bg-[#fafbfc] px-6 py-4 text-xs text-[#827b8c]"><ShieldCheck size={14} className="text-[#2e6b50]" />Role and matter scope verified by the server</footer>

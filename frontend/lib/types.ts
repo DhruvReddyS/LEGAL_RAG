@@ -1,3 +1,19 @@
+/**
+ * Whether the cited law still applies.
+ *
+ * "repealed" is distinct from "superseded": a superseded source cannot ground
+ * a published claim at all, whereas a repealed Act still governs conduct from
+ * before its repeal - an offence committed on 30 June 2024 is tried under the
+ * Indian Penal Code - so it is cited with its successor named rather than
+ * withheld.
+ */
+export type CurrentLawStatus =
+  | "current"
+  | "superseded"
+  | "repealed"
+  | "status_unverified"
+  | "not_applicable";
+
 export interface User {
   id: string;
   name: string;
@@ -163,7 +179,9 @@ export interface SourceEvidence {
   excerpt: string;
   relevance_score: number | null;
   verification_status: "verified" | "partial" | "unverified";
-  current_status: "current" | "superseded" | "status_unverified" | "not_applicable";
+  current_status: CurrentLawStatus;
+  replaced_by?: string | null;
+  repealed_on?: string | null;
   scope: "global" | "private_case";
 }
 
@@ -209,7 +227,9 @@ export interface SourceInspectorResponse {
   retrieved_passage: string;
   retrieval_score: number | null;
   verification_status: "verified" | "partial" | "unverified";
-  current_status: "current" | "superseded" | "status_unverified" | "not_applicable";
+  current_status: CurrentLawStatus;
+  replaced_by?: string | null;
+  repealed_on?: string | null;
   case_id: string | null;
   document_id: string | null;
   storage_object_id: string | null;
@@ -281,7 +301,9 @@ export interface AgentCitation {
   excerpt: string;
   retrieval_score?: number | null;
   verification_status?: "verified" | "partial" | "unverified";
-  current_status?: "current" | "superseded" | "status_unverified" | "not_applicable";
+  current_status?: CurrentLawStatus;
+  replaced_by?: string | null;
+  repealed_on?: string | null;
 }
 
 export type RequestedResponseMode = "auto" | "fast" | "deep";
