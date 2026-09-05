@@ -30,6 +30,28 @@ _NUMBERED_SECTION = re.compile(
 _COLUMN_SECTION = re.compile(
     r"^\s*.{1,70}?\s{2,}(?P<label>\d+[A-Z]?)\.\s+(?P<title>[A-Z][^\n]{2,})$"
 )
+# The layout the 2023 Sanhitas are published in, and the reason half of the
+# BNSS was invisible to retrieval. Both patterns above require the section
+# title to follow the number:
+#
+#     14. Subordination of Executive Magistrates.
+#
+# The Sanhitas print the title as a marginal note in a side column, so
+# extraction interleaves it and what actually follows the number is the
+# sub-section marker:
+#
+#     Definitions.            2. (1) In this Sanhita, unless the context ...
+#                             3. (1) Unless the context otherwise requires, ...
+#
+# "(" is not "[A-Z]", so neither pattern matched and 271 of 531 BNSS sections
+# were never labelled -- present in the text, absent from every query that
+# needed them. The IPC, typeset heading-first, kept 93% of its sections, which
+# is why the corpus looked systematically richer in repealed law.
+_MARGINAL_SECTION = re.compile(
+    r"^\s*(?:(?P<margin>[A-Z][^\n]{0,70}?\.)\s{2,})?"
+    r"(?P<label>\d+[A-Z]?)\.\s+\(\d+[A-Z]?\)\s+(?P<body>\S.*)$"
+)
+
 _SUBSECTION = re.compile(r"^\s*\((?P<label>\d+[A-Z]?)\)\s+")
 _LEGAL_SUBUNIT = re.compile(
     r"^\s*(?P<kind>PROVISO|PROVIDED\s+THAT|EXPLANATION|ILLUSTRATION|CLAUSE)\b",
@@ -88,8 +110,9 @@ def _parse_acts(document: ExtractedDocument) -> list[StructuralUnit]:
     for page_number, line in _lines(document):
         heading = _ACT_HEADING.match(line)
         numbered = _NUMBERED_SECTION.match(line) or _COLUMN_SECTION.match(line)
+        marginal = None if numbered else _MARGINAL_SECTION.match(line)
         legal_subunit = _LEGAL_SUBUNIT.match(line)
-        if heading or numbered:
+        if heading or numbered or marginal:
             flush()
             start_page = page_number
             end_page = page_number
@@ -109,9 +132,19 @@ def _parse_acts(document: ExtractedDocument) -> list[StructuralUnit]:
                 else:
                     path = [display]
                     section = None
-            else:
+            elif numbered:
                 section = numbered.group("label")
                 display = f"Section {section} {numbered.group('title').strip()}"
+                path = [entry for entry in path if not entry.upper().startswith(("SECTION", "SEC."))]
+                path.append(display)
+            else:
+                # Marginal-note layout. The title is the margin text when
+                # extraction placed it on this line; otherwise the section is
+                # still captured, because a section labelled without its title
+                # is retrievable and an unlabelled one is not.
+                section = marginal.group("label")
+                margin = (marginal.group("margin") or "").strip().rstrip(".")
+                display = f"Section {section} {margin}".strip()
                 path = [entry for entry in path if not entry.upper().startswith(("SECTION", "SEC."))]
                 path.append(display)
             current_lines.append(line)
