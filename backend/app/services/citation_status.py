@@ -14,6 +14,46 @@ from app.ingestion.supersession import replacement_for
 CurrentStatus = str
 
 
+def citation_labels(payload: dict[str, Any]) -> dict[str, Any]:
+    """Everything a citation needs to say about currency, in one place.
+
+    Returns the fields an AgentCitation carries, so the three lanes cannot
+    render different subsets of the same facts.
+    """
+    from app.services.repeal_labels import RepealLabel, repeal_notice
+
+    status, replaced_by, repealed_on = citation_currency(payload)
+    notice = repeal_notice(payload)
+
+    mappings = [
+        {
+            "from_code": mapping.from_code,
+            "from_section": mapping.from_section,
+            "to_code": mapping.to_code,
+            "to_section": mapping.to_section,
+            "subject": mapping.subject,
+            "ingredients_changed": mapping.ingredients_changed,
+            "note": mapping.note,
+        }
+        for mapping in notice.mappings
+    ]
+
+    # Label B carries its own successor and date; Label A's come from currency.
+    if notice.label is RepealLabel.CONCERNS_REPEALED_PROVISION:
+        replaced_by = replaced_by or notice.replaced_by
+        repealed_on = repealed_on or notice.repealed_on
+
+    return {
+        "current_status": status,
+        "replaced_by": replaced_by,
+        "repealed_on": repealed_on,
+        "repeal_label": str(notice.label),
+        "section_mappings": mappings,
+        "unmapped_repealed_provisions": list(notice.unmapped_provisions),
+        "mapping_review_status": notice.review_status or None,
+    }
+
+
 def citation_currency(payload: dict[str, Any]) -> tuple[CurrentStatus, str | None, str | None]:
     """The status to show, and the successor Act when one exists.
 

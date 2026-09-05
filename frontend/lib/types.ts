@@ -7,6 +7,31 @@
  * Indian Penal Code - so it is cited with its successor named rather than
  * withheld.
  */
+/**
+ * Two distinct warnings, deliberately not merged.
+ *
+ * "no_longer_in_force" belongs to the repealed Act itself.
+ * "concerns_repealed_provision" belongs to guidance, manuals and judgments
+ * written against a provision that has since moved - documents which are
+ * themselves still operative. Showing them the first label would tell a reader
+ * to disregard guidance that still binds.
+ */
+export type RepealLabel =
+  | "none"
+  | "no_longer_in_force"
+  | "concerns_repealed_provision";
+
+export interface SectionMappingRef {
+  from_code: string;
+  from_section: string;
+  to_code: string;
+  to_section: string;
+  subject?: string;
+  /** True where the replacement is a different offence, not a renumbering. */
+  ingredients_changed?: boolean;
+  note?: string;
+}
+
 export type CurrentLawStatus =
   | "current"
   | "superseded"
@@ -182,6 +207,10 @@ export interface SourceEvidence {
   current_status: CurrentLawStatus;
   replaced_by?: string | null;
   repealed_on?: string | null;
+  repeal_label?: RepealLabel;
+  section_mappings?: SectionMappingRef[];
+  unmapped_repealed_provisions?: string[];
+  mapping_review_status?: string | null;
   scope: "global" | "private_case";
 }
 
@@ -230,6 +259,10 @@ export interface SourceInspectorResponse {
   current_status: CurrentLawStatus;
   replaced_by?: string | null;
   repealed_on?: string | null;
+  repeal_label?: RepealLabel;
+  section_mappings?: SectionMappingRef[];
+  unmapped_repealed_provisions?: string[];
+  mapping_review_status?: string | null;
   case_id: string | null;
   document_id: string | null;
   storage_object_id: string | null;
@@ -304,6 +337,10 @@ export interface AgentCitation {
   current_status?: CurrentLawStatus;
   replaced_by?: string | null;
   repealed_on?: string | null;
+  repeal_label?: RepealLabel;
+  section_mappings?: SectionMappingRef[];
+  unmapped_repealed_provisions?: string[];
+  mapping_review_status?: string | null;
 }
 
 export type RequestedResponseMode = "auto" | "fast" | "deep";

@@ -31,6 +31,23 @@ class VerificationResult(BaseModel):
     unsupported_claims: list[str] = Field(default_factory=list)
 
 
+class SectionMappingRef(BaseModel):
+    """Where a cited provision moved to.
+
+    `ingredients_changed` is the field that matters: some pairs are pure
+    renumberings and some are new offences occupying the old one's place.
+    Presenting the second kind as equivalence gets the elements wrong.
+    """
+
+    from_code: str
+    from_section: str
+    to_code: str
+    to_section: str
+    subject: str = ""
+    ingredients_changed: bool = False
+    note: str = ""
+
+
 class AgentCitation(BaseModel):
     number: int
     chunk_id: str
@@ -53,6 +70,17 @@ class AgentCitation(BaseModel):
     # that date, so they are cited rather than withheld -- but never silently.
     replaced_by: str | None = None
     repealed_on: str | None = None
+    # Two different warnings, deliberately not merged. "no_longer_in_force"
+    # attaches to the repealed Act itself; "concerns_repealed_provision"
+    # attaches to guidance, manuals and judgments *about* a provision that has
+    # moved -- documents which are themselves still operative, and which it
+    # would be false to mark as out of force.
+    repeal_label: Literal[
+        "none", "no_longer_in_force", "concerns_repealed_provision"
+    ] = "none"
+    section_mappings: list[SectionMappingRef] = Field(default_factory=list)
+    unmapped_repealed_provisions: list[str] = Field(default_factory=list)
+    mapping_review_status: str | None = None
 
 
 class AgentTraceEvent(BaseModel):

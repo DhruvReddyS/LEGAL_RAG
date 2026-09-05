@@ -6,7 +6,7 @@ from time import perf_counter
 
 from app.schemas.agents import AgentCitation, AgentTraceEvent, QueryIntent
 from app.core.config import settings
-from app.services.citation_status import citation_currency
+from app.services.citation_status import citation_labels
 from app.services.generation import INSUFFICIENT_EVIDENCE
 from app.ingestion.init_qdrant import GLOBAL_LEGAL_CORPUS
 from app.services.retrieval import (
@@ -375,7 +375,7 @@ class FastLegalResearchService:
             ]
             for number, hit in enumerate(hits, 1):
                 payload = hit.payload
-                currency, replaced_by, repealed_on = citation_currency(payload)
+                labels = citation_labels(payload)
                 citation = AgentCitation(
                     number=number,
                     chunk_id=str(payload.get("chunk_id") or hit.point_id),
@@ -392,9 +392,7 @@ class FastLegalResearchService:
                     # Fast mode performs retrieval only. It has not run the
                     # claim/source verifier used by Deep Review.
                     verification_status="unverified",
-                    current_status=currency,
-                    replaced_by=replaced_by,
-                    repealed_on=repealed_on,
+                    **labels,
                 )
                 citations.append(citation)
                 descriptor = citation.act_name or citation.court or citation.source_type.replace("_", " ")
@@ -402,11 +400,24 @@ class FastLegalResearchService:
                 # Stated inline, not only in a field the interface may not
                 # render. A citizen reading a Penal Code provision has to be
                 # told it was replaced, in the same sentence that quotes it.
-                repeal_note = (
-                    f" [repealed {citation.repealed_on}; replaced by {citation.replaced_by}]"
-                    if citation.replaced_by
-                    else ""
-                )
+                # The two labels say different things and must not share a
+                # sentence. Marking an operative SOP "repealed" because it
+                # cites a moved section would be false in the direction a
+                # police reader would catch immediately.
+                if citation.repeal_label == "no_longer_in_force":
+                    repeal_note = (
+                        f" [no longer in force from {citation.repealed_on}; "
+                        f"replaced by {citation.replaced_by}]"
+                    )
+                elif citation.repeal_label == "concerns_repealed_provision":
+                    moved = "; ".join(
+                        f"{m.from_code} s.{m.from_section} is now {m.to_code} s.{m.to_section}"
+                        + (" (elements changed)" if m.ingredients_changed else "")
+                        for m in citation.section_mappings[:2]
+                    )
+                    repeal_note = f" [still in force; cites renumbered provisions: {moved}]" if moved else ""
+                else:
+                    repeal_note = ""
                 lines.append(
                     f"{number}. {citation.title} ({descriptor}{section}, pages {citation.page_start}–{citation.page_end}){repeal_note}: "
                     f"{_compact(payload.get('text'))} [Source {number}]"
