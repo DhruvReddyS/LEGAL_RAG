@@ -46,6 +46,10 @@ _DATABASE_BACKED_MODULES = frozenset(
         "test_chat_integration",
         "test_citizen_intake",
         "test_cookie_auth_integration",
+        # Named without the _integration suffix, so it was never gated and
+        # failed with a connection error instead of skipping when Postgres is
+        # down.
+        "test_admin_case_scope",
     }
 )
 

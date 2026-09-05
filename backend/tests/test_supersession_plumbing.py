@@ -76,16 +76,34 @@ def test_the_field_is_indexed_so_a_filter_does_not_scan() -> None:
 
 
 def test_superseded_authorities_can_be_excluded_at_the_query() -> None:
-    """Excluding after ranking still lets a replaced provision take a slot."""
+    """Excluding after ranking still lets a replaced provision take a slot.
+
+    This previously asserted `must: is_superseded == False`, which is what the
+    code did and was wrong. The field is tri-state in practice -- True, False,
+    or absent on any index built before it existed -- and every one of the
+    25,517 points in the live collection holds None. A positive match on False
+    therefore excluded the entire corpus, so the filter would have returned
+    nothing the first time anyone enabled it.
+
+    The assertion is now the stronger one: exclude an explicit True, and never
+    place a positive condition on this field.
+    """
     query_filter = RetrievalFilters(exclude_superseded=True).to_qdrant()
 
-    conditions = [
+    excluded = [
         condition
-        for condition in query_filter.must
+        for condition in (query_filter.must_not or [])
         if getattr(condition, "key", None) == "is_superseded"
     ]
-    assert len(conditions) == 1
-    assert conditions[0].match.value is False
+    assert len(excluded) == 1
+    assert excluded[0].match.value is True
+
+    required = [
+        condition
+        for condition in (query_filter.must or [])
+        if getattr(condition, "key", None) == "is_superseded"
+    ]
+    assert not required, "a positive match on this field excludes the whole corpus"
 
     # Off by default: the corpus cannot yet distinguish "not superseded" from
     # "unknown", so filtering by default would silently shrink retrieval.

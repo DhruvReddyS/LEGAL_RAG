@@ -4,6 +4,7 @@ import re
 
 from app.agents.verification_agent import VerificationBatch
 from app.ingestion.init_qdrant import ADVOCATE_CASE_DATA, GLOBAL_LEGAL_CORPUS
+from app.services.currency import resolve_currency
 from app.schemas.agents import AgentCitation
 from app.schemas.strategy import (
     DefenceAnalysisDraft,
@@ -70,7 +71,7 @@ def _citations(hits: list[RetrievalHit], used_ids: set[str]) -> list[AgentCitati
                     else "current"
                     if payload.get("is_current") is True
                     else "superseded"
-                    if payload.get("is_superseded") is True
+                    if not resolve_currency(payload).may_ground_a_published_claim
                     else "status_unverified"
                 ),
             )

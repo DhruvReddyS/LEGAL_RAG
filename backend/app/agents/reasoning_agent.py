@@ -6,6 +6,7 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 from app.schemas.agents import AgentTraceEvent
+from app.services.currency import resolve_currency
 from app.services.generation import INSUFFICIENT_EVIDENCE
 from app.services.llm import OllamaClient
 from app.services.retrieval import RetrievalHit
@@ -68,7 +69,7 @@ def format_evidence(hits: list[RetrievalHit]) -> str:
                 act_name=payload.get("act_name") or "not stated",
                 section=payload.get("section") or "not stated",
                 is_current=payload.get("is_current"),
-                is_superseded=payload.get("is_superseded"),
+                is_superseded=resolve_currency(payload).status,
                 start=payload.get("page_start") or "?",
                 end=payload.get("page_end") or "?",
                 text=str(payload.get("text") or "").strip()[:MAX_EVIDENCE_TEXT_CHARACTERS],

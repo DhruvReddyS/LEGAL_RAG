@@ -5,6 +5,7 @@ from time import perf_counter_ns
 
 from app.schemas.agents import AgentCitation, AgentTraceEvent
 from app.services.citation_status import citation_currency
+from app.services.currency import resolve_currency
 from app.services.generation import INSUFFICIENT_EVIDENCE
 from app.services.pipeline_telemetry import append_stage_metric, text_size
 
@@ -59,7 +60,10 @@ def response_generation_node(state: dict) -> dict:
             hit = hit_by_id.get(claim.chunk_id)
             # A source explicitly marked superseded cannot ground a user-facing
             # legal proposition even when its historical text entails the claim.
-            if hit is None or hit.payload.get("is_superseded") is True:
+            # Resolved rather than read. The stored flag is None for every
+            # point in the live index, so `is True` never fired and this gate
+            # has been open since the field was added.
+            if hit is None or not resolve_currency(hit.payload).may_ground_a_published_claim:
                 continue
             supported_sources.setdefault(key, [])
             if claim.chunk_id not in supported_sources[key]:

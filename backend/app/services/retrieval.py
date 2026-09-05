@@ -47,6 +47,7 @@ class RetrievalFilters:
 
     def to_qdrant(self) -> models.Filter | None:
         conditions: list[models.Condition] = []
+        must_not: list[models.Condition] = []
         keyword_filters = {
             "source_type": self.source_types,
             "court": self.courts,
@@ -85,12 +86,20 @@ class RetrievalFilters:
                 models.FieldCondition(key="is_current", match=models.MatchValue(value=True))
             )
         if self.exclude_superseded:
-            conditions.append(
+            # must_not True, rather than must False. The field is tri-state in
+            # practice -- True, False, or absent on any index built before it
+            # existed -- and matching False excluded every point in the live
+            # collection, where all 25,517 hold None. Excluding only an
+            # explicit True keeps the filter meaning "not known to be
+            # superseded", which is what the caller asked for.
+            must_not.append(
                 models.FieldCondition(
-                    key="is_superseded", match=models.MatchValue(value=False)
+                    key="is_superseded", match=models.MatchValue(value=True)
                 )
             )
-        return models.Filter(must=conditions) if conditions else None
+        if not conditions and not must_not:
+            return None
+        return models.Filter(must=conditions or None, must_not=must_not or None)
 
     @staticmethod
     def _as_boundary(value: date | str | None, *, end_of_day: bool) -> datetime | None:

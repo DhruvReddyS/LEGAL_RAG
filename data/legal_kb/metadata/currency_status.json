@@ -1,0 +1,136 @@
+{
+  "version": 1,
+  "reviewed_on": "2026-09-05",
+  "notes": [
+    "Curated currency for the authorities that carry the most corpus mass. Everything absent from this file resolves to 'unverified', which is a real answer and is labelled as one - it is not treated as 'in force'.",
+    "Matching is on the START of act_name or title, the same rule the repeal table uses. A circular that merely cites the Penal Code is not the Penal Code, and must not inherit its status in either direction.",
+    "Ranked by chunks in the corpus, counted from data/legal_kb/processed/chunks. That is corpus mass rather than observed retrieval frequency; no query log exists yet, and mass is the honest proxy.",
+    "'superseded' here means the instrument no longer governs new conduct. It does not mean the text is irrelevant: BNSS s.531 saves proceedings begun before 1 July 2024, so the repealed codes still govern conduct from before that date. The publication rules treat the two cases differently.",
+    "'saves_prior_conduct' marks an instrument whose repeal does not erase it: an offence committed before 1 July 2024 is still tried under the old codes, so they may still ground a published claim provided the repeal is stated. An instrument superseded without savings - a model manual replaced by a later edition - may not ground one at all, because there is no period it still governs."
+  ],
+  "entries": [
+    {
+      "starts_with": "the constitution of india",
+      "status": "in_force",
+      "basis": "In force. The corpus copy is the 1 May 2024 consolidation.",
+      "corpus_chunks": 2434
+    },
+    {
+      "starts_with": "the code of criminal procedure, 1898",
+      "status": "superseded",
+      "superseded_by": "The Code of Criminal Procedure, 1973",
+      "effective": "1974-04-01",
+      "basis": "Repealed by the 1973 Code. Listed before the general Code of Criminal Procedure rule because both match it.",
+      "corpus_chunks": 370,
+      "saves_prior_conduct": true
+    },
+    {
+      "starts_with": "the code of criminal procedure",
+      "status": "superseded",
+      "superseded_by": "The Bharatiya Nagarik Suraksha Sanhita, 2023",
+      "effective": "2024-07-01",
+      "basis": "Repealed on commencement of the BNSS. Saved for proceedings pending on that date by BNSS s.531.",
+      "corpus_chunks": 1142,
+      "saves_prior_conduct": true
+    },
+    {
+      "starts_with": "the indian penal code",
+      "status": "superseded",
+      "superseded_by": "The Bharatiya Nyaya Sanhita, 2023",
+      "effective": "2024-07-01",
+      "basis": "Repealed on commencement of the BNS. Offences committed before that date remain triable under it.",
+      "corpus_chunks": 759,
+      "saves_prior_conduct": true
+    },
+    {
+      "starts_with": "the indian evidence act",
+      "status": "superseded",
+      "superseded_by": "The Bharatiya Sakshya Adhiniyam, 2023",
+      "effective": "2024-07-01",
+      "basis": "Repealed on commencement of the BSA.",
+      "corpus_chunks": 1090,
+      "saves_prior_conduct": true
+    },
+    {
+      "starts_with": "the bharatiya nyaya sanhita",
+      "status": "in_force",
+      "basis": "Commenced 1 July 2024.",
+      "corpus_chunks": 311
+    },
+    {
+      "starts_with": "the bharatiya nagarik suraksha sanhita",
+      "status": "in_force",
+      "basis": "Commenced 1 July 2024.",
+      "corpus_chunks": 384
+    },
+    {
+      "starts_with": "the bharatiya sakshya adhiniyam",
+      "status": "in_force",
+      "basis": "Commenced 1 July 2024.",
+      "corpus_chunks": 163
+    },
+    {
+      "starts_with": "the arms act",
+      "status": "in_force",
+      "basis": "Arms Act, 1959, as amended.",
+      "corpus_chunks": 0
+    },
+    {
+      "starts_with": "the arms rules, 1962",
+      "status": "in_force",
+      "basis": "In force as amended; the corpus also holds the 2016 amendment compendium.",
+      "corpus_chunks": 288
+    },
+    {
+      "starts_with": "the arms rules",
+      "status": "in_force",
+      "basis": "In force as amended.",
+      "corpus_chunks": 426
+    },
+    {
+      "starts_with": "arms rule 2016",
+      "status": "in_force",
+      "basis": "Amendments to the Arms Rules, 1962.",
+      "corpus_chunks": 827
+    },
+    {
+      "starts_with": "the juvenile justice",
+      "status": "in_force",
+      "basis": "Juvenile Justice (Care and Protection of Children) Act, 2015 and its Model Rules, 2016.",
+      "corpus_chunks": 825
+    },
+    {
+      "starts_with": "the protection of children from sexual offences",
+      "status": "in_force",
+      "basis": "POCSO Act, 2012, as amended in 2019.",
+      "corpus_chunks": 0
+    },
+    {
+      "starts_with": "the information technology act",
+      "status": "in_force",
+      "basis": "IT Act, 2000, as amended.",
+      "corpus_chunks": 0
+    },
+    {
+      "starts_with": "the scheduled castes and the scheduled tribes",
+      "status": "in_force",
+      "basis": "SC/ST (Prevention of Atrocities) Act, 1989 and Rules, 1995, as amended.",
+      "corpus_chunks": 215
+    },
+    {
+      "starts_with": "model prison manual 2003",
+      "status": "superseded",
+      "superseded_by": "Model Prison Manual, 2016",
+      "effective": "2016-01-01",
+      "basis": "Replaced by the 2016 manual. Advisory rather than binding, but the 2003 text should not be presented as the current model.",
+      "corpus_chunks": 301,
+      "saves_prior_conduct": false
+    },
+    {
+      "starts_with": "model prison manual 2016",
+      "status": "in_force",
+      "basis": "Current model manual. Advisory: it binds no State until adopted.",
+      "corpus_chunks": 235
+    }
+  ]
+}
