@@ -10,6 +10,7 @@ from __future__ import annotations
 import pytest
 
 from app.ingestion.enrichment import (
+    sub_units,
     build_embed_text,
     classify_quality,
     structural_role,
@@ -93,9 +94,6 @@ class TestStructuralRole:
     @pytest.mark.parametrize(
         ("text", "expected"),
         [
-            ("Provided that no such order shall be made.", "proviso"),
-            ("Explanation.—For the purposes of this section, ...", "explanation"),
-            ("Illustration (a) A finds a purse.", "illustration"),
             ('"Court" means a Civil Court.', "definition"),
             ("THE FIRST SCHEDULE — offences under the Act", "schedule"),
         ],
@@ -262,3 +260,51 @@ class TestGazetteMasthead:
             "be arrested without a warrant by an officer in charge."
         )
         assert classify_quality(text).quality == "indexed"
+
+
+class TestSubUnitsRatherThanRoles:
+    """Proviso, explanation and illustration are spans, not chunk kinds.
+
+    They were single roles anchored at the start of a chunk, and a 700-token
+    window almost never begins with one: 1,280 chunks contained a proviso and
+    none were labelled. A chunk gets one role, so these moved to `sub_units`,
+    which describes what a chunk *contains* and can be several things at once.
+    """
+
+    def test_a_provision_carrying_a_proviso_keeps_its_role(self) -> None:
+        text = (
+            "The officer shall reduce the information to writing. Provided that "
+            "no such statement shall be signed by the informant."
+        )
+
+        assert structural_role(text, section="173") == "provision"
+        assert "proviso" in sub_units(text)
+
+    def test_several_sub_units_in_one_chunk(self) -> None:
+        """The case a single role cannot express at all."""
+        text = (
+            "Whoever commits theft shall be punished. Provided that a first "
+            "offence may attract community service. Explanation.—\"theft\" "
+            "includes an electronic record."
+        )
+
+        assert set(sub_units(text)) >= {"proviso", "explanation"}
+
+    def test_an_exception_after_an_em_dash_is_found(self) -> None:
+        """Statutes run these together: "Mischief.— Exception 1.—Nothing ..."."""
+        assert "exception" in sub_units(
+            "324. Mischief.— Exception 1.—Nothing is an offence which is done in good faith."
+        )
+
+    def test_ordinary_provision_text_contains_nothing(self) -> None:
+        assert sub_units("Whoever commits theft shall be punished with imprisonment.") == ()
+
+    def test_the_removed_roles_are_no_longer_claimed(self) -> None:
+        """Keeping them in the vocabulary implied the corpus had been checked
+        for something it never could be."""
+        import typing
+
+        from app.ingestion.enrichment import StructuralRole
+
+        allowed = set(typing.get_args(StructuralRole))
+        assert not ({"proviso", "explanation", "illustration"} & allowed)

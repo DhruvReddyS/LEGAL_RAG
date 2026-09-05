@@ -20,10 +20,13 @@ from typing import Literal
 
 Quality = Literal["indexed", "noise"]
 
+# Roles that describe a whole chunk. Proviso, explanation and illustration are
+# spans within a provision and live in `sub_units` instead; keeping them here
+# implied the corpus had been checked for something it never could be.
 StructuralRole = Literal[
-    "provision", "proviso", "explanation", "illustration",
+    "provision", "definition", "schedule", "prose",
     "facts", "issues", "arguments", "reasoning", "ratio", "order",
-    "definition", "schedule", "heading", "footnote", "toc", "prose",
+    "heading", "footnote", "toc",
 ]
 
 
@@ -160,13 +163,39 @@ def classify_quality(
 
 # --- structural role ---------------------------------------------------------
 
+# A chunk gets exactly one role, so only roles that describe a whole chunk
+# belong here. Proviso, explanation and illustration do not: they are spans
+# inside a provision, and a 700-token window holds several. Anchored at the
+# start of a chunk they matched almost nothing -- 1,280 chunks contain a
+# proviso and none were labelled one -- while implying the corpus had been
+# checked for them.
 _ROLE_PATTERNS: tuple[tuple[StructuralRole, re.Pattern[str]], ...] = (
-    ("proviso", re.compile(r"^\s*provided\s+(?:that|further|also)\b", re.I)),
-    ("explanation", re.compile(r"^\s*explanation\b[\d\s.\-–—:]*", re.I)),
-    ("illustration", re.compile(r"^\s*illustrations?\b[\d\s.\-–—:()]*", re.I)),
     ("definition", re.compile(r'\bmeans\b|\bshall\s+mean\b|\bis\s+defined\s+as\b', re.I)),
     ("schedule", re.compile(r"^\s*(?:the\s+)?\w*\s*schedule\b", re.I)),
 )
+
+# What a chunk *contains*, which is a fact about the whole chunk and can be
+# several things at once. This is where proviso and its relatives belong: an
+# advocate asking for the exceptions to a section wants the chunk carrying the
+# proviso, and that chunk's role is still "provision".
+_SUB_UNIT_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    ("proviso", re.compile(r"\bprovided\s+(?:that|further|also)\b", re.I)),
+    # These begin a sub-unit wherever they appear -- at the start of a line, or
+    # mid-line after the sentence they qualify. Requiring line-start is the
+    # same anchoring mistake that left 1,280 provisos unlabelled.
+    ("explanation", re.compile(r"(?:^|[\n.;–—])\s*explanation\b\s*[\d]*\s*[.\-–—:]", re.I)),
+    ("illustration", re.compile(r"(?:^|[\n.;–—])\s*illustrations?\b\s*[\d]*\s*[.\-–—:()]", re.I)),
+    ("exception", re.compile(r"(?:^|[\n.;–—])\s*exception\b\s*[\d]*\s*[.\-–—:]", re.I)),
+)
+
+
+def sub_units(text: str) -> tuple[str, ...]:
+    """Which sub-provisions appear anywhere in this chunk.
+
+    Distinct from the role: a chunk is one thing, but it can contain several.
+    """
+    body = text or ""
+    return tuple(name for name, pattern in _SUB_UNIT_PATTERNS if pattern.search(body))
 
 # Judgment sections, from the structural parser's own vocabulary.
 _JUDGMENT_ROLES: dict[str, StructuralRole] = {

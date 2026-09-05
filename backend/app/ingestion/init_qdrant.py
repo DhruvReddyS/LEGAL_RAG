@@ -39,6 +39,7 @@ COLLECTIONS = (
             "is_current": models.PayloadSchemaType.BOOL,
             "is_superseded": models.PayloadSchemaType.BOOL,
             "document_type": models.PayloadSchemaType.KEYWORD,
+            "sub_units": models.PayloadSchemaType.KEYWORD,
             "replaced_by": models.PayloadSchemaType.KEYWORD,
             "unit_id": models.PayloadSchemaType.KEYWORD,
             "structural_role": models.PayloadSchemaType.KEYWORD,

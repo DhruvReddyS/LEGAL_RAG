@@ -12,6 +12,7 @@ from app.ingestion.enrichment import (
     build_embed_text,
     classify_quality,
     structural_role,
+    sub_units,
 )
 from app.ingestion.metadata import CanonicalDocument
 from app.ingestion.structure import StructuralUnit
@@ -44,6 +45,9 @@ class LegalChunk(BaseModel):
     unit_count: int = 1
     # What kind of legal material this is: provision, proviso, ratio, order.
     structural_role: str = "prose"
+    # What the chunk contains, as opposed to what it is. A provision
+    # carrying a proviso has role "provision" and sub_units ("proviso",).
+    sub_units: list[str] = Field(default_factory=list)
     # Retrieval target. Carries the Act and heading the bare text omits; the
     # `text` field stays verbatim because citations quote it.
     embed_text: str = ""
@@ -170,6 +174,7 @@ def chunk_structural_units(
                     structural_role=structural_role(
                         piece, unit_kind=unit.kind, section=section
                     ),
+                    sub_units=list(sub_units(piece)),
                     embed_text=build_embed_text(
                         piece,
                         title=document.title,
