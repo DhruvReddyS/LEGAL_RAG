@@ -29,6 +29,7 @@ from enum import StrEnum
 from typing import Any
 
 from app.ingestion.citations import extract_references
+from app.ingestion.document_type import is_the_authority_itself
 from app.services.currency import CurrencyStatus, resolve_currency
 from app.services.section_mapping import (
     REPLACED_BY,
@@ -77,6 +78,16 @@ class RepealNotice:
 
 
 def _is_the_authority_itself(payload: dict[str, Any]) -> bool:
+    """Prefer the type decided at ingestion over inferring it here.
+
+    `source_type` carries sixteen ad-hoc values, and one of them filed the
+    Code of Criminal Procedure, 1898 -- a bare act -- as a law commission
+    report. The stored classification settles that once; the fallback keeps
+    this working against an index built before the field existed.
+    """
+    stored = payload.get("document_type")
+    if stored:
+        return is_the_authority_itself(stored)
     return str(payload.get("source_type") or "").upper() in _AUTHORITY_TYPES
 
 

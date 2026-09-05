@@ -5,6 +5,7 @@ import re
 
 from pydantic import BaseModel, Field
 
+from app.ingestion.document_type import classify_document
 from app.ingestion.supersession import replacement_for
 from app.ingestion.citations import extract_references, resolve_act
 from app.ingestion.enrichment import (
@@ -58,6 +59,10 @@ class LegalChunk(BaseModel):
     # about conduct before that date -- which the old codes still govern.
     replaced_by: str | None = None
     repealed_on: str | None = None
+    # Decided once at ingestion. Label B turns on whether this is the
+    # authority or material about it, and inferring that at query time
+    # from source_type meant reading a field with sixteen ad-hoc values.
+    document_type: str = "other"
     verified_official: bool
     quality_status: str
     text: str
@@ -113,6 +118,11 @@ def chunk_structural_units(
     self_act = resolve_act(f"{document.act_name or ''} {document.title or ''}")
     # Also once per document: whether this Act has been repealed, and by what.
     replacement = replacement_for(document.act_name, document.title)
+    document_kind = classify_document(
+        title=document.title,
+        act_name=document.act_name,
+        source_type=document.resolved_type().value,
+    ).document_type
     for unit_index, unit in enumerate(units):
         if not unit.text.strip():
             continue
@@ -172,6 +182,7 @@ def chunk_structural_units(
                     cited_provisions=list(references.provisions),
                     cited_cases=list(references.cases),
                     superseded_by=document.superseded_by,
+                    document_type=str(document_kind),
                     replaced_by=replacement.replaced_by if replacement else None,
                     repealed_on=replacement.repealed_on if replacement else None,
                     verified_official=document.verified_official,
