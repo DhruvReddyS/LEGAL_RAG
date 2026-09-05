@@ -44,3 +44,6 @@ data/source_materials/**/*.pdf
 data/source_materials/legacy_collections/
 
 .DS_Store
+
+# Rebuild supervisor output: a runtime artifact, regenerated on every run.
+data/legal_kb/logs/rebuild.*.log
