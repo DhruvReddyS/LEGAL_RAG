@@ -57,39 +57,3 @@ def test_ordinary_questions_are_untouched_apart_from_whitespace() -> None:
     )
     # Non-Latin scripts carry meaning and must survive.
     assert "प्राथमिकी" in ChatQueryRequest(query="प्राथमिकी दर्ज करना अनिवार्य है?").query
-
-
-@pytest.mark.asyncio
-async def test_lexical_retrieval_abstains_rather_than_raising_on_no_terms() -> None:
-    """Validation should stop this reaching retrieval; a 500 is the wrong
-    failure if it ever does."""
-    from app.services.retrieval import HybridRetrievalService, RetrievalFilters, RetrievalTarget
-
-    class _EmptyClient:
-        async def scroll(self, **kwargs):
-            return [], None
-
-        async def count(self, **kwargs):
-            class _Count:
-                count = 0
-
-            return _Count()
-
-        async def close(self):
-            return None
-
-    service = HybridRetrievalService(client=_EmptyClient())  # type: ignore[arg-type]
-    try:
-        hits, timings = await service._search_lexical_target(
-            target=RetrievalTarget(
-                collection_name="global_legal_corpus", filters=RetrievalFilters()
-            ),
-            terms=set(),
-            candidate_limit=8,
-            result_limit=4,
-        )
-    finally:
-        service._closed = True
-
-    assert hits == []
-    assert timings.candidate_count == 0

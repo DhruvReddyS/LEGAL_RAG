@@ -27,8 +27,6 @@ class FakeRetrieval:
             reranking_ms=0.0,
             total_ms=455.0,
             embedding_cache_hit=True,
-            lexical_distinctive_terms=self.distinctive_terms,
-            lexical_term_document_counts=self.term_document_counts,
         )
 
     async def distinctive_query_terms(self, terms, *, target):
@@ -321,12 +319,14 @@ class TestDistinctiveTermsAreNotReadFromTimings:
     """
 
     class TimingsWithoutDistinctiveTerms(FakeRetrieval):
-        async def search_with_timings(self, query: str, **kwargs):
-            hits, timings = await super().search_with_timings(query, **kwargs)
-            # As the RRF path really behaves: no lexical term statistics.
-            timings.lexical_distinctive_terms = []
-            timings.lexical_term_document_counts = {}
-            return hits, timings
+        """The RRF path, which carries no lexical term statistics at all.
+
+        The fields this once had to blank no longer exist: removing the dead
+        lexical path took them with it, so the lane cannot read them even by
+        accident. The test remains because the *behaviour* it protects -- the
+        gate applying from terms the lane computed itself -- is what matters,
+        not the mechanism that once broke it.
+        """
 
     @pytest.mark.asyncio
     async def test_the_gate_still_applies_when_timings_carry_nothing(self) -> None:

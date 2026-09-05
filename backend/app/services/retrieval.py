@@ -143,8 +143,6 @@ class RetrievalTimings:
     reranker_pair_input_characters: int = 0
     reranker_pair_input_utf8_bytes: int = 0
     reranker_max_length: int | None = None
-    lexical_term_document_counts: dict[str, int] = field(default_factory=dict)
-    lexical_distinctive_terms: list[str] = field(default_factory=list)
     excluded_candidate_count: int = 0
     scored_candidate_ids: list[tuple[str, str]] = field(default_factory=list)
 
@@ -526,8 +524,6 @@ class HybridRetrievalService:
         candidate_limit: int = 20,
         result_limit: int = 5,
         rerank: bool = True,
-        lexical_only: bool = False,
-        lexical_terms: set[str] | None = None,
         reference_sections: set[str] | None = None,
         exclude_candidate_ids: set[tuple[str, str]] | None = None,
     ) -> tuple[list[RetrievalHit], RetrievalTimings]:
@@ -551,254 +547,10 @@ class HybridRetrievalService:
             candidate_limit=candidate_limit,
             result_limit=result_limit,
             rerank=rerank,
-            lexical_only=lexical_only,
-            lexical_terms=lexical_terms,
             reference_sections=reference_sections,
             exclude_candidate_ids=exclude_candidate_ids,
         )
 
-    async def _search_lexical_target(
-        self,
-        *,
-        target: RetrievalTarget,
-        terms: set[str],
-        candidate_limit: int,
-        result_limit: int,
-        reference_sections: set[str] | None = None,
-    ) -> tuple[list[RetrievalHit], RetrievalTimings]:
-        started = perf_counter()
-        query_filter = target.filters.to_qdrant()
-        base_conditions = list(query_filter.must or []) if query_filter else []
-
-        async def matching_points(term: str) -> tuple[str, list[Any], int]:
-            term_filter = models.Filter(
-                must=[
-                    *base_conditions,
-                    models.FieldCondition(
-                        key="text",
-                        match=models.MatchText(text=term),
-                    ),
-                ]
-            )
-            points_result, count_result = await asyncio.gather(
-                self.client.scroll(
-                collection_name=target.collection_name,
-                scroll_filter=term_filter,
-                # Full-text matches are unranked within a scroll page. Fetch a
-                # bounded wider pool per term, then rank by whole-query lexical
-                # coverage below so an arbitrary first page does not discard
-                # the passage that matches several terms.
-                limit=max(candidate_limit, 32),
-                with_payload=True,
-                with_vectors=False,
-                ),
-                self.client.count(
-                    collection_name=target.collection_name,
-                    count_filter=term_filter,
-                    exact=True,
-                ),
-            )
-            points, _ = points_result
-            return term, list(points), int(count_result.count)
-
-        async def points_for_section(section: str, topic_terms: list[str]) -> list[Any]:
-            """Fetch a provision by its section number directly.
-
-            A full-text scroll is unranked, so a common word returns an
-            arbitrary page of its matches: "equality" matches 242 documents and
-            the Constitution's Article 14 was simply not in the 32 that came
-            back. Section is an indexed keyword, so asking for it by number is
-            both exact and cheap, and it is the only way a question naming a
-            provision reliably retrieves that provision.
-            """
-            # Narrowed by the query's rarest terms. A section number alone is
-            # ambiguous - "14" exists in the Prisons Act, the IPC, the Evidence
-            # Act and hundreds more - and an unranked scroll would return an
-            # arbitrary sixteen of them, which is how the Constitution's
-            # Article 14 stayed invisible to a question about equality.
-            collected: list[Any] = []
-            for term in topic_terms[:2] or [None]:
-                conditions = [
-                    *base_conditions,
-                    models.FieldCondition(
-                        key="section", match=models.MatchValue(value=section)
-                    ),
-                ]
-                if term is not None:
-                    conditions.append(
-                        models.FieldCondition(key="text", match=models.MatchText(text=term))
-                    )
-                points, _ = await self.client.scroll(
-                    collection_name=target.collection_name,
-                    scroll_filter=models.Filter(must=conditions),
-                    limit=8,
-                    with_payload=True,
-                    with_vectors=False,
-                )
-                collected.extend(points)
-            return collected
-
-        qdrant_started = perf_counter()
-        term_results = await asyncio.gather(
-            *(matching_points(term) for term in sorted(terms))
-        )
-        # The rarest terms carry the topic. Ordering by document frequency here
-        # means the section lookup below searches for "equality" rather than
-        # "right", which appears in 2,282 documents and selects nothing.
-        rarest = [
-            term
-            for term, _, _ in sorted(term_results, key=lambda item: item[2])
-            if not term.isdigit()
-        ]
-        section_results = await asyncio.gather(
-            *(
-                points_for_section(section, rarest)
-                for section in sorted(reference_sections or ())
-            )
-        )
-        qdrant_ms = (perf_counter() - qdrant_started) * 1000
-        term_document_counts = {
-            term: count for term, _, count in term_results
-        }
-        if not term_document_counts:
-            # No searchable terms means no lexical evidence, which is an
-            # abstention rather than a crash. Validation should prevent this
-            # reaching here; a 500 is the wrong failure if it ever does.
-            return [], RetrievalTimings(
-                embedding_ms=0.0,
-                qdrant_ms=qdrant_ms,
-                reranking_ms=0.0,
-                total_ms=(perf_counter() - started) * 1000,
-            )
-        distinctive_terms = _distinctive_from_counts(term_document_counts)
-        by_id: dict[str, Any] = {}
-        match_counts: dict[str, int] = {}
-        for points in section_results:
-            for point in points:
-                by_id[str(point.id)] = point
-        for _, points, _ in term_results:
-            for point in points:
-                point_id = str(point.id)
-                by_id[point_id] = point
-                match_counts[point_id] = match_counts.get(point_id, 0) + 1
-        denominator = max(len(terms), 1)
-        coverage_by_id: dict[str, float] = {}
-        locally_matched_by_id: dict[str, set[str]] = {}
-        for point_id, point in by_id.items():
-            payload = dict(point.payload or {})
-            title_terms = re.findall(
-                r"[a-z0-9]+", str(payload.get("title") or "").casefold()
-            )[:40]
-            body = " ".join(
-                str(payload.get(field) or "")
-                for field in ("act_name", "section", "court", "text")
-            ).casefold()
-            document_terms = [*title_terms, *re.findall(r"[a-z0-9]+", body)]
-            window_size = 50
-            windows = (
-                [document_terms]
-                if len(document_terms) <= window_size
-                else [
-                    document_terms[start : start + window_size]
-                    for start in range(0, len(document_terms), window_size // 2)
-                ]
-            )
-            locally_matched_by_id[point_id] = set().union(
-                *(terms & set(window) for window in windows)
-            )
-            coverage_by_id[point_id] = max(
-                (len(terms & set(window)) / denominator for window in windows),
-                default=0.0,
-            )
-        hits = [
-            RetrievalHit(
-                point_id=point_id,
-                payload={
-                    **dict(point.payload or {}),
-                    "collection_name": target.collection_name,
-                },
-                dense_score=None,
-                sparse_score=coverage_by_id[point_id],
-                fused_score=coverage_by_id[point_id],
-                reranker_score=coverage_by_id[point_id],
-            )
-            for point_id, point in by_id.items()
-        ]
-        required_terms = set(distinctive_terms)
-        requested_acronyms = terms & LEGAL_ACRONYM_EXPANSIONS.keys()
-
-        def required_legal_entity_match(hit: RetrievalHit) -> bool:
-            matched = locally_matched_by_id[hit.point_id]
-            for term in required_terms:
-                if term in matched:
-                    continue
-                expansion = set(LEGAL_ACRONYM_EXPANSIONS.get(term, ()))
-                if not expansion or not expansion.issubset(matched):
-                    return False
-            return True
-
-        def named_act_title_match(hit: RetrievalHit) -> bool:
-            if not requested_acronyms:
-                return False
-            title_terms = set(
-                re.findall(
-                    r"[a-z0-9]+",
-                    " ".join(
-                        str(hit.payload.get(field) or "")
-                        for field in ("title", "act_name")
-                    ).casefold(),
-                )
-            )
-            return any(
-                set(LEGAL_ACRONYM_EXPANSIONS[acronym]).issubset(title_terms)
-                for acronym in requested_acronyms
-            )
-
-        requested_sections = {section.casefold() for section in (reference_sections or ())}
-
-        def exact_section_match(hit: RetrievalHit) -> bool:
-            """The provision the question actually named.
-
-            Nothing outranks this. Asked about Article 14, the Constitution's
-            Article 14 is the answer; it previously lost to any document whose
-            source_type happened to be "act", which is how a question about
-            equality returned the Model Prison Manual.
-            """
-            return (
-                str(hit.payload.get("section") or "").casefold().strip()
-                in requested_sections
-                if requested_sections
-                else False
-            )
-
-        hits.sort(
-            key=lambda hit: (
-                # A section number alone is ambiguous: "14" exists in the
-                # Prisons Act, the IPC, the Evidence Act and 380 other
-                # documents. Ranking on it alone buried the Constitution's
-                # Article 14 under every unrelated section 14 in the corpus.
-                # The provision the question means is the one that matches the
-                # number *and* carries the topic word - here, "equality".
-                exact_section_match(hit) and required_legal_entity_match(hit),
-                exact_section_match(hit),
-                required_legal_entity_match(hit),
-                named_act_title_match(hit),
-                str(hit.payload.get("source_type") or "").casefold() == "act",
-                -len(str(hit.payload.get("title") or "")),
-                hit.fused_score,
-            ),
-            reverse=True,
-        )
-        return hits[:result_limit], RetrievalTimings(
-            embedding_ms=0.0,
-            qdrant_ms=qdrant_ms,
-            reranking_ms=0.0,
-            total_ms=(perf_counter() - started) * 1000,
-            candidate_count=len(hits),
-            result_count=min(len(hits), result_limit),
-            lexical_term_document_counts=term_document_counts,
-            lexical_distinctive_terms=distinctive_terms,
-        )
 
     async def _query_target(
         self,
@@ -985,8 +737,6 @@ class HybridRetrievalService:
         candidate_limit: int = 20,
         result_limit: int = 5,
         rerank: bool = True,
-        lexical_only: bool = False,
-        lexical_terms: set[str] | None = None,
         reference_sections: set[str] | None = None,
         exclude_candidate_ids: set[tuple[str, str]] | None = None,
     ) -> tuple[list[RetrievalHit], RetrievalTimings]:
@@ -1006,20 +756,6 @@ class HybridRetrievalService:
         # A caller asking for reranking gets it only where it is switched on.
         # Callers that never wanted it are unaffected.
         rerank = rerank and settings.cross_encoder_reranking_enabled
-        if lexical_only:
-            if len(targets) != 1:
-                raise ValueError("lexical-only retrieval supports exactly one collection")
-            terms = {term.casefold().strip() for term in (lexical_terms or set()) if term.strip()}
-            if not terms:
-                terms = {term for term in query.casefold().split() if len(term) > 1}
-            return await self._search_lexical_target(
-                target=targets[0],
-                terms=terms,
-                candidate_limit=candidate_limit,
-                result_limit=result_limit,
-                reference_sections=reference_sections,
-            )
-
         started = perf_counter()
         embedding_started = perf_counter()
         # The model identity is part of the key. Two models produce vectors in
