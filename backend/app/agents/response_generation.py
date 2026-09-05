@@ -5,7 +5,8 @@ from time import perf_counter_ns
 
 from app.schemas.agents import AgentCitation, AgentTraceEvent
 from app.services.citation_status import citation_labels
-from app.services.currency import resolve_currency
+from app.services.currency import CurrencyStatus, resolve_currency
+from app.services.repeal_labels import repeal_notice
 from app.services.generation import INSUFFICIENT_EVIDENCE
 from app.services.pipeline_telemetry import append_stage_metric, text_size
 
@@ -138,18 +139,72 @@ def response_generation_node(state: dict) -> dict:
         )
     answer = MARKER_RE.sub(lambda match: f"[Source {number_by_id[match.group(1)]}]" if match.group(1) in number_by_id else "", answer)
     if answer != INSUFFICIENT_EVIDENCE:
-        currency_unverified = any(
-            hit_by_id[chunk_id].payload.get("corpus_scope") != "private_case"
-            and hit_by_id[chunk_id].payload.get("is_current") is not True
-            for chunk_id in cited_ids
-            if chunk_id in hit_by_id
-        )
-        if currency_unverified:
+        # Resolved, not read off `is_current`. That field is false for every
+        # document in the corpus by design, so the old test reported "status
+        # not verified" for a repealed Act we positively know was replaced --
+        # the weakest of the three things this could say, on the one source
+        # where the reader most needs the strongest.
+        replaced: dict[str, str] = {}
+        renumbered: dict[str, str] = {}
+        unverified = False
+        for chunk_id in cited_ids:
+            hit = hit_by_id.get(chunk_id)
+            if hit is None or hit.payload.get("corpus_scope") == "private_case":
+                continue
+            decision = resolve_currency(hit.payload)
+            if decision.status is CurrencyStatus.SUPERSEDED:
+                name = hit.payload.get("act_name") or hit.payload.get("title") or "A cited Act"
+                if decision.superseded_by:
+                    replaced[str(name)] = decision.superseded_by
+            elif decision.status is CurrencyStatus.UNVERIFIED:
+                unverified = True
+
+            # A judgment or circular is itself in force while the provision it
+            # construes has moved. Without this the answer quotes "section 41
+            # of the CrPC" from a 2025 judgment and never mentions that the
+            # section is now BNSS s.35 -- the single most common currency
+            # question in Indian law right now.
+            for mapping in repeal_notice(hit.payload).mappings:
+                key = f"{mapping.from_code} s.{mapping.from_section}"
+                value = f"{mapping.to_code} s.{mapping.to_section}"
+                if mapping.ingredients_changed:
+                    value += " (the elements of the provision also changed)"
+                renumbered[key] = value
+
+        if replaced or renumbered or unverified:
+            answer += "\n\n## Source currency\n\n"
+        if replaced:
+            lines = "\n".join(
+                f"- **{name}** was replaced by {successor}. It still governs conduct from "
+                "before that date, so it may be the right authority for an older matter, "
+                "but not for anything happening now."
+                for name, successor in sorted(replaced.items())
+            )
             answer += (
-                "\n\n## Source currency\n\n"
-                "The cited corpus material supports the statements above, but its current-law "
-                "status is not verified in the corpus metadata. Check the latest official text "
-                "and amendments before relying on it for a live matter."
+                "One or more sources above is no longer in force:\n\n" + lines + "\n\n"
+            )
+        if renumbered:
+            moved = "\n".join(
+                f"- {old} is now {new}." for old, new in sorted(renumbered.items())
+            )
+            answer += (
+                "The sources above remain in force, but they cite provisions that were "
+                "renumbered when the 2023 Sanhitas commenced on 1 July 2024:\n\n"
+                + moved
+                + "\n\n"
+            )
+        if unverified:
+            answer += (
+                "The remaining cited material supports the statements above, but its "
+                "current-law status is not verified in the corpus metadata. Check the "
+                "latest official text and amendments before relying on it for a live "
+                "matter."
+                if replaced or renumbered
+                else
+                "The cited corpus material supports the statements above, but its "
+                "current-law status is not verified in the corpus metadata. Check the "
+                "latest official text and amendments before relying on it for a live "
+                "matter."
             )
         answer += (
             "\n\n---\n\n*Legal decision-support information, not a substitute for "

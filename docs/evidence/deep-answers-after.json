@@ -1,0 +1,97 @@
+{
+  "generated_at": "2026-09-05T17:26:43.936586+00:00",
+  "collection": "global_legal_corpus_v2",
+  "generation_model": "qwen3-14b-16k:latest",
+  "prompt_versions": {
+    "query_understanding": "35f38ca312bf",
+    "reasoning": "6edb7e55484f",
+    "verification": "d4bc4e178e2d",
+    "drafting_fact_extraction": "26bf93f7493e",
+    "defence_strategy": "014cb50323bb",
+    "document_analysis": "090c2b8c8849"
+  },
+  "max_claims": 10,
+  "max_claim_characters": 600,
+  "runs": [
+    {
+      "role": "citizen",
+      "question": "When can the police arrest someone without a warrant?",
+      "total_ms": 117425.0,
+      "stages_ms": {
+        "role_context": 2.0,
+        "query_understanding": 1.0,
+        "retrieval": 356.0,
+        "reasoning": 71615.0,
+        "verification": 45407.0,
+        "response_generation": 15.0
+      },
+      "llm_calls": 2,
+      "output_tokens": 1049,
+      "answer_words": 225,
+      "answer": "## Direct answer\n\nThe police can arrest someone without a warrant if there is a reasonable complaint, credible information, or reasonable suspicion that the person has committed a cognizable offence punishable with imprisonment for a term up to seven years [Source 1] [Source 2] [Source 3].\n\n## Why this is the legal position\n\n- Section 41(1)(b) of the CrPC allows police to arrest without a warrant if there is reasonable suspicion of a cognizable offence punishable with imprisonment for up to seven years [Source 1] [Source 2] [Source 3].\n\n## How this applies to you\n\n- This applies when the police officer has reason to believe the person committed the offence and the arrest is necessary for investigation or to prevent evidence tampering [Source 1] [Source 2] [Source 3].\n\n## What you can do now\n\n1. The police officer must record the reasons for the arrest in writing, including the basis for the suspicion and the necessity of the arrest [Source 1] [Source 2] [Source 3].\n\n## Source currency\n\nThe cited corpus material supports the statements above, but its current-law status is not verified in the corpus metadata. Check the latest official text and amendments before relying on it for a live matter.\n\n---\n\n*Legal decision-support information, not a substitute for advice from a qualified professional who has reviewed the complete facts and current law.*",
+      "citations": 3,
+      "claims": 0,
+      "evidence_strength": "moderate"
+    },
+    {
+      "role": "citizen",
+      "question": "What are the rights of a person who has been arrested?",
+      "total_ms": 99855.0,
+      "stages_ms": {
+        "role_context": 0.0,
+        "query_understanding": 0.0,
+        "retrieval": 580.0,
+        "reasoning": 65044.0,
+        "verification": 34207.0,
+        "response_generation": 1.0
+      },
+      "llm_calls": 2,
+      "output_tokens": 841,
+      "answer_words": 238,
+      "answer": "## Direct answer\n\nA person who has been arrested has the right to be informed of the grounds of arrest as soon as possible [Source 1] [Source 2].\n\nAn arrested person has the right to inform a relative, friend, or nominated person about their arrest [Source 2].\n\n## Why this is the legal position\n\n- Section 48 of the Bharatiya Nagrik Suraksha Sanhita, 2023 mandates that the police must inform a relative or friend of the arrested person about the arrest [Source 2].\n\n## How this applies to you\n\n- This means that the police must inform the arrested person of the reasons for their arrest as soon as possible after the arrest [Source 1].\n- This means that the police must notify a relative or friend of the arrested person about the arrest and the location where the person is being held [Source 2].\n\n## What you can do now\n\n1. The arrested person should provide the police with the name and contact details of a relative or friend who should be informed about the arrest [Source 2].\n\n## Source currency\n\nThe cited corpus material supports the statements above, but its current-law status is not verified in the corpus metadata. Check the latest official text and amendments before relying on it for a live matter.\n\n---\n\n*Legal decision-support information, not a substitute for advice from a qualified professional who has reviewed the complete facts and current law.*",
+      "citations": 2,
+      "claims": 0,
+      "evidence_strength": "moderate"
+    },
+    {
+      "role": "citizen",
+      "question": "Is a statement made by a dying person accepted as evidence?",
+      "total_ms": 150200.0,
+      "stages_ms": {
+        "role_context": 0.0,
+        "query_understanding": 0.0,
+        "retrieval": 1545.0,
+        "reasoning": 78247.0,
+        "verification": 70389.0,
+        "response_generation": 2.0
+      },
+      "llm_calls": 3,
+      "output_tokens": 1282,
+      "answer_words": 357,
+      "answer": "## Direct answer\n\nDying declarations are not admissible if they pertain to the cause of death of another person, not the declarant [Source 1] [Source 2] [Source 3].\n\nYes, a statement made by a dying person can be accepted as evidence in certain circumstances [Source 2] [Source 3].\n\n## Why this is the legal position\n\n- Section 32(1) of the Indian Evidence Act, 1872, restricts the admissibility of dying declarations to the cause of the declarant's death [Source 2] [Source 3].\n- Section 32(1) of the Indian Evidence Act, 1872, allows for the admissibility of dying declarations as evidence [Source 3].\n\n## How this applies to you\n\n- A dying declaration is admissible if it relates to the cause of the declarant's death or the circumstances of the transaction that led to it [Source 1] [Source 3].\n- A statement about the death of another person, not the declarant, is not admissible under the Indian Evidence Act, 1872 [Source 1] [Source 2] [Source 3].\n\n## What you can do now\n\n1. To use a dying declaration as evidence, it must be recorded properly and be relevant to the cause of death or the circumstances of the transaction that caused it [Source 1] [Source 3].\n2. If a dying declaration refers to the death of another person, it should not be used as evidence in court [Source 1] [Source 2] [Source 3].\n\n## Important limits\n\n- The admissibility of a dying declaration may be limited if it contradicts other evidence or if the statement is not made in the expectation of death [Source 1] [Source 2] [Source 3].\n- The interpretation of 'circumstances of the transaction' may vary, and courts may exclude statements that are not directly related to the cause of death [Source 1] [Source 2] [Source 3].\n\n## Source currency\n\nThe cited corpus material supports the statements above, but its current-law status is not verified in the corpus metadata. Check the latest official text and amendments before relying on it for a live matter.\n\n---\n\n*Legal decision-support information, not a substitute for advice from a qualified professional who has reviewed the complete facts and current law.*",
+      "citations": 3,
+      "claims": 0,
+      "evidence_strength": "moderate"
+    },
+    {
+      "role": "police",
+      "question": "How must chain of custody be maintained for seized material?",
+      "total_ms": 74896.0,
+      "stages_ms": {
+        "role_context": 0.0,
+        "query_understanding": 1.0,
+        "retrieval": 778.0,
+        "reasoning": 54984.0,
+        "verification": 19109.0,
+        "response_generation": 2.0
+      },
+      "llm_calls": 2,
+      "output_tokens": 796,
+      "answer_words": 267,
+      "answer": "## Direct answer\n\nChain of custody for seized material must be documented with the name, signature, date of transfer, and evidence label or serial number of each person handling the evidence [Source 1].\n\nA chain of custody register must be maintained from the point of collection to the end of the trial, with each movement of evidence recorded and countersigned [Source 2].\n\n## Verified legal basis\n\n- Supreme Court Guidelines in Criminal Appeal No. 1672/2019 mandate the maintenance of a chain of custody register as part of the trial court record [Source 2].\n\n## Application to your situation\n\n- This applies to all seized items, including digital evidence, which must be hashed to ensure integrity and sealed in the presence of witnesses [Source 1].\n- This applies to all evidence, including DNA samples, and failure to maintain the register may make the investigating officer responsible for explaining the lapse [Source 2].\n\n## Practical next steps\n\n- The chain of custody must be recorded in writing for each package of seized evidence until it is handed over to the CFSL for forensic examination [Source 1].\n- Directors General of Police must prepare sample forms for the chain of custody register and ensure their distribution to all districts [Source 2].\n\n## Source currency\n\nThe cited corpus material supports the statements above, but its current-law status is not verified in the corpus metadata. Check the latest official text and amendments before relying on it for a live matter.\n\n---\n\n*Legal decision-support information, not a substitute for advice from a qualified professional who has reviewed the complete facts and current law.*",
+      "citations": 2,
+      "claims": 0,
+      "evidence_strength": "moderate"
+    }
+  ]
+}

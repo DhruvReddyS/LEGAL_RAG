@@ -36,6 +36,8 @@ class _GroundedDraftClaim(BaseModel):
         "direct_answer", "legal_basis", "application", "next_step", "limit"
     ]
     claim: str = Field(min_length=1, max_length=MAX_CLAIM_CHARACTERS)
+    # Short labels from the evidence ("S1", "S2"), not chunk IDs. Mapped back
+    # in code; see evidence_labels().
     source_chunk_ids: list[str] = Field(min_length=1, max_length=3)
 
 
@@ -55,15 +57,37 @@ CATEGORY_TAGS = {
 }
 
 
+def evidence_labels(hits: list[RetrievalHit]) -> dict[str, str]:
+    """Short labels for the model to cite, mapped back to chunk IDs in code.
+
+    A chunk ID is a 43-character hex hash. The model had to *emit* one to three
+    of them per claim, and hex tokenises at roughly two characters per token,
+    so about 400 of a typical 1,239-token reasoning output were identifier --
+    around 30 seconds per query at the observed decode rate, spent writing
+    hashes.
+
+    "S1" costs one token. The mapping back is code, so an unknown label is
+    dropped exactly as an unknown chunk ID was, and the rule that a published
+    claim must cite retrieved sources is enforced in the same place as before.
+    Guessing a valid label is also far harder than mangling a hash into another
+    valid one, which is the failure the old prompt had to warn against.
+    """
+    return {
+        f"S{index}": str(hit.payload.get("chunk_id"))
+        for index, hit in enumerate(hits, start=1)
+    }
+
+
 def format_evidence(hits: list[RetrievalHit]) -> str:
     blocks: list[str] = []
+    labels = {chunk_id: label for label, chunk_id in evidence_labels(hits).items()}
     for hit in hits:
         payload = hit.payload
         blocks.append(
-            "CHUNK_ID: {chunk_id}\nTITLE: {title}\nSOURCE_TYPE: {source_type}\n"
+            "SOURCE: {chunk_id}\nTITLE: {title}\nSOURCE_TYPE: {source_type}\n"
             "ACT_NAME: {act_name}\nSECTION: {section}\nIS_CURRENT: {is_current}\n"
             "IS_SUPERSEDED: {is_superseded}\nPAGES: {start}-{end}\nTEXT:\n{text}".format(
-                chunk_id=payload.get("chunk_id"),
+                chunk_id=labels.get(str(payload.get("chunk_id")), "S?"),
                 title=payload.get("title") or "Unknown",
                 source_type=payload.get("source_type") or "unknown",
                 act_name=payload.get("act_name") or "not stated",
@@ -104,8 +128,8 @@ limit — uncertainty, missing facts, adverse interpretation, or currency limita
 Write at most {max_claims} claims, each at most {max_characters} characters. Prefer fewer, denser
 claims over many thin ones: one well-supported claim per point, not the same point restated.
 
-Every claim must list 1–3 exact CHUNK_ID values from EVIDENCE that directly support the entire claim.
-Never invent or alter a CHUNK_ID. Omit any unsupported claim. Use plain professional language.
+Every claim must list 1–3 SOURCE labels from EVIDENCE (for example "S1", "S3") that directly support
+the entire claim. Use the label exactly as written; never invent one. Omit any unsupported claim. Use plain professional language.
 Never invent a section, case, fact, remedy, deadline, or citation. Distinguish stated facts from
 assumptions and do not predict an outcome. Set insufficient_evidence=true and claims=[] when the
 evidence cannot support a useful direct answer. Otherwise set insufficient_evidence=false. Prefer
@@ -144,13 +168,26 @@ USER_DOCUMENTS: {state['document_context']}"""
             valid_ids = {
                 str(hit.payload.get("chunk_id")) for hit in hits
             }
+            label_to_chunk = evidence_labels(hits)
+
+            def resolve(reference: str) -> str | None:
+                """A label, or a chunk ID if the model emitted one anyway."""
+                cleaned = str(reference).strip()
+                if cleaned in label_to_chunk:
+                    return label_to_chunk[cleaned]
+                upper = cleaned.upper()
+                if upper in label_to_chunk:
+                    return label_to_chunk[upper]
+                return cleaned if cleaned in valid_ids else None
             rendered_claims: list[str] = []
             for claim in structured.claims:
                 source_ids = list(
                     dict.fromkeys(
-                        chunk_id
-                        for chunk_id in claim.source_chunk_ids
-                        if chunk_id in valid_ids
+                        resolved
+                        for resolved in (
+                            resolve(reference) for reference in claim.source_chunk_ids
+                        )
+                        if resolved is not None
                     )
                 )
                 if not source_ids:

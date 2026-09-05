@@ -158,3 +158,41 @@ class TestTheRetrievalFilterIsTriState:
         from app.services.retrieval import RetrievalFilters
 
         assert RetrievalFilters().exclude_superseded is False
+
+
+class TestThePublishedAnswerStatesSupersession:
+    """The reader is told which of the three things is true, not the weakest.
+
+    `response_generation` decided this from `is_current is not True`. That
+    field is false for every document in the corpus by design, so a repealed
+    Act -- the one source where the reader most needs the strongest warning --
+    was described as "status not verified", the mildest of the three.
+    """
+
+    def test_a_superseded_source_is_named_with_its_replacement(self) -> None:
+        from app.services.currency import CurrencyStatus, resolve_currency
+
+        decision = resolve_currency(
+            {"act_name": "The Code of Criminal Procedure, 1973 (Act No.2 of 1974)"}
+        )
+
+        assert decision.status is CurrencyStatus.SUPERSEDED
+        assert decision.superseded_by == "The Bharatiya Nagarik Suraksha Sanhita, 2023"
+
+    def test_the_renderer_distinguishes_superseded_from_unverified(self) -> None:
+        """Reads the source, because the alternative is a live model call.
+
+        The branch must not collapse back to one message: an Act that was
+        replaced and an Act nobody has checked are different facts, and the
+        reader acts differently on each.
+        """
+        import inspect
+
+        from app.agents import response_generation
+
+        source = inspect.getsource(response_generation)
+        assert "CurrencyStatus.SUPERSEDED" in source
+        assert "no longer in force" in source
+        assert "is_current\") is not True" not in source, (
+            "the currency section is reading the field again instead of resolving it"
+        )

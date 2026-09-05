@@ -2,7 +2,11 @@ from __future__ import annotations
 
 from app.agents.orchestrator import LegalRAGWorkflow
 from app.agents.query_understanding import query_understanding_node
-from app.agents.reasoning_agent import MAX_EVIDENCE_TEXT_CHARACTERS, format_evidence
+from app.agents.reasoning_agent import (
+    MAX_EVIDENCE_TEXT_CHARACTERS,
+    evidence_labels,
+    format_evidence,
+)
 from app.agents.retrieval_agent import retrieval_node
 from app.agents.response_generation import response_generation_node
 from app.agents.verification_agent import _claim_marker_pairs, _format_verification_items
@@ -37,7 +41,16 @@ def test_reasoning_evidence_caps_chunk_text_without_dropping_metadata() -> None:
 
     evidence = format_evidence([hit])
 
-    assert f"CHUNK_ID: {hit.payload['chunk_id']}" in evidence
+    # Evidence carries a short label now, not the 43-character chunk hash the
+    # model used to have to echo back in every claim. What matters is that the
+    # label resolves to the right chunk, so that is asserted rather than the
+    # literal prompt text.
+    labels = evidence_labels([hit])
+    assert "SOURCE: S1" in evidence
+    assert labels["S1"] == hit.payload["chunk_id"]
+    assert hit.payload["chunk_id"] not in evidence, (
+        "the hash should no longer reach the prompt at all"
+    )
     assert "x" * MAX_EVIDENCE_TEXT_CHARACTERS in evidence
     assert "x" * (MAX_EVIDENCE_TEXT_CHARACTERS + 1) not in evidence
 
