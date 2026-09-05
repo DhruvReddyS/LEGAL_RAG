@@ -224,3 +224,61 @@ Worth stating because the sampled profile pointed the wrong way too: `sample`
 showed 6,538 of ~7,000 frames inside `libBLAS`, which reads as CPU-bound work.
 The model is on `mps:0` in fp16 — those frames are the CPU-side threads around
 MPS dispatch, not the matmuls.
+
+## Ablation on the live index, golden set v3 (48 items, three roles)
+
+| config | R@1 | R@5 | R@20 | MRR | nDCG@10 | cite@5 | abstention | false abstain | ms |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| dense | 0.69 | 0.83 | 0.98 | 0.766 | 0.771 | 0.55 | 0.83 | 0.19 | 99 |
+| sparse | 0.60 | 0.86 | 0.95 | 0.712 | 0.746 | 0.60 | 0.83 | 0.14 | 84 |
+| **hybrid** (deployed) | **0.69** | 0.83 | 0.98 | 0.759 | 0.766 | 0.60 | 0.83 | 0.17 | **91** |
+| reranked | 0.64 | 0.83 | 0.98 | 0.744 | 0.773 | 0.61 | 0.83 | 0.17 | **5126** |
+
+### The cross-encoder does not earn its place
+
+5,126 ms per query against hybrid's 91 -- **56x** -- and it buys nothing:
+R@1 falls 0.69 to 0.64, R@5 and R@20 are unchanged, citation accuracy moves
+0.60 to 0.61 and nDCG 0.766 to 0.773. Both of those are inside the noise this
+set can resolve at 42 answerable items.
+
+This is the second independent measurement to say so; the first, against a
+different golden set, showed R@1 falling 0.53 to 0.33. Reranking is standard
+practice and it is not helping here, most likely because RRF over a corpus
+this homogeneous has already done the work the cross-encoder exists to do.
+
+It is the single largest cost in the Deep lane. Removing it is worth more than
+any prompt or batching change measured so far.
+
+### Police retrieval is the weakest of the three roles
+
+| role | items | R@5 (hybrid) | citation accuracy@5 |
+|---|---:|---:|---:|
+| citizen | 23 | 0.91 | 0.70 |
+| police | 12 | 0.83 | **0.45** |
+| advocate | 7 | 0.57 | 0.57 |
+
+Recall is respectable for police and citation accuracy is not: barely two of
+five shown passages are on-topic, against seven of ten for citizens. Police
+questions -- chain of custody, seizure memos, identification parades -- pull
+long procedural documents whose neighbouring passages are about something
+else. The pooled 0.60 hides this completely, which is why the harness reports
+per role.
+
+Advocate R@5 of 0.57 is the lowest figure here, on only 7 items. Too few to
+act on; worth widening before drawing a conclusion.
+
+### What is still declined that should not be
+
+False abstention is 0.17 -- seven answerable questions refused. Three are the
+currency items (`theft-current-law`, `arrest-current-law`,
+`evidence-current-law`), which ask which law applies *now*; the distinctive
+term ends up being a word the corpus never uses. `evidence-current-law` is
+missed entirely by every configuration.
+
+Sparse alone has the lowest false abstention at 0.14 and the highest R@5 at
+0.86, while being worst at R@1. That combination is worth understanding before
+any fusion weighting is changed.
+
+Abstention accuracy is 0.83 across every configuration: five of six known
+corpus gaps are correctly declined, and only `workplace-harassment` is
+answered.

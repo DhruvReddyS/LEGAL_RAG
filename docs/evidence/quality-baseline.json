@@ -1,0 +1,46 @@
+{
+  "recorded_at": "2026-09-05T06:18:01.146140+00:00",
+  "config": "hybrid",
+  "collection": "global_legal_corpus",
+  "golden_set": "golden_set_v3.json",
+  "measurement_config": {
+    "embedding_model": "BAAI/bge-m3",
+    "embedding_dimension": 1024,
+    "generation_model": "qwen3-14b-16k:latest",
+    "reranker_input_characters": 2500,
+    "repealed_rank_penalty": 3,
+    "abstain_coverage_floor": 0.34,
+    "prompt_versions": {
+      "query_understanding": "35f38ca312bf",
+      "reasoning": "dba8d35ea432",
+      "verification": "d4bc4e178e2d",
+      "drafting_fact_extraction": "26bf93f7493e",
+      "defence_strategy": "014cb50323bb",
+      "document_analysis": "090c2b8c8849"
+    }
+  },
+  "metrics": {
+    "recall_at_5": 0.8333333333333334,
+    "citation_accuracy_at_5": 0.6047619047619047
+  },
+  "by_role": {
+    "advocate": {
+      "items": 7,
+      "recall_at_5": 0.571,
+      "recall_at_20": 0.857,
+      "citation_accuracy_at_5": 0.571
+    },
+    "citizen": {
+      "items": 23,
+      "recall_at_5": 0.913,
+      "recall_at_20": 1.0,
+      "citation_accuracy_at_5": 0.696
+    },
+    "police": {
+      "items": 12,
+      "recall_at_5": 0.833,
+      "recall_at_20": 1.0,
+      "citation_accuracy_at_5": 0.45
+    }
+  }
+}

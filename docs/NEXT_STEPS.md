@@ -1,5 +1,11 @@
 # What to do next
 
+> **Updated.** Docker has been started, the currency migration has been run
+> against `global_legal_corpus` (25,517 points, 25,133 written), and the v1
+> evaluation is recorded. What remains is the rebuild, the clean baseline, and
+> the v1-vs-v2 comparison.
+
+
 Everything that could be finished without Docker running and without a quiet
 machine is done and committed. Four things are blocked on you, in this order.
 
@@ -40,7 +46,17 @@ worth as much as the quiet it was taken in.
 It refuses to pretend: if swap grows during the run it says the timings are
 not a clean baseline. Output lands in `docs/evidence/baseline-<timestamp>.json`.
 
-## 2. Run the currency migration (Task 3)
+## 2. Run the currency migration (Task 3) — DONE for v1
+
+Already applied to `global_legal_corpus`: 6,131 in force, 3,821 superseded,
+15,181 unverified, replacing `None` on every point. Still to do for v2 once
+the rebuild finishes:
+
+```bash
+.venv-ingest/bin/python scripts/migrate_currency_payload.py --collection global_legal_corpus_v2
+```
+
+<details><summary>Original instructions</summary>
 
 Backfills resolved currency onto all 25,517 points. Resumable, idempotent.
 Dry run first — it writes nothing and tells you what would change:
@@ -51,8 +67,9 @@ Dry run first — it writes nothing and tells you what would change:
 .venv-ingest/bin/python scripts/migrate_currency_payload.py --collection global_legal_corpus_v2
 ```
 
-This is a payload migration on the live index. It is the one step here that
-changes stored data, so it is yours to authorise rather than mine to run.
+This is a payload migration on the live index.
+
+</details>
 
 ## 3. Measure v1 against v2, then decide (Task 5)
 
