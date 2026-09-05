@@ -173,7 +173,12 @@ async def test_document_analysis_is_owned_grounded_and_audited() -> None:
             assert set(("summary", "key_clauses", "risks", "applicable_sections")) <= body.keys()
             assert len(body["applicable_sections"]) == 1
             assert body["applicable_sections"][0]["label"] == "Section 154 CrPC"
-            assert body["applicable_sections"][0]["evidence"]["current_status"] == "status_unverified"
+            # Section 154 CrPC. This asserted "status_unverified", which is what
+            # the code did and was wrong: `_current_status` read `is_current` and
+            # `is_superseded` directly, and both are effectively never true in this
+            # corpus, so a repealed Act and a circular nobody has checked returned
+            # the same answer. Resolved, the CrPC is superseded by the BNSS.
+            assert body["applicable_sections"][0]["evidence"]["current_status"] == "superseded"
             assert body["rejected_section_count"] == 1
             assert body["key_clauses"][0]["evidence"][0]["chunk_id"] == "case-chunk-demo"
             latest = await client.get(

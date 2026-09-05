@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from app.ingestion.supersession import replacement_for
+from app.services.currency import CurrencyStatus, resolve_currency
 
 CurrentStatus = str
 
@@ -57,29 +57,27 @@ def citation_labels(payload: dict[str, Any]) -> dict[str, Any]:
 def citation_currency(payload: dict[str, Any]) -> tuple[CurrentStatus, str | None, str | None]:
     """The status to show, and the successor Act when one exists.
 
-    `repealed` is deliberately distinct from `superseded`. Superseded means the
-    source cannot ground a published claim at all. A repealed Act still governs
-    conduct from before its repeal -- an offence committed on 30 June 2024 is
-    tried under the Indian Penal Code -- so it is cited, with the repeal and
-    its replacement stated.
+    Delegates to `resolve_currency` rather than reading `is_superseded` and
+    `is_current` itself. Both fields are effectively never true in this corpus
+    -- `is_current` is false for every document by design -- so reading them
+    here returned "status_unverified" for a repealed Act as readily as for a
+    circular nobody has checked. That was the same bug found six other times.
+
+    `repealed` and `superseded` stay distinct. A repeal that saves prior
+    conduct still governs a period, so it is cited with the repeal stated; an
+    instrument superseded with no savings governs nothing and may not ground a
+    published claim at all.
     """
-    replaced_by = payload.get("replaced_by") or None
-    repealed_on = payload.get("repealed_on") or None
-    if not replaced_by:
-        # An index built before the field existed carries neither, so the Act's
-        # name is read instead -- the same source the ranking preference uses.
-        # Without this the two halves disagree: a repealed provision would be
-        # demoted in the ordering and then shown to the reader unlabelled,
-        # which is the half that actually matters.
-        derived = replacement_for(payload.get("act_name"), payload.get("title"))
-        if derived is not None:
-            replaced_by, repealed_on = derived.replaced_by, derived.repealed_on
-    if payload.get("is_superseded") is True:
-        return "superseded", replaced_by, repealed_on
-    if replaced_by:
-        return "repealed", replaced_by, repealed_on
-    if payload.get("is_current") is True:
+    decision = resolve_currency(payload)
+
+    if decision.status is CurrencyStatus.SUPERSEDED:
+        status = "repealed" if decision.saves_prior_conduct else "superseded"
+        return status, decision.superseded_by, decision.effective
+
+    if decision.status is CurrencyStatus.IN_FORCE:
         return "current", None, None
+
     if payload.get("corpus_scope") == "private_case":
         return "not_applicable", None, None
+
     return "status_unverified", None, None

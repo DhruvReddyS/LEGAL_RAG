@@ -87,12 +87,17 @@ class TestLabellingMatchesRanking:
         assert replaced_by == "The Bharatiya Nagarik Suraksha Sanhita, 2023"
         assert repealed_on == "2024-07-01"
 
-    def test_the_replacement_act_is_not_labelled_repealed(self) -> None:
-        status, _, _ = citation_currency(
+    def test_the_replacement_act_is_reported_as_current(self) -> None:
+        """This asserted "status_unverified", which is what the code did
+        before it resolved status instead of reading `is_current` -- a field
+        false for every document in the corpus. The BNSS is curated as in
+        force, so "current" is the answer, and it is a better one."""
+        status, replaced_by, _ = citation_currency(
             {"act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023"}
         )
 
-        assert status == "status_unverified"
+        assert status == "current"
+        assert replaced_by is None
 
     def test_an_advisory_citing_a_repealed_section_is_not_repealed(self) -> None:
         status, _, _ = citation_currency(
@@ -101,8 +106,18 @@ class TestLabellingMatchesRanking:
 
         assert status == "status_unverified"
 
-    def test_an_explicit_payload_field_wins_over_derivation(self) -> None:
-        """A rebuilt index states it directly; derivation is the fallback."""
+    def test_a_successor_named_only_on_the_point_is_honoured(self) -> None:
+        """An indexed point can name a successor for an instrument neither
+        curated table knows, and dropping that would discard the only currency
+        information the point carries.
+
+        It resolves to "superseded" rather than "repealed" because nothing
+        says the repeal saves prior conduct. That is the fail-closed direction
+        for an instrument nobody has classified: it may not ground a published
+        claim. The three codes are unaffected, because the repeal table answers
+        before this branch is reached and records that their repeals do save
+        prior conduct.
+        """
         status, replaced_by, _ = citation_currency(
             {
                 "act_name": "Some Act Not In The Table, 1950",
@@ -111,5 +126,15 @@ class TestLabellingMatchesRanking:
             }
         )
 
-        assert status == "repealed"
+        assert status == "superseded"
         assert replaced_by == "The Replacement Act, 2023"
+
+    def test_a_repealed_code_still_resolves_as_citable(self) -> None:
+        """The direction the change above must not break: the Penal Code is
+        repealed and still governs conduct from before July 2024."""
+        status, replaced_by, _ = citation_currency(
+            {"act_name": "The Indian Penal Code Act, 1860"}
+        )
+
+        assert status == "repealed"
+        assert replaced_by == "The Bharatiya Nyaya Sanhita, 2023"

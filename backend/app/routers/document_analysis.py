@@ -22,7 +22,7 @@ from app.schemas.document_analysis import (
     DocumentAnalysisResponse,
     SourceInspectorResponse,
 )
-from app.services.document_analysis import DISCLAIMER, DocumentAnalysisService
+from app.services.document_analysis import _current_status, DISCLAIMER, DocumentAnalysisService
 from app.services.llm import OllamaClient
 from app.services.retrieval import HybridRetrievalService
 
@@ -190,12 +190,9 @@ def _status(payload: dict[str, Any], *, private: bool) -> tuple[str, str]:
         and payload.get("quality_status") not in {"rejected", "failed"}
         else "unverified"
     )
-    if payload.get("is_current") is True:
-        current = "current"
-    elif payload.get("is_superseded") is True:
-        current = "superseded"
-    else:
-        current = "status_unverified"
+    # The same decision as the service, taken through the same resolver rather
+    # than duplicated from the raw fields.
+    current = _current_status(payload, private=False)
     return verification, current
 
 

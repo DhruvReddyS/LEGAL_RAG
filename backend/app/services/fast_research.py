@@ -7,6 +7,7 @@ from time import perf_counter
 from app.schemas.agents import AgentCitation, AgentTraceEvent, QueryIntent
 from app.core.config import settings
 from app.services.citation_status import citation_labels
+from app.services.currency import CurrencyStatus, resolve_currency
 from app.services.generation import INSUFFICIENT_EVIDENCE
 from app.ingestion.init_qdrant import GLOBAL_LEGAL_CORPUS
 from app.services.retrieval import (
@@ -197,6 +198,44 @@ def _select_diverse_hits(hits: list, limit: int) -> list:
         if len(selected) == limit:
             return selected
     return selected
+
+
+def currency_notice(payloads: list[dict[str, Any]]) -> str | None:
+    """What to tell the reader about whether the cited law still applies.
+
+    Extracted so it can be tested on its own. It previously read
+    `payload["is_current"] is not True`, which is true for every document in
+    this corpus -- `is_current` is false by design until a document's currency
+    is verified -- so the notice appeared on every answer and could not
+    distinguish a repealed Act from a circular nobody has checked. A warning
+    that always fires carries no information.
+
+    Returns None when every cited source is in force, which is the property
+    that makes the notice worth reading.
+    """
+    superseded = sorted(
+        {
+            str(payload.get("act_name") or payload.get("title") or "a cited source")
+            for payload in payloads
+            if resolve_currency(payload).status is CurrencyStatus.SUPERSEDED
+        }
+    )
+    if superseded:
+        return (
+            "Currency notice: no longer in force — "
+            + "; ".join(superseded)
+            + ". Check the replacement before relying on it for anything current."
+        )
+    if any(
+        resolve_currency(payload).status is CurrencyStatus.UNVERIFIED
+        for payload in payloads
+    ):
+        return (
+            "Currency notice: the current-law status of one or more retrieved records "
+            "is not verified in the corpus. Confirm amendments, commencement and "
+            "repeal status before relying on them."
+        )
+    return None
 
 
 class FastLegalResearchService:
@@ -422,11 +461,9 @@ class FastLegalResearchService:
                     f"{number}. {citation.title} ({descriptor}{section}, pages {citation.page_start}–{citation.page_end}){repeal_note}: "
                     f"{_compact(payload.get('text'))} [Source {number}]"
                 )
-            if any(hit.payload.get("is_current") is not True for hit in hits):
-                lines.append(
-                    "Currency notice: one or more retrieved records are not marked as current. Confirm amendments, "
-                    "commencement and repeal status before relying on them."
-                )
+            notice = currency_notice([hit.payload for hit in hits])
+            if notice:
+                lines.append(notice)
             answer = "\n\n".join(lines)
             unique_documents = len({str(hit.payload.get("canonical_document_id") or hit.point_id) for hit in hits})
             coverage_scores = [_lexical_coverage(focus_tokens, hit.payload) for hit in hits]

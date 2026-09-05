@@ -5,6 +5,7 @@ import re
 from app.agents.verification_agent import VerificationBatch
 from app.ingestion.init_qdrant import ADVOCATE_CASE_DATA, GLOBAL_LEGAL_CORPUS
 from app.services.currency import resolve_currency
+from app.services.document_analysis import _current_status
 from app.schemas.agents import AgentCitation
 from app.schemas.strategy import (
     DefenceAnalysisDraft,
@@ -65,15 +66,7 @@ def _citations(hits: list[RetrievalHit], used_ids: set[str]) -> list[AgentCitati
                 excerpt=str(payload.get("text") or "")[:1200],
                 retrieval_score=hit.reranker_score,
                 verification_status="verified",
-                current_status=(
-                    "not_applicable"
-                    if payload.get("corpus_scope") == "private_case"
-                    else "current"
-                    if payload.get("is_current") is True
-                    else "superseded"
-                    if not resolve_currency(payload).may_ground_a_published_claim
-                    else "status_unverified"
-                ),
+                current_status=_current_status(payload, private=payload.get("corpus_scope") == "private_case"),
             )
         )
     return citations

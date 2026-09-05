@@ -22,6 +22,7 @@ from app.schemas.document_analysis import (
 )
 from app.services.llm import OllamaClient
 from app.services.retrieval import HybridRetrievalService, RetrievalFilters
+from app.services.currency import CurrencyStatus, resolve_currency
 
 
 ANALYZER_VERSION = "document-analyzer-v1"
@@ -41,11 +42,20 @@ class DocumentPoint:
 
 
 def _current_status(payload: dict[str, Any], *, private: bool) -> str:
+    """Resolved, not read.
+
+    Both fields this used to test are effectively never true in the corpus:
+    `is_current` is false for every document by design, and `is_superseded`
+    was written by nothing until the currency migration. So this returned
+    "status_unverified" for a repealed Act as readily as for a circular
+    nobody has checked.
+    """
     if private:
         return "not_applicable"
-    if payload.get("is_current") is True:
+    status = resolve_currency(payload).status
+    if status is CurrencyStatus.IN_FORCE:
         return "current"
-    if payload.get("is_superseded") is True:
+    if status is CurrencyStatus.SUPERSEDED:
         return "superseded"
     return "status_unverified"
 

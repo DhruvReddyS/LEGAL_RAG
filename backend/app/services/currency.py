@@ -173,6 +173,21 @@ def resolve_currency(payload: dict[str, Any]) -> CurrencyDecision:
             saves_prior_conduct=True,
         )
 
+    # A successor named on the point itself. Ingestion writes this from the
+    # repeal table, but a curated addition can set it for an instrument the
+    # tables above do not know, and dropping it would silently discard the
+    # only currency information such a point carries.
+    stored_successor = payload.get("replaced_by") or payload.get("superseded_by")
+    if stored_successor:
+        return CurrencyDecision(
+            status=CurrencyStatus.SUPERSEDED,
+            superseded_by=str(stored_successor),
+            effective=payload.get("repealed_on") or payload.get("superseded_effective"),
+            basis="Successor named on the indexed point.",
+            source="payload_successor",
+            saves_prior_conduct=bool(payload.get("saves_prior_conduct", False)),
+        )
+
     # Written by ingestion. Only an explicit True counts: the live index holds
     # None for every point, and reading None as "not superseded" is the bug
     # this module exists to remove.
