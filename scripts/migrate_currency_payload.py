@@ -85,6 +85,33 @@ def _payload_update(payload: dict[str, Any]) -> dict[str, Any] | None:
     return desired
 
 
+async def _write_with_retry(client, collection: str, update: dict[str, Any], ids: list[Any]) -> None:
+    """One payload write, retried on a dropped connection.
+
+    Qdrant stayed healthy and kept returning 200 throughout this migration --
+    the failures were the client's connection going away part-way through a
+    long run. The job is resumable, so a drop only ever cost one batch, but it
+    still had to be restarted by hand eight times. Retrying here is the
+    difference between a job that finishes and a job that needs a person
+    watching it.
+    """
+    from qdrant_client.http.exceptions import ResponseHandlingException
+
+    delay = 1.0
+    for attempt in range(5):
+        try:
+            await client.set_payload(
+                collection_name=collection, payload=update, points=ids, wait=True
+            )
+            return
+        except (ResponseHandlingException, ConnectionError) as exc:
+            if attempt == 4:
+                raise
+            print(f"  write failed ({type(exc).__name__}), retrying in {delay:.0f}s", flush=True)
+            await asyncio.sleep(delay)
+            delay *= 2
+
+
 async def migrate(*, collection: str, dry_run: bool, reset: bool) -> dict[str, Any]:
     from qdrant_client import models
 
@@ -116,6 +143,12 @@ async def migrate(*, collection: str, dry_run: bool, reset: bool) -> dict[str, A
             if not points:
                 break
 
+            # Grouped by the update itself. Almost every point in a batch
+            # resolves to the same handful of decisions -- every chunk of the
+            # Penal Code gets identical fields -- so one call per distinct
+            # update replaces one call per point. Sending 25,517 separate
+            # set_payload requests disconnected the server outright.
+            grouped: dict[str, tuple[dict[str, Any], list[Any]]] = {}
             for point in points:
                 payload = dict(point.payload or {})
                 state["scanned"] += 1
@@ -126,13 +159,12 @@ async def migrate(*, collection: str, dry_run: bool, reset: bool) -> dict[str, A
                 counts[update["currency_status"]] += 1
                 if dry_run:
                     continue
-                await client.set_payload(
-                    collection_name=collection,
-                    payload=update,
-                    points=[point.id],
-                    wait=False,
-                )
-                state["written"] += 1
+                key = json.dumps(update, sort_keys=True)
+                grouped.setdefault(key, (update, []))[1].append(point.id)
+
+            for update, ids in grouped.values():
+                await _write_with_retry(client, collection, update, ids)
+                state["written"] += len(ids)
 
             state["offset"] = offset
             state["counts"] = dict(counts)
