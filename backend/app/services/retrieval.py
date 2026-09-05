@@ -1003,6 +1003,9 @@ class HybridRetrievalService:
         if len({target.collection_name for target in targets}) != len(targets):
             raise ValueError("retrieval target collections must be unique")
         _assert_case_scoped(targets)
+        # A caller asking for reranking gets it only where it is switched on.
+        # Callers that never wanted it are unaffected.
+        rerank = rerank and settings.cross_encoder_reranking_enabled
         if lexical_only:
             if len(targets) != 1:
                 raise ValueError("lexical-only retrieval supports exactly one collection")

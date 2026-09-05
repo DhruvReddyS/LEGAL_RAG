@@ -53,6 +53,13 @@ class Settings(BaseSettings):
     # not on the same scale, so a multiplicative penalty would mean two
     # different things. 0 disables the preference.
     repealed_rank_penalty: int = Field(default=3, ge=0, le=20)
+    # The cross-encoder, measured twice on two different golden sets and
+    # earning its cost on neither. Against the 48-item set it costs 5,126 ms a
+    # query where fusion alone costs 91 -- 56 times -- and R@1 *falls* from
+    # 0.69 to 0.64 while R@5 and R@20 do not move. Off by default; a setting
+    # rather than a deletion so re-enabling it is a restart, and so the next
+    # corpus can be measured with it rather than argued about.
+    cross_encoder_reranking_enabled: bool = False
     fast_candidate_limit: int = Field(default=8, ge=4, le=40)
     fast_result_limit: int = Field(default=4, ge=1, le=10)
     fast_latency_target_ms: int = Field(default=5000, ge=500, le=30000)

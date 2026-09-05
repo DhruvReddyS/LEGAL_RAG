@@ -10,6 +10,7 @@ from app.services.fast_research import (
     _payload_windows,
 )
 from app.ingestion.init_qdrant import ADVOCATE_CASE_DATA, GLOBAL_LEGAL_CORPUS, POLICE_CASE_DATA
+from app.core.config import settings
 from app.services.pipeline_telemetry import append_stage_metric, text_size
 
 
@@ -133,14 +134,19 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
         # the retry with no relevance floor at all, which is the pass most
         # likely to drift: it searches a broadened query after verification has
         # already rejected the first answer.
-        fallback_triggered = (
-            initial_max_score < LOW_RERANKER_SCORE_FALLBACK_THRESHOLD
-            or not top_has_topic_anchor
+        # The 0.15 threshold is calibrated for cross-encoder output. Fused RRF
+        # scores are two orders of magnitude smaller -- around 0.016 for a
+        # top-ranked hit -- so with reranking off this comparison is true for
+        # every query, and every Deep search would silently take the fallback
+        # path and have generic procedure language appended to it. When there
+        # is no reranker score to judge, the topic anchor decides alone.
+        score_is_comparable = settings.cross_encoder_reranking_enabled
+        score_is_low = (
+            score_is_comparable
+            and initial_max_score < LOW_RERANKER_SCORE_FALLBACK_THRESHOLD
         )
-        anchor_bypass_triggered = (
-            initial_max_score >= LOW_RERANKER_SCORE_FALLBACK_THRESHOLD
-            and not top_has_topic_anchor
-        )
+        fallback_triggered = score_is_low or not top_has_topic_anchor
+        anchor_bypass_triggered = not score_is_low and not top_has_topic_anchor
         if fallback_triggered:
             # When a misleading high score caused the fallback, repeat the
             # original topic once before adding generic procedure language.

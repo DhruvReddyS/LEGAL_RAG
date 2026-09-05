@@ -68,6 +68,22 @@ class FakeQdrantClient:
         raise AssertionError(f"Unexpected vector name: {kwargs['using']}")
 
 
+@pytest.fixture
+def reranking_enabled(monkeypatch: pytest.MonkeyPatch):
+    """Switch the cross-encoder on for tests that exercise it.
+
+    It is off by default now -- measured twice as 56x the cost of fusion alone
+    for no gain in recall and a loss in R@1. The tests below verify the
+    reranking path still works when it is switched on, so they ask for it
+    rather than relying on a default that no longer holds.
+    """
+    from app.core.config import settings
+
+    monkeypatch.setattr(settings, "cross_encoder_reranking_enabled", True)
+    return settings
+
+
+
 def point(point_id: str, score: float, payload: dict[str, Any] | None = None) -> Any:
     return SimpleNamespace(id=point_id, score=score, payload=payload)
 
@@ -120,7 +136,7 @@ def test_retrieval_filters_default_to_verified_global_tiers_and_can_be_disabled(
 
 
 @pytest.mark.asyncio
-async def test_hybrid_search_preserves_channel_scores_and_uses_reranker_order() -> None:
+async def test_hybrid_search_preserves_channel_scores_and_uses_reranker_order(reranking_enabled) -> None:
     client = FakeQdrantClient(
         dense_points=[point("a", 0.91), point("b", 0.72)],
         sparse_points=[point("b", 8.4), point("c", 6.3)],
@@ -180,7 +196,7 @@ async def test_hybrid_search_preserves_channel_scores_and_uses_reranker_order() 
 
 
 @pytest.mark.asyncio
-async def test_hybrid_search_returns_empty_results_without_loading_reranker() -> None:
+async def test_hybrid_search_returns_empty_results_without_loading_reranker(reranking_enabled) -> None:
     client = FakeQdrantClient(dense_points=[], sparse_points=[], fused_points=[])
     embedder = FakeEmbedder()
     reranker = FakeReranker([])
@@ -198,7 +214,7 @@ async def test_hybrid_search_returns_empty_results_without_loading_reranker() ->
 
 
 @pytest.mark.asyncio
-async def test_hybrid_search_deduplicates_same_source_before_reranking() -> None:
+async def test_hybrid_search_deduplicates_same_source_before_reranking(reranking_enabled) -> None:
     repeated = " ".join(f"shared{index}" for index in range(120))
     near_duplicate = f"{repeated} one changed ending"
     client = FakeQdrantClient(
@@ -321,7 +337,7 @@ async def test_simultaneous_queries_share_one_embedding_batch() -> None:
 
 
 @pytest.mark.asyncio
-async def test_scoped_search_embeds_once_and_reranks_global_and_private_together() -> None:
+async def test_scoped_search_embeds_once_and_reranks_global_and_private_together(reranking_enabled) -> None:
     class ScopedClient:
         def __init__(self) -> None:
             self.calls: list[dict[str, Any]] = []
@@ -370,7 +386,7 @@ async def test_scoped_search_embeds_once_and_reranks_global_and_private_together
 
 
 @pytest.mark.asyncio
-async def test_reranking_excludes_previously_scored_candidate_ids_without_backfill() -> None:
+async def test_reranking_excludes_previously_scored_candidate_ids_without_backfill(reranking_enabled) -> None:
     points = [
         point("a", 0.9, {"text": "authority a"}),
         point("b", 0.8, {"text": "authority b"}),
