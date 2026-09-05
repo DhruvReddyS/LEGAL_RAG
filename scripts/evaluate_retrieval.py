@@ -39,7 +39,8 @@ CONFIGS = ("dense", "sparse", "hybrid", "reranked")
 
 # The abstention rule the Fast lane actually applies, restated here so the
 # harness measures deployed behaviour rather than an idealised version of it.
-ABSTAIN_COVERAGE_FLOOR = 0.34
+# Imported from the lane so the harness cannot drift from deployed behaviour.
+from app.services.fast_research import COVERAGE_FLOOR as ABSTAIN_COVERAGE_FLOOR  # noqa: E402
 
 
 async def _retrieve(
@@ -105,6 +106,8 @@ async def _abstained(
     mandatory-term requirement with nothing.
     """
     from app.services.fast_research import (
+        COVERAGE_FLOOR,
+        COVERAGE_FLOOR_WITHOUT_RARE_TERM,
         _focus_tokens,
         _lexical_coverage,
         _locally_matched_focus_terms,
@@ -123,8 +126,11 @@ async def _abstained(
         ),
     )
     required = set(distinctive)
+    # Mirrors the lane: with no rare term to prove a corpus gap, coverage is
+    # the only remaining signal and carries a higher bar.
+    floor = COVERAGE_FLOOR if required else COVERAGE_FLOOR_WITHOUT_RARE_TERM
     return not any(
-        _lexical_coverage(focus, payload) >= ABSTAIN_COVERAGE_FLOOR
+        _lexical_coverage(focus, payload) >= floor
         and _mandatory_focus_match(
             required, _locally_matched_focus_terms(focus, payload)
         )

@@ -315,6 +315,25 @@ def _prefer_law_in_force(hits: list[RetrievalHit]) -> list[RetrievalHit]:
     ]
 
 
+# Above this many chunks, a term is not evidence that the corpus lacks the
+# topic -- the corpus plainly discusses it. Roughly a quarter of a percent of
+# the collection.
+#
+# The rule below exists to detect "this question is about something the corpus
+# does not cover", and it kept firing on words that describe how a question was
+# *asked* rather than what it was about. Statutes do not ask questions, so
+# "governs" (137 chunks), "afford" (113), "happens" (81) and "rely" (140) are
+# all rare in legal prose -- and every one of them became the required term for
+# a question the corpus could answer. Seven answerable questions were declined
+# that way.
+#
+# The terms that genuinely mark a gap sit far below this: visa 0, noise 16,
+# consumer 25, landlord 37. So the ceiling separates the two cases on the
+# rule's own logic rather than by listing more words to ignore, which is what
+# the previous three fixes did.
+GAP_EVIDENCE_MAX_CHUNKS = 60
+
+
 def _distinctive_from_counts(counts: dict[str, int]) -> list[str]:
     """Which of a query's terms are rare enough to be required.
 
@@ -323,6 +342,10 @@ def _distinctive_from_counts(counts: dict[str, int]) -> list[str]:
     required. Otherwise the rarest band is required: the cutoff sits a little
     above the minimum so a near-tie does not depend on which of two equally
     rare words happened to be rarer.
+
+    A term the corpus contains more than `GAP_EVIDENCE_MAX_CHUNKS` times is
+    never required, however rare it is relative to the rest of the query. It
+    cannot show the corpus is missing a topic it demonstrably discusses.
     """
     if not counts:
         return []
@@ -331,7 +354,11 @@ def _distinctive_from_counts(counts: dict[str, int]) -> list[str]:
         return zero_frequency
     minimum = min(counts.values())
     cutoff = max(minimum, int(minimum * 1.35))
-    return sorted(term for term, count in counts.items() if count <= cutoff)
+    return sorted(
+        term
+        for term, count in counts.items()
+        if count <= cutoff and count <= GAP_EVIDENCE_MAX_CHUNKS
+    )
 
 
 class BGEReranker:

@@ -136,6 +136,15 @@ def _payload_windows(payload: dict) -> list[set[str]]:
     ]
 
 
+# How much of a question's content a passage must carry to be publishable.
+COVERAGE_FLOOR = 0.34
+
+# Used when no query term is rare enough to indicate a corpus gap, so this
+# floor is the only thing standing between a question the corpus cannot answer
+# and a plausible-looking answer assembled from adjacent material.
+COVERAGE_FLOOR_WITHOUT_RARE_TERM = 0.45
+
+
 def _lexical_coverage(query_tokens: set[str], payload: dict) -> float:
     # A query with nothing to match is not matched by everything. Returning
     # 1.0 here made every passage clear the relevance floor, so "what is
@@ -374,10 +383,18 @@ class FastLegalResearchService:
         # a question about a missing pet would be answered with missing-child
         # procedure simply because nothing closer exists. Abstaining is the
         # correct answer to a gap in the corpus.
+        # The two halves answer different questions. The distinctive term asks
+        # whether the corpus covers this topic at all; coverage asks whether
+        # this passage addresses the question. When no term is rare enough to
+        # be gap evidence -- every term of "essential elements of a valid
+        # contract" appears over a hundred times, though contract law is not
+        # in the corpus -- the first half has nothing to say, and 0.34 is too
+        # permissive for the second to carry the decision alone.
+        floor = COVERAGE_FLOOR if distinctive_terms else COVERAGE_FLOOR_WITHOUT_RARE_TERM
         relevant_hits = [
             hit
             for hit in hits
-            if _lexical_coverage(focus_tokens, hit.payload) >= 0.34
+            if _lexical_coverage(focus_tokens, hit.payload) >= floor
             and _mandatory_focus_match(
                 distinctive_terms,
                 _locally_matched_focus_terms(focus_tokens, hit.payload),
