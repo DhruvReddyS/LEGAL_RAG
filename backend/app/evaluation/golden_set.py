@@ -68,6 +68,10 @@ class GoldenItem:
     expectation: Expectation
     relevant: tuple[RelevantSource, ...] = ()
     topic: str = "general"
+    # Police and advocate ask differently shaped questions than citizens. A set
+    # drawn only from citizen phrasing tunes retrieval to one of the three
+    # audiences and reports the result as a whole-system number.
+    role: str = "citizen"
     note: str = ""
 
     def is_relevant(self, payload: dict[str, Any]) -> bool:
@@ -95,6 +99,21 @@ class ItemResult:
 
     def reciprocal_rank(self) -> float:
         return 1.0 / self.first_rank if self.first_rank else 0.0
+
+    def precision_at(self, k: int) -> float:
+        """Citation accuracy: of the passages that would be cited, how many
+        are actually about the question.
+
+        Recall asks whether the right source was found anywhere in the list.
+        This asks what fraction of what the reader is shown is correct, which
+        is the number a citizen experiences -- three good citations and two
+        irrelevant ones is not the same as five good ones, and recall cannot
+        tell them apart.
+        """
+        if not self.retrieved:
+            return 0.0
+        considered = min(k, self.retrieved)
+        return sum(1 for rank in self.ranks if rank <= k) / considered
 
     def ndcg_at(self, k: int) -> float:
         """Binary-gain nDCG, bounded at 1.0.
@@ -132,6 +151,7 @@ def load_golden_set(path: Path) -> list[GoldenItem]:
                     RelevantSource(**source) for source in entry.get("relevant", [])
                 ),
                 topic=entry.get("topic", "general"),
+                role=entry.get("role", "citizen"),
                 note=entry.get("note", ""),
             )
         )

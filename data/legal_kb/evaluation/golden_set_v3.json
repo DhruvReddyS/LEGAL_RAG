@@ -1,0 +1,587 @@
+{
+  "version": 3,
+  "created": "2026-09-05",
+  "corpus_version": "LEGAL_KB_V1_GOLD",
+  "notes": [
+    "Drawn from query classes the hardcoded heuristics were never tuned against. Anything the LOW_SCORE_FALLBACK_TERMS phrase ('non-cognizable offence General Diary entry SOP complaint procedure'), the PROCEDURE_ANCHOR_TERMS list, or the missing-item regex in the drafting agent was written for is excluded: FIR registration, complaint procedure, General Diary entries, non-cognizable offences and 'my X went missing'. Those queries measure the heuristics, not retrieval.",
+    "Relevance is expressed against Acts, section numbers and distinctive phrases, never chunk IDs. Chunk IDs are content-addressed and change on every re-chunk, which is precisely when this set is needed.",
+    "Every answerable item was checked against the corpus on disk before being written, so a miss here is a retrieval failure and not a missing document.",
+    "Expected abstentions are scored alongside answerable questions, and false abstention is scored too. Tightening the gate without measuring the cost looks free otherwise.",
+    "Roles are recorded because police and advocate ask differently shaped questions than citizens, and a set drawn only from citizen phrasing would tune retrieval to one of the three."
+  ],
+  "items": [
+    {
+      "id": "art19-free-speech",
+      "question": "What limits can the government place on freedom of speech?",
+      "role": "citizen",
+      "topic": "constitutional",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "freedom of speech and expression"
+        },
+        {
+          "contains": "reasonable restrictions"
+        }
+      ]
+    },
+    {
+      "id": "art22-detention",
+      "question": "What protection does a person have if they are detained without trial?",
+      "role": "citizen",
+      "topic": "constitutional",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "protection against arrest and detention"
+        },
+        {
+          "contains": "preventive detention"
+        }
+      ]
+    },
+    {
+      "id": "untouchability",
+      "question": "Is untouchability prohibited by law?",
+      "role": "citizen",
+      "topic": "constitutional",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "untouchability"
+        }
+      ]
+    },
+    {
+      "id": "right-to-privacy",
+      "question": "Does a person in India have a right to privacy?",
+      "role": "citizen",
+      "topic": "constitutional",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "right to privacy"
+        }
+      ]
+    },
+    {
+      "id": "handcuffing",
+      "question": "Are the police allowed to handcuff a person?",
+      "role": "citizen",
+      "topic": "rights",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "handcuff"
+        }
+      ]
+    },
+    {
+      "id": "free-legal-aid",
+      "question": "Can a person who cannot afford a lawyer get one free?",
+      "role": "citizen",
+      "topic": "rights",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "legal aid"
+        }
+      ]
+    },
+    {
+      "id": "prisoner-rights",
+      "question": "What rights does a person in prison keep?",
+      "role": "citizen",
+      "topic": "prison",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "rights of prisoners"
+        }
+      ]
+    },
+    {
+      "id": "solitary-confinement",
+      "question": "Is solitary confinement permitted?",
+      "role": "citizen",
+      "topic": "prison",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "solitary confinement"
+        }
+      ]
+    },
+    {
+      "id": "victim-compensation",
+      "question": "Can a victim of crime receive compensation?",
+      "role": "citizen",
+      "topic": "rights",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "compensation to victims"
+        }
+      ]
+    },
+    {
+      "id": "sc-st-atrocities",
+      "question": "What protection does the law give Scheduled Castes against atrocities?",
+      "role": "citizen",
+      "topic": "social-justice",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "atrocities"
+        }
+      ]
+    },
+    {
+      "id": "child-needing-care",
+      "question": "What happens to a child who needs care and protection?",
+      "role": "citizen",
+      "topic": "child-protection",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "child in need of care"
+        }
+      ]
+    },
+    {
+      "id": "age-of-consent",
+      "question": "What is the age of consent under the law protecting children?",
+      "role": "citizen",
+      "topic": "child-protection",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "age of consent"
+        }
+      ]
+    },
+    {
+      "id": "arms-licence",
+      "question": "How is a licence for a firearm obtained?",
+      "role": "citizen",
+      "topic": "licensing",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "arms licence"
+        },
+        {
+          "contains": "licensing authority"
+        }
+      ]
+    },
+    {
+      "id": "community-service",
+      "question": "Is community service available as a punishment under the new criminal law?",
+      "role": "citizen",
+      "topic": "sentencing",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "community service"
+        }
+      ]
+    },
+    {
+      "id": "preventive-detention",
+      "question": "What is preventive detention and when may it be used?",
+      "role": "citizen",
+      "topic": "constitutional",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "preventive detention"
+        }
+      ]
+    },
+    {
+      "id": "remission-life-sentence",
+      "question": "Can a life sentence be reduced by remission?",
+      "role": "citizen",
+      "topic": "sentencing",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "remission"
+        }
+      ]
+    },
+    {
+      "id": "dying-declaration",
+      "question": "Is a statement made by a dying person accepted as evidence?",
+      "role": "citizen",
+      "topic": "evidence",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "dying declaration"
+        }
+      ]
+    },
+    {
+      "id": "electronic-evidence",
+      "question": "How is evidence held on a phone or computer proved in court?",
+      "role": "citizen",
+      "topic": "evidence",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "electronic record"
+        }
+      ]
+    },
+    {
+      "id": "expert-opinion",
+      "question": "When may a court rely on an expert's opinion?",
+      "role": "citizen",
+      "topic": "evidence",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "expert opinion"
+        }
+      ]
+    },
+    {
+      "id": "default-bail",
+      "question": "What is default bail?",
+      "role": "citizen",
+      "topic": "bail",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "default bail"
+        }
+      ]
+    },
+    {
+      "id": "bail-cancellation",
+      "question": "Can bail once granted be cancelled?",
+      "role": "citizen",
+      "topic": "bail",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "cancellation of bail"
+        }
+      ]
+    },
+    {
+      "id": "anticipatory-bail",
+      "question": "On what grounds may anticipatory bail be granted?",
+      "role": "citizen",
+      "topic": "bail",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "anticipatory bail"
+        }
+      ]
+    },
+    {
+      "id": "chain-of-custody",
+      "question": "How must chain of custody be maintained for seized material?",
+      "role": "police",
+      "topic": "evidence-handling",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "chain of custody"
+        }
+      ]
+    },
+    {
+      "id": "seizure-memo",
+      "question": "What must be recorded in a seizure memo?",
+      "role": "police",
+      "topic": "evidence-handling",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "seizure memo"
+        }
+      ]
+    },
+    {
+      "id": "identification-parade",
+      "question": "How should a test identification parade be conducted?",
+      "role": "police",
+      "topic": "investigation",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "identification parade"
+        }
+      ]
+    },
+    {
+      "id": "medical-exam-accused",
+      "question": "When may an accused person be medically examined?",
+      "role": "police",
+      "topic": "investigation",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "medical examination of the accused"
+        }
+      ]
+    },
+    {
+      "id": "police-vs-judicial-custody",
+      "question": "What is the difference between police custody and judicial custody?",
+      "role": "police",
+      "topic": "custody",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "police custody"
+        },
+        {
+          "contains": "judicial custody"
+        }
+      ]
+    },
+    {
+      "id": "confession-to-police",
+      "question": "Is a confession made to a police officer admissible?",
+      "role": "police",
+      "topic": "evidence-handling",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "confession to a police officer"
+        },
+        {
+          "contains": "confession"
+        }
+      ]
+    },
+    {
+      "id": "hostile-witness",
+      "question": "What happens when a witness turns hostile during trial?",
+      "role": "police",
+      "topic": "evidence-handling",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "hostile witness"
+        }
+      ]
+    },
+    {
+      "id": "search-warrant",
+      "question": "When is a warrant required before a search?",
+      "role": "police",
+      "topic": "investigation",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "search warrant"
+        }
+      ]
+    },
+    {
+      "id": "arrest-of-woman",
+      "question": "What safeguards apply when a woman is arrested?",
+      "role": "police",
+      "topic": "arrest",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "woman shall be arrested"
+        }
+      ]
+    },
+    {
+      "id": "grounds-of-arrest",
+      "question": "Must the grounds of arrest be communicated to the arrested person?",
+      "role": "police",
+      "topic": "arrest",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "grounds for such arrest"
+        }
+      ]
+    },
+    {
+      "id": "special-court-atrocities",
+      "question": "Which court tries offences under the atrocities law?",
+      "role": "police",
+      "topic": "forum",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "special court"
+        }
+      ]
+    },
+    {
+      "id": "puttaswamy-privacy",
+      "question": "What did the Supreme Court hold about privacy in Puttaswamy?",
+      "role": "advocate",
+      "topic": "precedent",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "title_contains": "PUTTASWAMY"
+        }
+      ]
+    },
+    {
+      "id": "speech-attributable-to-state",
+      "question": "Can a minister's statement be attributed to the State?",
+      "role": "advocate",
+      "topic": "precedent",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "title_contains": "Kaushal"
+        },
+        {
+          "contains": "freedom of speech and expression"
+        }
+      ]
+    },
+    {
+      "id": "electronic-certificate-mandatory",
+      "question": "Is a certificate mandatory to prove an electronic record?",
+      "role": "advocate",
+      "topic": "evidence",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "electronic record"
+        }
+      ]
+    },
+    {
+      "id": "reasonable-restriction-test",
+      "question": "What test governs a reasonable restriction on a fundamental right?",
+      "role": "advocate",
+      "topic": "constitutional",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "reasonable restrictions"
+        }
+      ]
+    },
+    {
+      "id": "remission-policy-basis",
+      "question": "On what basis may a remission policy be applied?",
+      "role": "advocate",
+      "topic": "sentencing",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "remission"
+        }
+      ]
+    },
+    {
+      "id": "bail-conditions",
+      "question": "What conditions may a court impose when granting bail?",
+      "role": "advocate",
+      "topic": "bail",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "bail"
+        },
+        {
+          "act": "nagarik suraksha"
+        }
+      ]
+    },
+    {
+      "id": "theft-current-law",
+      "question": "Which law now governs the offence of theft?",
+      "role": "citizen",
+      "topic": "currency",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nyaya sanhita"
+        }
+      ]
+    },
+    {
+      "id": "arrest-current-law",
+      "question": "Which law now governs arrest without a warrant?",
+      "role": "police",
+      "topic": "currency",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha"
+        }
+      ]
+    },
+    {
+      "id": "evidence-current-law",
+      "question": "Which law now governs evidence in criminal trials?",
+      "role": "advocate",
+      "topic": "currency",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "sakshya adhiniyam"
+        }
+      ]
+    },
+    {
+      "id": "contract-elements",
+      "question": "What are the essential elements of a valid contract?",
+      "role": "citizen",
+      "topic": "contract",
+      "expectation": "abstain",
+      "note": "The Indian Contract Act, 1872 is not in the corpus."
+    },
+    {
+      "id": "tenancy-deposit",
+      "question": "A landlord is refusing to return a security deposit. What can be done?",
+      "role": "citizen",
+      "topic": "tenancy",
+      "expectation": "abstain",
+      "note": "Rent control and tenancy law are not ingested."
+    },
+    {
+      "id": "noise-pollution",
+      "question": "What can be done about noise from a neighbouring factory?",
+      "role": "citizen",
+      "topic": "environment",
+      "expectation": "abstain",
+      "note": "The noise pollution rules are not ingested."
+    },
+    {
+      "id": "consumer-goods-defect",
+      "question": "A shop sold defective goods and refuses a refund. What remedy exists?",
+      "role": "citizen",
+      "topic": "consumer",
+      "expectation": "abstain",
+      "note": "Consumer protection procedure is not ingested."
+    },
+    {
+      "id": "workplace-harassment",
+      "question": "What is the process for a sexual harassment complaint at work?",
+      "role": "citizen",
+      "topic": "workplace",
+      "expectation": "abstain",
+      "note": "Only the committee-constitution advisory is present, not the complaint pathway."
+    },
+    {
+      "id": "foreign-visa",
+      "question": "What are the visa requirements for studying in Canada?",
+      "role": "citizen",
+      "topic": "out-of-scope",
+      "expectation": "abstain",
+      "note": "Entirely outside the corpus."
+    }
+  ]
+}

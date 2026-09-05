@@ -33,7 +33,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
 
-DEFAULT_GOLDEN = ROOT / "data" / "legal_kb" / "evaluation" / "golden_set_v2.json"
+DEFAULT_GOLDEN = ROOT / "data" / "legal_kb" / "evaluation" / "golden_set_v3.json"
 
 CONFIGS = ("dense", "sparse", "hybrid", "reranked")
 
@@ -188,10 +188,12 @@ async def evaluate(
                 per_item.append(
                     {
                         "id": item.id,
+                        "role": item.role,
                         "expectation": "answer",
                         "first_rank": outcome.first_rank,
                         "recall_at_5": outcome.recall_at(5),
                         "recall_at_20": outcome.recall_at(20),
+                        "citation_accuracy_at_5": outcome.precision_at(5),
                         "wrongly_abstained": wrongly_declined,
                     }
                 )
@@ -203,6 +205,9 @@ async def evaluate(
                 "recall_at_20": statistics.mean(r.recall_at(20) for r in results),
                 "mrr": statistics.mean(r.reciprocal_rank() for r in results),
                 "ndcg_at_10": statistics.mean(r.ndcg_at(10) for r in results),
+                "citation_accuracy_at_5": statistics.mean(
+                    r.precision_at(5) for r in results
+                ),
                 "abstention_accuracy": (
                     abstain_correct / len(abstentions) if abstentions else None
                 ),
@@ -211,6 +216,23 @@ async def evaluate(
                 ),
                 "seconds_per_query": elapsed / max(len(items), 1),
             }
+            # Reported per role: police and advocate ask differently shaped
+            # questions, and a whole-set average lets one audience hide behind
+            # another.
+            by_role: dict[str, Any] = {}
+            for role in sorted({item.role for item in answerable}):
+                scoped = [r for r in results if r.item.role == role]
+                if not scoped:
+                    continue
+                by_role[role] = {
+                    "items": len(scoped),
+                    "recall_at_5": round(statistics.mean(r.recall_at(5) for r in scoped), 3),
+                    "recall_at_20": round(statistics.mean(r.recall_at(20) for r in scoped), 3),
+                    "citation_accuracy_at_5": round(
+                        statistics.mean(r.precision_at(5) for r in scoped), 3
+                    ),
+                }
+            summary["by_role"] = by_role
             report[config] = {"summary": summary, "items": per_item}
 
             print(f"--- {config} ---")
@@ -221,6 +243,13 @@ async def evaluate(
                 f"MRR {summary['mrr']:.3f}   "
                 f"nDCG@10 {summary['ndcg_at_10']:.3f}"
             )
+            print(f"  citation accuracy@5 {summary['citation_accuracy_at_5']:.2f}")
+            for role, scores in summary["by_role"].items():
+                print(
+                    f"    {role:<9} n={scores['items']:<3} "
+                    f"R@5 {scores['recall_at_5']:.2f}  R@20 {scores['recall_at_20']:.2f}  "
+                    f"cite@5 {scores['citation_accuracy_at_5']:.2f}"
+                )
             abstention = summary["abstention_accuracy"]
             false_rate = summary["false_abstention_rate"]
             trailer = f"  {summary['seconds_per_query'] * 1000:.0f} ms/query"

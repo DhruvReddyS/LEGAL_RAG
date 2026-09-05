@@ -173,6 +173,64 @@ jobs:
         if: failure()
         run: docker compose -f docker/docker-compose.yml logs --tail 100
 
+
+  quality:
+    name: Quality (does retrieval find the right law)
+    # Needs an indexed corpus, which a fresh CI runner does not have: the
+    # containers start empty. Run it where a corpus exists -- a self-hosted
+    # runner, or manually against a restored snapshot. Wiring it to every push
+    # against an empty index would fail for a reason that has nothing to do
+    # with the change under review, and a gate that cries wolf gets disabled.
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    env:
+      DATABASE_URL: postgresql+asyncpg://legal_rag:ci-postgres-password@localhost:5432/legal_rag
+      QDRANT_URL: http://localhost:6333
+      LEGAL_KB_ROOT: ../data/legal_kb
+      HF_HOME: ${{ github.workspace }}/.hf-cache
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: backend/requirements-dev.txt
+
+      - name: Install backend dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements-dev.txt
+        working-directory: backend
+
+      - name: Cache the embedding model
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.hf-cache
+          key: hf-bge-m3-${{ runner.os }}
+
+      - name: Measure retrieval quality against the golden set
+        run: >-
+          python scripts/evaluate_retrieval.py
+          --configs dense sparse hybrid reranked
+          --out eval-result.json
+
+      - name: Fail on a quality regression
+        # The gate that makes the verification architecture a defended
+        # property rather than a claim: a change that improves latency and
+        # quietly costs recall or citation accuracy stops being mergeable.
+        run: python scripts/check_quality_gate.py --result eval-result.json
+
+      - name: Upload evaluation result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: retrieval-quality
+          path: eval-result.json
+          if-no-files-found: ignore
+
   frontend:
     name: Frontend lint, test and build
     runs-on: ubuntu-24.04
