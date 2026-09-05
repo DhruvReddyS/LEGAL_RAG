@@ -1,0 +1,1964 @@
+{
+  "generated_at": "2026-09-05T16:43:33.233403+00:00",
+  "collection": "global_legal_corpus_v2",
+  "golden_set": "golden_set_v3.json",
+  "limit": 20,
+  "config": {
+    "embedding_model": "BAAI/bge-m3",
+    "embedding_dimension": 1024,
+    "generation_model": "qwen3-14b-16k:latest",
+    "reranker_input_characters": 2500,
+    "repealed_rank_penalty": 3,
+    "abstain_coverage_floor": 0.34,
+    "prompt_versions": {
+      "query_understanding": "35f38ca312bf",
+      "reasoning": "dba8d35ea432",
+      "verification": "d4bc4e178e2d",
+      "drafting_fact_extraction": "26bf93f7493e",
+      "defence_strategy": "014cb50323bb",
+      "document_analysis": "090c2b8c8849"
+    }
+  },
+  "configs": {
+    "dense": {
+      "summary": {
+        "recall_at_1": 0.6904761904761905,
+        "recall_at_5": 0.9047619047619048,
+        "recall_at_20": 0.9761904761904762,
+        "mrr": 0.7838624338624338,
+        "ndcg_at_10": 0.7983274458557371,
+        "citation_accuracy_at_5": 0.580952380952381,
+        "abstention_accuracy": 0.8333333333333334,
+        "false_abstention_rate": 0.16666666666666666,
+        "seconds_per_query": 0.10660737500000057,
+        "by_role": {
+          "advocate": {
+            "items": 7,
+            "recall_at_5": 0.857,
+            "recall_at_20": 0.857,
+            "citation_accuracy_at_5": 0.714
+          },
+          "citizen": {
+            "items": 23,
+            "recall_at_5": 0.957,
+            "recall_at_20": 1.0,
+            "citation_accuracy_at_5": 0.643
+          },
+          "police": {
+            "items": 12,
+            "recall_at_5": 0.833,
+            "recall_at_20": 1.0,
+            "citation_accuracy_at_5": 0.383
+          }
+        }
+      },
+      "items": [
+        {
+          "id": "art19-free-speech",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.4,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "art22-detention",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.4,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "untouchability",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "right-to-privacy",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.8,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "handcuffing",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.8,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "free-legal-aid",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 3,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.4,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "prisoner-rights",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.4,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "solitary-confinement",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "victim-compensation",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 3,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "sc-st-atrocities",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.8,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "child-needing-care",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": true
+        },
+        {
+          "id": "age-of-consent",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "arms-licence",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "community-service",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.8,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "preventive-detention",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "remission-life-sentence",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "dying-declaration",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.8,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "electronic-evidence",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.4,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "expert-opinion",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": true
+        },
+        {
+          "id": "default-bail",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.4,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "bail-cancellation",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.8,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "anticipatory-bail",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "chain-of-custody",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.6,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "seizure-memo",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.6,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "identification-parade",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.8,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "medical-exam-accused",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "police-vs-judicial-custody",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "confession-to-police",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "hostile-witness",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.6,
+          "wrongly_abstained": true
+        },
+        {
+          "id": "search-warrant",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 3,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "arrest-of-woman",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "grounds-of-arrest",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 18,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "special-court-atrocities",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 9,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "puttaswamy-privacy",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.8,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "speech-attributable-to-state",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "electronic-certificate-mandatory",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "reasonable-restriction-test",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": 5,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": true
+        },
+        {
+          "id": "remission-policy-basis",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "bail-conditions",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "theft-current-law",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 18,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.0,
+          "wrongly_abstained": true
+        },
+        {
+          "id": "arrest-current-law",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": true
+        },
+        {
+          "id": "evidence-current-law",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_at_5": 0.0,
+          "wrongly_abstained": true
+        },
+        {
+          "id": "contract-elements",
+          "expectation": "abstain",
+          "abstained": true
+        },
+        {
+          "id": "tenancy-deposit",
+          "expectation": "abstain",
+          "abstained": true
+        },
+        {
+          "id": "noise-pollution",
+          "expectation": "abstain",
+          "abstained": true
+        },
+        {
+          "id": "consumer-goods-defect",
+          "expectation": "abstain",
+          "abstained": true
+        },
+        {
+          "id": "workplace-harassment",
+          "expectation": "abstain",
+          "abstained": false
+        },
+        {
+          "id": "foreign-visa",
+          "expectation": "abstain",
+          "abstained": true
+        }
+      ]
+    },
+    "sparse": {
+      "summary": {
+        "recall_at_1": 0.5476190476190477,
+        "recall_at_5": 0.9047619047619048,
+        "recall_at_20": 0.9285714285714286,
+        "mrr": 0.6866213151927437,
+        "ndcg_at_10": 0.7450509873279517,
+        "citation_accuracy_at_5": 0.6,
+        "abstention_accuracy": 0.8333333333333334,
+        "false_abstention_rate": 0.14285714285714285,
+        "seconds_per_query": 0.08844123958333346,
+        "by_role": {
+          "advocate": {
+            "items": 7,
+            "recall_at_5": 0.714,
+            "recall_at_20": 0.857,
+            "citation_accuracy_at_5": 0.6
+          },
+          "citizen": {
+            "items": 23,
+            "recall_at_5": 0.957,
+            "recall_at_20": 0.957,
+            "citation_accuracy_at_5": 0.643
+          },
+          "police": {
+            "items": 12,
+            "recall_at_5": 0.917,
+            "recall_at_20": 0.917,
+            "citation_accuracy_at_5": 0.517
+          }
+        }
+      },
+      "items": [
+        {
+          "id": "art19-free-speech",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.4,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "art22-detention",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "untouchability",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "right-to-privacy",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.8,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "handcuffing",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "free-legal-aid",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 3,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": true
+        },
+        {
+          "id": "prisoner-rights",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.8,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "solitary-confinement",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "victim-compensation",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 5,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "sc-st-atrocities",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.6,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "child-needing-care",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 5,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "age-of-consent",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "arms-licence",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.6,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "community-service",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.8,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "preventive-detention",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "remission-life-sentence",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "dying-declaration",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "electronic-evidence",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 3,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.4,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "expert-opinion",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 3,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": true
+        },
+        {
+          "id": "default-bail",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "bail-cancellation",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.4,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "anticipatory-bail",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "chain-of-custody",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.8,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "seizure-memo",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "identification-parade",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "medical-exam-accused",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_at_5": 0.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "police-vs-judicial-custody",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.6,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "confession-to-police",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "hostile-witness",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.4,
+          "wrongly_abstained": true
+        },
+        {
+          "id": "search-warrant",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 3,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "arrest-of-woman",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "grounds-of-arrest",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 5,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "special-court-atrocities",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.4,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "puttaswamy-privacy",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "speech-attributable-to-state",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "electronic-certificate-mandatory",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "reasonable-restriction-test",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": 14,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.0,
+          "wrongly_abstained": true
+        },
+        {
+          "id": "remission-policy-basis",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "bail-conditions",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "theft-current-law",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_at_5": 0.0,
+          "wrongly_abstained": true
+        },
+        {
+          "id": "arrest-current-law",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 3,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.4,
+          "wrongly_abstained": true
+        },
+        {
+          "id": "evidence-current-law",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_at_5": 0.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "contract-elements",
+          "expectation": "abstain",
+          "abstained": true
+        },
+        {
+          "id": "tenancy-deposit",
+          "expectation": "abstain",
+          "abstained": true
+        },
+        {
+          "id": "noise-pollution",
+          "expectation": "abstain",
+          "abstained": true
+        },
+        {
+          "id": "consumer-goods-defect",
+          "expectation": "abstain",
+          "abstained": true
+        },
+        {
+          "id": "workplace-harassment",
+          "expectation": "abstain",
+          "abstained": false
+        },
+        {
+          "id": "foreign-visa",
+          "expectation": "abstain",
+          "abstained": true
+        }
+      ]
+    },
+    "hybrid": {
+      "summary": {
+        "recall_at_1": 0.6190476190476191,
+        "recall_at_5": 0.9285714285714286,
+        "recall_at_20": 0.9523809523809523,
+        "mrr": 0.7426587301587302,
+        "ndcg_at_10": 0.7937216666572654,
+        "citation_accuracy_at_5": 0.6142857142857143,
+        "abstention_accuracy": 0.8333333333333334,
+        "false_abstention_rate": 0.16666666666666666,
+        "seconds_per_query": 0.08960283681250066,
+        "by_role": {
+          "advocate": {
+            "items": 7,
+            "recall_at_5": 0.714,
+            "recall_at_20": 0.857,
+            "citation_accuracy_at_5": 0.629
+          },
+          "citizen": {
+            "items": 23,
+            "recall_at_5": 0.957,
+            "recall_at_20": 0.957,
+            "citation_accuracy_at_5": 0.67
+          },
+          "police": {
+            "items": 12,
+            "recall_at_5": 1.0,
+            "recall_at_20": 1.0,
+            "citation_accuracy_at_5": 0.5
+          }
+        }
+      },
+      "items": [
+        {
+          "id": "art19-free-speech",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.4,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "art22-detention",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 3,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "untouchability",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "right-to-privacy",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.8,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "handcuffing",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "free-legal-aid",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 5,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": true
+        },
+        {
+          "id": "prisoner-rights",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.8,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "solitary-confinement",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "victim-compensation",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 3,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "sc-st-atrocities",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "child-needing-care",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": true
+        },
+        {
+          "id": "age-of-consent",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "arms-licence",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.8,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "community-service",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.8,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "preventive-detention",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "remission-life-sentence",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "dying-declaration",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "electronic-evidence",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 3,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.6,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "expert-opinion",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": true
+        },
+        {
+          "id": "default-bail",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.6,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "bail-cancellation",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.6,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "anticipatory-bail",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "chain-of-custody",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.8,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "seizure-memo",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.8,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "identification-parade",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.8,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "medical-exam-accused",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "police-vs-judicial-custody",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.6,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "confession-to-police",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "hostile-witness",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.6,
+          "wrongly_abstained": true
+        },
+        {
+          "id": "search-warrant",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 3,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "arrest-of-woman",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "grounds-of-arrest",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 5,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "special-court-atrocities",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.4,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "puttaswamy-privacy",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.4,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "speech-attributable-to-state",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "electronic-certificate-mandatory",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "reasonable-restriction-test",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": 8,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.0,
+          "wrongly_abstained": true
+        },
+        {
+          "id": "remission-policy-basis",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "bail-conditions",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "theft-current-law",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_at_5": 0.0,
+          "wrongly_abstained": true
+        },
+        {
+          "id": "arrest-current-law",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 3,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": true
+        },
+        {
+          "id": "evidence-current-law",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_at_5": 0.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "contract-elements",
+          "expectation": "abstain",
+          "abstained": true
+        },
+        {
+          "id": "tenancy-deposit",
+          "expectation": "abstain",
+          "abstained": true
+        },
+        {
+          "id": "noise-pollution",
+          "expectation": "abstain",
+          "abstained": true
+        },
+        {
+          "id": "consumer-goods-defect",
+          "expectation": "abstain",
+          "abstained": true
+        },
+        {
+          "id": "workplace-harassment",
+          "expectation": "abstain",
+          "abstained": false
+        },
+        {
+          "id": "foreign-visa",
+          "expectation": "abstain",
+          "abstained": true
+        }
+      ]
+    },
+    "reranked": {
+      "summary": {
+        "recall_at_1": 0.6190476190476191,
+        "recall_at_5": 0.9285714285714286,
+        "recall_at_20": 0.9523809523809523,
+        "mrr": 0.739484126984127,
+        "ndcg_at_10": 0.7922604661230481,
+        "citation_accuracy_at_5": 0.6047619047619047,
+        "abstention_accuracy": 0.8333333333333334,
+        "false_abstention_rate": 0.16666666666666666,
+        "seconds_per_query": 0.015778863708333073,
+        "by_role": {
+          "advocate": {
+            "items": 7,
+            "recall_at_5": 0.714,
+            "recall_at_20": 0.857,
+            "citation_accuracy_at_5": 0.629
+          },
+          "citizen": {
+            "items": 23,
+            "recall_at_5": 0.957,
+            "recall_at_20": 0.957,
+            "citation_accuracy_at_5": 0.661
+          },
+          "police": {
+            "items": 12,
+            "recall_at_5": 1.0,
+            "recall_at_20": 1.0,
+            "citation_accuracy_at_5": 0.483
+          }
+        }
+      },
+      "items": [
+        {
+          "id": "art19-free-speech",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.4,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "art22-detention",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 3,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "untouchability",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "right-to-privacy",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.8,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "handcuffing",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "free-legal-aid",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 5,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": true
+        },
+        {
+          "id": "prisoner-rights",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.6,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "solitary-confinement",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "victim-compensation",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 3,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "sc-st-atrocities",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "child-needing-care",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": true
+        },
+        {
+          "id": "age-of-consent",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "arms-licence",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.8,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "community-service",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.8,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "preventive-detention",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "remission-life-sentence",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "dying-declaration",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "electronic-evidence",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 3,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.6,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "expert-opinion",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": true
+        },
+        {
+          "id": "default-bail",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.6,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "bail-cancellation",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.6,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "anticipatory-bail",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "chain-of-custody",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.8,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "seizure-memo",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.8,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "identification-parade",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.8,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "medical-exam-accused",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "police-vs-judicial-custody",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.4,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "confession-to-police",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "hostile-witness",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.6,
+          "wrongly_abstained": true
+        },
+        {
+          "id": "search-warrant",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 3,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "arrest-of-woman",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "grounds-of-arrest",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 5,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "special-court-atrocities",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.4,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "puttaswamy-privacy",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.4,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "speech-attributable-to-state",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "electronic-certificate-mandatory",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "reasonable-restriction-test",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": 8,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.0,
+          "wrongly_abstained": true
+        },
+        {
+          "id": "remission-policy-basis",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "bail-conditions",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 1.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "theft-current-law",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_at_5": 0.0,
+          "wrongly_abstained": true
+        },
+        {
+          "id": "arrest-current-law",
+          "role": "police",
+          "expectation": "answer",
+          "first_rank": 5,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_at_5": 0.2,
+          "wrongly_abstained": true
+        },
+        {
+          "id": "evidence-current-law",
+          "role": "advocate",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_at_5": 0.0,
+          "wrongly_abstained": false
+        },
+        {
+          "id": "contract-elements",
+          "expectation": "abstain",
+          "abstained": true
+        },
+        {
+          "id": "tenancy-deposit",
+          "expectation": "abstain",
+          "abstained": true
+        },
+        {
+          "id": "noise-pollution",
+          "expectation": "abstain",
+          "abstained": true
+        },
+        {
+          "id": "consumer-goods-defect",
+          "expectation": "abstain",
+          "abstained": true
+        },
+        {
+          "id": "workplace-harassment",
+          "expectation": "abstain",
+          "abstained": false
+        },
+        {
+          "id": "foreign-visa",
+          "expectation": "abstain",
+          "abstained": true
+        }
+      ]
+    }
+  }
+}

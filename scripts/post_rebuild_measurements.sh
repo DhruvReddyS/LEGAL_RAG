@@ -51,9 +51,31 @@ if ! curl -s --max-time 5 http://localhost:11434/api/tags >/dev/null 2>&1; then
 fi
 echo "   ollama reachable"
 
-completed="$($PY -c "
+# Read the ledger, and keep "the file says 0" distinct from "I could not read
+# the file". Defaulting a failed read to 0 reported a confident 0/381 against a
+# complete index, because macOS data protection had not settled 53 seconds
+# after a reboot -- the same "Operation not permitted" that killed this
+# rebuild once already. An unreadable ledger is an unknown, not a zero.
+LEDGER="$ROOT/data/legal_kb/logs/ingestion_checkpoint.global_legal_corpus_v2.json"
+completed=""
+for attempt in 1 2 3 4 5 6; do
+  if completed="$("$PY" -c "
 import json
-print(len(json.load(open('$ROOT/data/legal_kb/logs/ingestion_checkpoint.global_legal_corpus_v2.json')).get('completed',{})))" 2>/dev/null || echo 0)"
+print(len(json.load(open('$LEDGER')).get('completed',{})))" 2>&1)" \
+     && [[ "$completed" =~ ^[0-9]+$ ]]; then
+    break
+  fi
+  echo "   ledger unreadable (attempt $attempt): ${completed:-no output}"
+  completed=""
+  sleep 10
+done
+
+if [ -z "$completed" ]; then
+  echo "   REFUSING: could not read the rebuild ledger at all."
+  echo "   That is not the same as an empty one. Check $LEDGER and re-run."
+  exit 1
+fi
+
 printf '   v2 rebuild: %s/381 documents\n' "$completed"
 if [ "$completed" -lt 381 ]; then
   echo "   REFUSING: the v2 index is incomplete, so a comparison against it would"
