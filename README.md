@@ -10,7 +10,7 @@ backend/                 FastAPI application, migrations, ingestion, retrieval, 
 frontend/                Next.js 14 static-export UI and Tauri v2 desktop scaffold
 docker/                  Compose stack and backend image
 scripts/                 Operational and corpus-management utilities
-docs/                    Specification, implementation plan, handoff, assessments
+docs/                    Architecture reference, operations, pending work, evidence
 data/legal_kb/           Versioned active Gold corpus and generated artifacts
 data/source_materials/   Inactive legacy sources and candidate imports
 ```
@@ -22,23 +22,10 @@ deduplication, and quality validation.
 
 ## Start here
 
-- Current state and exact operating commands: [`docs/PROJECT_HANDOFF.md`](docs/PROJECT_HANDOFF.md)
-- Ingestion metrics and methodology: [`docs/INGESTION_ASSESSMENT.md`](docs/INGESTION_ASSESSMENT.md)
-- Tier 2 scenario and security acceptance: [`docs/TIER2_ACCEPTANCE.md`](docs/TIER2_ACCEPTANCE.md)
-- Tiered implementation plan: [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md)
-- Performance, five-second fast path, scale, and corpus growth: [`docs/PERFORMANCE_AND_CORPUS_SCALING_PLAN.md`](docs/PERFORMANCE_AND_CORPUS_SCALING_PLAN.md)
-- Live Fast-mode measurements and acceptance: [`docs/FAST_MODE_ACCEPTANCE.md`](docs/FAST_MODE_ACCEPTANCE.md)
-- Adaptive Auto routing and diverse-authority acceptance: [`docs/ADAPTIVE_RAG_ACCEPTANCE.md`](docs/ADAPTIVE_RAG_ACCEPTANCE.md)
-- Premium citizen/police/advocate command centres, agents, shortcuts and security acceptance: [`docs/ROLE_BASED_ACCEPTANCE.md`](docs/ROLE_BASED_ACCEPTANCE.md)
-- Administrator account governance, corpus expansion and audit acceptance: [`docs/ADMIN_CONTROL_PLANE_ACCEPTANCE.md`](docs/ADMIN_CONTROL_PLANE_ACCEPTANCE.md)
-- How the citizen module works end to end, from source PDF to rendered answer: [`docs/CITIZEN_MODULE_TECHNICAL_GUIDE.md`](docs/CITIZEN_MODULE_TECHNICAL_GUIDE.md)
-- Measured inference throughput and the Deep latency budget: [`docs/INFERENCE_THROUGHPUT_BASELINE.md`](docs/INFERENCE_THROUGHPUT_BASELINE.md)
-- Latest adversarial RAG stress-test and release decision: [`docs/RAG_STRESS_TEST_REPORT.md`](docs/RAG_STRESS_TEST_REPORT.md)
-- Native Tauri package, one-command launch and desktop RBAC acceptance: [`docs/TAURI_DESKTOP_ACCEPTANCE.md`](docs/TAURI_DESKTOP_ACCEPTANCE.md)
-- Local demo credentials and role-by-role walkthrough: [`docs/LOCAL_DEMO_USER_MANUAL.md`](docs/LOCAL_DEMO_USER_MANUAL.md)
-- Secure other-device topology and production scaling gates: [`docs/MULTI_DEVICE_DEPLOYMENT.md`](docs/MULTI_DEVICE_DEPLOYMENT.md)
-- Grounded Document Analyzer and Evidence Inspector acceptance: [`docs/DOCUMENT_ANALYZER_ACCEPTANCE.md`](docs/DOCUMENT_ANALYZER_ACCEPTANCE.md)
-- Canonical feature specification: [`docs/FINAL_MULTI_AGENT_LEGAL_RAG_FEATURE_SPEC.docx`](docs/FINAL_MULTI_AGENT_LEGAL_RAG_FEATURE_SPEC.docx)
+- What the system is and how every part works: [`docs/PRD.md`](docs/PRD.md)
+- Running, releasing, sharing and backing it up: [`docs/OPERATIONS.md`](docs/OPERATIONS.md)
+- What is pending and what each problem needs: [`docs/NEXT_STEPS.md`](docs/NEXT_STEPS.md)
+- Measurements, with the configuration each was taken under: [`docs/evidence/`](docs/evidence/)
 
 Do not commit `.env`, start overlapping ingestion workers, or use
 `docker compose down -v` unless persistent database/vector/object data is

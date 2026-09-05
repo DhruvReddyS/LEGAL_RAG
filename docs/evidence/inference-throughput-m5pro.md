@@ -52,7 +52,7 @@ model reload on a non-idle host and is not recorded as evidence. The finding is
 
 Decode throughput falls as the KV cache grows: 14.4 tok/s at a 619-token
 prompt, 11.8 tok/s at 15,374. The 9.6–11.9 tok/s recorded in
-[`DEEP_LATENCY_TARGET_CALIBRATION.md`](DEEP_LATENCY_TARGET_CALIBRATION.md) was
+`the Deep latency calibration (since consolidated into ../PRD.md)` was
 measured at 6,496- and 12,893-token prompts, so it is the expected rate at
 those sizes rather than evidence of a misconfiguration.
 
