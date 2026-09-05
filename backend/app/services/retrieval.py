@@ -295,11 +295,20 @@ def _prefer_law_in_force(hits: list[RetrievalHit]) -> list[RetrievalHit]:
     Repeal is derived from the Act's name rather than read from the payload, so
     this works against an index built before the field existed.
     """
+    # Ties break on the chunk id, so the same query against the same index
+    # returns the same order every time. HNSW is an approximate index and
+    # hands back near-tied candidates in varying order; with nothing to settle
+    # it, one item moved between rank 1 and rank 2 across identical runs and
+    # R@1 swung by 0.024. Every measurement and the CI gate that compares them
+    # depend on this being stable, and the tiebreaker costs nothing.
+    def _order(hit: RetrievalHit) -> tuple[float, str]:
+        return (-hit.reranker_score, str(hit.payload.get("chunk_id") or hit.point_id))
+
     penalty = settings.repealed_rank_penalty
     if penalty <= 0:
-        return sorted(hits, key=lambda hit: hit.reranker_score, reverse=True)
+        return sorted(hits, key=_order)
 
-    ordered = sorted(hits, key=lambda hit: hit.reranker_score, reverse=True)
+    ordered = sorted(hits, key=_order)
 
     def effective_rank(position_and_hit: tuple[int, RetrievalHit]) -> int:
         position, hit = position_and_hit

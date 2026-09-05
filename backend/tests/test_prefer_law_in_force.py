@@ -91,3 +91,49 @@ class TestThePreferenceCanBeTurnedOff:
 
     def test_an_empty_result_set_is_safe(self) -> None:
         assert _prefer_law_in_force([]) == []
+
+
+class TestOrderingIsDeterministic:
+    """The same query against the same index must return the same order.
+
+    HNSW is an approximate index and returns near-tied candidates in varying
+    order. With nothing to settle the tie, one golden-set item moved between
+    rank 1 and rank 2 across two identical runs and R@1 swung by 0.024 -- on a
+    corpus that had not changed, with a gate that fails the build on a 0.02
+    drop. Every measurement recorded in docs/evidence depends on this.
+    """
+
+    def test_equal_scores_break_on_a_stable_key(self) -> None:
+        tied = [
+            _hit("zulu", BNSS, 0.5),
+            _hit("alpha", BNSS, 0.5),
+            _hit("mike", BNSS, 0.5),
+        ]
+
+        first = [hit.point_id for hit in _prefer_law_in_force(list(tied))]
+        shuffled = [tied[2], tied[0], tied[1]]
+        second = [hit.point_id for hit in _prefer_law_in_force(shuffled)]
+
+        assert first == second, "tied hits ordered differently for different inputs"
+        assert first == ["alpha", "mike", "zulu"]
+
+    def test_score_still_dominates_the_tiebreaker(self) -> None:
+        """The tiebreaker must only settle ties, never reorder by relevance."""
+        ordered = _prefer_law_in_force(
+            [_hit("zulu", BNSS, 0.9), _hit("alpha", BNSS, 0.4)]
+        )
+
+        assert [hit.point_id for hit in ordered] == ["zulu", "alpha"]
+
+    def test_it_holds_with_the_repeal_penalty_applied(self) -> None:
+        tied = [
+            _hit("crpc-b", CRPC, 0.5),
+            _hit("bnss-b", BNSS, 0.5),
+            _hit("bnss-a", BNSS, 0.5),
+        ]
+
+        first = [hit.point_id for hit in _prefer_law_in_force(list(tied))]
+        second = [hit.point_id for hit in _prefer_law_in_force(list(reversed(tied)))]
+
+        assert first == second
+        assert first[0] == "bnss-a", "in-force provisions still come first"
