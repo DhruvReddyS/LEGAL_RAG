@@ -8,11 +8,12 @@ import pytest
 from qdrant_client import models
 
 from app.ingestion.repair_metadata import normalize_gold_metadata
+from app.ingestion.pipeline import chunks_dir_for
 
 
 def _write_fixture(root: Path) -> Path:
     (root / "metadata").mkdir(parents=True)
-    (root / "processed/chunks").mkdir(parents=True)
+    chunks_dir_for(root).mkdir(parents=True)
     manifest = {
         "document_id": "gold-doc-test",
         "canonical_document_id": "gold-canonical-test",
@@ -47,7 +48,7 @@ def _write_fixture(root: Path) -> Path:
         "quality_status": "verified",
         "text": "Section 1 test provision.",
     }
-    path = root / "processed/chunks/gold-canonical-test.jsonl"
+    path = chunks_dir_for(root) / "gold-canonical-test.jsonl"
     path.write_text(json.dumps(chunk) + "\n", encoding="utf-8")
     return path
 

@@ -12,6 +12,7 @@ from app.core.config import settings
 from app.ingestion.retrieval_smoke import validate_smoke_hits
 from app.ingestion.validate import _expected_point_id, build_ingestion_report
 from app.services.retrieval import RetrievalHit
+from app.ingestion.pipeline import checkpoint_path_for, chunks_dir_for
 
 
 class FakeValidationClient:
@@ -31,7 +32,7 @@ def _write_fixture(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
     chunk_id = "gold-chunk-test"
     for directory in (
         "metadata",
-        "processed/chunks",
+        str(chunks_dir_for(root).relative_to(root)),
         "processed/extracted_text",
         "logs",
     ):
@@ -96,7 +97,7 @@ def _write_fixture(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
         "quality_status": "verified",
         "text": "Section 1 test provision.",
     }
-    (root / f"processed/chunks/{canonical_id}.jsonl").write_text(
+    (chunks_dir_for(root) / f"{canonical_id}.jsonl").write_text(
         json.dumps(chunk) + "\n", encoding="utf-8"
     )
     extracted = {
@@ -127,7 +128,8 @@ def _write_fixture(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
         },
         "failed": {},
     }
-    (root / "logs/ingestion_checkpoint.json").write_text(
+    checkpoint_path_for(root).parent.mkdir(parents=True, exist_ok=True)
+    checkpoint_path_for(root).write_text(
         json.dumps(checkpoint), encoding="utf-8"
     )
     payload = {

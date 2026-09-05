@@ -2,6 +2,7 @@ import gzip
 import json
 
 from app.ingestion.restore_chunks import _is_substantive, reconcile_embedding_cache
+from app.ingestion.pipeline import chunks_dir_for, embedding_cache_dir_for
 
 
 def test_substantive_chunk_filter_rejects_punctuation_only_text() -> None:
@@ -13,8 +14,8 @@ def test_substantive_chunk_filter_rejects_punctuation_only_text() -> None:
 
 def test_reconcile_embedding_cache_removes_obsolete_entry(tmp_path) -> None:
     canonical_id = "gold-canonical-test"
-    chunks = tmp_path / "processed/chunks"
-    cache = tmp_path / "cache/embeddings"
+    chunks = chunks_dir_for(tmp_path)
+    cache = embedding_cache_dir_for(tmp_path)
     chunks.mkdir(parents=True)
     cache.mkdir(parents=True)
     (chunks / f"{canonical_id}.jsonl").write_text(

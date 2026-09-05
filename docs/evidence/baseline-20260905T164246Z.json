@@ -1,0 +1,258 @@
+{
+  "generated_at": "2026-09-05T16:43:34.271118+00:00",
+  "config": {
+    "host": {
+      "model": "Mac17,8",
+      "cpu": "Apple M5 Pro",
+      "physical_ram_gb": 24.0,
+      "os": "macOS-27.0-arm64-arm-64bit"
+    },
+    "generation_model": "qwen3-14b-16k:latest",
+    "generation_concurrency": 1,
+    "embedding_model": "BAAI/bge-m3",
+    "embedding_dimension": 1024,
+    "inference_devices": {
+      "embedding": "mps",
+      "reranking": "mps"
+    },
+    "qdrant_collection": "global_legal_corpus",
+    "prompt_versions": {
+      "query_understanding": "35f38ca312bf",
+      "reasoning": "dba8d35ea432",
+      "verification": "d4bc4e178e2d",
+      "drafting_fact_extraction": "26bf93f7493e",
+      "defence_strategy": "014cb50323bb",
+      "document_analysis": "090c2b8c8849"
+    },
+    "temperature": "ollama default unless overridden per request",
+    "seed": "not pinned by the application",
+    "note_on_sampling": "Decode rate is largely insensitive to temperature, but output length is not, so max_tokens is fixed above instead."
+  },
+  "memory_before": {
+    "wired_gb": 2.84,
+    "active_gb": 7.69,
+    "inactive_gb": 7.65,
+    "compressed_gb": 2.24,
+    "free_gb": 4.36,
+    "swap_total_gb": 0.0,
+    "swap_used_gb": 0.0,
+    "swap_free_gb": 0.0,
+    "pageouts": 80
+  },
+  "ollama_residency_before": {
+    "models": [],
+    "raw_ps": "NAME    ID    SIZE    PROCESSOR    CONTEXT    UNTIL"
+  },
+  "throughput": {
+    "runs": [
+      {
+        "ttft_ms": 4668.796459,
+        "queue_wait_ms": 0.007041,
+        "wall_ms": 16436.2,
+        "response_tokens": 188,
+        "response_characters": 971,
+        "prompt_eval_tokens": 52,
+        "prefill_ms": 268.382999,
+        "decode_ms": 11771.408,
+        "decode_tokens_per_second": 15.970901696721413,
+        "prefill_tokens_per_second": 193.8,
+        "done_reason": "stop",
+        "load_ms": 4380.124291
+      },
+      {
+        "ttft_ms": 72.333667,
+        "queue_wait_ms": 0.019667,
+        "wall_ms": 12083.6,
+        "response_tokens": 188,
+        "response_characters": 971,
+        "prompt_eval_tokens": 52,
+        "prefill_ms": 58.561,
+        "decode_ms": 12008.796,
+        "decode_tokens_per_second": 15.655191411362138,
+        "prefill_tokens_per_second": 888.0,
+        "done_reason": "stop",
+        "load_ms": 1.1135
+      },
+      {
+        "ttft_ms": 66.097417,
+        "queue_wait_ms": 0.008375,
+        "wall_ms": 11944.9,
+        "response_tokens": 188,
+        "response_characters": 971,
+        "prompt_eval_tokens": 52,
+        "prefill_ms": 60.068,
+        "decode_ms": 11877.542,
+        "decode_tokens_per_second": 15.828190714880234,
+        "prefill_tokens_per_second": 865.7,
+        "done_reason": "stop",
+        "load_ms": 2.462459
+      }
+    ],
+    "median_tokens_per_second": 15.83,
+    "spread_tokens_per_second": 0.32
+  },
+  "time_to_first_token": [
+    {
+      "target_prompt_tokens": 2000,
+      "prompt_characters": 7999,
+      "ttft_ms": 4017.072666,
+      "queue_wait_ms": 0.007334,
+      "wall_ms": 4951.5,
+      "response_tokens": 16,
+      "response_characters": 87,
+      "prompt_eval_tokens": 1523,
+      "prefill_ms": 4007.563,
+      "decode_ms": 931.644,
+      "decode_tokens_per_second": 17.17394197783703,
+      "prefill_tokens_per_second": 380.0,
+      "done_reason": "length",
+      "load_ms": 1.22325
+    },
+    {
+      "target_prompt_tokens": 6000,
+      "prompt_characters": 24028,
+      "ttft_ms": 9656.908041,
+      "queue_wait_ms": 0.007667,
+      "wall_ms": 10711.2,
+      "response_tokens": 16,
+      "response_characters": 87,
+      "prompt_eval_tokens": 4537,
+      "prefill_ms": 9639.408,
+      "decode_ms": 1047.638999,
+      "decode_tokens_per_second": 15.272436416811933,
+      "prefill_tokens_per_second": 470.7,
+      "done_reason": "length",
+      "load_ms": 1.378708
+    },
+    {
+      "target_prompt_tokens": 13000,
+      "prompt_characters": 51991,
+      "ttft_ms": 22623.211875,
+      "queue_wait_ms": 0.006125,
+      "wall_ms": 23710.5,
+      "response_tokens": 16,
+      "response_characters": 95,
+      "prompt_eval_tokens": 9795,
+      "prefill_ms": 22589.104,
+      "decode_ms": 1072.886,
+      "decode_tokens_per_second": 14.913047611768631,
+      "prefill_tokens_per_second": 433.6,
+      "done_reason": "length",
+      "load_ms": 2.779167
+    }
+  ],
+  "ollama_residency_after_llm": {
+    "models": [
+      {
+        "name": "qwen3-14b-16k:latest",
+        "resident_gb": 12.1,
+        "gpu_gb": 12.1,
+        "gpu_percent": 100.0,
+        "context_length": 16384
+      }
+    ],
+    "raw_ps": "NAME                    ID              SIZE     PROCESSOR    CONTEXT    UNTIL              \nqwen3-14b-16k:latest    351c0a45b605    12 GB    100% GPU     16384      4 minutes from now"
+  },
+  "deep_pipeline": [
+    {
+      "query": "What is the procedure for filing an FIR?",
+      "total_ms": 98229.0,
+      "stages": {
+        "retrieval.timings_ms": {
+          "embedding_ms": 127.65,
+          "qdrant_ms": 127.54,
+          "reranking_ms": 0.0,
+          "total_ms": 256.0,
+          "embedding_cache_hit": false,
+          "candidate_count": 20,
+          "raw_candidate_count": 20,
+          "deduplicated_candidate_count": 20,
+          "duplicate_candidate_count": 0,
+          "result_count": 5,
+          "reranker_input_chunk_count": 0,
+          "reranker_input_characters": 0,
+          "reranker_input_utf8_bytes": 0,
+          "reranker_query_characters_per_pair": 0,
+          "reranker_query_utf8_bytes_per_pair": 0,
+          "reranker_pair_input_characters": 0,
+          "reranker_pair_input_utf8_bytes": 0,
+          "reranker_max_length": null,
+          "excluded_candidate_count": 0
+        }
+      },
+      "evidence_strength": "moderate",
+      "citations": 2
+    },
+    {
+      "query": "When can the police arrest someone without a warrant?",
+      "total_ms": 109361.3,
+      "stages": {
+        "retrieval.timings_ms": {
+          "embedding_ms": 286.05,
+          "qdrant_ms": 38.61,
+          "reranking_ms": 0.0,
+          "total_ms": 325.42,
+          "embedding_cache_hit": false,
+          "candidate_count": 20,
+          "raw_candidate_count": 20,
+          "deduplicated_candidate_count": 20,
+          "duplicate_candidate_count": 0,
+          "result_count": 5,
+          "reranker_input_chunk_count": 0,
+          "reranker_input_characters": 0,
+          "reranker_input_utf8_bytes": 0,
+          "reranker_query_characters_per_pair": 0,
+          "reranker_query_utf8_bytes_per_pair": 0,
+          "reranker_pair_input_characters": 0,
+          "reranker_pair_input_utf8_bytes": 0,
+          "reranker_max_length": null,
+          "excluded_candidate_count": 0
+        }
+      },
+      "evidence_strength": "moderate",
+      "citations": 5
+    },
+    {
+      "query": "What are the rights of a person who has been arrested?",
+      "total_ms": 94899.2,
+      "stages": {
+        "retrieval.timings_ms": {
+          "embedding_ms": 304.24,
+          "qdrant_ms": 76.39,
+          "reranking_ms": 0.0,
+          "total_ms": 381.16,
+          "embedding_cache_hit": false,
+          "candidate_count": 20,
+          "raw_candidate_count": 20,
+          "deduplicated_candidate_count": 20,
+          "duplicate_candidate_count": 0,
+          "result_count": 5,
+          "reranker_input_chunk_count": 0,
+          "reranker_input_characters": 0,
+          "reranker_input_utf8_bytes": 0,
+          "reranker_query_characters_per_pair": 0,
+          "reranker_query_utf8_bytes_per_pair": 0,
+          "reranker_pair_input_characters": 0,
+          "reranker_pair_input_utf8_bytes": 0,
+          "reranker_max_length": null,
+          "excluded_candidate_count": 0
+        }
+      },
+      "evidence_strength": "moderate",
+      "citations": 3
+    }
+  ],
+  "memory_after": {
+    "wired_gb": 15.11,
+    "active_gb": 2.2,
+    "inactive_gb": 1.9,
+    "compressed_gb": 4.73,
+    "free_gb": 0.58,
+    "swap_total_gb": 6.0,
+    "swap_used_gb": 5.45,
+    "swap_free_gb": 0.55,
+    "pageouts": 433
+  },
+  "swap_grew_during_run_gb": 5.45,
+  "pageouts_during_run": 353
+}

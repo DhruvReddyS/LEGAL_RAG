@@ -14,11 +14,12 @@ from app.ingestion.repair_page_ranges import (
     summarize,
     update_qdrant_page_payloads,
 )
+from app.ingestion.pipeline import chunks_dir_for
 
 
 def _write_fixture(root: Path, pages: list[str], chunks: list[dict[str, object]]) -> Path:
     extracted = root / "processed/extracted_text/gold-canonical-test.json"
-    chunk_path = root / "processed/chunks/gold-canonical-test.jsonl"
+    chunk_path = chunks_dir_for(root) / "gold-canonical-test.jsonl"
     extracted.parent.mkdir(parents=True)
     chunk_path.parent.mkdir(parents=True)
     extracted.write_text(
