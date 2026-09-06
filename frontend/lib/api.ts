@@ -408,3 +408,29 @@ export async function analyseDefence(
     },
   );
 }
+
+export async function recordInvestigationFacts(
+  caseId: string,
+  facts: Partial<import("@/lib/types").InvestigationFacts>,
+): Promise<import("@/lib/types").StoredInvestigationFacts> {
+  return request<import("@/lib/types").StoredInvestigationFacts>(
+    `/cases/${caseId}/investigation/facts`,
+    { method: "PUT", body: JSON.stringify(facts) },
+  );
+}
+
+export async function getInvestigationFacts(
+  caseId: string,
+): Promise<import("@/lib/types").StoredInvestigationFacts> {
+  return request<import("@/lib/types").StoredInvestigationFacts>(
+    `/cases/${caseId}/investigation/facts`,
+  );
+}
+
+export async function getInvestigationTimeline(
+  caseId: string,
+): Promise<import("@/lib/types").InvestigationTimeline> {
+  return request<import("@/lib/types").InvestigationTimeline>(
+    `/cases/${caseId}/investigation/timeline`,
+  );
+}

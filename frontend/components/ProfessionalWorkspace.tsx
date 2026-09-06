@@ -1,7 +1,8 @@
 "use client";
 
-import { BriefcaseBusiness, CheckCircle2, ChevronRight, FileCheck2, FileSearch, Fingerprint, FolderPlus, Loader2, Plus, Scale, ScanSearch, ShieldCheck, UploadCloud } from "lucide-react";
+import { BriefcaseBusiness, CalendarClock, CheckCircle2, ChevronRight, FileCheck2, FileSearch, Fingerprint, FolderPlus, Loader2, Plus, Scale, ScanSearch, ShieldCheck, UploadCloud } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { InvestigationTimeline } from "@/components/InvestigationTimeline";
 import { ApiError, analyseDefence, createCase, draftFir, indexCaseEvidence, listCases, scopedSearch, uploadCaseEvidence } from "@/lib/api";
 import type { DefenceAnalysisResponse, FIRDraftResponse, LegalCase, RetrievalHit, User } from "@/lib/types";
 import DocumentAnalyzerWorkspace from "@/components/DocumentAnalyzerWorkspace";
@@ -72,6 +73,7 @@ export default function ProfessionalWorkspace({ user }: { user: User }) {
       </div>
       <nav aria-label="Matter tools" className="workspace-tools">
         <button onClick={()=>jumpTo("role-agent-tool")}><Scale size={17}/>{isPolice ? "FIR draft" : "Strategy"}</button>
+        {isPolice && <button onClick={()=>jumpTo("investigation-timeline")}><CalendarClock size={17}/>Deadlines</button>}
         <button onClick={()=>jumpTo("role-scoped-search")}><FileSearch size={17}/>Find authority</button>
         <button onClick={()=>jumpTo("role-evidence-intake")}><UploadCloud size={17}/>Add evidence</button>
         <button onClick={()=>jumpTo("document-analyzer")}><ScanSearch size={17}/>Review documents</button>
@@ -104,6 +106,16 @@ export default function ProfessionalWorkspace({ user }: { user: User }) {
               <label className="mt-4 flex min-h-36 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-[#c6ad87] bg-[#faf7f2] px-4 text-center transition hover:bg-[#f1edf6]"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#897499] shadow-sm">{busy === "upload" ? <Loader2 size={19} className="animate-spin" /> : <UploadCloud size={19} />}</div><p className="mt-3 text-sm font-medium text-[#54515d]">Choose evidence to upload</p><p className="mt-1 text-xs text-[#75817b]">PDF or TXT / private to this matter</p><input type="file" accept="application/pdf,text/plain" className="hidden" disabled={!selectedId || busy === "upload"} onChange={(event) => upload(event.target.files?.[0])} /></label>
             </div>
           </div>
+
+          {isPolice && (
+            <div id="investigation-timeline" className="panel scroll-mt-24 overflow-hidden 2xl:col-span-2">
+              <div className="flex items-center justify-between border-b border-[#efebf3] px-5 py-4">
+                <h3 className="flex items-center gap-2 text-sm font-semibold"><CalendarClock size={17} className="text-[#897499]" />Investigation deadlines</h3>
+                <span className="flex items-center gap-1.5 text-[10px] font-medium text-[#2e6b50]"><ShieldCheck size={13} />Computed, not generated</span>
+              </div>
+              <div className="p-5"><InvestigationTimeline caseId={selectedId} /></div>
+            </div>
+          )}
 
           <DocumentAnalyzerWorkspace caseId={selectedId} role={user.role} refreshToken={documentRefresh} />
 

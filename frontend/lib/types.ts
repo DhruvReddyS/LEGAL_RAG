@@ -498,3 +498,43 @@ export interface ChatSession {
   createdAt: number;
   updatedAt: number;
 }
+
+export type OffenceGravity = "death_life_or_ten_years_or_more" | "other" | "unknown";
+
+export interface InvestigationFacts {
+  information_recorded_at: string | null;
+  arrested_at: string | null;
+  first_remand_at: string | null;
+  accused_produced_at: string | null;
+  death_occurred_at: string | null;
+  preliminary_enquiry_started_at: string | null;
+  gravity: OffenceGravity;
+  is_listed_sexual_offence: boolean;
+  is_unnatural_death: boolean;
+}
+
+export interface StoredInvestigationFacts extends InvestigationFacts {
+  case_id: string;
+  updated_at: string;
+}
+
+export interface InvestigationDeadline {
+  key: string;
+  obligation: string;
+  provision: string;
+  due_at: string | null;
+  consequence: string;
+  computed_from: string;
+  is_earliest_possible: boolean;
+  undetermined_because: string;
+  /** null when the deadline could not be computed. Never false in that case:
+   *  false is a compliance finding, and none was made. */
+  is_breached: boolean | null;
+}
+
+export interface InvestigationTimeline {
+  evaluated_at: string;
+  deadlines: InvestigationDeadline[];
+  breached: string[];
+  undetermined: string[];
+}
