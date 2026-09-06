@@ -257,9 +257,13 @@ class TestItJudgesTheQuestionTheUserAsked:
         from app.agents import retrieval_agent
 
         source = inspect.getsource(retrieval_agent)
-        assert 'evidence_addresses_the_question(\n            str(state.get("query") or query)' in source, (
-            "the sufficiency gate is no longer judging state['query']; if it "
-            "judges the broadened retrieval query it rejects everything"
+        assert 'asked = str(state.get("query") or query)' in source, (
+            "the question asked is no longer captured separately from the "
+            "broadened retrieval query"
+        )
+        assert "asked, hits, set(distinctive)" in source, (
+            "the sufficiency gate is no longer judging the question asked; if "
+            "it judges the broadened retrieval query it rejects everything"
         )
 
 
