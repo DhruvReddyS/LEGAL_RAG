@@ -185,6 +185,10 @@ export async function chatWithCorpus(
   documents: import("@/lib/types").CitizenDocument[] = [],
   signal?: AbortSignal,
   priorMessages: Array<{ role: "user" | "assistant"; content: string }> = [],
+  /** When set, the matter's private evidence is searched alongside the
+   *  governed corpus. Null keeps the question to public law only, which is
+   *  the safe default and what a citizen always gets. */
+  caseId: string | null = null,
 ): Promise<ChatQueryResponse> {
   return request<ChatQueryResponse>("/chat/query", {
     method: "POST",
@@ -192,6 +196,7 @@ export async function chatWithCorpus(
     body: JSON.stringify({
       query,
       session_id: sessionId ?? null,
+      case_id: caseId,
       response_mode: responseMode,
       documents: documents.map(({ filename, pages }) => ({ filename, pages })),
       prior_messages: priorMessages,

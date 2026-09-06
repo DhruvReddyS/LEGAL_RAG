@@ -13,8 +13,8 @@ import ProfessionalWorkspace from "@/components/ProfessionalWorkspace";
 import { useDialogFocus } from "@/components/useDialogFocus";
 import AdminWorkspace from "@/components/AdminWorkspace";
 import DesktopReadiness from "@/components/DesktopReadiness";
-import { ApiError, cancelDeepReviewJob, chatWithCorpus, getChatSession, getDeepReviewJob, getIngestionProgress, getMe, listChatSessions, logout, refreshSession } from "@/lib/api";
-import type { ChatMessage, CitizenDocument, IngestionProgress, RequestedResponseMode, User } from "@/lib/types";
+import { ApiError, cancelDeepReviewJob, chatWithCorpus, getChatSession, getDeepReviewJob, getIngestionProgress, getMe, listChatSessions, logout, refreshSession, listCases } from "@/lib/api";
+import type { ChatMessage, CitizenDocument, IngestionProgress, RequestedResponseMode, User, LegalCase } from "@/lib/types";
 
 const ROLE_EXPERIENCES = {
   citizen: {
@@ -263,7 +263,7 @@ export default function HomePage() {
     setMessages([...baseMessages, { ...newMessage("user", query.trim()), documents: availableDocuments }, { id: assistantId, role: "assistant", content: "", timestamp: Date.now(), loading: true, requestedMode: availableDocuments.length ? "deep" : responseMode, agentLabel, documents: availableDocuments, category: legalCategory(query) }]);
     setLoading(true);
     try {
-      const response = await chatWithCorpus(query.trim(), targetSession, availableDocuments.length ? "deep" : responseMode, availableDocuments, operation.controller.signal, priorMessages);
+      const response = await chatWithCorpus(query.trim(), targetSession, availableDocuments.length ? "deep" : responseMode, availableDocuments, operation.controller.signal, priorMessages, chatCaseId);
       if (operation.controller.signal.aborted) return;
       setSessionId(response.session_id);
       if (response.delivery_state === "searching_more_thoroughly" && response.job_id) {
@@ -333,6 +333,14 @@ export default function HomePage() {
 
   const signOut = async () => { await logout().catch(() => undefined); setUser(null); setMessages([]); setSessionId(null); setActiveChatId(null); setView("research"); setResponseMode("auto"); setMobileNav(false); };
   const hasProfessionalWorkspace = user?.role === "police" || user?.role === "advocate";
+  // Which matter, if any, a professional's question may also read. Null is
+  // the safe default and the only value a citizen ever has: public law only.
+  const [chatCaseId, setChatCaseId] = useState<string | null>(null);
+  const [chatCases, setChatCases] = useState<LegalCase[]>([]);
+  useEffect(() => {
+    if (!hasProfessionalWorkspace) { setChatCases([]); setChatCaseId(null); return; }
+    listCases().then((response) => setChatCases(response.cases)).catch(() => setChatCases([]));
+  }, [hasProfessionalWorkspace]);
   const hasOperationsWorkspace = hasProfessionalWorkspace || user?.role === "admin";
   const resetResearch = () => { setMessages([]); setSessionId(null); setActiveChatId(crypto.randomUUID()); setDraftVersion(value => value + 1); setView("research"); window.scrollTo({ top: 0, behavior: "auto" }); };
   const openSavedChat = (item: SavedChat) => {
@@ -456,13 +464,13 @@ export default function HomePage() {
           <div className="welcome-symbol"><Scale size={32} strokeWidth={1.3} /></div>
           <h1>{role === "citizen" ? "Let’s make sense of the law." : role === "police" ? "What are you investigating?" : role === "advocate" ? "Where does your argument begin?" : "What would you like to research?"}</h1>
           <p>{role === "citizen" ? "Ask in your own words. We’ll start from there." : role === "police" ? "Explore procedure, preserve evidence, and build your record." : role === "advocate" ? "Find authority. Explore both sides. Refine your position." : "Explore your legal corpus."}</p>
-          <ChatInput key={`${sessionId}:${draftVersion}`} onSend={submit} onStop={stopResearch} loading={loading} mode={responseMode} onModeChange={setResponseMode} placeholder={experience.placeholder} />
+          <ChatInput key={`${sessionId}:${draftVersion}`} onSend={submit} onStop={stopResearch} loading={loading} mode={responseMode} onModeChange={setResponseMode} cases={chatCases} caseId={chatCaseId} onCaseChange={setChatCaseId} placeholder={experience.placeholder} />
           <div className="prompt-shortcuts">{experience.suggestions.map((suggestion,index) => { const Icon = [FilePenLine, ScanSearch, ShieldCheck, BookOpenText][index]; return <button key={suggestion.title} disabled={loading} onClick={() => void submit(suggestion.text)}><Icon size={16} strokeWidth={1.6} />{suggestion.title}</button>; })}</div>
           <button className="guide-invite" onClick={() => role === "citizen" ? setCitizenGuideSlide(0) : setGuideOpen(true)}><HelpCircle size={14} />First time here? Take a quick look</button>
         </div> : <>
           <div className="conversation">{messages.map((message,index) => <div key={message.id} ref={index === messages.length-1 ? latestMessage : undefined}><MessageBubble message={message} onEdit={!loading && !message.documents?.some(document => !document.pages.length) ? (text) => void submit(text, message.documents, false, index) : undefined} onForgetDocuments={() => { const ids = new Set(message.documents?.map(document => document.id)); const clear = (items: ChatMessage[]) => items.map(item => ({...item, documents: item.documents?.map(document => ids.has(document.id) ? {...document, pages: []} : document)})); setMessages(clear); setHistory(current => current.map(item => ({...item, messages: clear(item.messages)}))); }} onRegenerate={!loading && message.role === "assistant" && index === messages.length-1 ? () => { const question=messages.slice(0,index).reverse().find(item=>item.role==="user"); if(question) void submit(question.content, question.documents, true); } : undefined} /></div>)}</div>
           {awayFromLatest && <button className="jump-latest" aria-label="Jump to latest message" onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: animate ? "smooth" : "auto" })}><ArrowDown size={17}/></button>}
-          <div className="conversation-composer"><ChatInput key={`${sessionId}:${draftVersion}`} onSend={submit} onStop={stopResearch} loading={loading} mode={responseMode} onModeChange={setResponseMode} /></div>
+          <div className="conversation-composer"><ChatInput key={`${sessionId}:${draftVersion}`} onSend={submit} onStop={stopResearch} loading={loading} mode={responseMode} onModeChange={setResponseMode} cases={chatCases} caseId={chatCaseId} onCaseChange={setChatCaseId} /></div>
         </>}
       </section>}
     </div>
