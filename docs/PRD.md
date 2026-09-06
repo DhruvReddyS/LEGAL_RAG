@@ -441,7 +441,7 @@ lane returned the Model Prison Manual.
 
 ### 6.2 Deep — the agent graph
 
-Full LangGraph pipeline with claim-level verification, **102.6 s p50** measured over 61 questions. Long-running
+Full LangGraph pipeline with claim-level verification, **53.0 s p50** measured over 61 questions. Long-running
 requests become durable jobs (§14.4) with progress reporting.
 
 ---
@@ -863,7 +863,7 @@ that owed a disclosure.
 | ground coverage | 0.474 (7 scored items) |
 | currency correctness | 0.632 |
 | unsupported claims | **0** |
-| latency p50 | 102.6 s |
+| latency p50 | 53.0 s |
 
 `check_quality_gate.py` guards retrieval at ±0.02. `check_answer_gate.py` guards
 the answer metrics at ±0.05 — wider, because generation is sampled — and treats
@@ -881,7 +881,7 @@ not read" must not look the same.
 
 | Group | Asks |
 |---|---|
-| **Correctness** | Does the code do what it was told? (919 tests) |
+| **Correctness** | Does the code do what it was told? (956 tests) |
 | **Security** | Can a caller reach another tenant's evidence? (36 tests, plus a structural check that every `{case_id}` route enforces ownership) |
 | **Quality** | Does retrieval find the right law, and is the answer any good? (61 golden items, both gates) |
 
