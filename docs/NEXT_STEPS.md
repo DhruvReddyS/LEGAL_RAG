@@ -1,109 +1,131 @@
-# What to do next
+# Where the project stands
 
-> **Updated.** Docker has been started, the currency migration has been run
-> against `global_legal_corpus` (25,517 points, 25,133 written), and the v1
-> evaluation is recorded. What remains is the rebuild, the clean baseline, and
-> the v1-vs-v2 comparison.
+*Written 6 September 2026, mid-rebuild. Superseded whenever the numbers below
+are re-measured.*
 
+## The short answer
 
-Everything that could be finished without Docker running and without a quiet
-machine is done and committed. Four things are blocked on you, in this order.
+The **citizen module is feature-complete and its quality is unverified**.
+Every planned citizen feature is built and 719 tests pass, but the corpus
+index is being rebuilt after a parser fix that materially changes what is in
+it, and no answer-quality number measured before that rebuild is worth
+quoting. The police and advocate modules have their foundations plus, as of
+today, the first police feature.
 
-## 0. Start Docker, then finish the corpus rebuild
+## What is blocking, and it is only one thing
 
-Docker Desktop is stopped, which is why the rebuild died and why the
-integration and red-team suites currently skip. The rebuild is at **249 of 381
-documents**, with **5 documents failed** — all five failed with
-`ResponseHandlingException: All connection attempts failed`, which is Docker
-going away underneath them, not a data problem.
+The v3 rebuild is at **149 of 381 documents**. It must finish before any
+answer number means anything.
+
+The reason is worth stating plainly, because it is the largest single defect
+found in this project. Both section-heading patterns required a title after
+the section number. The 2023 Sanhitas print their titles as *marginal notes*
+in a narrow left column, often with no full stop. So the parser did not see
+them, and:
+
+- **BNSS s.35 and s.173 were absent from the index entirely.** s.35 governs
+  arrest without warrant; s.173 is the FIR provision, the most-asked question
+  in this corpus.
+- The four BNSS chunks containing "arrest without warrant" were labelled
+  `section='476'`, `''`, `'46'` and `'57'` — CrPC numbers attached to BNSS
+  text.
+- Deep was answering questions about arrest without ever retrieving the
+  provision that authorises it.
+
+Section coverage after the fix, against the official section counts:
+
+| act | parsed | official | coverage | was |
+|---|---:|---:|---:|---|
+| BNSS | 530 | 531 | 100% | 50% |
+| BNS | 344 | 358 | 96% | 77% |
+| BSA | 168 | 170 | 99% | 85% |
+| IPC | 477 | 511 | 93% | — |
+| Constitution | 457 | 395 | 116% | — |
+
+The Constitution's 116% is legitimate: 378 plain articles with none numbered
+above 395, plus 79 genuine lettered articles (21A, 124A, 239A).
+
+## What you can test right now
+
+Everything except answer quality. The stack runs, the API serves, and the
+citizen and admin surfaces work against the v2 index.
 
 ```bash
 docker compose --env-file .env -f docker/docker-compose.yml up -d --wait postgres qdrant minio
 ```
 
-Then resume. It skips the 249 already done and retries the 5 that failed:
-
 ```bash
-cd backend && QDRANT_GLOBAL_COLLECTION=global_legal_corpus_v2 LEGAL_KB_ROOT="$PWD/../data/legal_kb" HF_HUB_OFFLINE=1 HF_HOME="$PWD/../data/legal_kb/cache/models" ../.venv-ingest/bin/python -m app.ingestion.pipeline --rechunk --resume
+cd backend && ../.venv-ingest/bin/python -m pytest tests/ -q --ignore=tests/redteam
 ```
 
-Expect roughly 4–5 hours for the remaining ~11,000 chunks. It checkpoints
-after every document, so an interruption costs one document.
+Note that the rebuild is writing to `global_legal_corpus_v3` while the
+application still reads `global_legal_corpus_v2`, so testing now does not
+disturb it and does not see the fix either.
 
-**Do not run this at the same time as anything else that uses the GPU.** The
-14B model, both encoders and a second copy of BGE-M3 in the ingestion process
-do not fit in 24 GB together — that is what put the machine at 34 GB of swap.
+## Features, by role
 
-## 1. Reboot, then take the clean baseline (Task 2)
+### Citizen — built
+Plain-language answers with citations · Fast and Deep lanes · emergency and
+refusal screening · abstention on corpus gaps · repeal and currency labelling
+· source inspector · document upload and analysis · feedback · session
+history · follow-up questions now routed to the lane that can resolve them.
 
-Only after the rebuild finishes. Close other applications; the measurement is
-worth as much as the quiet it was taken in.
+### Citizen — not built
+Rights explainer (C-04) · forum router (C-05) · drafting beyond FIR facts
+(C-06) · multilingual (C-07) · upload redaction (C-02).
 
-```bash
-.venv-ingest/bin/python scripts/measure_baseline.py
-```
+### Police — foundation, plus the first feature
+Case creation and evidence upload · private case corpus with proven isolation
+· FIR fact extraction and drafting agent · role profile and specialist
+prompts · **statutory investigation timeline** (nine BNSS deadlines,
+`POST /cases/{case_id}/investigation/timeline`).
 
-It refuses to pretend: if swap grows during the run it says the timings are
-not a clean baseline. Output lands in `docs/evidence/baseline-<timestamp>.json`.
+The rest of the investigation workflow is unstarted.
 
-## 2. Run the currency migration (Task 3) — DONE for v1
+### Advocate — foundation only
+Case corpus · defence strategy agent with adverse arguments · authority
+mapping. The debate room is unstarted and you have parked it deliberately.
 
-Already applied to `global_legal_corpus`: 6,131 in force, 3,821 superseded,
-15,181 unverified, replacing `None` on every point. Still to do for v2 once
-the rebuild finishes:
+### Admin — built
+User management · corpus statistics · ingestion progress · audit log, and it
+cannot reach private case material through a general search.
 
-```bash
-.venv-ingest/bin/python scripts/migrate_currency_payload.py --collection global_legal_corpus_v2
-```
+## Measurement, now that there is some
 
-<details><summary>Original instructions</summary>
-
-Backfills resolved currency onto all 25,517 points. Resumable, idempotent.
-Dry run first — it writes nothing and tells you what would change:
-
-```bash
-.venv-ingest/bin/python scripts/migrate_currency_payload.py --dry-run
-.venv-ingest/bin/python scripts/migrate_currency_payload.py
-.venv-ingest/bin/python scripts/migrate_currency_payload.py --collection global_legal_corpus_v2
-```
-
-This is a payload migration on the live index.
-
-</details>
-
-## 3. Measure v1 against v2, then decide (Task 5)
+Before today the only instrument was retrieval recall, which says the right
+passage came back and nothing about whether the answer used it. There are now
+five answer-quality metrics — abstention correctness, unsupported-claim rate,
+currency correctness, ground coverage and reading grade — with 45 ground
+expectations authored by reading BNSS ss.35, 43, 47, 187, 482, BSA s.26 and
+BNS s.303 out of this corpus.
 
 ```bash
-.venv-ingest/bin/python scripts/evaluate_retrieval.py \
-  --configs dense sparse hybrid reranked \
-  --collection global_legal_corpus --out docs/evidence/eval-v1.json
-
-.venv-ingest/bin/python scripts/evaluate_retrieval.py \
-  --configs dense sparse hybrid reranked \
-  --collection global_legal_corpus_v2 --out docs/evidence/eval-v2.json
+python scripts/evaluate_answers.py --label v3
 ```
 
-That is also the ablation: dense only, sparse only, hybrid without rerank, and
-the full pipeline, in one pass each.
+Both gates run in the CI quality group. The answer gate treats unsupported
+claims as a rule rather than a metric: no tolerance reaches it, and it cannot
+be recorded into a baseline.
 
-Cut over only if v2 wins on recall and citation accuracy. Not on point count,
-not on latency. The cutover itself is one environment variable —
-`QDRANT_GLOBAL_COLLECTION` — so a rollback is a restart.
+## Waiting on you
 
-Then record the baseline the CI gate will defend:
+1. **The five corpus gaps** — see [CORPUS_GAPS.md](CORPUS_GAPS.md). Which, if
+   any, to ingest, and for tenancy, which State. Doing none is a legitimate
+   choice: the system abstains correctly on all five today and the golden set
+   expects it, so leaving them costs zero measured score.
+2. **A schema migration for the investigation timeline.** The endpoint is
+   stateless because `Case` carries no offence or date fields. Persisting them
+   needs a migration, and you asked to approve those.
+3. **The official MHA concordance tables.** The 54 section mappings are still
+   model-authored. You ruled out human review of them, correctly — a reviewer
+   approves most and misses the wrong one — and no authoritative offline
+   source has been obtained.
 
-```bash
-.venv-ingest/bin/python scripts/check_quality_gate.py --result docs/evidence/eval-v1.json --record
-```
+## After the rebuild, in order
 
-## One decision I could not make for you
-
-The section mapping table (`data/legal_kb/metadata/section_mapping.json`) is
-**model-authored and marked `pending_legal_review`**. 54 pairs across IPC/BNS,
-CrPC/BNSS and IEA/BSA, with 8 flagged where the elements of the offence
-changed rather than just the number.
-
-The interface says it is unreviewed wherever it shows a mapping. It should be
-checked against the official concordance before this is shown to anyone
-outside the project. A wrong section mapping is the kind of error a police
-user acts on immediately.
+1. Measure v3 against v2 on golden set v3; `evidence-current-law`,
+   `theft-current-law` and `arrest-current-law` should move.
+2. Record the answer-quality baseline.
+3. Re-measure the cross-encoder cost on a quiet machine — the 5,126 ms figure
+   was taken while the machine was swapping.
+4. Session-scoped evidence pool, so an elaboration does not re-retrieve.
