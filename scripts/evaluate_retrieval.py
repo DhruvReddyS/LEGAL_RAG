@@ -28,6 +28,7 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -41,6 +42,43 @@ CONFIGS = ("dense", "sparse", "hybrid", "reranked")
 # harness measures deployed behaviour rather than an idealised version of it.
 # Imported from the lane so the harness cannot drift from deployed behaviour.
 from app.services.fast_research import COVERAGE_FLOOR as ABSTAIN_COVERAGE_FLOOR  # noqa: E402
+
+
+async def _shown_to_the_reader(
+    service: Any, question: str, payloads: list[dict[str, Any]], *, collection: str, limit: int
+) -> list[dict[str, Any]]:
+    """The passages a user actually sees.
+
+    Uses the lane's own selection -- the coverage floor, the mandatory-term
+    requirement, the statutory-reference narrowing and one-passage-per-document
+    -- rather than reimplementing it. Two earlier reimplementations drifted:
+    one applied only the coverage floor, and one scored citation accuracy on
+    the raw retrieved list, a third of whose slots repeat a document the reader
+    has already been shown.
+
+    Recall stays on the full retrieved set, which asks a different question:
+    whether the governing authority was found at all.
+    """
+    from app.services.fast_research import (
+        _focus_tokens,
+        _select_diverse_hits,
+        publishable_hits,
+    )
+    from app.services.retrieval import RetrievalFilters, RetrievalTarget
+
+    focus = _focus_tokens(question)
+    _, distinctive = await service.distinctive_query_terms(
+        focus,
+        target=RetrievalTarget(
+            collection_name=collection,
+            filters=RetrievalFilters(corpus_tiers=["gold", "extended"]),
+        ),
+    )
+    hits = [SimpleNamespace(payload=payload) for payload in payloads]
+    relevant = publishable_hits(
+        hits, query=question, focus_tokens=focus, distinctive_terms=set(distinctive)
+    )
+    return [hit.payload for hit in _select_diverse_hits(relevant, limit)]
 
 
 async def _retrieve(
@@ -159,6 +197,7 @@ async def evaluate(
         for config in configs:
             started = time.perf_counter()
             results = []
+            shown_results = []
             abstain_correct = 0
             false_abstentions = 0
             per_item: list[dict[str, Any]] = []
@@ -181,7 +220,17 @@ async def evaluate(
                     )
                     continue
                 outcome = score(item, payloads)
+                # Citation accuracy is about what the reader is shown, so it
+                # is scored on the lane's own selection rather than the raw
+                # retrieved list.
+                shown = score(
+                    item,
+                    await _shown_to_the_reader(
+                        service, item.question, payloads, collection=collection, limit=5
+                    ),
+                )
                 results.append(outcome)
+                shown_results.append(shown)
                 # The cost side of the abstention gate. Tightening it to
                 # decline more corpus gaps is only an improvement if it does
                 # not also start declining questions the corpus can answer,
@@ -199,7 +248,7 @@ async def evaluate(
                         "first_rank": outcome.first_rank,
                         "recall_at_5": outcome.recall_at(5),
                         "recall_at_20": outcome.recall_at(20),
-                        "citation_accuracy_at_5": outcome.precision_at(5),
+                        "citation_accuracy_at_5": shown.precision_at(5),
                         "wrongly_abstained": wrongly_declined,
                     }
                 )
@@ -212,6 +261,9 @@ async def evaluate(
                 "mrr": statistics.mean(r.reciprocal_rank() for r in results),
                 "ndcg_at_10": statistics.mean(r.ndcg_at(10) for r in results),
                 "citation_accuracy_at_5": statistics.mean(
+                    r.precision_at(5) for r in shown_results
+                ),
+                "citation_accuracy_raw_at_5": statistics.mean(
                     r.precision_at(5) for r in results
                 ),
                 "abstention_accuracy": (
@@ -228,6 +280,7 @@ async def evaluate(
             by_role: dict[str, Any] = {}
             for role in sorted({item.role for item in answerable}):
                 scoped = [r for r in results if r.item.role == role]
+                scoped_shown = [r for r in shown_results if r.item.role == role]
                 if not scoped:
                     continue
                 by_role[role] = {
@@ -235,7 +288,7 @@ async def evaluate(
                     "recall_at_5": round(statistics.mean(r.recall_at(5) for r in scoped), 3),
                     "recall_at_20": round(statistics.mean(r.recall_at(20) for r in scoped), 3),
                     "citation_accuracy_at_5": round(
-                        statistics.mean(r.precision_at(5) for r in scoped), 3
+                        statistics.mean(r.precision_at(5) for r in scoped_shown), 3
                     ),
                 }
             summary["by_role"] = by_role

@@ -7,7 +7,8 @@
     "Relevance is expressed against Acts, section numbers and distinctive phrases, never chunk IDs. Chunk IDs are content-addressed and change on every re-chunk, which is precisely when this set is needed.",
     "Every answerable item was checked against the corpus on disk before being written, so a miss here is a retrieval failure and not a missing document.",
     "Expected abstentions are scored alongside answerable questions, and false abstention is scored too. Tightening the gate without measuring the cost looks free otherwise.",
-    "Roles are recorded because police and advocate ask differently shaped questions than citizens, and a set drawn only from citizen phrasing would tune retrieval to one of the three."
+    "Roles are recorded because police and advocate ask differently shaped questions than citizens, and a set drawn only from citizen phrasing would tune retrieval to one of the three.",
+    "v3.1 widens the police slice from 12 to 25 items. Twelve was too few to tune against: a single item moved police recall by 0.08, which is larger than most of the changes being measured."
   ],
   "items": [
     {
@@ -582,6 +583,171 @@
       "topic": "out-of-scope",
       "expectation": "abstain",
       "note": "Entirely outside the corpus."
+    },
+    {
+      "id": "case-diary",
+      "question": "How must a case diary be maintained during an investigation?",
+      "role": "police",
+      "topic": "investigation",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "case diary"
+        }
+      ]
+    },
+    {
+      "id": "inquest-procedure",
+      "question": "What is the procedure for an inquest into an unnatural death?",
+      "role": "police",
+      "topic": "investigation",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "inquest"
+        }
+      ]
+    },
+    {
+      "id": "arrest-memo",
+      "question": "What must be recorded in an arrest memo?",
+      "role": "police",
+      "topic": "investigation",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "arrest memo"
+        }
+      ]
+    },
+    {
+      "id": "forensic-referral",
+      "question": "When must material be referred for forensic examination?",
+      "role": "police",
+      "topic": "investigation",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "forensic"
+        }
+      ]
+    },
+    {
+      "id": "final-report",
+      "question": "What does a final report to the magistrate contain?",
+      "role": "police",
+      "topic": "investigation",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "final report"
+        }
+      ]
+    },
+    {
+      "id": "charge-sheet",
+      "question": "What must be included when filing a charge sheet?",
+      "role": "police",
+      "topic": "investigation",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "charge sheet"
+        }
+      ]
+    },
+    {
+      "id": "panch-witness",
+      "question": "What is the role of an independent witness during a search?",
+      "role": "police",
+      "topic": "investigation",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "panch witness"
+        },
+        {
+          "contains": "crime scene"
+        }
+      ]
+    },
+    {
+      "id": "scene-videography",
+      "question": "When must a search or seizure be videographed?",
+      "role": "police",
+      "topic": "investigation",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "videography"
+        }
+      ]
+    },
+    {
+      "id": "electronic-device-seizure",
+      "question": "How should an electronic device be seized and preserved?",
+      "role": "police",
+      "topic": "investigation",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "electronic device"
+        },
+        {
+          "contains": "hash value"
+        }
+      ]
+    },
+    {
+      "id": "woman-police-officer",
+      "question": "When must a woman police officer be involved?",
+      "role": "police",
+      "topic": "investigation",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "woman police officer"
+        }
+      ]
+    },
+    {
+      "id": "custodial-death",
+      "question": "What must happen after a death in police custody?",
+      "role": "police",
+      "topic": "investigation",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "custodial death"
+        },
+        {
+          "contains": "human rights commission"
+        }
+      ]
+    },
+    {
+      "id": "victim-compensation-scheme",
+      "question": "What compensation scheme exists for victims of crime?",
+      "role": "police",
+      "topic": "investigation",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "compensation scheme"
+        }
+      ]
+    },
+    {
+      "id": "child-friendly-procedure",
+      "question": "What child-friendly procedure applies when a child is a witness?",
+      "role": "police",
+      "topic": "investigation",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "child friendly"
+        }
+      ]
     }
   ]
 }

@@ -194,6 +194,52 @@ def _document_key(hit: object) -> str:
     return str(getattr(hit, "point_id"))
 
 
+def publishable_hits(
+    hits: list,
+    *,
+    query: str,
+    focus_tokens: set[str],
+    distinctive_terms: set[str],
+) -> list:
+    """The hits that may be shown, before one-per-document selection.
+
+    Extracted so the evaluation harness applies the same rule as the lane
+    rather than reimplementing it. That reimplementation has drifted twice:
+    once when the harness applied only the coverage floor and credited the
+    mandatory-term requirement with nothing, and once when it scored citation
+    accuracy on the raw retrieved list, a third of which repeats a document
+    the reader has already been shown.
+    """
+    floor = COVERAGE_FLOOR if distinctive_terms else COVERAGE_FLOOR_WITHOUT_RARE_TERM
+    relevant = [
+        hit
+        for hit in hits
+        if _lexical_coverage(focus_tokens, hit.payload) >= floor
+        and _mandatory_focus_match(
+            distinctive_terms,
+            _locally_matched_focus_terms(focus_tokens, hit.payload),
+        )
+    ]
+    # When the question names a provision, a passage that does not cite it is
+    # not an answer to that question however well its words overlap.
+    references = _statutory_references(query)
+    if references:
+        cited = [
+            hit
+            for hit in relevant
+            if all(
+                _mentions_reference(hit.payload, kind, number)
+                for kind, number in references
+            )
+        ]
+        # Only narrow when something survives: an unusual provision absent
+        # from the corpus should still return its nearest material rather than
+        # turning a weak answer into no answer.
+        if cited:
+            relevant = cited
+    return relevant
+
+
 def _select_diverse_hits(hits: list, limit: int) -> list:
     """Return the best passage from each distinct authority, without padding duplicates."""
     selected: list = []
@@ -390,33 +436,9 @@ class FastLegalResearchService:
         # contract" appears over a hundred times, though contract law is not
         # in the corpus -- the first half has nothing to say, and 0.34 is too
         # permissive for the second to carry the decision alone.
-        floor = COVERAGE_FLOOR if distinctive_terms else COVERAGE_FLOOR_WITHOUT_RARE_TERM
-        relevant_hits = [
-            hit
-            for hit in hits
-            if _lexical_coverage(focus_tokens, hit.payload) >= floor
-            and _mandatory_focus_match(
-                distinctive_terms,
-                _locally_matched_focus_terms(focus_tokens, hit.payload),
-            )
-        ]
-        # When the question names a provision, a passage that does not cite it
-        # is not an answer to that question however well its words overlap.
-        references = _statutory_references(query)
-        if references:
-            cited = [
-                hit
-                for hit in relevant_hits
-                if all(
-                    _mentions_reference(hit.payload, kind, number)
-                    for kind, number in references
-                )
-            ]
-            # Only narrow when something survives: an unusual provision absent
-            # from the corpus should still return its nearest material rather
-            # than turning a weak answer into no answer.
-            if cited:
-                relevant_hits = cited
+        relevant_hits = publishable_hits(
+            hits, query=query, focus_tokens=focus_tokens, distinctive_terms=distinctive_terms
+        )
         hits = _select_diverse_hits(relevant_hits, settings.fast_result_limit)
         if not hits:
             answer = INSUFFICIENT_EVIDENCE

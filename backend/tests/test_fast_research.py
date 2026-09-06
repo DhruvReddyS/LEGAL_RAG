@@ -424,3 +424,71 @@ class TestAQuestionThatNamesNoSubject:
         )
 
         assert result["citations"] != []
+
+
+class TestTheHarnessCannotDriftFromTheLane:
+    """One selection, used by the lane and by the evaluation harness.
+
+    The harness has reimplemented this twice and drifted both times: once it
+    applied only the coverage floor, crediting the mandatory-term requirement
+    with nothing, and once it scored citation accuracy on the raw retrieved
+    list -- a third of whose slots repeat a document the reader has already
+    been shown. Both made the recorded numbers describe a system nobody runs.
+    """
+
+    def _hit(self, chunk_id: str, text: str, document: str) -> object:
+        from types import SimpleNamespace
+
+        return SimpleNamespace(
+            payload={
+                "chunk_id": chunk_id,
+                "text": text,
+                "canonical_document_id": document,
+                "title": document,
+                "act_name": document,
+            }
+        )
+
+    def test_the_coverage_floor_is_applied(self) -> None:
+        from app.services.fast_research import _focus_tokens, publishable_hits
+
+        question = "When must a woman police officer be involved in an arrest?"
+        focus = _focus_tokens(question)
+        on_topic = self._hit("a", "A woman police officer shall make the arrest.", "doc-a")
+        off_topic = self._hit("b", "The schedule of fees for licences is annexed.", "doc-b")
+
+        kept = publishable_hits(
+            [on_topic, off_topic], query=question, focus_tokens=focus, distinctive_terms=set()
+        )
+
+        assert [h.payload["chunk_id"] for h in kept] == ["a"]
+
+    def test_the_mandatory_term_is_applied_too(self) -> None:
+        """The half the first drifted harness silently dropped."""
+        from app.services.fast_research import _focus_tokens, publishable_hits
+
+        question = "What can be done about noise from a neighbouring factory?"
+        focus = _focus_tokens(question)
+        # High word overlap, but never mentions the required rare term.
+        plausible = self._hit(
+            "a", "What can be done about a neighbouring factory is a question for the board.", "doc-a"
+        )
+
+        kept = publishable_hits(
+            [plausible], query=question, focus_tokens=focus, distinctive_terms={"noise"}
+        )
+
+        assert kept == [], "a passage lacking the required term is not an answer"
+
+    def test_one_passage_per_document(self) -> None:
+        from app.services.fast_research import _select_diverse_hits
+
+        hits = [
+            self._hit("a1", "text", "doc-a"),
+            self._hit("a2", "text", "doc-a"),
+            self._hit("b1", "text", "doc-b"),
+        ]
+
+        selected = _select_diverse_hits(hits, 5)
+
+        assert [h.payload["chunk_id"] for h in selected] == ["a1", "b1"]
