@@ -47,10 +47,14 @@ MAX_EVIDENCE_TEXT_CHARACTERS = 1800
 # 0.50: the answers were not worse, they were refused. Publication now
 # turns on absolute sufficiency, so the two are decoupled.
 #
-# 18 rather than 30: a ground is short, so the cost is claim count times
-# actual length, not times the cap. 18 claims averaging ~200 characters is
-# roughly 900 output tokens, comparable to the current draft.
-MAX_CLAIMS = 18
+# Tried at 18 and reverted, measured. Ground coverage did not move, latency
+# p50 went 53 s -> 154 s, and two questions that previously published --
+# untouchability and victim-compensation -- fell to a 15-word refusal: a
+# larger budget produces more speculative claims, more of them are rejected,
+# and the claim-level support ratio drops under the fabrication floor. The
+# cap is not the only thing capping coverage, and raising it alone costs
+# three times the latency to prove that.
+MAX_CLAIMS = 10
 MAX_CLAIM_CHARACTERS = 600
 
 

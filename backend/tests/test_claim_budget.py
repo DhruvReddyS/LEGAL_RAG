@@ -29,30 +29,43 @@ ENUMERATIONS = {
 }
 
 
-@pytest.mark.parametrize(("provision", "items"), sorted(ENUMERATIONS.items()))
-def test_the_budget_can_hold_the_longest_enumeration(provision: str, items: int) -> None:
-    """Plus room for the answer around it.
+def test_which_enumerations_the_budget_can_hold() -> None:
+    """Recorded, not asserted away.
 
-    An answer is not only the list: it needs a direct answer, the provision
-    it rests on, and its limits. A cap equal to the enumeration would force
-    the model to drop either a ground or the framing.
+    An answer needs about four claims of framing around any list, so an
+    enumeration of N needs N+4. The cap was raised to 18 to clear the
+    longest and measured: coverage did not move, latency p50 went 53 s to
+    154 s, and two questions that previously published fell to a 15-word
+    refusal, because a larger budget produces more speculative claims and
+    the claim-level support ratio drops under the fabrication floor.
+
+    So this states which lists fit and which do not, and fails when that
+    changes in either direction -- shrinking the cap silently, or raising
+    it without deleting this record.
     """
-    assert MAX_CLAIMS >= items + 4, (
-        f"{provision} has {items} items and the cap is {MAX_CLAIMS}; the answer "
-        "cannot list them and still say what it is answering"
+    fits = {name for name, items in ENUMERATIONS.items() if items + 4 <= MAX_CLAIMS}
+    does_not = set(ENUMERATIONS) - fits
+
+    assert fits == {"BNSS s.192(1) case diary requirements"}
+    assert does_not == {
+        "BNSS s.35(1) grounds for arrest without warrant",
+        "BNSS s.193(3)(i) contents of the police report",
+    }, (
+        "which enumerations fit the claim budget has changed; if the cap was "
+        "raised, measure ground coverage and latency before recording it here"
     )
 
 
-def test_the_cap_is_not_raised_without_bound() -> None:
+def test_the_cap_is_not_raised_without_a_latency_measurement() -> None:
     """Output length is the largest single cost in a Deep run.
 
     Every claim is decoded and then verified, so the cap trades ground
     coverage against latency directly. This is a reminder that the number
     is a trade-off and not a maximum to be pushed.
     """
-    assert MAX_CLAIMS <= 24, (
-        "beyond this the decode and verification cost stops being comparable "
-        "to the measured 102.6 s p50; raise it only with a latency measurement"
+    assert MAX_CLAIMS <= 12, (
+        "18 was measured: latency p50 53 s -> 154 s with no coverage gain. "
+        "Raise this only alongside a latency measurement showing otherwise"
     )
 
 
@@ -88,7 +101,8 @@ def test_the_prompt_asks_for_enumeration_where_the_evidence_enumerates() -> None
     )
     assert instruction in body, (
         "the prompt no longer tells the model to enumerate where the provision "
-        "does; a higher cap on its own changes nothing"
+        "does. This instruction stays even though the cap was reverted: it "
+        "costs nothing and is the half of the change that was never disproven"
     )
     assert "never the same point restated" in body, (
         "the anti-repetition instruction was dropped; without it a higher cap "
