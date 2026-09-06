@@ -1,7 +1,7 @@
 {
-  "recorded_at": "2026-09-06T02:44:59.349459+00:00",
+  "recorded_at": "2026-09-06T15:04:14.922162+00:00",
   "config": "hybrid",
-  "collection": "global_legal_corpus_v2",
+  "collection": "global_legal_corpus_v3",
   "golden_set": "golden_set_v3.json",
   "measurement_config": {
     "embedding_model": "BAAI/bge-m3",
@@ -20,8 +20,8 @@
     }
   },
   "metrics": {
-    "recall_at_5": 0.9454545454545454,
-    "citation_accuracy_at_5": 0.6166666666666667
+    "recall_at_5": 0.9272727272727272,
+    "citation_accuracy_at_5": 0.6378787878787878
   },
   "by_role": {
     "advocate": {
@@ -34,13 +34,13 @@
       "items": 23,
       "recall_at_5": 0.957,
       "recall_at_20": 0.957,
-      "citation_accuracy_at_5": 0.674
+      "citation_accuracy_at_5": 0.721
     },
     "police": {
       "items": 25,
-      "recall_at_5": 1.0,
+      "recall_at_5": 0.96,
       "recall_at_20": 1.0,
-      "citation_accuracy_at_5": 0.563
+      "citation_accuracy_at_5": 0.567
     }
   }
 }
