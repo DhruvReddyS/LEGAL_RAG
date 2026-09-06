@@ -33,13 +33,29 @@ intentionally being deleted.
 
 ## Current status
 
-Tier 0 and the verified web RAG MVP are complete: the Gold corpus, BGE-M3/Qdrant
-retrieval, LangGraph legal-agent workflow, PostgreSQL chat persistence, secure
-cookie authentication, and Next.js static frontend are implemented and tested.
-The first Tier 2 professional vertical slice is also accepted: isolated case
-workspaces, private evidence indexing, scoped search, immutable FIR drafting,
-and verified advocate defence analysis. The frontend is now a role-specific
-legal operating console with dedicated citizen, police and advocate command
-centres, agent suites, keyboard commands and professional workspaces. The native
-Tauri Apple Silicon `.app` and `.dmg` are built and locally accepted; remaining
-Tier 2 work is tracked in the implementation plan.
+Every planned module is built. Citizen, police, advocate and admin are
+feature-complete; the advocate debate room is the one deliberate omission,
+and [`docs/PRD.md`](docs/PRD.md) §15 explains what it would cost.
+
+| | |
+|---|---|
+| Corpus | `global_legal_corpus_v3`, 24,810 points |
+| Backend tests | 956 |
+| Cross-tenant red team | 36, passing |
+| Frontend tests | 38 |
+| Section coverage | BNSS 100%, BSA 99%, BNS 96% |
+| Section concordance | 2,596 pairs from the official NCRB tables |
+
+Four CI gates guard the qualities that matter, and each exists because
+something got past the ones before it: correctness, cross-tenant isolation,
+retrieval quality, and answer quality. A fifth check asks whether the
+provision that *governs* a question is reachable at all -- recall cannot,
+because its predicates match any passage containing a phrase, and a judgment
+quoting BNSS s.173 satisfies the FIR item while the section itself is absent
+from the top hundred.
+
+The measured limitations are in [`docs/NEXT_STEPS.md`](docs/NEXT_STEPS.md),
+each with the diagnosis rather than the symptom. The shortest summary: the
+system knows what it does not know, refuses when the corpus cannot answer,
+and never publishes a claim whose evidence was not retrieved -- that last one
+measured at zero across every question in the evaluation set.
