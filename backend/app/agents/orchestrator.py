@@ -7,6 +7,7 @@ from typing import Awaitable, Callable
 from langgraph.graph import END, StateGraph
 from time import perf_counter, perf_counter_ns
 
+from app.agents.publication import publication_decision
 from app.agents.query_understanding import query_understanding_node
 from app.agents.reasoning_agent import reasoning_node
 from app.agents.response_generation import response_generation_node
@@ -190,7 +191,12 @@ class LegalRAGWorkflow:
         A measured run spent 84 seconds - a quarter of its total - re-deriving a
         byte-identical result before abstaining anyway.
         """
-        if state["verification_result"].score >= 0.5:
+        # The same test the response node applies. Retrying a result that
+        # would have been published costs a full extra pass -- and under the
+        # old ratio gate that is exactly what happened to broad questions:
+        # child-needing-care retried twice, took 332 seconds, and its ten
+        # verified claims were discarded anyway.
+        if publication_decision(state.get("verification_result")).publish:
             return "proceed"
         if int(state.get("retry_count", 0)) >= 2:
             return "proceed"

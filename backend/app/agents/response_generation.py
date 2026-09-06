@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 from time import perf_counter_ns
 
+from app.agents.publication import publication_decision
 from app.schemas.agents import AgentCitation, AgentTraceEvent
 from app.services.citation_status import citation_labels
 from app.services.currency import CurrencyStatus, resolve_currency
@@ -66,7 +67,8 @@ def response_generation_node(state: dict) -> dict:
     hits = list(state.get("retrieved_chunks", []))
     hit_by_id = {str(hit.payload.get("chunk_id")): hit for hit in hits}
     section_grades: list[dict] = []
-    if result.score < 0.5:
+    publishable = publication_decision(result)
+    if not publishable.publish:
         answer = INSUFFICIENT_EVIDENCE
         cited_ids: list[str] = []
     else:
@@ -304,6 +306,7 @@ def response_generation_node(state: dict) -> dict:
             "citation_count": len(citations),
             "confidence_score": published_score,
             "evidence_strength": strength,
+            "publication_reason": publishable.reason,
         },
     )
     return {

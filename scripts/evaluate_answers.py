@@ -75,6 +75,8 @@ async def run(only_role: str | None) -> dict[str, Any]:
     items = [i for i in golden["items"] if not only_role or i.get("role") == only_role]
 
     before = memory_state()
+    partial_path = OUT / "answers-in-progress.json"
+    partial_path.parent.mkdir(parents=True, exist_ok=True)
     service = HybridRetrievalService()
     workflow = LegalRAGWorkflow(service)
     rows: list[dict[str, Any]] = []
@@ -100,6 +102,16 @@ async def run(only_role: str | None) -> dict[str, Any]:
             row["citations"] = len(state.get("citations") or [])
             row["answer"] = str(state.get("final_answer") or "")
             rows.append(row)
+            # Written after every question, not at the end. The 6 September
+            # run took 3h31m and would have left nothing behind if it had
+            # fallen over at 3h30m -- and its progress was invisible
+            # throughout, so there was no way to tell a slow run from a
+            # stuck one.
+            if partial_path is not None:
+                partial_path.write_text(
+                    json.dumps({"completed": len(rows), "rows": rows}, indent=2),
+                    encoding="utf-8",
+                )
 
             flag = " " if row["abstention_correct"] else "!"
             coverage = row["ground_coverage"]

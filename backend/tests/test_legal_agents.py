@@ -884,24 +884,50 @@ async def test_reasoning_prompt_asks_for_fewer_denser_claims() -> None:
     assert "fewer, denser" in captured["prompt"]
 
 
-def _verification(score: float):
-    from app.schemas.agents import VerificationResult
+def _verification(score: float, *, verified: int = 2):
+    """A verification result with claims in it.
 
+    The earlier version passed claims=[] with an arbitrary score, which
+    cannot occur: the score is derived from the claims. It stopped being
+    harmless once the retry branch began asking whether the result was
+    publishable rather than reading the score -- a result with no claims is
+    not publishable at any score, and the fixture was asserting a state the
+    pipeline never produces.
+    """
+    from app.schemas.agents import ClaimVerification, VerificationResult
+
+    claims = [
+        ClaimVerification(
+            claim=f"claim {index}",
+            chunk_id="chunk-a",
+            verdict="yes",
+            category="direct_answer",
+        )
+        for index in range(verified)
+    ]
     return VerificationResult(
-        score=score, supported_claims=0, total_claims=4, claims=[], unsupported_claims=[]
+        score=score,
+        supported_claims=verified,
+        total_claims=4,
+        claims=claims,
+        unsupported_claims=[],
     )
 
 
-def test_a_failing_score_retries_within_the_bound() -> None:
-    """The verification branch decides on score and the bound alone.
+def test_an_unpublishable_result_retries_within_the_bound() -> None:
+    """The branch decides on publishability and the bound alone.
 
     Whether the retry will find anything new is unknowable here - its retrieval
     has not run yet - so that question belongs to _route_after_retrieval.
+
+    It used to decide on the raw score, which is a ratio, so a thorough pass
+    that verified ten claims out of thirty retried and then discarded them.
     """
     route = LegalRAGWorkflow._route_after_verification
+    nothing_survived = _verification(0.3, verified=0)
 
-    assert route({"verification_result": _verification(0.3), "retry_count": 1}) == "retry"
-    assert route({"verification_result": _verification(0.3), "retry_count": 2}) == "proceed"
+    assert route({"verification_result": nothing_survived, "retry_count": 1}) == "retry"
+    assert route({"verification_result": nothing_survived, "retry_count": 2}) == "proceed"
 
 
 def test_the_first_retry_is_never_suppressed() -> None:
@@ -909,7 +935,7 @@ def test_the_first_retry_is_never_suppressed() -> None:
     assert (
         LegalRAGWorkflow._route_after_verification(
             {
-                "verification_result": _verification(0.3),
+                "verification_result": _verification(0.3, verified=0),
                 "retry_count": 0,
                 "retrieval_signature": ("chunk-a",),
             }
@@ -918,7 +944,16 @@ def test_the_first_retry_is_never_suppressed() -> None:
     )
 
 
-def test_a_passing_score_never_retries() -> None:
+def test_a_publishable_result_never_retries() -> None:
+    """Including the case the old gate got wrong.
+
+    A pass that verified a minority of a large number of claims is
+    publishable, and retrying it costs a whole extra pass for nothing.
+    """
+    route = LegalRAGWorkflow._route_after_verification
+    thorough = _verification(0.33, verified=10)
+
+    assert route({"verification_result": thorough, "retry_count": 0}) == "proceed"
     assert (
         LegalRAGWorkflow._route_after_verification(
             {

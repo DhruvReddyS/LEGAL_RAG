@@ -126,8 +126,12 @@ for role in sorted(a.get("by_role", {})):
 PYEOF
 
 say "5. Answer quality on $NEW  (loads the 14B; runs last for that reason)"
-QDRANT_GLOBAL_COLLECTION="$NEW" "$PY" "$ROOT/scripts/evaluate_answers.py" --label "$NEW-$STAMP" 2>&1 \
-  | grep -viE "fetching|it/s|tokenizer"
+# stdbuf, because grep block-buffers when its stdout is a file rather than a
+# terminal. Without it the per-question progress lines sat in grep's buffer
+# for three and a half hours and neither the operator nor I could tell a slow
+# run from a stuck one.
+QDRANT_GLOBAL_COLLECTION="$NEW" stdbuf -oL -eL "$PY" "$ROOT/scripts/evaluate_answers.py" --label "$NEW-$STAMP" 2>&1 \
+  | stdbuf -oL grep -viE "fetching|it/s|tokenizer"
 
 say "Done — nothing has been recorded as a baseline"
 cat <<TXT
