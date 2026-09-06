@@ -343,6 +343,27 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
             "retrieval_total_ms": timings.total_ms,
         },
     )
+    # The provisions the retrieved passages rely on, fetched directly.
+    #
+    # Measured: BNSS s.173 answers "how is an FIR registered?" and does not
+    # appear in the top 100 for it, because the section says "information
+    # relating to the commission of a cognizable offence" and never says FIR.
+    # The judgments that do rank cite CrPC s.154, and the official concordance
+    # says that is now BNSS s.173. Following the corpus's own citations
+    # forward recovered the governing provision for three of six questions
+    # where retrieval could not reach it at all, for 6-42 ms and no model.
+    #
+    # Appended rather than merged by score: this is corroboration the sources
+    # pointed at, not a better match, and ranking it above passages that
+    # earned their place would be a claim the search never made.
+    try:
+        followed = await service.fetch_followed_provisions(hits, target=targets[0])
+    except Exception:  # noqa: BLE001 - a failed lookup must not cost the
+        # answer; what retrieval found on its merits still stands.
+        followed = []
+    if followed:
+        hits = hits + followed
+
     # Which query terms are rare enough to carry its topic. Computed here
     # because the publication gate needs it and the Deep lane never had it:
     # without it that gate falls back to the stricter no-rare-term floor and

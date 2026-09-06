@@ -24,6 +24,7 @@ from app.ingestion.init_qdrant import (
 )
 from app.ingestion.supersession import replacement_for
 from app.ingestion.sparse import to_sparse_vector
+from app.services.citation_following import provisions_worth_following
 from app.services.legal_term_normalization import LEGAL_ACRONYM_EXPANSIONS
 
 
@@ -275,6 +276,16 @@ def _assert_case_scoped(targets: list[RetrievalTarget]) -> None:
                 "queried with no case_ids. An empty case filter is not applied, "
                 "so this would have returned every matter in the collection."
             )
+
+
+# Matching an Act by a distinctive fragment of its name, so a followed
+# provision is fetched from the right statute. Full titles vary in casing and
+# punctuation across the corpus.
+_ACT_NAME_FRAGMENTS = {
+    "BNSS": "NAGARIK SURAKSHA",
+    "BNS": "NYAYA SANHITA",
+    "BSA": "SAKSHYA ADHINIYAM",
+}
 
 
 def _prefer_law_in_force(hits: list[RetrievalHit]) -> list[RetrievalHit]:
@@ -711,6 +722,78 @@ class HybridRetrievalService:
             if key:
                 source_clusters.append(shingles)
         return representatives
+
+    async def fetch_followed_provisions(
+        self,
+        hits: list[RetrievalHit],
+        *,
+        target: RetrievalTarget,
+    ) -> list[RetrievalHit]:
+        """The provisions the retrieved passages rely on, fetched directly.
+
+        Measured: BNSS s.173 answers "how is an FIR registered?" and does not
+        appear in the top 100 for it, because the section says "information
+        relating to the commission of a cognizable offence" and never says
+        FIR. The judgments that do rank cite CrPC s.154, and the official
+        concordance says that is now BNSS s.173. So the corpus reaches the
+        governing provision by reading what its own sources rely on.
+
+        One extra Qdrant call, no model, and nothing invented: a provision
+        the concordance records as repealed without replacement yields
+        nothing rather than a nearest-numbered guess.
+        """
+        followed = provisions_worth_following(hits)
+        if not followed:
+            return []
+
+        already = {str(hit.payload.get("chunk_id")) for hit in hits}
+        found: list[RetrievalHit] = []
+        base = target.filters.to_qdrant()
+
+        for provision in followed:
+            conditions = [
+                models.FieldCondition(
+                    key="section", match=models.MatchValue(value=provision.section)
+                ),
+                models.FieldCondition(
+                    key="act_name",
+                    match=models.MatchText(text=_ACT_NAME_FRAGMENTS[provision.code]),
+                ),
+            ]
+            if base is not None and base.must:
+                conditions.extend(base.must)
+            try:
+                points, _ = await self.client.scroll(
+                    collection_name=target.collection_name,
+                    scroll_filter=models.Filter(
+                        must=conditions, must_not=base.must_not if base else None
+                    ),
+                    limit=2,
+                    with_payload=True,
+                )
+            except Exception:  # noqa: BLE001 - a failed lookup must not cost
+                # the answer; the passages retrieved normally still stand.
+                continue
+            for point in points:
+                payload = dict(point.payload or {})
+                if str(payload.get("chunk_id")) in already:
+                    continue
+                already.add(str(payload.get("chunk_id")))
+                found.append(
+                    RetrievalHit(
+                        point_id=str(point.id),
+                        payload=payload,
+                        dense_score=None,
+                        sparse_score=None,
+                        fused_score=0.0,
+                        # Ranked below everything retrieved on its merits.
+                        # This is corroboration the sources pointed at, not a
+                        # better match, and presenting it as one would be a
+                        # claim the search never made.
+                        reranker_score=-1.0 - len(found) / 1000.0,
+                    )
+                )
+        return found
 
     async def distinctive_query_terms(
         self,
