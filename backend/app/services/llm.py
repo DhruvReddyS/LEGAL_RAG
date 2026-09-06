@@ -27,6 +27,32 @@ class LLMUnavailableError(RuntimeError):
     """
 
 
+# The sampling settings, in one place, so that a measurement can record what
+# was actually used. The evaluation harness previously read
+# settings.ollama_temperature and settings.ollama_seed, neither of which
+# exists, so every recorded measurement said temperature: null, seed: null --
+# silently failing the rule that a measurement records them while appearing
+# to satisfy it.
+#
+# TEMPERATURE is 0.0 because every generation here is an extraction or a
+# verdict, not prose. SEED is None and that is a real statement: Ollama is
+# not given one, so greedy decoding is what makes a run reproducible, and
+# nothing guarantees it across a model or runtime upgrade. Recording "no
+# seed" is honest; recording null as though the field were unread is not.
+TEMPERATURE = 0.0
+SEED: int | None = None
+
+
+def sampling_settings() -> dict[str, object]:
+    """What a measurement should record about how text was generated."""
+    return {
+        "temperature": TEMPERATURE,
+        "seed": SEED,
+        "seeded": SEED is not None,
+        "decoding": "greedy" if TEMPERATURE == 0.0 else "sampled",
+    }
+
+
 class OllamaClient:
     """Small, testable boundary around the self-hosted Ollama API."""
 
@@ -61,7 +87,7 @@ class OllamaClient:
             "stream": True,
             "think": False,
             "options": {
-                "temperature": 0.0,
+                "temperature": TEMPERATURE,
                 "num_ctx": context_window,
                 "num_predict": num_predict,
             },
@@ -190,7 +216,7 @@ class OllamaClient:
             # avoids reserving the 40K model profile's much larger KV cache.
             "think": False,
             "options": {
-                "temperature": 0.0,
+                "temperature": TEMPERATURE,
                 "num_ctx": context_window,
                 "num_predict": num_predict,
             },

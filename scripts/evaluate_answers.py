@@ -68,6 +68,7 @@ async def run(only_role: str | None) -> dict[str, Any]:
     from app.agents.prompt_registry import prompt_versions
     from app.core.config import settings
     from app.evaluation.answer_quality import assess_answer
+    from app.services.llm import sampling_settings
     from app.services.retrieval import HybridRetrievalService
 
     golden = json.loads(GOLDEN.read_text(encoding="utf-8"))
@@ -120,8 +121,11 @@ async def run(only_role: str | None) -> dict[str, Any]:
             "collection": settings.qdrant_global_collection,
             "generation_model": settings.ollama_model,
             "embedding_model": "BAAI/bge-m3",
-            "temperature": getattr(settings, "ollama_temperature", None),
-            "seed": getattr(settings, "ollama_seed", None),
+            # Read from the client that generates, not from settings that do
+            # not exist. getattr with a None default recorded temperature:
+            # null and seed: null on every run, which reads as "not measured"
+            # and satisfied nobody's rule.
+            **sampling_settings(),
             "prompt_versions": prompt_versions(),
             "memory_before": before,
             "memory_after": memory_state(),
