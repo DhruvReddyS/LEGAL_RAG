@@ -69,6 +69,10 @@ class ChatQueryResponse(BaseModel):
     citations: list[AgentCitation]
     confidence_score: float
     evidence_strength: str
+    # Per-section grading, so a reader can tell which part of the answer is
+    # carried by the Sanhita and which by a single circular. Empty for an
+    # abstention, which has no published sections.
+    section_confidence: list[dict[str, Any]] = Field(default_factory=list)
     intent: QueryIntent
     agent_trace: list[AgentTraceEvent]
     response_mode: Literal["fast", "deep"]

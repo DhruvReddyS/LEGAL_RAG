@@ -7,6 +7,7 @@ from app.schemas.agents import AgentCitation, AgentTraceEvent
 from app.services.citation_status import citation_labels
 from app.services.currency import CurrencyStatus, resolve_currency
 from app.services.repeal_labels import repeal_notice
+from app.services.section_confidence import section_confidence
 from app.services.generation import INSUFFICIENT_EVIDENCE
 from app.services.pipeline_telemetry import append_stage_metric, text_size
 
@@ -34,6 +35,7 @@ def response_generation_node(state: dict) -> dict:
     result = state["verification_result"]
     hits = list(state.get("retrieved_chunks", []))
     hit_by_id = {str(hit.payload.get("chunk_id")): hit for hit in hits}
+    section_grades: list[dict] = []
     if result.score < 0.5:
         answer = INSUFFICIENT_EVIDENCE
         cited_ids: list[str] = []
@@ -69,11 +71,24 @@ def response_generation_node(state: dict) -> dict:
             supported_sources.setdefault(key, [])
             if claim.chunk_id not in supported_sources[key]:
                 supported_sources[key].append(claim.chunk_id)
+        # Which sources ground each section, kept per category so each part
+        # of the answer can be graded on what actually backs it. One number
+        # for the whole answer hides the case this exists for: a governing
+        # provision quoted from the Sanhita, followed by next steps drawn
+        # from a single circular.
+        sources_by_category: dict[str, list[str]] = {
+            category: [] for category in section_labels
+        }
+        claims_by_category: dict[str, int] = {category: 0 for category in section_labels}
         for (category, claim), chunk_ids in supported_sources.items():
             markers = " ".join(f"[SRC:{chunk_id}]" for chunk_id in chunk_ids)
             supported_by_category[category].append(
                 f"{claim.rstrip(' .')} {markers}."
             )
+            claims_by_category[category] += 1
+            for chunk_id in chunk_ids:
+                if chunk_id not in sources_by_category[category]:
+                    sources_by_category[category].append(chunk_id)
         sections: list[str] = []
         for category, label in section_labels.items():
             claims = supported_by_category[category]
@@ -90,6 +105,22 @@ def response_generation_node(state: dict) -> dict:
             sections.append(f"## {label}\n\n{body}")
         answer = "\n\n".join(sections) or INSUFFICIENT_EVIDENCE
         cited_ids = list(dict.fromkeys(MARKER_RE.findall(answer)))
+        payload_by_chunk_id = {
+            chunk_id: hit.payload for chunk_id, hit in hit_by_id.items()
+        }
+        section_grades = [
+            section_confidence(
+                section_labels[category],
+                sources_by_category[category],
+                payload_by_chunk_id,
+                claim_count=claims_by_category[category],
+            ).as_row()
+            # Only sections that were published. Grading an empty section
+            # would put a "limited" row in front of the reader for something
+            # the answer does not contain.
+            for category in section_labels
+            if supported_by_category[category]
+        ]
 
     published_score = (
         result.supported_claims / max(result.total_claims, 1)
@@ -251,6 +282,7 @@ def response_generation_node(state: dict) -> dict:
     )
     return {
         "final_answer": answer,
+        "section_confidence": section_grades,
         "citations": citations,
         "confidence_score": published_score,
         "evidence_strength": strength,

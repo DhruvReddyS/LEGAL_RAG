@@ -24,6 +24,7 @@ class AgentState(TypedDict, total=False):
     verification_result: VerificationResult
     final_answer: str
     citations: list[AgentCitation]
+    section_confidence: list[dict[str, Any]]
     confidence_score: float
     evidence_strength: str
     retry_count: int

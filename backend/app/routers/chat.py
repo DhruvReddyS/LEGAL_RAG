@@ -373,6 +373,9 @@ async def query_chat(
         citations=result["citations"],
         confidence_score=result["confidence_score"],
         evidence_strength=result["evidence_strength"],
+        # .get, not indexing: the Fast lane produces no section grading, and
+        # a KeyError here would turn a working answer into a 500.
+        section_confidence=result.get("section_confidence", []),
         intent=result["intent"],
         agent_trace=result["agent_trace"],
         response_mode=routing.selected_mode,
