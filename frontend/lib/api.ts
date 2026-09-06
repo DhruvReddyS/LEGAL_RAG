@@ -458,3 +458,13 @@ export async function recordCompliance(
     { method: "PUT", body: JSON.stringify({ action, status, ...flags }) },
   );
 }
+
+export async function checkDraftAuthorities(
+  caseId: string,
+  draft: string,
+): Promise<import("@/lib/types").AuthorityCheckResult> {
+  return request<import("@/lib/types").AuthorityCheckResult>(
+    `/cases/${caseId}/authorities/check`,
+    { method: "POST", body: JSON.stringify({ draft }) },
+  );
+}

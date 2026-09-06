@@ -575,3 +575,30 @@ export interface ComplianceChecklist {
   outstanding: string[];
   not_recorded: string[];
 }
+
+export type AuthorityFinding =
+  | "still_current"
+  | "renumbered"
+  | "elements_changed"
+  | "not_re_enacted"
+  | "no_mapping_known"
+  | "not_checked";
+
+export interface CitationCheck {
+  citation: string;
+  code: string;
+  section: string;
+  finding: AuthorityFinding;
+  successors: string[];
+  advice: string;
+  needs_attention: boolean;
+}
+
+export interface AuthorityCheckResult {
+  checked: CitationCheck[];
+  needs_attention: number;
+  not_re_enacted: number;
+  /** Recognised but outside the 2023 concordance. Surfaced so a partial
+   *  check is not mistaken for a complete one. */
+  not_checked: number;
+}

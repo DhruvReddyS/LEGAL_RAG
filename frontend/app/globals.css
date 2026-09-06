@@ -161,3 +161,11 @@
 .compliance-satisfied { border-color: #d7eadf; background: #f1faf5; color: #2e6b50; }
 .compliance-failed { border-color: #f3c7c3; background: #fff5f4; color: #b42318; }
 .compliance-unrecorded { border-color: #e7e0d6; background: #faf7f2; color: #8a5a12; }
+
+/* Authority check. Ordered and coloured by what the drafter must do:
+   a repealed provision with no successor cannot be fixed by substitution. */
+.authority-current { border-color: #d7eadf; background: #f1faf5; color: #2e6b50; }
+.authority-moved { border-color: #ddd6e5; background: #fdfcfe; color: #54515d; }
+.authority-changed { border-color: #e7e0d6; background: #faf7f2; color: #8a5a12; }
+.authority-gone { border-color: #f3c7c3; background: #fff5f4; color: #b42318; }
+.authority-unchecked { border-color: #e9e5ef; background: #fdfcfe; color: #75817b; }
