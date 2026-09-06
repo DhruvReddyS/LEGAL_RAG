@@ -1,7 +1,8 @@
 "use client";
 
-import { BriefcaseBusiness, CalendarClock, CheckCircle2, ChevronRight, FileCheck2, FileSearch, Fingerprint, FolderPlus, Loader2, Plus, Scale, ScanSearch, ShieldCheck, UploadCloud } from "lucide-react";
+import { BriefcaseBusiness, CalendarClock, ClipboardCheck, CheckCircle2, ChevronRight, FileCheck2, FileSearch, Fingerprint, FolderPlus, Loader2, Plus, Scale, ScanSearch, ShieldCheck, UploadCloud } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { ComplianceChecklist } from "@/components/ComplianceChecklist";
 import { InvestigationTimeline } from "@/components/InvestigationTimeline";
 import { ApiError, analyseDefence, createCase, draftFir, indexCaseEvidence, listCases, scopedSearch, uploadCaseEvidence } from "@/lib/api";
 import type { DefenceAnalysisResponse, FIRDraftResponse, LegalCase, RetrievalHit, User } from "@/lib/types";
@@ -74,6 +75,7 @@ export default function ProfessionalWorkspace({ user }: { user: User }) {
       <nav aria-label="Matter tools" className="workspace-tools">
         <button onClick={()=>jumpTo("role-agent-tool")}><Scale size={17}/>{isPolice ? "FIR draft" : "Strategy"}</button>
         {isPolice && <button onClick={()=>jumpTo("investigation-timeline")}><CalendarClock size={17}/>Deadlines</button>}
+        {isPolice && <button onClick={()=>jumpTo("investigation-compliance")}><ClipboardCheck size={17}/>Compliance</button>}
         <button onClick={()=>jumpTo("role-scoped-search")}><FileSearch size={17}/>Find authority</button>
         <button onClick={()=>jumpTo("role-evidence-intake")}><UploadCloud size={17}/>Add evidence</button>
         <button onClick={()=>jumpTo("document-analyzer")}><ScanSearch size={17}/>Review documents</button>
@@ -114,6 +116,16 @@ export default function ProfessionalWorkspace({ user }: { user: User }) {
                 <span className="flex items-center gap-1.5 text-[10px] font-medium text-[#2e6b50]"><ShieldCheck size={13} />Computed, not generated</span>
               </div>
               <div className="p-5"><InvestigationTimeline caseId={selectedId} /></div>
+            </div>
+          )}
+
+          {isPolice && (
+            <div id="investigation-compliance" className="panel scroll-mt-24 overflow-hidden 2xl:col-span-2">
+              <div className="flex items-center justify-between border-b border-[#efebf3] px-5 py-4">
+                <h3 className="flex items-center gap-2 text-sm font-semibold"><ClipboardCheck size={17} className="text-[#897499]" />BNSS compliance record</h3>
+                <span className="flex items-center gap-1.5 text-[10px] font-medium text-[#2e6b50]"><ShieldCheck size={13} />Read from the Sanhita</span>
+              </div>
+              <div className="p-5"><ComplianceChecklist caseId={selectedId} /></div>
             </div>
           )}
 

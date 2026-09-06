@@ -555,3 +555,23 @@ export interface SectionConfidence {
    *  and a bare label invites the reader to supply their own reason. */
   reason: string;
 }
+
+export type PoliceAction = "arrest" | "search_and_seizure";
+export type ComplianceStatus = "satisfied" | "not_satisfied" | "not_recorded";
+
+export interface ComplianceItem {
+  key: string;
+  requirement: string;
+  provision: string;
+  consequence: string;
+  status: ComplianceStatus;
+  applies_because: string;
+}
+
+export interface ComplianceChecklist {
+  action: PoliceAction;
+  items: ComplianceItem[];
+  /** Positively not done. An item nobody confirmed is in not_recorded. */
+  outstanding: string[];
+  not_recorded: string[];
+}

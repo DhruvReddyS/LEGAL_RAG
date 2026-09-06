@@ -155,3 +155,9 @@
   color: #75817b;
   line-height: 1.45;
 }
+
+/* Compliance checklist. Three states, deliberately not a checkbox: an
+   unconfirmed requirement is neither done nor breached. */
+.compliance-satisfied { border-color: #d7eadf; background: #f1faf5; color: #2e6b50; }
+.compliance-failed { border-color: #f3c7c3; background: #fff5f4; color: #b42318; }
+.compliance-unrecorded { border-color: #e7e0d6; background: #faf7f2; color: #8a5a12; }

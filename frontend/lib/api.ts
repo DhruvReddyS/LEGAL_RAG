@@ -434,3 +434,27 @@ export async function getInvestigationTimeline(
     `/cases/${caseId}/investigation/timeline`,
   );
 }
+
+export async function getComplianceChecklist(
+  caseId: string,
+  action: import("@/lib/types").PoliceAction,
+  flags: { arrested_person_is_woman?: boolean; handcuffs_used?: boolean; memorandum_attested_by_family?: boolean } = {},
+): Promise<import("@/lib/types").ComplianceChecklist> {
+  const params = new URLSearchParams({ action });
+  for (const [key, value] of Object.entries(flags)) if (value) params.set(key, "true");
+  return request<import("@/lib/types").ComplianceChecklist>(
+    `/cases/${caseId}/investigation/compliance?${params}`,
+  );
+}
+
+export async function recordCompliance(
+  caseId: string,
+  action: import("@/lib/types").PoliceAction,
+  status: Record<string, import("@/lib/types").ComplianceStatus>,
+  flags: { arrested_person_is_woman?: boolean; handcuffs_used?: boolean; memorandum_attested_by_family?: boolean } = {},
+): Promise<import("@/lib/types").ComplianceChecklist> {
+  return request<import("@/lib/types").ComplianceChecklist>(
+    `/cases/${caseId}/investigation/compliance`,
+    { method: "PUT", body: JSON.stringify({ action, status, ...flags }) },
+  );
+}
