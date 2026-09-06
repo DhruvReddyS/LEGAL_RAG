@@ -29,6 +29,8 @@ data/legal_kb/processed/
 # the default one, and an exact-path rule silently let that generated state be
 # committed.
 data/legal_kb/logs/ingestion_checkpoint*.json
+data/legal_kb/logs/ingestion_checkpoint*.bak
+data/legal_kb/logs/rebuild_supervisor_*.out
 data/legal_kb/logs/ingestion_checkpoint*.json.lock
 data/legal_kb/logs/ingestion_checkpoint*_claims/
 data/legal_kb/logs/page_range_repair_*.json
