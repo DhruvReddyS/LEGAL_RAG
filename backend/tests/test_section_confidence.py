@@ -108,20 +108,50 @@ class TestAuthorityTier:
     def test_the_stored_type_decides(self, document_type: str, expected) -> None:
         assert authority_tier({"document_type": document_type}) is expected
 
+    # Every source_type actually present in this corpus, counted from the
+    # chunk files, with its chunk mass. Written from the data rather than
+    # from what a classifier might plausibly emit: the first version of this
+    # test asserted "act", "judgment" and "advisory", none of which the
+    # corpus writes, so it passed while the Constitution and every Supreme
+    # Court judgment fell through to SECONDARY.
     @pytest.mark.parametrize(
         ("source_type", "expected"),
         [
-            ("act", AuthorityTier.PRIMARY),
-            ("judgment", AuthorityTier.DECISION),
-            ("advisory", AuthorityTier.GUIDANCE),
+            ("ACT", AuthorityTier.PRIMARY),                     # 7285 chunks
+            ("SUPREME_COURT_JUDGMENT", AuthorityTier.DECISION), # 7040
+            ("RULE", AuthorityTier.PRIMARY),                    # 3750
+            ("CONSTITUTION", AuthorityTier.PRIMARY),            # 2023
+            ("LAW_COMMISSION_REPORT", AuthorityTier.SECONDARY), # 1421
+            ("GOVERNMENT_GUIDANCE", AuthorityTier.GUIDANCE),    # 1258
+            ("POLICE_MANUAL", AuthorityTier.GUIDANCE),          # 848
+            ("ORDER", AuthorityTier.GUIDANCE),                  # 259
+            ("HIGH_COURT_JUDGMENT", AuthorityTier.DECISION),    # 205
+            ("GOVERNMENT_HANDBOOK", AuthorityTier.GUIDANCE),    # 86
+            ("NOTIFICATION", AuthorityTier.PRIMARY),            # 43
+            ("AMENDMENT", AuthorityTier.PRIMARY),               # 36
         ],
     )
     def test_an_older_point_falls_back_to_source_type(self, source_type, expected) -> None:
-        """An index built before the classifier existed must not have every
-        passage scored as secondary, which would cap every section at
-        limited and make the whole signal useless on exactly the corpus
-        most likely to be deployed."""
+        """An index built before the classifier existed must still grade.
+
+        The v2 index carries no document_type at all -- 9,817 of 9,817
+        sampled chunks have it as null -- so on that index this fallback is
+        the only signal there is. Getting it wrong does not fail loudly; it
+        caps every section at limited and makes the whole grading useless
+        on the corpus currently deployed.
+        """
         assert authority_tier({"source_type": source_type}) is expected
+
+    def test_a_law_commission_report_is_never_primary_authority(self) -> None:
+        """The largest single uncurated item in this corpus is one.
+
+        948 chunks of the Law Commission's review of the Evidence Act. It
+        recommends what the law should be; treating it as what the law is
+        would let a section reach strong on a recommendation that was never
+        enacted.
+        """
+        assert authority_tier({"source_type": "LAW_COMMISSION_REPORT"}) is AuthorityTier.SECONDARY
+        assert authority_tier({"document_type": "commentary"}) is AuthorityTier.SECONDARY
 
     def test_an_unknown_type_is_secondary_not_primary(self) -> None:
         """Unknown must not be generous. Guessing primary would let an

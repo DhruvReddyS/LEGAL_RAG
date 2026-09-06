@@ -67,6 +67,31 @@ _TIER_BY_DOCUMENT_TYPE = {
     "other": AuthorityTier.SECONDARY,
 }
 
+# The values actually present in this corpus, counted from the chunk files,
+# rather than the ones a reasonable classifier might have produced. The
+# first version of this map guessed "judgment" and "act"; the corpus writes
+# SUPREME_COURT_JUDGMENT and CONSTITUTION, so on any index built before the
+# document_type classifier every judgment and the Constitution itself fell
+# through to SECONDARY -- the Constitution graded as commentary, and no
+# section citing it could ever be strong.
+_TIER_BY_SOURCE_TYPE = {
+    "constitution": AuthorityTier.PRIMARY,
+    "act": AuthorityTier.PRIMARY,
+    "amendment": AuthorityTier.PRIMARY,
+    "rule": AuthorityTier.PRIMARY,
+    "notification": AuthorityTier.PRIMARY,
+    "supreme_court_judgment": AuthorityTier.DECISION,
+    "high_court_judgment": AuthorityTier.DECISION,
+    "government_guidance": AuthorityTier.GUIDANCE,
+    "police_manual": AuthorityTier.GUIDANCE,
+    "government_handbook": AuthorityTier.GUIDANCE,
+    "order": AuthorityTier.GUIDANCE,
+    # Recommendations about what the law should be. Not law, and the largest
+    # single uncurated item in this corpus is one: 948 chunks of the Law
+    # Commission's review of the Evidence Act.
+    "law_commission_report": AuthorityTier.SECONDARY,
+}
+
 # Either of these can establish a legal position. Guidance cannot: it is
 # evidence of practice, not of law.
 _ESTABLISHING = {AuthorityTier.PRIMARY, AuthorityTier.DECISION}
@@ -84,13 +109,7 @@ def authority_tier(payload: Mapping[str, Any]) -> AuthorityTier:
     if stored in _TIER_BY_DOCUMENT_TYPE:
         return _TIER_BY_DOCUMENT_TYPE[stored]
     legacy = str(payload.get("source_type") or "").strip().lower()
-    if legacy in {"act", "rule", "notification"}:
-        return AuthorityTier.PRIMARY
-    if legacy == "judgment":
-        return AuthorityTier.DECISION
-    if legacy in {"advisory", "guidance", "official_guidance", "sop", "manual", "order"}:
-        return AuthorityTier.GUIDANCE
-    return AuthorityTier.SECONDARY
+    return _TIER_BY_SOURCE_TYPE.get(legacy, AuthorityTier.SECONDARY)
 
 
 @dataclass(frozen=True)
