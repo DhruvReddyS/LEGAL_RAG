@@ -45,6 +45,27 @@ class DocumentDraftRequest(BaseModel):
     case_description: str = Field(min_length=20, max_length=12000)
 
 
+class GeneratedDocumentSummary(BaseModel):
+    """One entry in a case's drafting history.
+
+    The stored content is deliberately not returned here: a case file lists
+    what was drafted, and reading a draft is a separate request.
+    """
+
+    id: uuid.UUID
+    case_id: uuid.UUID
+    doc_type: str
+    version: int
+    status: str
+    created_at: datetime
+    missing_field_count: int
+    authority_count: int
+
+
+class GeneratedDocumentListResponse(BaseModel):
+    documents: list[GeneratedDocumentSummary]
+
+
 class DocumentDraftResponse(BaseModel):
     id: uuid.UUID
     case_id: uuid.UUID

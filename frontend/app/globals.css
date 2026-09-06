@@ -289,3 +289,49 @@
 
 .empty-matter {display:grid;justify-items:center;gap:10px;padding:56px 20px;border:1px dashed var(--border);border-radius:14px;text-align:center;}
 .empty-matter p {max-width:44ch;font-size:12px;line-height:1.6;color:var(--ink-soft);}
+
+/* The case file: what is on record for one matter, and the conversations
+   that are allowed to read it. */
+.case-file {display:grid;gap:26px;}
+.case-facts {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;margin:0;background:var(--border);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.case-facts div {display:grid;gap:6px;padding:15px 17px;background:var(--card);}
+.case-facts dt {color:var(--ink-soft);font-size:9px;text-transform:uppercase;letter-spacing:.11em;}
+.case-facts dd {margin:0;color:var(--ink);font-size:15px;font-variant-numeric:tabular-nums;}
+.case-block {display:grid;gap:14px;}
+.case-block-head {display:flex;align-items:flex-start;justify-content:space-between;gap:18px;}
+.case-block-head h4 {color:var(--ink);font-size:14px;font-weight:600;}
+.case-block-head p {margin-top:4px;max-width:46rem;color:var(--ink-soft);font-size:12px;line-height:1.6;}
+.case-chats {display:grid;gap:7px;padding:0;list-style:none;margin:0;}
+.case-chats button {
+  display:flex;align-items:center;gap:10px;width:100%;padding:11px 14px;
+  border:1px solid var(--border);border-radius:11px;background:var(--card);
+  color:var(--ink);font-size:13px;text-align:left;transition:border-color .15s,background .15s;
+}
+.case-chats button:hover {border-color:var(--accent);background:var(--surface-hover,var(--card));}
+.case-chats svg {flex:none;color:var(--ink-soft);}
+.case-chat-when {flex:none;color:var(--ink-soft);font-size:11px;font-variant-numeric:tabular-nums;}
+.case-empty {padding:16px;border:1px dashed var(--border);border-radius:11px;color:var(--ink-soft);font-size:12px;}
+.case-next {display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:9px;}
+.case-next button {
+  display:flex;align-items:center;gap:11px;padding:13px 15px;
+  border:1px solid var(--border);border-radius:12px;background:var(--card);
+  text-align:left;transition:border-color .15s;
+}
+.case-next button:hover {border-color:var(--accent);}
+.case-next svg {flex:none;color:var(--accent);}
+.case-next span {display:grid;gap:2px;min-width:0;}
+.case-next strong {color:var(--ink);font-size:13px;font-weight:600;}
+.case-next small {color:var(--ink-soft);font-size:11px;}
+
+/* A sidebar row says what the conversation was allowed to read. */
+.chat-scope-tag {
+  flex:none;max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  margin-right:6px;padding:2px 7px;border-radius:5px;
+  background:var(--state-ok-bg);color:var(--state-ok-text);
+  font-size:9px;letter-spacing:.03em;
+}
+.case-flag {flex:none;padding:2px 7px;border-radius:5px;background:var(--state-warn-bg,var(--state-bad-bg));color:var(--state-warn-text,var(--state-bad-text));font-size:10px;}
+.case-chats button:disabled {opacity:.5;}
+.case-line {padding:13px 15px;border:1px solid var(--border);border-radius:11px;background:var(--card);color:var(--ink);font-size:13px;line-height:1.6;}
+.case-line strong {font-weight:600;}
+.case-alert {padding:13px 15px;border:1px solid var(--state-bad-line);border-radius:11px;background:var(--state-bad-bg);color:var(--state-bad-text);font-size:13px;line-height:1.6;}

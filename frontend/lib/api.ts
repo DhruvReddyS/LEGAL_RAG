@@ -358,6 +358,19 @@ export async function listIndexedCaseDocuments(
   return request<CaseDocumentListResponse>(`/cases/${caseId}/documents/indexed`);
 }
 
+export async function listGeneratedDocuments(
+  caseId: string,
+): Promise<import("@/lib/types").GeneratedDocumentList> {
+  return request<import("@/lib/types").GeneratedDocumentList>(`/cases/${caseId}/documents/generated`);
+}
+
+export async function readGeneratedDocument(
+  caseId: string,
+  documentId: string,
+): Promise<FIRDraftResponse> {
+  return request<FIRDraftResponse>(`/cases/${caseId}/documents/generated/${documentId}`);
+}
+
 export async function analyzeCaseDocument(
   caseId: string,
   documentId: string,

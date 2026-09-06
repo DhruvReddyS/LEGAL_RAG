@@ -99,6 +99,8 @@ type SavedChat = {
   customTitle?: boolean;
   preview?: string;
   messageCount?: number;
+  /** The matter this conversation may also read. Null is public law only. */
+  caseId?: string | null;
 };
 
 export default function HomePage() {
@@ -109,6 +111,10 @@ export default function HomePage() {
   const [authChecked, setAuthChecked] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
+  // Which matter, if any, a professional's question may also read. Null is
+  // the safe default and the only value a citizen ever has: public law only.
+  const [chatCaseId, setChatCaseId] = useState<string | null>(null);
+  const [chatCases, setChatCases] = useState<LegalCase[]>([]);
   const [draftVersion, setDraftVersion] = useState(0);
   const [view, setView] = useState<"research" | "workspace">("research");
   const [mobileNav, setMobileNav] = useState(false);
@@ -194,6 +200,7 @@ export default function HomePage() {
           updatedAt: Date.parse(item.updated_at),
           preview: item.last_message_preview ?? undefined,
           messageCount: item.message_count,
+          caseId: item.case_id,
         })));
       } catch {
         // An offline or unauthenticated read must not blank the console.
@@ -220,10 +227,13 @@ export default function HomePage() {
         pinned: existing?.pinned,
         customTitle: existing?.customTitle,
         messageCount: messages.length,
+        // A session's scope is fixed at creation: the server rejects a
+        // case_id that disagrees with the one the session was opened with.
+        caseId: existing?.caseId ?? chatCaseId,
       };
       return [savedChat, ...current.filter(item => item !== existing)].slice(0, 30);
     });
-  }, [messages, sessionId, loading, user, historyReady, activeChatId]);
+  }, [messages, sessionId, loading, user, historyReady, activeChatId, chatCaseId]);
 
   useEffect(() => {
     if (!user || !historyReady) return;
@@ -333,19 +343,18 @@ export default function HomePage() {
 
   const signOut = async () => { await logout().catch(() => undefined); setUser(null); setMessages([]); setSessionId(null); setActiveChatId(null); setView("research"); setResponseMode("auto"); setMobileNav(false); };
   const hasProfessionalWorkspace = user?.role === "police" || user?.role === "advocate";
-  // Which matter, if any, a professional's question may also read. Null is
-  // the safe default and the only value a citizen ever has: public law only.
-  const [chatCaseId, setChatCaseId] = useState<string | null>(null);
-  const [chatCases, setChatCases] = useState<LegalCase[]>([]);
   useEffect(() => {
     if (!hasProfessionalWorkspace) { setChatCases([]); setChatCaseId(null); return; }
     listCases().then((response) => setChatCases(response.cases)).catch(() => setChatCases([]));
   }, [hasProfessionalWorkspace]);
   const hasOperationsWorkspace = hasProfessionalWorkspace || user?.role === "admin";
-  const resetResearch = () => { setMessages([]); setSessionId(null); setActiveChatId(crypto.randomUUID()); setDraftVersion(value => value + 1); setView("research"); window.scrollTo({ top: 0, behavior: "auto" }); };
+  const resetResearch = (caseId: string | null = null) => { setMessages([]); setSessionId(null); setActiveChatId(crypto.randomUUID()); setChatCaseId(caseId); setDraftVersion(value => value + 1); setView("research"); setMobileNav(false); window.scrollTo({ top: 0, behavior: "auto" }); };
   const openSavedChat = (item: SavedChat) => {
     setChatMenuId(null);
     setActiveChatId(item.id);
+    // Restoring the conversation without its scope would let the next
+    // question in an open matter thread silently run on public law alone.
+    setChatCaseId(item.caseId ?? null);
     setSessionId(item.sessionId);
     setDraftVersion(value => value + 1);
     setView("research");
@@ -434,14 +443,19 @@ export default function HomePage() {
     { title: "FIR drafting", icon: FilePenLine, target: "role-agent-tool" },
     { title: "Evidence & documents", icon: ScanSearch, target: "document-analyzer" },
   ] : role === "advocate" ? [
-    { title: "Client matters", icon: BriefcaseBusiness, target: "" },
+    { title: "Your cases", icon: BriefcaseBusiness, target: "" },
     { title: "Build a strategy", icon: Scale, target: "role-agent-tool" },
     { title: "Review documents", icon: ScanSearch, target: "document-analyzer" },
   ] : [{ title: "Manage workspace", icon: Settings, target: "" }];
   const pinnedChats = history.filter(item => item.pinned).sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0));
   const recentChats = history.filter(item => !item.pinned).sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0));
+  const caseTitle = (caseId: string | null | undefined) => chatCases.find(item => item.id === caseId)?.title ?? "Matter";
+  // A citizen has no matters, so their list is never split.
+  const publicChats = hasProfessionalWorkspace ? recentChats.filter(item => !item.caseId) : recentChats;
+  const matterChats = hasProfessionalWorkspace ? recentChats.filter(item => item.caseId) : [];
   const chatRow = (item: SavedChat) => <div className={`chat-history-row ${item.id === activeChatId ? "selected" : ""}`} key={item.id}>
     {renamingChatId === item.id ? <form className="chat-rename" onSubmit={event => { event.preventDefault(); saveChatTitle(item); }}><input autoFocus aria-label="Rename chat" value={renameDraft} maxLength={90} onChange={event => setRenameDraft(event.target.value)} onKeyDown={event => { if (event.key === "Escape") setRenamingChatId(null); }}/><button aria-label="Save chat name" disabled={!renameDraft.trim()}><Check size={13}/></button></form> : <button disabled={loading} className="chat-open" aria-current={item.id === activeChatId ? "page" : undefined} title={item.title} onClick={() => openSavedChat(item)}>{item.pinned ? <Pin size={13}/> : <MessageSquare size={14}/>}<span>{item.title}</span></button>}
+    {item.caseId && <span className="chat-scope-tag" title={`Reads the law and the files in ${caseTitle(item.caseId)}`}>{caseTitle(item.caseId)}</span>}
     {renamingChatId !== item.id && <button className="chat-menu-trigger" aria-label={`Chat options for ${item.title}`} aria-expanded={chatMenuId === item.id} onClick={() => setChatMenuId(current => current === item.id ? null : item.id)}><MoreHorizontal size={15}/></button>}
     {chatMenuId === item.id && <div className="chat-menu" role="menu"><button role="menuitem" onClick={() => togglePinned(item)}>{item.pinned ? <PinOff size={14}/> : <Pin size={14}/>} {item.pinned ? "Unpin" : "Pin chat"}</button><button role="menuitem" onClick={() => { setRenamingChatId(item.id); setRenameDraft(item.title); setChatMenuId(null); }}><Pencil size={14}/>Rename</button><button role="menuitem" className="is-danger" onClick={() => deleteChat(item)}><Trash2 size={14}/>Delete</button></div>}
   </div>;
@@ -451,14 +465,20 @@ export default function HomePage() {
       <div className="sidebar-brand"><BrandLogo /><button className="icon-button lg:hidden" onClick={() => setMobileNav(false)} aria-label="Close navigation"><X size={18} /></button></div>
       <button disabled={loading} className="new-chat-button" onClick={() => { resetResearch(); setMobileNav(false); }}><Plus size={18} />New chat</button>
       <nav className="feature-nav" aria-label="Features">{tools.map(tool => <button key={tool.title} onClick={() => { if ("guideIndex" in tool) { setCitizenGuideSlide(tool.guideIndex); setMobileNav(false); } else openTool(tool.target); }}><tool.icon size={18} strokeWidth={1.65} /><span>{tool.title}</span></button>)}</nav>
-      <div className="chat-history">{pinnedChats.length > 0 && <><div className="history-heading"><span>Pinned <b>{pinnedChats.length}/5</b></span><Pin size={13}/></div>{pinnedChats.map(chatRow)}</>}<div className="history-heading"><span>Recent chats</span><History size={14}/></div>{recentChats.length ? recentChats.map(chatRow) : !pinnedChats.length && <p>Your conversations will appear here.</p>}</div>
+      <div className="chat-history">{pinnedChats.length > 0 && <><div className="history-heading"><span>Pinned <b>{pinnedChats.length}/5</b></span><Pin size={13}/></div>{pinnedChats.map(chatRow)}</>}<div className="history-heading"><span>{hasProfessionalWorkspace ? "Law-only chats" : "Recent chats"}</span><History size={14}/></div>{publicChats.length ? publicChats.map(chatRow) : !pinnedChats.length && !matterChats.length && <p>Your conversations will appear here.</p>}{hasProfessionalWorkspace && <><div className="history-heading"><span>Case chats</span><BriefcaseBusiness size={13}/></div>{matterChats.length ? matterChats.map(chatRow) : <p>Open a case and ask a question there to start one.</p>}</>}</div>
       <div className="sidebar-bottom"><button onClick={() => { setMobileNav(false); role === "citizen" ? setCitizenGuideSlide(0) : setGuideOpen(true); }}><HelpCircle size={17} />Getting started</button><button onClick={() => { setMobileNav(false); setSettingsOpen(true); }}><Settings size={17} />Settings<span className="ml-auto text-[11px] capitalize text-neutral-400">{role}</span></button></div>
     </aside>
     {mobileNav && <button aria-label="Dismiss navigation" className="sidebar-scrim" onClick={() => setMobileNav(false)} />}
     {historyNotice && <div className="history-toast" role="status"><span>{historyNotice}</span>{deletedChat && historyNotice === "Chat deleted." && <button onClick={() => { setHistory(current => [deletedChat, ...current.filter(item => item.id !== deletedChat.id)].slice(0, 20)); setDeletedChat(null); setHistoryNotice("Chat restored."); }}><Undo2 size={13}/>Undo</button>}<button aria-label="Dismiss notification" onClick={() => { setHistoryNotice(""); setDeletedChat(null); }}><X size={13}/></button></div>}
     <div className="app-content" ref={node => { if(node) node.inert = compactNavigation && mobileNav; }}>
       <header className="workspace-header"><button className="icon-button lg:hidden" aria-label="Open navigation" onClick={() => setMobileNav(true)}><Menu size={20} /></button><span>{view === "workspace" ? role === "police" ? "Investigation workspace" : role === "advocate" ? "Your matter workspace" : "Administration" : " "}</span>{view === "workspace" && <button className="text-sm text-neutral-500" onClick={() => setView("research")}><MessageSquare size={16} className="mr-2 inline" />Back to chat</button>}</header>
-      {view === "workspace" && hasOperationsWorkspace ? role === "admin" ? <AdminWorkspace /> : <ProfessionalWorkspace user={user} /> :
+      {view === "workspace" && hasOperationsWorkspace ? role === "admin" ? <AdminWorkspace /> : <ProfessionalWorkspace
+          user={user}
+          chats={history.filter(item => item.caseId).map(item => ({ id: item.id, sessionId: item.sessionId, title: item.title, caseId: item.caseId ?? null, updatedAt: item.updatedAt ?? 0 }))}
+          onCasesChange={setChatCases}
+          onNewMatterChat={(caseId) => resetResearch(caseId)}
+          onOpenMatterChat={(chatId) => { const saved = history.find(item => item.id === chatId); if (saved) openSavedChat(saved); }}
+        /> :
       <section className={`chat-workspace ${messages.length ? "has-conversation" : ""}`}>
         {!messages.length ? <div className="chat-welcome">
           <div className="welcome-symbol"><Scale size={32} strokeWidth={1.3} /></div>

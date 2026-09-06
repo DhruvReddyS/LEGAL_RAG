@@ -54,12 +54,12 @@ export default function ChatInput({ onSend, onStop, disabled = false, loading = 
           disabled={busy}
           onChange={event => onCaseChange?.(event.target.value || null)}
         >
-          <option value="">Public law only</option>
+          <option value="">The law only — no case files</option>
           {cases.map(item => <option key={item.id} value={item.id}>{item.title}</option>)}
         </select>
         <ChevronDown size={13}/>
       </label>
-    )}<span>{extracting ? "Extracting document text…" : recording ? "Recording · stop to review" : documents.length ? "Documents use Deep review" : caseId ? "Answering from public law and this matter's evidence" : "PDFs & images · voice where supported"}</span></div>
+    )}<span>{extracting ? "Extracting document text…" : recording ? "Recording · stop to review" : documents.length ? "Documents use Deep review" : caseId ? "Reading the law and this case's files" : "PDFs & images · voice where supported"}</span></div>
     <input ref={fileInput} type="file" accept="application/pdf,image/png,image/jpeg,image/webp" className="sr-only" tabIndex={-1} aria-label="Choose document" onChange={async event => {
       const file = event.target.files?.[0]; event.target.value = ""; if (!file) return;
       if (file.size > 10 * 1024 * 1024) { setError("Choose a file smaller than 10 MiB."); return; }

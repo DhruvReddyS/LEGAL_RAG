@@ -93,7 +93,7 @@ export function ComplianceChecklist({ caseId }: { caseId: string }) {
     }
   };
 
-  if (!caseId) return <p className="state-hint">Select a matter to review its compliance record.</p>;
+  if (!caseId) return <p className="state-hint">Select a case to review its compliance record.</p>;
 
   return (
     <div className="space-y-4">

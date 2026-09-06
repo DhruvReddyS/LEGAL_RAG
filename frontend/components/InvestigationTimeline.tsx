@@ -169,7 +169,7 @@ export function InvestigationTimeline({ caseId }: { caseId: string }) {
   }, [timeline]);
 
   if (!caseId) {
-    return <p className="state-hint">Select a matter to record its investigation dates.</p>;
+    return <p className="state-hint">Select a case to record its investigation dates.</p>;
   }
 
   return (

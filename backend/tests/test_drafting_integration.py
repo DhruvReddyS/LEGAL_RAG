@@ -74,6 +74,7 @@ async def test_missing_dog_fir_draft_is_grounded_versioned_and_owner_isolated() 
     )
     user_ids: list[uuid.UUID] = []
     case_id: uuid.UUID | None = None
+    extra_case_ids: list[uuid.UUID] = []
 
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
@@ -138,6 +139,56 @@ async def test_missing_dog_fir_draft_is_grounded_versioned_and_owner_isolated() 
                     )
                 )
                 assert count == 2
+
+            # The case file lists what was drafted in this case, and only
+            # this case, and reading one back returns the recorded text
+            # rather than regenerating it.
+            listed = await client.get(f"/cases/{case_id}/documents/generated", headers=owner_headers)
+            assert listed.status_code == 200, listed.text
+            entries = listed.json()["documents"]
+            assert [item["version"] for item in entries] == [2, 1]
+            assert {item["doc_type"] for item in entries} == {"fir"}
+            assert entries[0]["authority_count"] == 1
+            assert entries[0]["missing_field_count"] == 0
+
+            calls_before_read = fake_llm.calls
+            fetched = await client.get(
+                f"/cases/{case_id}/documents/generated/{entries[0]['id']}", headers=owner_headers
+            )
+            assert fetched.status_code == 200, fetched.text
+            assert "[SRC:fir-authority-1]" in fetched.json()["rendered_text"]
+            assert fake_llm.calls == calls_before_read
+
+            # A second case of the officer's own: the document id belongs to
+            # the first case, so asking for it through this one is a miss, not
+            # a read. Ownership of the URL's case is not ownership of the row.
+            other_case = await client.post(
+                "/cases", json={"title": "Unrelated complaint"}, headers=owner_headers
+            )
+            assert other_case.status_code == 201, other_case.text
+            second_case_id = uuid.UUID(other_case.json()["id"])
+            extra_case_ids.append(second_case_id)
+            crossed = await client.get(
+                f"/cases/{second_case_id}/documents/generated/{entries[0]['id']}",
+                headers=owner_headers,
+            )
+            assert crossed.status_code == 404, crossed.text
+            assert (
+                await client.get(
+                    f"/cases/{second_case_id}/documents/generated", headers=owner_headers
+                )
+            ).json()["documents"] == []
+
+            # Another officer's case file must not reach this one.
+            assert (
+                await client.get(f"/cases/{case_id}/documents/generated", headers=other_headers)
+            ).status_code == 403
+            assert (
+                await client.get(
+                    f"/cases/{case_id}/documents/generated/{entries[0]['id']}",
+                    headers=other_headers,
+                )
+            ).status_code == 403
         finally:
             app.dependency_overrides.pop(get_drafting_runtime, None)
             async with AsyncSessionLocal() as session:
@@ -146,7 +197,9 @@ async def test_missing_dog_fir_draft_is_grounded_versioned_and_owner_isolated() 
                     await session.execute(
                         delete(GeneratedDocument).where(GeneratedDocument.case_id == case_id)
                     )
-                    await session.execute(delete(Case).where(Case.id == case_id))
+                    await session.execute(
+                        delete(Case).where(Case.id.in_([case_id, *extra_case_ids]))
+                    )
                 if user_ids:
                     await session.execute(delete(User).where(User.id.in_(user_ids)))
                 await session.commit()

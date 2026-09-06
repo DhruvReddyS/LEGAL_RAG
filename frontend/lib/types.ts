@@ -177,6 +177,21 @@ export interface CaseDocumentIndexResponse {
   chunks: number;
 }
 
+export interface GeneratedDocumentSummary {
+  id: string;
+  case_id: string;
+  doc_type: string;
+  version: number;
+  status: string;
+  created_at: string;
+  missing_field_count: number;
+  authority_count: number;
+}
+
+export interface GeneratedDocumentList {
+  documents: GeneratedDocumentSummary[];
+}
+
 export interface CaseDocumentSummary {
   document_id: string;
   storage_object_id: string | null;
