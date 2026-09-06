@@ -48,6 +48,9 @@ class Case(Base):
         back_populates="case",
         cascade="all, delete-orphan",
     )
+    investigation_facts: Mapped["InvestigationFacts | None"] = relationship(
+        back_populates="case", cascade="all, delete-orphan", uselist=False
+    )
     storage_objects: Mapped[list[StorageObject]] = relationship(
         back_populates="case",
         cascade="all, delete-orphan",

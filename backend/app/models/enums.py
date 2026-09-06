@@ -18,6 +18,20 @@ class ChatMessageRole(StrEnum):
     ASSISTANT = "assistant"
 
 
+class OffenceGravity(StrEnum):
+    """The distinction BNSS s.187(3) turns on, and nothing finer.
+
+    UNKNOWN is a real member, not a missing value. An uncatalogued offence
+    must produce a stated unknown rather than a plausible default: assuming
+    the shorter period flatters compliance, and assuming the longer one
+    hides a default-bail entitlement that has already accrued.
+    """
+
+    DEATH_LIFE_OR_TEN_YEARS_OR_MORE = "death_life_or_ten_years_or_more"
+    OTHER = "other"
+    UNKNOWN = "unknown"
+
+
 class CorpusSourceType(StrEnum):
     ACT = "act"
     JUDGMENT = "judgment"

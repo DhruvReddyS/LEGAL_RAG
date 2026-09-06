@@ -1,16 +1,17 @@
 """Request and response shapes for the investigation timeline.
 
-Dates arrive from the caller because the Case table does not carry them
-yet; persisting them needs a schema migration, which is not this change.
+Dates can be supplied inline for a what-if, or recorded against the case and
+read back. Both paths run the same arithmetic.
 """
 
 from __future__ import annotations
 
+import uuid
 from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from app.services.investigation_timeline import OffenceGravity
+from app.models.enums import OffenceGravity
 
 
 class InvestigationTimelineRequest(BaseModel):
@@ -75,3 +76,15 @@ class InvestigationTimelineResponse(BaseModel):
     deadlines: list[DeadlineResponse]
     breached: list[str]
     undetermined: list[str]
+
+
+class InvestigationFactsResponse(InvestigationTimelineRequest):
+    """What is on record for this matter.
+
+    Extends the request shape so that what you can send and what you get
+    back cannot drift apart -- a stored field that the request cannot set
+    is a field nobody can correct.
+    """
+
+    case_id: uuid.UUID
+    updated_at: datetime

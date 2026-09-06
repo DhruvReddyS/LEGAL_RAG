@@ -28,9 +28,12 @@ can be checked against the Act rather than trusted.
 from __future__ import annotations
 
 import calendar
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 from datetime import datetime, timedelta
-from enum import Enum
+
+# One definition, shared with the database column. Two enums with the same
+# members is how a stored 'unknown' quietly becomes a computed 'other'.
+from app.models.enums import OffenceGravity
 
 __all__ = [
     "Deadline",
@@ -39,19 +42,6 @@ __all__ = [
     "investigation_deadlines",
     "add_calendar_months",
 ]
-
-
-class OffenceGravity(Enum):
-    """The distinction s.187(3) turns on, and nothing finer.
-
-    ``UNKNOWN`` is a real member rather than a missing value. The whole
-    point is that an uncatalogued offence produces a stated unknown instead
-    of a plausible date.
-    """
-
-    DEATH_LIFE_OR_TEN_YEARS_OR_MORE = "death_life_or_ten_years_or_more"
-    OTHER = "other"
-    UNKNOWN = "unknown"
 
 
 @dataclass(frozen=True)

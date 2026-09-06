@@ -10,8 +10,10 @@ from app.models.enums import (
     FeedbackRating,
     JobStatus,
     JobType,
+    OffenceGravity,
     UserRole,
 )
+from app.models.investigation import InvestigationFacts
 from app.models.job import Job, JobEvent
 from app.models.storage import StorageNamespace, StorageObject
 from app.models.token import RevokedRefreshToken
@@ -28,6 +30,8 @@ __all__ = [
     "ChatMessageRole",
     "ChatSession",
     "CorpusSource",
+    "InvestigationFacts",
+    "OffenceGravity",
     "CorpusIntake",
     "CorpusSourceType",
     "Feedback",
