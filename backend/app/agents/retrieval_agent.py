@@ -368,9 +368,16 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
     # because the publication gate needs it and the Deep lane never had it:
     # without it that gate falls back to the stricter no-rare-term floor and
     # refuses questions the corpus can answer.
+    # The user's question, not the broadened retrieval query -- the same
+    # distinction the sufficiency gate needs, and missing it here was worse.
+    # Computed on the broadened query, "Is untouchability prohibited by law?"
+    # yielded the distinctive term "authoritative", a word from the appended
+    # procedure language, and the gate then required every passage to contain
+    # it. Two questions that published fell to a 15-word refusal.
+    asked = str(state.get("query") or query)
     try:
         _, distinctive = await service.distinctive_query_terms(
-            _focus_tokens(query),
+            _focus_tokens(asked),
             target=targets[0],
         )
     except Exception:  # noqa: BLE001 - a term-frequency failure must not
@@ -397,7 +404,7 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
         # the original wording, which is precisely the harness/lane
         # mismatch this project keeps repeating.
         "evidence_addresses_question": evidence_addresses_the_question(
-            str(state.get("query") or query), hits, set(distinctive)
+            asked, hits, set(distinctive)
         ),
         "retrieved_chunks": hits,
         # Identity of the evidence this pass found. Generation is deterministic

@@ -261,3 +261,35 @@ class TestItJudgesTheQuestionTheUserAsked:
             "the sufficiency gate is no longer judging state['query']; if it "
             "judges the broadened retrieval query it rejects everything"
         )
+
+
+class TestTheDistinctiveTermsComeFromTheQuestionAsked:
+    """The same mismatch as the gate's query, and it did more damage.
+
+    Distinctive terms were computed on the *broadened* retrieval query.
+    Measured on "Is untouchability prohibited by law?": the term that came
+    back was "authoritative" -- a word from the procedure language the
+    fallback path appends -- and the gate then required every passage to
+    contain it. Nothing about untouchability does, so a question that
+    published a 142-word answer fell to a 15-word refusal. Fixed, the term
+    is "untouchability" and the answer returns.
+    """
+
+    def test_the_node_derives_them_from_state_query(self) -> None:
+        import inspect
+
+        from app.agents import retrieval_agent
+
+        source = inspect.getsource(retrieval_agent)
+        assert 'asked = str(state.get("query") or query)' in source, (
+            "the question asked is no longer captured separately from the "
+            "broadened retrieval query"
+        )
+        assert "_focus_tokens(asked)" in source, (
+            "distinctive terms are computed from the broadened query again; "
+            "they will contain words the user never used, and the sufficiency "
+            "gate will demand passages carry them"
+        )
+        assert "asked, hits, set(distinctive)" in source, (
+            "the sufficiency gate is no longer judging the question asked"
+        )
