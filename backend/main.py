@@ -27,6 +27,7 @@ from app.routers.document_analysis import router as document_analysis_router
 from app.routers.jobs import router as jobs_router
 from app.routers.citizen_intake import router as citizen_intake_router
 from app.routers.feedback import router as feedback_router
+from app.routers.investigation import router as investigation_router
 from app.services.retrieval import HybridRetrievalService
 from app.services.fast_research import FastLegalResearchService
 from app.services.job_worker import DurableJobWorker
@@ -185,6 +186,7 @@ app.include_router(document_analysis_router)
 app.include_router(jobs_router)
 app.include_router(citizen_intake_router)
 app.include_router(feedback_router)
+app.include_router(investigation_router)
 
 
 @app.get("/health/live", tags=["system"])

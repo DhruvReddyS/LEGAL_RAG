@@ -1,0 +1,77 @@
+"""Request and response shapes for the investigation timeline.
+
+Dates arrive from the caller because the Case table does not carry them
+yet; persisting them needs a schema migration, which is not this change.
+"""
+
+from __future__ import annotations
+
+from datetime import datetime
+
+from pydantic import BaseModel, Field
+
+from app.services.investigation_timeline import OffenceGravity
+
+
+class InvestigationTimelineRequest(BaseModel):
+    """Whatever is known. Everything is optional on purpose.
+
+    A partially recorded investigation is the normal case, and the
+    calculation is built to say what it cannot determine rather than to
+    require a complete record before it will answer at all.
+    """
+
+    information_recorded_at: datetime | None = None
+    arrested_at: datetime | None = None
+    first_remand_at: datetime | None = Field(
+        default=None,
+        description=(
+            "Date of first remand. The s.187(3) default-bail period runs from "
+            "this, not from the arrest. Without it the period is reported as "
+            "undetermined rather than computed from the arrest date, which "
+            "would shorten it."
+        ),
+    )
+    accused_produced_at: datetime | None = None
+    death_occurred_at: datetime | None = None
+    gravity: OffenceGravity = Field(
+        default=OffenceGravity.UNKNOWN,
+        description=(
+            "Whether the offence is punishable with death, life, or ten years "
+            "or more. Left unknown, the s.187(3) period is not guessed."
+        ),
+    )
+    is_listed_sexual_offence: bool = Field(
+        default=False,
+        description=(
+            "True for BNS ss.64-71 and POCSO ss.4, 6, 8, 10, which carry the "
+            "two-month completion rule in s.193(2)."
+        ),
+    )
+    preliminary_enquiry_started_at: datetime | None = None
+    is_unnatural_death: bool = False
+
+
+class DeadlineResponse(BaseModel):
+    key: str
+    obligation: str
+    provision: str
+    due_at: datetime | None
+    consequence: str
+    computed_from: str
+    is_earliest_possible: bool
+    undetermined_because: str
+    is_breached: bool | None = Field(
+        description=(
+            "None where the deadline could not be computed. Never False for "
+            "an undetermined deadline -- that would report compliance which "
+            "was never established."
+        )
+    )
+
+
+class InvestigationTimelineResponse(BaseModel):
+    evaluated_at: datetime
+    deadlines: list[DeadlineResponse]
+    breached: list[str]
+    undetermined: list[str]
