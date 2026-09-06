@@ -8,7 +8,8 @@
     "Every answerable item was checked against the corpus on disk before being written, so a miss here is a retrieval failure and not a missing document.",
     "Expected abstentions are scored alongside answerable questions, and false abstention is scored too. Tightening the gate without measuring the cost looks free otherwise.",
     "Roles are recorded because police and advocate ask differently shaped questions than citizens, and a set drawn only from citizen phrasing would tune retrieval to one of the three.",
-    "v3.1 widens the police slice from 12 to 25 items. Twelve was too few to tune against: a single item moved police recall by 0.08, which is larger than most of the changes being measured."
+    "v3.1 widens the police slice from 12 to 25 items. Twelve was too few to tune against: a single item moved police recall by 0.08, which is larger than most of the changes being measured.",
+    "Ground expectations added for 10 answering items. Each was authored by reading the Act's own text out of this corpus, not from recall; grounds_source names the provision so the expectation can be checked against the statute rather than against the system's current output."
   ],
   "items": [
     {
@@ -74,6 +75,46 @@
       "relevant": [
         {
           "contains": "handcuff"
+        }
+      ],
+      "grounds_source": "BNSS s.43(3)",
+      "grounds": [
+        {
+          "name": "handcuffs are permitted, but only in listed cases",
+          "any_of": [
+            "handcuff"
+          ]
+        },
+        {
+          "name": "the nature and gravity of the offence must be considered",
+          "any_of": [
+            "nature and gravity",
+            "nature of the offence"
+          ]
+        },
+        {
+          "name": "habitual or repeat offender",
+          "any_of": [
+            "habitual",
+            "repeat offender"
+          ]
+        },
+        {
+          "name": "one who escaped from custody",
+          "any_of": [
+            "escaped from custody",
+            "escaped"
+          ]
+        },
+        {
+          "name": "the enumerated grave offences",
+          "any_of": [
+            "organised crime",
+            "organized crime",
+            "terrorist act",
+            "murder",
+            "rape"
+          ]
         }
       ]
     },
@@ -222,6 +263,42 @@
         {
           "contains": "dying declaration"
         }
+      ],
+      "grounds_source": "BSA s.26(a)",
+      "grounds": [
+        {
+          "name": "answers yes, such a statement is relevant",
+          "any_of": [
+            "relevant",
+            "admissible"
+          ]
+        },
+        {
+          "name": "it concerns the cause of death or the circumstances of the transaction",
+          "any_of": [
+            "cause of his death",
+            "cause of death",
+            "circumstances of the transaction"
+          ]
+        },
+        {
+          "name": "expectation of death is NOT required in India",
+          "any_of": [
+            "whether or not",
+            "was or was not",
+            "need not",
+            "not necessary",
+            "expectation of death"
+          ]
+        },
+        {
+          "name": "it applies whatever the nature of the proceeding",
+          "any_of": [
+            "nature of the proceeding",
+            "any proceeding",
+            "civil or criminal"
+          ]
+        }
       ]
     },
     {
@@ -258,6 +335,39 @@
         {
           "contains": "default bail"
         }
+      ],
+      "grounds_source": "BNSS s.187(3)(i)-(ii)",
+      "grounds": [
+        {
+          "name": "it arises when investigation is not completed in time",
+          "any_of": [
+            "not completed",
+            "fails to complete",
+            "expiry"
+          ]
+        },
+        {
+          "name": "90 days for offences punishable with death, life, or 10 years or more",
+          "any_of": [
+            "ninety days",
+            "90 days"
+          ]
+        },
+        {
+          "name": "60 days for any other offence",
+          "any_of": [
+            "sixty days",
+            "60 days"
+          ]
+        },
+        {
+          "name": "the accused must be prepared to and does furnish bail",
+          "any_of": [
+            "furnish bail",
+            "prepared to",
+            "willing to furnish"
+          ]
+        }
       ]
     },
     {
@@ -281,6 +391,52 @@
       "relevant": [
         {
           "contains": "anticipatory bail"
+        }
+      ],
+      "grounds_source": "BNSS s.482(1) and s.482(2)(i)-(iv)",
+      "grounds": [
+        {
+          "name": "reason to believe he may be arrested",
+          "any_of": [
+            "reason to believe",
+            "apprehending arrest",
+            "apprehension of arrest"
+          ]
+        },
+        {
+          "name": "the accusation must be of a non-bailable offence",
+          "any_of": [
+            "non-bailable offence",
+            "non bailable"
+          ]
+        },
+        {
+          "name": "the forum is the High Court or Court of Session",
+          "any_of": [
+            "High Court",
+            "Court of Session",
+            "Sessions Court"
+          ]
+        },
+        {
+          "name": "conditions may be attached",
+          "any_of": [
+            "condition"
+          ]
+        },
+        {
+          "name": "s.482(2)(i): availability for interrogation",
+          "any_of": [
+            "available for interrogation",
+            "interrogation"
+          ]
+        },
+        {
+          "name": "s.482(2)(iii): not to leave India without permission",
+          "any_of": [
+            "leave India",
+            "not leave the country"
+          ]
         }
       ]
     },
@@ -345,6 +501,30 @@
         {
           "contains": "judicial custody"
         }
+      ],
+      "grounds_source": "BNSS s.187(4)-(5): who authorises, and the production requirement",
+      "grounds": [
+        {
+          "name": "distinguishes custody of the police from judicial custody",
+          "any_of": [
+            "police custody",
+            "judicial custody"
+          ]
+        },
+        {
+          "name": "a Magistrate authorises the detention",
+          "any_of": [
+            "Magistrate"
+          ]
+        },
+        {
+          "name": "the accused must be produced before the Magistrate in person",
+          "any_of": [
+            "produced before",
+            "in person",
+            "production"
+          ]
+        }
       ]
     },
     {
@@ -396,6 +576,31 @@
         {
           "contains": "woman shall be arrested"
         }
+      ],
+      "grounds_source": "BNSS s.43(1) proviso",
+      "grounds": [
+        {
+          "name": "her submission to custody is presumed on oral intimation",
+          "any_of": [
+            "oral intimation",
+            "submission to custody"
+          ]
+        },
+        {
+          "name": "a male officer shall not touch her to make the arrest",
+          "any_of": [
+            "shall not touch",
+            "not touch the person of the woman"
+          ]
+        },
+        {
+          "name": "the exception is where the officer is female",
+          "any_of": [
+            "police officer is a female",
+            "woman police officer",
+            "female police officer"
+          ]
+        }
       ]
     },
     {
@@ -407,6 +612,41 @@
       "relevant": [
         {
           "contains": "grounds for such arrest"
+        }
+      ],
+      "grounds_source": "BNSS s.47(1) and s.47(2)",
+      "grounds": [
+        {
+          "name": "answers yes, it is mandatory",
+          "any_of": [
+            "shall",
+            "must",
+            "required"
+          ]
+        },
+        {
+          "name": "forthwith, not at some later stage",
+          "any_of": [
+            "forthwith",
+            "immediately",
+            "without delay"
+          ]
+        },
+        {
+          "name": "full particulars of the offence",
+          "any_of": [
+            "full particulars",
+            "particulars of the offence",
+            "grounds for such arrest"
+          ]
+        },
+        {
+          "name": "s.47(2): the right to bail must also be told, for a bailable offence",
+          "any_of": [
+            "entitled to be released on bail",
+            "right to bail",
+            "released on bail"
+          ]
         }
       ]
     },
@@ -510,6 +750,37 @@
         {
           "act": "nyaya sanhita"
         }
+      ],
+      "grounds_source": "BNS s.303 (definition of theft); IPC ss.378/379 succession",
+      "grounds": [
+        {
+          "name": "names the BNS as the governing Act",
+          "any_of": [
+            "Bharatiya Nyaya Sanhita",
+            "BNS"
+          ]
+        },
+        {
+          "name": "says the IPC no longer governs",
+          "any_of": [
+            "Indian Penal Code",
+            "IPC"
+          ]
+        },
+        {
+          "name": "gives the operative element: dishonest taking without consent",
+          "any_of": [
+            "dishonestly",
+            "without that person's consent",
+            "without consent"
+          ]
+        },
+        {
+          "name": "movable property",
+          "any_of": [
+            "movable property"
+          ]
+        }
       ]
     },
     {
@@ -522,6 +793,80 @@
         {
           "act": "nagarik suraksha"
         }
+      ],
+      "grounds_source": "BNSS s.35(1)(a)-(j); the CrPC s.41 -> BNSS s.35 succession",
+      "grounds": [
+        {
+          "name": "names the BNSS as the governing Act",
+          "any_of": [
+            "Bharatiya Nagarik Suraksha Sanhita",
+            "BNSS"
+          ]
+        },
+        {
+          "name": "identifies section 35",
+          "any_of": [
+            "section 35",
+            "s.35",
+            "s. 35"
+          ]
+        },
+        {
+          "name": "says it replaced the CrPC provision",
+          "any_of": [
+            "Code of Criminal Procedure",
+            "CrPC",
+            "Cr.P.C"
+          ]
+        },
+        {
+          "name": "(a) cognizable offence in an officer's presence",
+          "any_of": [
+            "cognizable offence",
+            "cognisable offence"
+          ]
+        },
+        {
+          "name": "(b) reasonable complaint, credible information or reasonable suspicion",
+          "any_of": [
+            "reasonable complaint",
+            "credible information",
+            "reasonable suspicion"
+          ]
+        },
+        {
+          "name": "(b) the necessity conditions and recorded reasons",
+          "any_of": [
+            "reasons in writing",
+            "record the reasons"
+          ]
+        },
+        {
+          "name": "(d) proclaimed offender",
+          "any_of": [
+            "proclaimed offender",
+            "proclaimed as an offender"
+          ]
+        },
+        {
+          "name": "(e) possession of suspected stolen property",
+          "any_of": [
+            "stolen property"
+          ]
+        },
+        {
+          "name": "(f) obstructing an officer or escaping lawful custody",
+          "any_of": [
+            "obstructs",
+            "escaped from lawful custody"
+          ]
+        },
+        {
+          "name": "(g) deserter from the Armed Forces",
+          "any_of": [
+            "deserter"
+          ]
+        }
       ]
     },
     {
@@ -533,6 +878,23 @@
       "relevant": [
         {
           "act": "sakshya adhiniyam"
+        }
+      ],
+      "grounds_source": "BSA 2023 replacing the Indian Evidence Act 1872",
+      "grounds": [
+        {
+          "name": "names the BSA as the governing Act",
+          "any_of": [
+            "Bharatiya Sakshya Adhiniyam",
+            "BSA"
+          ]
+        },
+        {
+          "name": "says the Indian Evidence Act no longer governs",
+          "any_of": [
+            "Indian Evidence Act",
+            "Evidence Act, 1872"
+          ]
         }
       ]
     },
