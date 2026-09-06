@@ -44,6 +44,17 @@ _BACKREFERENCE_RE = re.compile(
 MAX_SELF_CONTAINED_WORDS = 60
 
 
+def refers_backwards(query: str) -> bool:
+    """Whether the question points at something said earlier.
+
+    Exposed separately because the router needs exactly this and nothing
+    else. It must not grow a second copy of the pattern: the Fast lane and
+    its harness have already drifted apart four times in this project, and
+    each time the two behaved differently while looking identical.
+    """
+    return bool(_BACKREFERENCE_RE.search(query))
+
+
 def is_self_contained(query: str, history: list) -> bool:
     """Whether the query can be retrieved as written.
 
@@ -55,7 +66,7 @@ def is_self_contained(query: str, history: list) -> bool:
         return False
     if len(query.split()) > MAX_SELF_CONTAINED_WORDS:
         return False
-    return not _BACKREFERENCE_RE.search(query)
+    return not refers_backwards(query)
 
 
 async def query_understanding_node(state: dict, llm: OllamaClient) -> dict:

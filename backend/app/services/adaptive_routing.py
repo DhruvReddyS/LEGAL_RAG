@@ -4,6 +4,8 @@ import re
 from dataclasses import dataclass
 from typing import Literal
 
+from app.agents.query_understanding import refers_backwards
+
 
 RequestedMode = Literal["auto", "fast", "deep"]
 SelectedMode = Literal["fast", "deep"]
@@ -28,7 +30,13 @@ class RoutingDecision:
     signals: tuple[str, ...]
 
 
-def route_legal_query(*, query: str, requested_mode: RequestedMode, case_id: object | None = None) -> RoutingDecision:
+def route_legal_query(
+    *,
+    query: str,
+    requested_mode: RequestedMode,
+    case_id: object | None = None,
+    has_history: bool = False,
+) -> RoutingDecision:
     """Select the smallest safe workflow without using an LLM in the routing path."""
 
     if requested_mode in {"fast", "deep"}:
@@ -42,6 +50,15 @@ def route_legal_query(*, query: str, requested_mode: RequestedMode, case_id: obj
     signals: list[str] = []
     if case_id is not None:
         signals.append("case_scoped_matter")
+
+    # A question that points backwards cannot be answered by Fast, which is
+    # given no history and so has nothing to resolve the reference against.
+    # Asked "what about for a woman?" after a question about arrest, Fast
+    # searched for "woman" and answered about women in general -- fluent,
+    # grounded, and about the wrong thing. The comment in fast_research
+    # claimed such a follow-up escalates; nothing made that true until here.
+    if has_history and refers_backwards(query):
+        signals.append("unresolved_backreference")
 
     for signal, pattern in DEEP_PATTERNS:
         if pattern.search(query):

@@ -363,8 +363,14 @@ class FastLegalResearchService:
         # role and case_id are accepted and deliberately unused: Fast searches
         # the global corpus only. Reading private case evidence here would put
         # it behind a lane that runs no verifier, so scoped retrieval stays a
-        # Deep capability. history is unused because Fast resolves no
-        # references; a follow-up escalates rather than guessing.
+        # Deep capability.
+        #
+        # history is unused because Fast resolves no references. That is safe
+        # only because the router now refuses to send a backreferencing query
+        # here at all -- see the unresolved_backreference signal in
+        # adaptive_routing. Until it did, this comment asserted an escalation
+        # that nothing performed, and "what about for a woman?" was answered
+        # from a search for "woman".
         del role, case_id, history
         started = perf_counter()
         # Typo correction ran in the Deep path only, so "pocos" retrieved
