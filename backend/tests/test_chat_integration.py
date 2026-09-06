@@ -7,9 +7,10 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy import delete, select
 
 from app.core.database import AsyncSessionLocal
-from app.models import AuditLog, ChatMessage, ChatSession, Job, User
+from app.models import AuditLog, Case, ChatMessage, ChatSession, Job, User
 from app.models.enums import ChatMessageRole
 from app.routers.chat import get_workflow
+from app.services.rate_limit import user_rate_limiter
 from app.schemas.agents import AgentCitation, AgentTraceEvent, QueryIntent
 from main import app
 from tests.helpers import provision_test_user, unique_email
@@ -339,3 +340,134 @@ async def test_escalation_returns_the_fast_brief_instead_of_discarding_it() -> N
         else:
             app.state.fast_research_service = original_fast
         app.dependency_overrides.pop(get_workflow, None)
+
+
+class RecordingWorkflow(FakeWorkflow):
+    """Remembers the scope each question was actually run under."""
+
+    def __init__(self) -> None:
+        self.case_ids: list[str | None] = []
+
+    async def run(self, **kwargs: object) -> dict:
+        case_id = kwargs.get("case_id")
+        self.case_ids.append(None if case_id is None else str(case_id))
+        return await super().run(**kwargs)
+
+
+@pytest.mark.asyncio
+async def test_a_chat_keeps_the_scope_it_was_opened_with() -> None:
+    """A conversation's scope is fixed when it starts.
+
+    The chat surface lets a professional choose between the law alone and
+    the law plus one case's files. That choice decides what the retriever
+    is allowed to read, so it must not be changeable later: a law-only
+    thread that could be handed a case_id on its second turn would pull
+    private evidence into a conversation the user believed was public,
+    and a case thread that accepted a different case would cross two
+    investigations inside one transcript.
+    """
+    suffix = uuid.uuid4().hex
+    password = "CorrectHorseBattery99!"
+    workflow = RecordingWorkflow()
+    # This test asks more questions in a burst than a person would; the
+    # limiter is exercised by its own test, not by this one.
+    await user_rate_limiter.clear()
+    app.dependency_overrides[get_workflow] = lambda: workflow
+    user_id: uuid.UUID | None = None
+    case_ids: list[uuid.UUID] = []
+    transport = ASGITransport(app=app)
+    try:
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            body = await provision_test_user(
+                name="Scope Officer",
+                email=f"scope-officer-{suffix}@example.com",
+                password=password,
+                role="police",
+            )
+            user_id = uuid.UUID(body["user"]["id"])
+            headers = {"Authorization": f"Bearer {body['access_token']}"}
+
+            for title in ("Cr. 41 of 2026", "Cr. 42 of 2026"):
+                created = await client.post("/cases", json={"title": title}, headers=headers)
+                assert created.status_code == 201, created.text
+                case_ids.append(uuid.UUID(created.json()["id"]))
+
+            scoped = await client.post(
+                "/chat/query",
+                json={"query": "What does the case file show?", "case_id": str(case_ids[0])},
+                headers=headers,
+            )
+            assert scoped.status_code == 200, scoped.text
+            scoped_session = uuid.UUID(scoped.json()["session_id"])
+            assert workflow.case_ids == [str(case_ids[0])]
+
+            await user_rate_limiter.clear()
+            law_only = await client.post(
+                "/chat/query", json={"query": "When is an arrest lawful?"}, headers=headers
+            )
+            assert law_only.status_code == 200, law_only.text
+            law_only_session = uuid.UUID(law_only.json()["session_id"])
+            assert workflow.case_ids[-1] is None
+
+            # A law-only thread cannot be handed a case on a later turn.
+            upgraded = await client.post(
+                "/chat/query",
+                json={
+                    "query": "And in this case?",
+                    "session_id": str(law_only_session),
+                    "case_id": str(case_ids[0]),
+                },
+                headers=headers,
+            )
+            assert upgraded.status_code == 409, upgraded.text
+
+            # Nor can a case thread be switched to another case.
+            crossed = await client.post(
+                "/chat/query",
+                json={
+                    "query": "And in the other one?",
+                    "session_id": str(scoped_session),
+                    "case_id": str(case_ids[1]),
+                },
+                headers=headers,
+            )
+            assert crossed.status_code == 409, crossed.text
+
+            # Neither rejected turn reached the workflow.
+            assert workflow.case_ids == [str(case_ids[0]), None]
+
+            # Continuing the case thread keeps its scope without resending it.
+            await user_rate_limiter.clear()
+            continued = await client.post(
+                "/chat/query",
+                json={"query": "What is outstanding?", "session_id": str(scoped_session)},
+                headers=headers,
+            )
+            assert continued.status_code == 200, continued.text
+            assert workflow.case_ids[-1] == str(case_ids[0])
+
+            # And the sidebar can tell the two apart after a reload.
+            listed = await client.get("/chat/sessions", headers=headers)
+            assert listed.status_code == 200, listed.text
+            scopes = {item["id"]: item["case_id"] for item in listed.json()["items"]}
+            assert scopes[str(scoped_session)] == str(case_ids[0])
+            assert scopes[str(law_only_session)] is None
+    finally:
+        app.dependency_overrides.pop(get_workflow, None)
+        async with AsyncSessionLocal() as session:
+            if user_id:
+                await session.execute(delete(AuditLog).where(AuditLog.user_id == user_id))
+                sessions = (
+                    await session.scalars(
+                        select(ChatSession.id).where(ChatSession.user_id == user_id)
+                    )
+                ).all()
+                if sessions:
+                    await session.execute(
+                        delete(ChatMessage).where(ChatMessage.session_id.in_(sessions))
+                    )
+                    await session.execute(delete(ChatSession).where(ChatSession.id.in_(sessions)))
+                if case_ids:
+                    await session.execute(delete(Case).where(Case.id.in_(case_ids)))
+                await session.execute(delete(User).where(User.id == user_id))
+            await session.commit()
