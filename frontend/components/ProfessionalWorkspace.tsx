@@ -1,11 +1,11 @@
 "use client";
 
-import { BriefcaseBusiness, CalendarClock, ClipboardCheck, ScanText, CheckCircle2, FilePlus2, FileSearch, FileText, FolderPlus, Loader2, MessageSquare, MessageSquarePlus, Plus, Scale, ScanSearch, ShieldCheck, UploadCloud } from "lucide-react";
+import { AlertTriangle, BriefcaseBusiness, CalendarClock, Check, ClipboardCheck, ClipboardCopy, ScanText, CheckCircle2, Download, FilePlus2, FileSearch, FileText, FolderPlus, Loader2, MessageSquare, MessageSquarePlus, Pencil, Plus, Scale, ScanSearch, ShieldCheck, UploadCloud } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { AuthorityCheck } from "@/components/AuthorityCheck";
 import { ComplianceChecklist } from "@/components/ComplianceChecklist";
 import { InvestigationTimeline } from "@/components/InvestigationTimeline";
-import { ApiError, analyseDefence, createCase, draftFir, getInvestigationTimeline, indexCaseEvidence, listCases, listGeneratedDocuments, listIndexedCaseDocuments, readGeneratedDocument, scopedSearch, uploadCaseEvidence } from "@/lib/api";
+import { ApiError, analyseDefence, createCase, draftFir, getInvestigationTimeline, indexCaseEvidence, listCases, listGeneratedDocuments, listIndexedCaseDocuments, readGeneratedDocument, scopedSearch, updateCase, uploadCaseEvidence } from "@/lib/api";
 import type { CaseDocumentSummary, DefenceAnalysisResponse, FIRDraftResponse, GeneratedDocumentSummary, InvestigationTimeline as InvestigationTimelineData, LegalCase, RetrievalHit, User } from "@/lib/types";
 import DocumentAnalyzerWorkspace from "@/components/DocumentAnalyzerWorkspace";
 
@@ -19,12 +19,14 @@ export default function ProfessionalWorkspace({
   onCasesChange,
   onNewMatterChat,
   onOpenMatterChat,
+  requestedView = null,
 }: {
   user: User;
   chats?: MatterChat[];
   onCasesChange?: (cases: LegalCase[]) => void;
   onNewMatterChat?: (caseId: string) => void;
   onOpenMatterChat?: (chatId: string) => void;
+  requestedView?: { view: string; nonce: number } | null;
 }) {
   const isPolice = user.role === "police";
   const roleCopy = isPolice ? {
@@ -45,6 +47,7 @@ export default function ProfessionalWorkspace({
   const [newTitle, setNewTitle] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
+  const [failed, setFailed] = useState(false);
   const [searchMode, setSearchMode] = useState<"general" | "case_specific">("case_specific");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<RetrievalHit[]>([]);
@@ -54,7 +57,15 @@ export default function ProfessionalWorkspace({
   const [analysis, setAnalysis] = useState<DefenceAnalysisResponse | null>(null);
   const [documentRefresh, setDocumentRefresh] = useState(0);
   const [view, setView] = useState<ViewKey>("casefile");
+  const fail = (message: string) => { setFailed(true); setNotice(message); };
   const selected = useMemo(() => cases.find((item) => item.id === selectedId), [cases, selectedId]);
+  // A sidebar link opens the feature it names. Unknown names are ignored
+  // rather than blanking the working area.
+  useEffect(() => {
+    if (!requestedView) return;
+    if (tools.some((tool) => tool.key === requestedView.view)) setView(requestedView.view as ViewKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requestedView?.nonce, requestedView?.view]);
   const matterChats = useMemo(
     () => chats.filter((chat) => chat.caseId === selectedId).sort((a, b) => b.updatedAt - a.updatedAt),
     [chats, selectedId],
@@ -83,43 +94,86 @@ export default function ProfessionalWorkspace({
     const dated = (timeline?.deadlines ?? []).filter((item) => item.due_at && !item.is_breached);
     return dated.sort((a, b) => Date.parse(a.due_at!) - Date.parse(b.due_at!))[0] ?? null;
   }, [timeline]);
+  const [caseFilter, setCaseFilter] = useState("");
+  const visibleCases = useMemo(() => {
+    const needle = caseFilter.trim().toLowerCase();
+    // A closed case stays reachable by name, but does not crowd the rail.
+    const base = needle ? cases : cases.filter((item) => item.status === "open" || item.id === selectedId);
+    return needle ? base.filter((item) => item.title.toLowerCase().includes(needle)) : base;
+  }, [cases, caseFilter, selectedId]);
+  const hiddenCount = cases.length - visibleCases.length;
+  const [renaming, setRenaming] = useState(false);
+  const [renameDraft, setRenameDraft] = useState("");
+  const applyCaseChange = async (changes: { title?: string; status?: "open" | "closed" | "archived" }) => {
+    if (!selectedId) return;
+    setBusy("case-edit"); setNotice(""); setFailed(false);
+    try {
+      const updated = await updateCase(selectedId, changes);
+      setCases((current) => {
+        const next = current.map((item) => (item.id === updated.id ? updated : item));
+        onCasesChange?.(next);
+        return next;
+      });
+      setNotice(changes.status ? `Case marked ${changes.status}.` : "Case renamed.");
+    } catch (error) { fail(errorText(error)); } finally { setBusy(null); setRenaming(false); }
+  };
+  const [copied, setCopied] = useState(false);
+  const draftText = (item: FIRDraftResponse) =>
+    // The disclaimer travels with the text. A draft pasted into a case
+    // diary without it reads as a finished document, which it is not.
+    `${item.rendered_text}\n\n---\n${item.disclaimer}`;
+  const copyDraft = async (item: FIRDraftResponse) => {
+    try {
+      await navigator.clipboard.writeText(draftText(item));
+      setCopied(true); window.setTimeout(() => setCopied(false), 2000);
+    } catch { fail("The browser refused clipboard access. Select the text and copy it instead."); }
+  };
+  const downloadDraft = (item: FIRDraftResponse) => {
+    const blob = new Blob([draftText(item)], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${item.doc_type}-v${item.version}-${(selected?.title ?? "case").replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
   const openDraft = async (documentId: string) => {
     if (!selectedId) return;
-    setBusy("draft"); setNotice("");
+    setBusy("draft"); setNotice(""); setFailed(false);
     // Read back, never re-drafted: a reviewed draft must not change under
     // the officer who reviewed it.
     try { setDraft(await readGeneratedDocument(selectedId, documentId)); setView("agent"); }
-    catch (error) { setNotice(errorText(error)); } finally { setBusy(null); }
+    catch (error) { fail(errorText(error)); } finally { setBusy(null); }
   };
   const docLabel = (type: string) => type.split(/[_-]/).map((word) => word.toUpperCase() === "FIR" ? "FIR" : word).join(" ").replace(/^./, (c) => c.toUpperCase());
 
-  useEffect(() => { listCases().then((response) => { setCases(response.cases); setSelectedId(response.cases[0]?.id ?? ""); onCasesChange?.(response.cases); }).catch((error) => setNotice(errorText(error)));
+  useEffect(() => { listCases().then((response) => { setCases(response.cases); setSelectedId(response.cases[0]?.id ?? ""); onCasesChange?.(response.cases); }).catch((error) => fail(errorText(error)));
   // Loaded once per mount. onCasesChange is a setter and is deliberately not
   // a dependency: including it would refetch on every parent render.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const makeCase = async () => {
-    if (newTitle.trim().length < 3) return; setBusy("case"); setNotice("");
+    if (newTitle.trim().length < 3) return; setBusy("case"); setNotice(""); setFailed(false);
     try { const created = await createCase(newTitle.trim()); setCases((current) => { const next = [created, ...current]; onCasesChange?.(next); return next; }); setSelectedId(created.id); setNewTitle(""); setView("casefile"); setNotice("Case created. Only you can read the files you add to it."); }
-    catch (error) { setNotice(errorText(error)); } finally { setBusy(null); }
+    catch (error) { fail(errorText(error)); } finally { setBusy(null); }
   };
   const search = async () => {
-    if (!searchQuery.trim() || (searchMode === "case_specific" && !selectedId)) return; setBusy("search"); setNotice("");
+    if (!searchQuery.trim() || (searchMode === "case_specific" && !selectedId)) return; setBusy("search"); setNotice(""); setFailed(false);
     try { const response = await scopedSearch(searchQuery.trim(), searchMode, selectedId); setSearchResults(response.results); setNotice(`Retrieved ${response.results.length} authorised public and private results.`); }
-    catch (error) { setNotice(errorText(error)); } finally { setBusy(null); }
+    catch (error) { fail(errorText(error)); } finally { setBusy(null); }
   };
   const upload = async (file?: File) => {
-    if (!file || !selectedId) return; setBusy("upload"); setNotice("");
+    if (!file || !selectedId) return; setBusy("upload"); setNotice(""); setFailed(false);
     try { const stored = await uploadCaseEvidence(selectedId, file); const indexed = await indexCaseEvidence(selectedId, stored.id, docType); setDocumentRefresh((value) => value + 1); setNotice(`Indexed ${file.name}: ${indexed.pages} page(s), ${indexed.chunks} private passage(s). It is ready in Document Analyzer.`); }
-    catch (error) { setNotice(errorText(error)); } finally { setBusy(null); }
+    catch (error) { fail(errorText(error)); } finally { setBusy(null); }
   };
   const runProfessionalTool = async () => {
-    if (!selectedId || scenario.trim().length < 40) return; setBusy("tool"); setNotice(""); setDraft(null); setAnalysis(null);
+    if (!selectedId || scenario.trim().length < 40) return; setBusy("tool"); setNotice(""); setFailed(false); setDraft(null); setAnalysis(null);
     try {
       if (user.role === "police") { const result = await draftFir(selectedId, scenario.trim()); setDraft(result); setNotice(`Created immutable FIR draft version ${result.version}.`); }
       else { const result = await analyseDefence(selectedId, scenario.trim()); setAnalysis(result); setNotice(`Verified ${result.points.length} strategy point(s); rejected ${result.rejected_point_count}.`); }
-    } catch (error) { setNotice(errorText(error)); } finally { setBusy(null); }
+    } catch (error) { fail(errorText(error)); } finally { setBusy(null); }
   };
 
 
@@ -213,8 +267,8 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
       </div>
 
       {notice && (
-        <div role="status" className="mb-5 flex items-center gap-2 rounded-xl border border-[var(--state-ok-line)] bg-[var(--state-ok-bg)] px-4 py-3 text-sm text-[var(--state-ok-text)]">
-          <CheckCircle2 size={16} />{notice}
+        <div role={failed ? "alert" : "status"} className={`mb-5 flex items-center gap-2 rounded-xl px-4 py-3 text-sm ${failed ? "border border-[var(--state-bad-line)] bg-[var(--state-bad-bg)] text-[var(--state-bad-text)]" : "border border-[var(--state-ok-line)] bg-[var(--state-ok-bg)] text-[var(--state-ok-text)]"}`}>
+          {failed ? <AlertTriangle size={16} /> : <CheckCircle2 size={16} />}{notice}
         </div>
       )}
 
@@ -228,8 +282,11 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
                 {busy === "case" ? <Loader2 size={15} className="animate-spin" /> : <Plus size={17} />}
               </button>
             </div>
+            {cases.length > 6 && (
+              <input value={caseFilter} onChange={(event) => setCaseFilter(event.target.value)} placeholder="Filter by name" aria-label="Filter cases by name" className="field mt-2 h-9 w-full text-xs" />
+            )}
             <div className="matter-list mt-3">
-              {cases.map((item) => (
+              {visibleCases.map((item) => (
                 <button key={item.id} onClick={() => setSelectedId(item.id)} aria-current={selectedId === item.id}>
                   <span className={`matter-dot ${item.status === "open" ? "" : "is-closed"}`} />
                   <span className="min-w-0 flex-1">
@@ -238,6 +295,12 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
                   </span>
                 </button>
               ))}
+              {!!cases.length && !visibleCases.length && (
+                <p className="py-6 text-center text-xs text-[var(--ink-soft)]">No case matches that name.</p>
+              )}
+              {!!hiddenCount && !caseFilter.trim() && (
+                <p className="pt-2 text-center text-[11px] text-[var(--ink-soft)]">{hiddenCount} closed or archived. Type a name to find one.</p>
+              )}
               {!cases.length && (
                 <div className="py-8 text-center">
                   <FolderPlus size={24} className="mx-auto text-[var(--ink-soft)]" />
@@ -279,8 +342,25 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
               {view === "casefile" && selected && (
                 <div className="case-file">
                   <dl className="case-facts">
-                    <div><dt>Case</dt><dd>{selected.title}</dd></div>
-                    <div><dt>Status</dt><dd className="capitalize">{selected.status}</dd></div>
+                    <div className="case-fact-wide"><dt>Case</dt><dd>
+                      {renaming ? (
+                        <form className="case-rename" onSubmit={(event) => { event.preventDefault(); if (renameDraft.trim().length >= 3) void applyCaseChange({ title: renameDraft.trim() }); }}>
+                          <input autoFocus aria-label="Case title" value={renameDraft} maxLength={255} onChange={(event) => setRenameDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Escape") setRenaming(false); }} className="field h-9" />
+                          <button type="submit" disabled={busy === "case-edit" || renameDraft.trim().length < 3} aria-label="Save case title"><Check size={15} /></button>
+                        </form>
+                      ) : (
+                        <span className="case-title-row">{selected.title}
+                          <button onClick={() => { setRenameDraft(selected.title); setRenaming(true); }} aria-label="Rename case" title="Rename case"><Pencil size={13} /></button>
+                        </span>
+                      )}
+                    </dd></div>
+                    <div><dt>Status</dt><dd>
+                      <select aria-label="Case status" className="case-status" value={selected.status} disabled={busy === "case-edit"} onChange={(event) => void applyCaseChange({ status: event.target.value as "open" | "closed" | "archived" })}>
+                        <option value="open">Open</option>
+                        <option value="closed">Closed</option>
+                        <option value="archived">Archived</option>
+                      </select>
+                    </dd></div>
                     <div><dt>Opened</dt><dd>{new Date(selected.created_at).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}</dd></div>
                     <div><dt>Files</dt><dd>{files === null ? "—" : files.length.toLocaleString()}</dd></div>
                     <div><dt>{isPolice ? "Drafts" : "Analyses"}</dt><dd>{drafts === null ? "—" : drafts.length.toLocaleString()}</dd></div>
@@ -420,7 +500,11 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
                     <div className="mt-6 rounded-xl border border-[var(--border)]">
                       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border)] bg-[var(--card)] px-4 py-3">
                         <p className="text-xs font-semibold">Draft version {draft.version} / {draft.status}</p>
-                        <p className="text-[11px] text-[var(--state-warn-text)]">{draft.missing_fields.length ? `Missing: ${draft.missing_fields.join(", ")}` : "Required facts captured"}</p>
+                        <div className="flex items-center gap-3">
+                          <p className="text-[11px] text-[var(--state-warn-text)]">{draft.missing_fields.length ? `Missing: ${draft.missing_fields.join(", ")}` : "Required facts captured"}</p>
+                          <button className="draft-action" onClick={() => void copyDraft(draft)}>{copied ? <Check size={13} /> : <ClipboardCopy size={13} />}{copied ? "Copied" : "Copy"}</button>
+                          <button className="draft-action" onClick={() => downloadDraft(draft)}><Download size={13} />Save</button>
+                        </div>
                       </div>
                       <pre className="max-h-[520px] overflow-auto whitespace-pre-wrap p-5 text-xs leading-6 text-[var(--ink)]">{draft.rendered_text}</pre>
                     </div>

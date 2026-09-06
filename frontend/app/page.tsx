@@ -420,9 +420,12 @@ export default function HomePage() {
     setHistoryNotice("Chat deleted.");
     if (activeChatId === item.id) resetResearch();
   };
-  const openTool = (id?: string) => {
+  // The nonce matters: clicking the same sidebar link twice must reopen
+  // that view, and a bare value would not change on the second click.
+  const [workspaceView, setWorkspaceView] = useState<{ view: string; nonce: number } | null>(null);
+  const openTool = (target?: string) => {
     setView("workspace"); setMobileNav(false);
-    if (id) window.setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: animate ? "smooth" : "auto", block: "start" }), 80);
+    setWorkspaceView(current => ({ view: target || "casefile", nonce: (current?.nonce ?? 0) + 1 }));
   };
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => { if (event.key === "Escape") { setMobileNav(false); setSettingsOpen(false); setGuideOpen(false); setChatMenuId(null); setRenamingChatId(null); } };
@@ -440,12 +443,12 @@ export default function HomePage() {
     { title: "Understand a document", icon: BookOpenText, guideIndex: 2 },
   ] : role === "police" ? [
     { title: "Investigations", icon: Fingerprint, target: "" },
-    { title: "FIR drafting", icon: FilePenLine, target: "role-agent-tool" },
-    { title: "Evidence & documents", icon: ScanSearch, target: "document-analyzer" },
+    { title: "FIR drafting", icon: FilePenLine, target: "agent" },
+    { title: "Evidence & documents", icon: ScanSearch, target: "documents" },
   ] : role === "advocate" ? [
     { title: "Your cases", icon: BriefcaseBusiness, target: "" },
-    { title: "Build a strategy", icon: Scale, target: "role-agent-tool" },
-    { title: "Review documents", icon: ScanSearch, target: "document-analyzer" },
+    { title: "Build a strategy", icon: Scale, target: "agent" },
+    { title: "Review documents", icon: ScanSearch, target: "documents" },
   ] : [{ title: "Manage workspace", icon: Settings, target: "" }];
   const pinnedChats = history.filter(item => item.pinned).sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0));
   const recentChats = history.filter(item => !item.pinned).sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0));
@@ -478,6 +481,7 @@ export default function HomePage() {
           onCasesChange={setChatCases}
           onNewMatterChat={(caseId) => resetResearch(caseId)}
           onOpenMatterChat={(chatId) => { const saved = history.find(item => item.id === chatId); if (saved) openSavedChat(saved); }}
+          requestedView={workspaceView}
         /> :
       <section className={`chat-workspace ${messages.length ? "has-conversation" : ""}`}>
         {!messages.length ? <div className="chat-welcome">

@@ -335,3 +335,13 @@
 .case-line {padding:13px 15px;border:1px solid var(--border);border-radius:11px;background:var(--card);color:var(--ink);font-size:13px;line-height:1.6;}
 .case-line strong {font-weight:600;}
 .case-alert {padding:13px 15px;border:1px solid var(--state-bad-line);border-radius:11px;background:var(--state-bad-bg);color:var(--state-bad-text);font-size:13px;line-height:1.6;}
+.case-fact-wide {grid-column:span 2;}
+.case-title-row {display:flex;align-items:center;gap:8px;}
+.case-title-row button {flex:none;color:var(--ink-soft);opacity:0;transition:opacity .15s;}
+.case-facts div:hover .case-title-row button, .case-title-row button:focus-visible {opacity:1;}
+.case-rename {display:flex;align-items:center;gap:7px;}
+.case-rename input {min-width:0;flex:1;font-size:14px;}
+.case-rename button {flex:none;color:var(--accent);}
+.case-status {border:1px solid var(--border);border-radius:8px;padding:4px 8px;background:var(--paper);color:var(--ink);font-size:13px;}
+.draft-action {display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border:1px solid var(--border);border-radius:7px;color:var(--ink-soft);font-size:11px;transition:border-color .15s,color .15s;}
+.draft-action:hover {border-color:var(--accent);color:var(--ink);}

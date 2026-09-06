@@ -311,6 +311,16 @@ export async function createCase(title: string): Promise<LegalCase> {
   });
 }
 
+export async function updateCase(
+  caseId: string,
+  changes: { title?: string; status?: "open" | "closed" | "archived" },
+): Promise<LegalCase> {
+  return request<LegalCase>(`/cases/${caseId}`, {
+    method: "PATCH",
+    body: JSON.stringify(changes),
+  });
+}
+
 export async function scopedSearch(
   query: string,
   mode: "general" | "case_specific",
