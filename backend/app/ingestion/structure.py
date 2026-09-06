@@ -48,7 +48,12 @@ _COLUMN_SECTION = re.compile(
 # needed them. The IPC, typeset heading-first, kept 93% of its sections, which
 # is why the corpus looked systematically richer in repealed law.
 _MARGINAL_SECTION = re.compile(
-    r"^\s*(?:(?P<margin>[A-Z][^\n]{0,70}?\.)\s{2,})?"
+    # The marginal note's trailing period is optional. Requiring it matched
+    # "Definitions.   2. (1) ..." and missed "Information    173. (1) ..." --
+    # the note is a wrapped phrase in a narrow column and frequently carries no
+    # full stop, which cost 134 further sections including s.173, the FIR
+    # provision that is the most-asked question in this corpus.
+    r"^\s*(?:(?P<margin>[A-Z][^\n]{0,70}?)\s{2,})?"
     r"(?P<label>\d+[A-Z]?)\.\s+\(\d+[A-Z]?\)\s+(?P<body>\S.*)$"
 )
 

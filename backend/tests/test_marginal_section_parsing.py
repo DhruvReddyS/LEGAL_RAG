@@ -113,3 +113,50 @@ class TestItDoesNotInventSections:
         # is worse than missing one: the text becomes unretrievable by the
         # query that needs it. Prose mentioning a number must not create one.
         assert not sections
+
+
+class TestTheMarginalNoteOftenHasNoFullStop:
+    """The second half of the same defect, and the more costly half.
+
+    Requiring the note to end in a period matched "Definitions.   2. (1) ..."
+    and missed "Information    173. (1) ...". The note is a wrapped phrase in a
+    narrow column and frequently carries no full stop at all, which left 134
+    further sections unlabelled -- including BNSS s.173, the FIR provision, and
+    s.35, which governs arrest without warrant. Deep was reasoning about arrest
+    without ever seeing the section that authorises it.
+    """
+
+    @pytest.mark.parametrize(
+        ("line", "expected"),
+        [
+            ("Information         173. (1) Every information relating to a cognizable offence", "173"),
+            ("Recording of         183. (1) Any Magistrate of the District in which", "183"),
+            ("When bail           480. (1) When any person accused of an offence", "480"),
+            ("Definitions.            2. (1) In this Sanhita, unless the context requires", "2"),
+            ("      35. (1) Any police officer may without an order from a Magistrate", "35"),
+        ],
+    )
+    def test_every_layout_in_the_sanhitas(self, line: str, expected: str) -> None:
+        assert expected in _sections([line])
+
+    def test_the_governing_arrest_provision_is_found(self) -> None:
+        """The specific failure this traced back from: an answer about arrest
+        without warrant whose evidence never contained BNSS s.35."""
+        sections = _sections(
+            [
+                "When police         35. (1) Any police officer may without an order from a "
+                "Magistrate and without a warrant arrest any person who commits a cognizable offence"
+            ]
+        )
+
+        assert "35" in sections
+
+    def test_prose_is_still_not_a_section(self) -> None:
+        """Dropping the required full stop widens the pattern, so the negative
+        direction is re-checked rather than assumed to hold."""
+        for line in (
+            "The court held in paragraph 12. (1) of the judgment that",
+            "See page 45. (2) below for the schedule",
+            "as noted in clause 7. (3) of the agreement",
+        ):
+            assert not _sections([line]), line
