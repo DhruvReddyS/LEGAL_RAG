@@ -242,3 +242,123 @@ async def test_the_request_schema_also_defaults_to_unknown() -> None:
         )
 
     assert response.json()["gravity"] == "unknown"
+
+
+@pytest.mark.asyncio
+async def test_the_checklist_is_returned_even_when_nothing_is_recorded() -> None:
+    """Unlike the timeline, which 404s.
+
+    The requirements apply whether or not anyone has looked at them, so an
+    empty response would read as "no requirements apply to this arrest".
+    """
+    headers, case_id = await _police_case()
+    async with await _client() as client:
+        response = await client.get(
+            f"/cases/{case_id}/investigation/compliance?action=arrest", headers=headers
+        )
+
+    body = response.json()
+    assert response.status_code == 200
+    assert len(body["items"]) >= 6
+    assert body["outstanding"] == []
+    assert len(body["not_recorded"]) == len(body["items"])
+
+
+@pytest.mark.asyncio
+async def test_a_confirmation_survives_the_round_trip() -> None:
+    headers, case_id = await _police_case()
+    async with await _client() as client:
+        await client.put(
+            f"/cases/{case_id}/investigation/compliance",
+            json={
+                "action": "arrest",
+                "status": {
+                    "memorandum_of_arrest": "satisfied",
+                    "medical_examination": "not_satisfied",
+                },
+            },
+            headers=headers,
+        )
+        read = await client.get(
+            f"/cases/{case_id}/investigation/compliance?action=arrest", headers=headers
+        )
+
+    body = read.json()
+    by_key = {item["key"]: item["status"] for item in body["items"]}
+    assert by_key["memorandum_of_arrest"] == "satisfied"
+    assert by_key["medical_examination"] == "not_satisfied"
+    assert body["outstanding"] == ["medical_examination"]
+    assert "memorandum_of_arrest" not in body["not_recorded"]
+
+
+@pytest.mark.asyncio
+async def test_a_wrongly_ticked_item_can_be_untricked() -> None:
+    """The reason PUT replaces rather than merges.
+
+    Under merge semantics a confirmation could never be withdrawn, so an
+    item ticked by mistake would read as satisfied for the life of the
+    matter.
+    """
+    headers, case_id = await _police_case()
+    async with await _client() as client:
+        await client.put(
+            f"/cases/{case_id}/investigation/compliance",
+            json={"action": "arrest", "status": {"memorandum_of_arrest": "satisfied"}},
+            headers=headers,
+        )
+        cleared = await client.put(
+            f"/cases/{case_id}/investigation/compliance",
+            json={"action": "arrest", "status": {}},
+            headers=headers,
+        )
+
+    body = cleared.json()
+    assert "memorandum_of_arrest" in body["not_recorded"]
+    assert body["outstanding"] == []
+
+
+@pytest.mark.asyncio
+async def test_the_two_actions_keep_separate_records() -> None:
+    """A search confirmation must not tick an arrest requirement."""
+    headers, case_id = await _police_case()
+    async with await _client() as client:
+        await client.put(
+            f"/cases/{case_id}/investigation/compliance",
+            json={"action": "search_and_seizure", "status": {"seizure_list": "satisfied"}},
+            headers=headers,
+        )
+        arrest = await client.get(
+            f"/cases/{case_id}/investigation/compliance?action=arrest", headers=headers
+        )
+        search = await client.get(
+            f"/cases/{case_id}/investigation/compliance?action=search_and_seizure",
+            headers=headers,
+        )
+
+    assert all(i["status"] == "not_recorded" for i in arrest.json()["items"])
+    assert {i["key"]: i["status"] for i in search.json()["items"]}["seizure_list"] == "satisfied"
+
+
+@pytest.mark.asyncio
+async def test_another_officer_cannot_read_or_tick_this_checklist() -> None:
+    headers, case_id = await _police_case()
+    intruder = await provision_test_user(
+        name="Third Officer",
+        email=unique_email("third-officer"),
+        password=PASSWORD,
+        role="police",
+    )
+    other = {"Authorization": f"Bearer {intruder['access_token']}"}
+
+    async with await _client() as client:
+        read = await client.get(
+            f"/cases/{case_id}/investigation/compliance", headers=other
+        )
+        wrote = await client.put(
+            f"/cases/{case_id}/investigation/compliance",
+            json={"action": "arrest", "status": {"memorandum_of_arrest": "satisfied"}},
+            headers=other,
+        )
+
+    assert read.status_code == 403
+    assert wrote.status_code == 403

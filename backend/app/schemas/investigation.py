@@ -12,6 +12,7 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 
 from app.models.enums import OffenceGravity
+from app.services.investigation_compliance import ComplianceStatus, PoliceAction
 
 
 class InvestigationTimelineRequest(BaseModel):
@@ -88,3 +89,37 @@ class InvestigationFactsResponse(InvestigationTimelineRequest):
 
     case_id: uuid.UUID
     updated_at: datetime
+
+
+class ComplianceItemResponse(BaseModel):
+    key: str
+    requirement: str
+    provision: str
+    consequence: str
+    status: ComplianceStatus
+    applies_because: str
+
+
+class ComplianceChecklistResponse(BaseModel):
+    action: PoliceAction
+    items: list[ComplianceItemResponse]
+    # Positively not done. An item nobody has confirmed appears in
+    # `not_recorded`, never here: an unknown is not a breach.
+    outstanding: list[str]
+    not_recorded: list[str]
+
+
+class ComplianceUpdateRequest(BaseModel):
+    """What has been confirmed, one way or the other.
+
+    A full replace of the recorded statuses for this action. Keys absent
+    from the map return to not_recorded, which is how a wrongly ticked item
+    is untricked -- under merge semantics there would be no way to withdraw
+    a confirmation.
+    """
+
+    action: PoliceAction
+    status: dict[str, ComplianceStatus] = Field(default_factory=dict)
+    arrested_person_is_woman: bool = False
+    handcuffs_used: bool = False
+    memorandum_attested_by_family: bool = False

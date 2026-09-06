@@ -13,7 +13,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
@@ -76,6 +76,11 @@ class InvestigationFacts(Base):
     is_unnatural_death: Mapped[bool] = mapped_column(
         Boolean, default=False, server_default="false", nullable=False
     )
+
+    # Requirement key -> status, for the BNSS compliance checklist. Absent
+    # and empty mean the same thing: nothing confirmed. There is no way to
+    # express "satisfied" by leaving a key out, which is the point.
+    compliance_status: Mapped[dict | None] = mapped_column(JSONB)
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
