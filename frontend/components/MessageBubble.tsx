@@ -210,6 +210,29 @@ export default function MessageBubble({ message, onRegenerate, onForgetDocuments
       {!citations.length && <span>No cited authority</span>}
       {message.documents?.map((doc, index) => <button key={doc.id} className="document-chip" onClick={() => toggle(`D${index + 1}`)} aria-expanded={active === `D${index + 1}`} title={`Your document: ${doc.filename}`}>D{index + 1}</button>)}
     </div>
+    {!!message.sectionConfidence?.length && (
+      <details className="section-grading">
+        <summary>
+          How well each part is grounded
+          {message.sectionConfidence.some(row => row.confidence === "limited") && (
+            <span className="grading-flag"> · one part rests on limited authority</span>
+          )}
+        </summary>
+        <ul>
+          {message.sectionConfidence.map(row => (
+            <li key={row.section} data-confidence={row.confidence}>
+              <span className="grading-section">{row.section}</span>
+              <span className={`grading-label grading-${row.confidence}`}>{row.confidence}</span>
+              <span className="grading-reason">{row.reason}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="grading-note">
+          Grounding, not correctness. It describes how many independent sources back each
+          part and what kind of authority they are — not whether the answer is right.
+        </p>
+      </details>
+    )}
     {(source || document) && <section className={`source-preview ${document ? "document-preview" : ""}`} aria-label="Source preview"><button className="icon-button preview-close" onClick={() => setActive(null)} aria-label="Close source preview"><X size={16}/></button>{source ? <><small>Legal corpus · Source {source.number} · {source.verification_status ?? "Unverified"}</small><h3>{source.title}</h3><p className="source-pages">Pages {source.page_start}–{source.page_end}{source.section ? ` · Section ${source.section}` : ""}</p><blockquote>{source.excerpt}</blockquote></> : document && <><small>Your document · Unverified facts, not legal authority</small><h3>{document.filename}</h3><p className="source-pages">Request context; this chip does not imply a verified legal citation.</p>{document.pages.length ? document.pages.map(page => <div key={page.page}><small>Page {page.page}</small><blockquote>{page.text}</blockquote></div>) : <p>Document text is no longer held in this tab. Reattach it to review.</p>}{onForgetDocuments && <button className="answer-text-action" onClick={() => { onForgetDocuments(); setActive(null); }}>Remove document text from this chat</button>}</>}</section>}
     <div className="legal-answer answer-body">{presentation.basis && <><h3>Legal basis</h3>{markdown(presentation.basis)}</>}{markdown(presentation.other)}{presentation.limits && <details className="answer-limits"><summary>Limits & uncertainties</summary>{markdown(presentation.limits)}</details>}</div>
     <aside className="legal-note" aria-label="Important legal information"><ShieldCheck size={17}/><div><strong>Before you rely on this</strong><p>{citations.some(item => item.repeal_label === "no_longer_in_force") ? "One or more of these sources is no longer in force - open the source panel to see what replaced it." : citations.some(item => item.repeal_label === "concerns_repealed_provision") ? "These sources are in force, but some cite provisions renumbered on 1 July 2024 - the source panel lists the new numbering." : citations.length && citations.every(item => item.current_status === "current") ? "These sources are marked current in the corpus, but later changes may apply." : "The current-law status is not independently guaranteed."} Check the latest official text for a live matter. This is legal information, not advice on your circumstances.</p></div></aside>

@@ -364,6 +364,9 @@ export interface ChatQueryResponse {
   citations: AgentCitation[];
   confidence_score: number;
   evidence_strength: "strong" | "moderate" | "insufficient";
+  /** One row per published section. Empty for a Fast brief and for an
+   *  abstention, neither of which has verified sections to grade. */
+  section_confidence: SectionConfidence[];
   intent: Record<string, unknown>;
   agent_trace: Array<{ node: string; details: Record<string, unknown> }>;
   response_mode: SelectedResponseMode;
@@ -462,6 +465,7 @@ export interface ChatMessage {
   citations?: AgentCitation[];
   confidenceScore?: number;
   evidenceStrength?: "strong" | "moderate" | "insufficient";
+  sectionConfidence?: SectionConfidence[];
   timestamp: number;
   loading?: boolean;
   error?: string;
@@ -537,4 +541,17 @@ export interface InvestigationTimeline {
   deadlines: InvestigationDeadline[];
   breached: string[];
   undetermined: string[];
+}
+
+export interface SectionConfidence {
+  section: string;
+  claims: number;
+  sources: number;
+  authority: string[];
+  currency_unverified: boolean;
+  confidence: "strong" | "moderate" | "limited";
+  /** Why it is graded this way, in the words the grader used. Shown rather
+   *  than summarised: "grounded in a single source" is the actionable part,
+   *  and a bare label invites the reader to supply their own reason. */
+  reason: string;
 }
