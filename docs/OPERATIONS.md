@@ -72,7 +72,7 @@ cd backend && python -m app.ingestion.pipeline --resume
 python -m app.ingestion.pipeline --rechunk --resume
 
 # Supervised: brings the stack up, resumes, repeats until complete
-./scripts/run_rebuild.sh global_legal_corpus_v2
+./scripts/run_rebuild.sh global_legal_corpus_v3
 ```
 
 A build takes hours and will be interrupted. It checkpoints per document, so a
@@ -86,7 +86,7 @@ See PRD §14.5.
 ### Building a new index in parallel
 
 ```bash
-QDRANT_GLOBAL_COLLECTION=global_legal_corpus_v2 python -m app.ingestion.pipeline --rechunk --resume
+QDRANT_GLOBAL_COLLECTION=global_legal_corpus_v3 python -m app.ingestion.pipeline --rechunk --resume
 ```
 
 Each collection keeps its own checkpoint ledger, so two builds never skip each

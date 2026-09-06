@@ -30,11 +30,27 @@ MAX_EVIDENCE_TEXT_CHARACTERS = 1800
 
 
 # Output length is the largest single cost in a Deep run: 1,345 tokens at a
-# measured ~11 tok/s is roughly 119 seconds of decode. These bounds ask the
-# model for fewer, denser claims rather than truncating a longer draft, which
-# is what the earlier 900-token num_predict ceiling did. The ceiling stays at
+# measured ~11 tok/s is roughly 119 seconds of decode. The ceiling stays at
 # 1,800 so the draft still stops naturally.
-MAX_CLAIMS = 10
+#
+# The cap was 10, and 10 was a hard ceiling on ground coverage. Ten claims
+# across five categories is about two per category, while BNSS s.35(1)
+# enumerates ten grounds -- so the answer could not list them however good
+# retrieval was. Measured 6 September: arrest-current-law named six of ten
+# and missed proclaimed offender and stolen property, both retrieved.
+#
+# Raising it was unsafe until today. Verification counts one claim-marker
+# pair per citation rather than per claim, and publication depended on the
+# ratio of verified pairs to total, so more claims and better sourcing both
+# pushed answers into "insufficient evidence". That is very likely why an
+# earlier prompt change asking for fuller coverage took it from 0.67 to
+# 0.50: the answers were not worse, they were refused. Publication now
+# turns on absolute sufficiency, so the two are decoupled.
+#
+# 18 rather than 30: a ground is short, so the cost is claim count times
+# actual length, not times the cap. 18 claims averaging ~200 characters is
+# roughly 900 output tokens, comparable to the current draft.
+MAX_CLAIMS = 18
 MAX_CLAIM_CHARACTERS = 600
 
 
@@ -132,8 +148,13 @@ application — how the verified material applies to facts expressly stated by t
 next_step — a practical action directly supported by the cited material.
 limit — uncertainty, missing facts, adverse interpretation, or currency limitation.
 
-Write at most {max_claims} claims, each at most {max_characters} characters. Prefer fewer, denser
-claims over many thin ones: one well-supported claim per point, not the same point restated.
+Write at most {max_claims} claims, each at most {max_characters} characters. One claim per point,
+never the same point restated in different words.
+
+Where the evidence enumerates -- grounds, conditions, exceptions, the contents of a document, the
+steps of a procedure -- give each item its own short claim rather than compressing them into one.
+A reader who is told the law lists ten grounds and is shown six has been given the wrong answer,
+not a shorter one. Elsewhere prefer fewer, denser claims.
 
 Every claim must list 1–3 SOURCE labels from EVIDENCE (for example "S1", "S3") that directly support
 the entire claim. Use the label exactly as written; never invent one. Omit any unsupported claim. Use plain professional language.
