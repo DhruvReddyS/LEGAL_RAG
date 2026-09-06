@@ -148,3 +148,119 @@ class TestEveryItemCitesItsProvision:
         conditional = next(i for i in items if i.key == "handcuff_ground_within_s43_3")
 
         assert conditional.applies_because == "handcuffs were used"
+
+
+class TestTheCaseDiary:
+    @pytest.mark.parametrize(
+        "key",
+        [
+            "day_by_day_entries",
+            "time_information_reached",
+            "times_investigation_opened_and_closed",
+            "places_visited",
+            "circumstances_ascertained",
+            "section_180_statements_inserted",
+            "volume_is_paginated",
+        ],
+    )
+    def test_each_s192_requirement_is_present(self, key: str) -> None:
+        assert key in _keys(compliance_checklist(PoliceAction.CASE_DIARY))
+
+    def test_pagination_is_its_own_requirement(self) -> None:
+        """s.192(3) is what makes a later insertion visible.
+
+        A court may send for the diary under s.192(4). Folding pagination
+        into "keep a diary" would let an unpaginated one be ticked as
+        compliant, which defeats the only check the section provides.
+        """
+        item = next(
+            i
+            for i in compliance_checklist(PoliceAction.CASE_DIARY)
+            if i.key == "volume_is_paginated"
+        )
+
+        assert item.provision == "BNSS s.192(3)"
+
+
+class TestTheFinalReport:
+    @pytest.mark.parametrize(
+        ("key", "clause"),
+        [
+            ("names_of_parties", "(a)"),
+            ("nature_of_information", "(b)"),
+            ("persons_acquainted_with_circumstances", "(c)"),
+            ("whether_an_offence_appears_committed", "(d)"),
+            ("whether_accused_arrested", "(e)"),
+            ("whether_released_on_bond", "(f)"),
+            ("whether_forwarded_in_custody", "(g)"),
+        ],
+    )
+    def test_every_unconditional_clause_is_present(self, key: str, clause: str) -> None:
+        items = {i.key: i for i in compliance_checklist(PoliceAction.FINAL_REPORT)}
+
+        assert key in items
+        assert items[key].provision.endswith(clause)
+
+    def test_the_medical_report_clause_is_conditional(self) -> None:
+        """Clause (h) applies only to the listed sexual offences.
+
+        Listing it on every report would leave a permanent outstanding item
+        on an ordinary theft, which teaches the user to ignore the list.
+        """
+        assert "medical_examination_report_attached" not in _keys(
+            compliance_checklist(PoliceAction.FINAL_REPORT)
+        )
+        assert "medical_examination_report_attached" in _keys(
+            compliance_checklist(PoliceAction.FINAL_REPORT, is_listed_sexual_offence=True)
+        )
+
+    def test_the_electronic_custody_clause_is_conditional(self) -> None:
+        """Clause (i) is new in the BNSS and has no CrPC ancestor.
+
+        An unbroken custody sequence is what makes a device's contents
+        provable; without it the evidence is open to challenge whatever it
+        contains. It is the clause most easily missed, because nothing in
+        the old form asked for it.
+        """
+        assert "electronic_device_custody_sequence" not in _keys(
+            compliance_checklist(PoliceAction.FINAL_REPORT)
+        )
+        assert "electronic_device_custody_sequence" in _keys(
+            compliance_checklist(PoliceAction.FINAL_REPORT, electronic_device_seized=True)
+        )
+
+
+class TestTheActionsDoNotLeakIntoEachOther:
+    def test_an_arrest_flag_does_not_change_the_case_diary(self) -> None:
+        plain = _keys(compliance_checklist(PoliceAction.CASE_DIARY))
+        flagged = _keys(
+            compliance_checklist(
+                PoliceAction.CASE_DIARY,
+                arrested_person_is_woman=True,
+                handcuffs_used=True,
+                electronic_device_seized=True,
+            )
+        )
+
+        assert plain == flagged
+
+    @pytest.mark.parametrize("action", list(PoliceAction))
+    def test_every_action_produces_a_distinct_non_empty_list(self, action) -> None:
+        assert compliance_checklist(action), f"{action} has no requirements"
+
+    def test_no_requirement_key_appears_under_two_actions(self) -> None:
+        """Keys are the storage identity. A key shared between two actions
+        would let a confirmation recorded against one tick the other."""
+        seen: dict[str, str] = {}
+        for action in PoliceAction:
+            for item in compliance_checklist(
+                action,
+                is_listed_sexual_offence=True,
+                electronic_device_seized=True,
+                arrested_person_is_woman=True,
+                handcuffs_used=True,
+            ):
+                assert item.key not in seen, (
+                    f"{item.key!r} appears under both {seen.get(item.key)} and {action}"
+                )
+                seen[item.key] = str(action)

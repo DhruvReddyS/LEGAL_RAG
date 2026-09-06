@@ -556,7 +556,7 @@ export interface SectionConfidence {
   reason: string;
 }
 
-export type PoliceAction = "arrest" | "search_and_seizure";
+export type PoliceAction = "arrest" | "search_and_seizure" | "case_diary" | "final_report";
 export type ComplianceStatus = "satisfied" | "not_satisfied" | "not_recorded";
 
 export interface ComplianceItem {

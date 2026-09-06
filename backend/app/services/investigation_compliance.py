@@ -35,6 +35,8 @@ __all__ = [
 class PoliceAction(StrEnum):
     ARREST = "arrest"
     SEARCH_AND_SEIZURE = "search_and_seizure"
+    CASE_DIARY = "case_diary"
+    FINAL_REPORT = "final_report"
 
 
 class ComplianceStatus(StrEnum):
@@ -161,6 +163,88 @@ _SEARCH: tuple[tuple[str, str, str, str], ...] = (
 )
 
 
+_CASE_DIARY: tuple[tuple[str, str, str, str], ...] = (
+    (
+        "day_by_day_entries",
+        "Enter the proceedings in the investigation day by day.",
+        "BNSS s.192(1)",
+        "Day by day, not reconstructed at the end. A diary written afterwards "
+        "is not the record the section describes.",
+    ),
+    (
+        "time_information_reached",
+        "Record the time at which the information reached the officer.",
+        "BNSS s.192(1)",
+        "One of four times the sub-section names explicitly.",
+    ),
+    (
+        "times_investigation_opened_and_closed",
+        "Record the time the investigation began and the time it closed, each day.",
+        "BNSS s.192(1)",
+        "Both times, for each day's proceedings.",
+    ),
+    (
+        "places_visited",
+        "Record the place or places visited.",
+        "BNSS s.192(1)",
+        "The diary is the only contemporaneous record of where the "
+        "investigation went.",
+    ),
+    (
+        "circumstances_ascertained",
+        "Record a statement of the circumstances ascertained through the "
+        "investigation.",
+        "BNSS s.192(1)",
+        "The substance, not merely the movements.",
+    ),
+    (
+        "section_180_statements_inserted",
+        "Insert the witness statements recorded under s.180 into the case diary.",
+        "BNSS s.192(2)",
+        "Inserted into the diary itself, not merely filed alongside it.",
+    ),
+    (
+        "volume_is_paginated",
+        "Keep the diary as a volume, duly paginated.",
+        "BNSS s.192(3)",
+        "Pagination is what makes a later insertion visible. A court may send "
+        "for the diary under s.192(4).",
+    ),
+)
+
+# s.193(3)(i)(a)-(i). Clauses (h) and (i) are new in the BNSS and are the two
+# most often missed, because nothing in the old CrPC form asked for them.
+_FINAL_REPORT: tuple[tuple[str, str, str, str], ...] = (
+    ("names_of_parties", "State the names of the parties.", "BNSS s.193(3)(i)(a)", "Clause (a)."),
+    ("nature_of_information", "State the nature of the information.", "BNSS s.193(3)(i)(b)", "Clause (b)."),
+    (
+        "persons_acquainted_with_circumstances",
+        "Name the persons who appear to be acquainted with the circumstances of the case.",
+        "BNSS s.193(3)(i)(c)",
+        "Clause (c). These are the prosecution's potential witnesses.",
+    ),
+    (
+        "whether_an_offence_appears_committed",
+        "State whether any offence appears to have been committed and, if so, by whom.",
+        "BNSS s.193(3)(i)(d)",
+        "Clause (d). The report must reach a conclusion, not merely narrate.",
+    ),
+    ("whether_accused_arrested", "State whether the accused has been arrested.", "BNSS s.193(3)(i)(e)", "Clause (e)."),
+    (
+        "whether_released_on_bond",
+        "State whether the accused has been released on bond or bail bond.",
+        "BNSS s.193(3)(i)(f)",
+        "Clause (f).",
+    ),
+    (
+        "whether_forwarded_in_custody",
+        "State whether the accused has been forwarded in custody under s.190.",
+        "BNSS s.193(3)(i)(g)",
+        "Clause (g).",
+    ),
+)
+
+
 def compliance_checklist(
     action: PoliceAction,
     *,
@@ -168,6 +252,8 @@ def compliance_checklist(
     arrested_person_is_woman: bool = False,
     handcuffs_used: bool = False,
     memorandum_attested_by_family: bool = False,
+    is_listed_sexual_offence: bool = False,
+    electronic_device_seized: bool = False,
 ) -> list[ComplianceItem]:
     """The requirements that apply to this action, with what is known of each.
 
@@ -207,9 +293,35 @@ def compliance_checklist(
                 "of the offence must also have been considered.",
                 "handcuffs were used",
             ))
-    else:
+    elif action is PoliceAction.SEARCH_AND_SEIZURE:
         for key, requirement, provision, consequence in _SEARCH:
             rows.append((key, requirement, provision, consequence, ""))
+    elif action is PoliceAction.CASE_DIARY:
+        for key, requirement, provision, consequence in _CASE_DIARY:
+            rows.append((key, requirement, provision, consequence, ""))
+    else:
+        for key, requirement, provision, consequence in _FINAL_REPORT:
+            rows.append((key, requirement, provision, consequence, ""))
+
+        if is_listed_sexual_offence:
+            rows.append((
+                "medical_examination_report_attached",
+                "Attach the report of the medical examination of the woman.",
+                "BNSS s.193(3)(i)(h)",
+                "Required where the investigation relates to BNS ss.64-68, 70 or "
+                "71. New in the BNSS; the old CrPC form did not ask for it.",
+                "the offence is one of those listed in clause (h)",
+            ))
+        if electronic_device_seized:
+            rows.append((
+                "electronic_device_custody_sequence",
+                "State the sequence of custody for the electronic device.",
+                "BNSS s.193(3)(i)(i)",
+                "New in the BNSS. An unbroken custody sequence is what makes the "
+                "device's contents provable; without it the evidence is open to "
+                "challenge whatever it contains.",
+                "an electronic device was seized",
+            ))
 
     return [
         ComplianceItem(

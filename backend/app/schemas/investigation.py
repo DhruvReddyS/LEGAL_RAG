@@ -123,3 +123,6 @@ class ComplianceUpdateRequest(BaseModel):
     arrested_person_is_woman: bool = False
     handcuffs_used: bool = False
     memorandum_attested_by_family: bool = False
+    # s.193(3)(i)(h) and (i): both conditional, both new in the BNSS.
+    is_listed_sexual_offence: bool = False
+    electronic_device_seized: bool = False

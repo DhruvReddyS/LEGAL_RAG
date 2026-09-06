@@ -9,7 +9,25 @@ import type { ComplianceChecklist as Checklist, ComplianceStatus, PoliceAction }
 const ACTIONS: { value: PoliceAction; label: string }[] = [
   { value: "arrest", label: "Arrest" },
   { value: "search_and_seizure", label: "Search & seizure" },
+  { value: "case_diary", label: "Case diary" },
+  { value: "final_report", label: "Final report" },
 ];
+
+/** Which conditional flags change the list, per action. Showing a flag that
+ *  changes nothing invites the user to believe it did. */
+const FLAGS_FOR: Record<PoliceAction, readonly (readonly [string, string])[]> = {
+  arrest: [
+    ["arrested_person_is_woman", "Arrested person is a woman"],
+    ["handcuffs_used", "Handcuffs were used"],
+    ["memorandum_attested_by_family", "Memorandum attested by a family member"],
+  ],
+  search_and_seizure: [],
+  case_diary: [],
+  final_report: [
+    ["is_listed_sexual_offence", "Offence is listed under s.193(2) — BNS ss.64–71"],
+    ["electronic_device_seized", "An electronic device was seized"],
+  ],
+};
 
 /**
  * Three states, not a checkbox.
@@ -33,10 +51,12 @@ const PRESENTATION: Record<ComplianceStatus, { label: string; Icon: typeof Circl
 
 export function ComplianceChecklist({ caseId }: { caseId: string }) {
   const [action, setAction] = useState<PoliceAction>("arrest");
-  const [flags, setFlags] = useState({
+  const [flags, setFlags] = useState<Record<string, boolean>>({
     arrested_person_is_woman: false,
     handcuffs_used: false,
     memorandum_attested_by_family: false,
+    is_listed_sexual_offence: false,
+    electronic_device_seized: false,
   });
   const [checklist, setChecklist] = useState<Checklist | null>(null);
   const [busy, setBusy] = useState(false);
@@ -93,17 +113,13 @@ export function ComplianceChecklist({ caseId }: { caseId: string }) {
         {notice && <span className="text-xs text-[#b42318]">{notice}</span>}
       </div>
 
-      {action === "arrest" && (
+      {FLAGS_FOR[action].length > 0 && (
         <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-[#54515d]">
-          {([
-            ["arrested_person_is_woman", "Arrested person is a woman"],
-            ["handcuffs_used", "Handcuffs were used"],
-            ["memorandum_attested_by_family", "Memorandum attested by a family member"],
-          ] as const).map(([key, label]) => (
+          {FLAGS_FOR[action].map(([key, label]) => (
             <label key={key} className="flex items-center gap-2">
               <input
                 type="checkbox"
-                checked={flags[key]}
+                checked={!!flags[key]}
                 onChange={event => setFlags(current => ({ ...current, [key]: event.target.checked }))}
               />
               {label}

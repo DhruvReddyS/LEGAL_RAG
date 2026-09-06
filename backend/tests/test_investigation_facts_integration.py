@@ -362,3 +362,69 @@ async def test_another_officer_cannot_read_or_tick_this_checklist() -> None:
 
     assert read.status_code == 403
     assert wrote.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_the_two_new_bnss_report_clauses_are_reachable_over_the_api() -> None:
+    """Clauses (h) and (i) of s.193(3)(i) have no CrPC ancestor.
+
+    Nothing in the old form asked for a medical report or for the custody
+    sequence of an electronic device, so they are the two an officer
+    working from habit will miss. They must be reachable through the query
+    string, not only from Python.
+    """
+    headers, case_id = await _police_case()
+    async with await _client() as client:
+        plain = await client.get(
+            f"/cases/{case_id}/investigation/compliance?action=final_report",
+            headers=headers,
+        )
+        flagged = await client.get(
+            f"/cases/{case_id}/investigation/compliance?action=final_report"
+            "&is_listed_sexual_offence=true&electronic_device_seized=true",
+            headers=headers,
+        )
+
+    plain_keys = {i["key"] for i in plain.json()["items"]}
+    flagged_keys = {i["key"] for i in flagged.json()["items"]}
+
+    assert "electronic_device_custody_sequence" not in plain_keys
+    assert flagged_keys - plain_keys == {
+        "medical_examination_report_attached",
+        "electronic_device_custody_sequence",
+    }
+
+
+@pytest.mark.asyncio
+async def test_each_action_keeps_its_own_record_across_all_four() -> None:
+    """Four actions now share one JSONB column.
+
+    A confirmation recorded against the case diary must not tick a final
+    report requirement, and vice versa.
+    """
+    headers, case_id = await _police_case()
+    async with await _client() as client:
+        await client.put(
+            f"/cases/{case_id}/investigation/compliance",
+            json={"action": "case_diary", "status": {"volume_is_paginated": "satisfied"}},
+            headers=headers,
+        )
+        await client.put(
+            f"/cases/{case_id}/investigation/compliance",
+            json={"action": "final_report", "status": {"names_of_parties": "satisfied"}},
+            headers=headers,
+        )
+        diary = await client.get(
+            f"/cases/{case_id}/investigation/compliance?action=case_diary", headers=headers
+        )
+        report = await client.get(
+            f"/cases/{case_id}/investigation/compliance?action=final_report", headers=headers
+        )
+
+    diary_status = {i["key"]: i["status"] for i in diary.json()["items"]}
+    report_status = {i["key"]: i["status"] for i in report.json()["items"]}
+
+    assert diary_status["volume_is_paginated"] == "satisfied"
+    assert diary_status["day_by_day_entries"] == "not_recorded"
+    assert report_status["names_of_parties"] == "satisfied"
+    assert report_status["nature_of_information"] == "not_recorded"

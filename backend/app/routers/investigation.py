@@ -239,6 +239,8 @@ def _checklist_response(
     arrested_person_is_woman: bool,
     handcuffs_used: bool,
     memorandum_attested_by_family: bool,
+    is_listed_sexual_offence: bool = False,
+    electronic_device_seized: bool = False,
 ) -> ComplianceChecklistResponse:
     recorded = {
         key: ComplianceStatus(value)
@@ -254,6 +256,8 @@ def _checklist_response(
         arrested_person_is_woman=arrested_person_is_woman,
         handcuffs_used=handcuffs_used,
         memorandum_attested_by_family=memorandum_attested_by_family,
+        is_listed_sexual_offence=is_listed_sexual_offence,
+        electronic_device_seized=electronic_device_seized,
     )
     return ComplianceChecklistResponse(
         action=action,
@@ -320,6 +324,8 @@ async def record_compliance(
         arrested_person_is_woman=request.arrested_person_is_woman,
         handcuffs_used=request.handcuffs_used,
         memorandum_attested_by_family=request.memorandum_attested_by_family,
+        is_listed_sexual_offence=request.is_listed_sexual_offence,
+        electronic_device_seized=request.electronic_device_seized,
     )
 
 
@@ -334,6 +340,8 @@ async def read_compliance(
     arrested_person_is_woman: bool = False,
     handcuffs_used: bool = False,
     memorandum_attested_by_family: bool = False,
+    is_listed_sexual_offence: bool = False,
+    electronic_device_seized: bool = False,
     session: AsyncSession = Depends(get_db_session),
 ) -> ComplianceChecklistResponse:
     """The checklist for one action, with whatever has been recorded.
@@ -350,4 +358,6 @@ async def read_compliance(
         arrested_person_is_woman=arrested_person_is_woman,
         handcuffs_used=handcuffs_used,
         memorandum_attested_by_family=memorandum_attested_by_family,
+        is_listed_sexual_offence=is_listed_sexual_offence,
+        electronic_device_seized=electronic_device_seized,
     )
