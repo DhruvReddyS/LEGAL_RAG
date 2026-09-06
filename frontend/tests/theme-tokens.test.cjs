@@ -3,29 +3,51 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-// The components that render inside a workspace. MessageBubble is the
-// reference: the citizen surface has always been token-only, which is why it
-// works under both themes.
-const COMPONENTS = [
-  'components/MessageBubble.tsx',
-  'components/ProfessionalWorkspace.tsx',
-  'components/InvestigationTimeline.tsx',
-  'components/ComplianceChecklist.tsx',
-  'components/AuthorityCheck.tsx',
-];
+// Every component, not a chosen few. The first version of this file listed
+// five, which is how 290 hardcoded colours in the other seven went on
+// rendering a white card on a near-black page under the ink theme.
+const COMPONENT_DIR = 'components';
+const COMPONENTS = fs
+  .readdirSync(COMPONENT_DIR)
+  .filter(name => name.endsWith('.tsx'))
+  .map(name => path.join(COMPONENT_DIR, name))
+  .concat(['app/page.tsx']);
 
-test('no workspace component hardcodes a colour', () => {
-  // A literal renders one theme correctly and the other unreadably. The
-  // police and advocate surfaces were built this way and showed cream
-  // panels on a near-black page under the ink theme, with the toggle
-  // sitting in settings the whole time.
+// Colours that are deliberately fixed, with the reason. A scrim is a wash
+// over whatever is behind it and does not follow the theme; the desktop
+// dialog's header band is branded dark in both themes, like the auth screen.
+// Anything not listed here has to be a token.
+const DELIBERATE = {
+  '#10201d': 'modal scrim, and the desktop dialog’s dark header band',
+  '#07111f': 'modal scrim on the desktop readiness dialog',
+};
+const DELIBERATE_UTILITIES = /\b(?:border|text)-white\b/;
+
+test('no component hardcodes a colour outside the documented exceptions', () => {
   for (const file of COMPONENTS) {
     const source = fs.readFileSync(file, 'utf8');
-    const literals = source.match(/#[0-9a-fA-F]{6}\b/g) || [];
+    const unexpected = (source.match(/#[0-9a-fA-F]{6}\b/g) || [])
+      .map(value => value.toLowerCase())
+      .filter(value => !(value in DELIBERATE));
     assert.deepEqual(
-      literals,
+      unexpected,
       [],
-      `${file} hardcodes ${literals.join(', ')}. Use a CSS variable so both themes resolve.`,
+      `${file} hardcodes ${[...new Set(unexpected)].join(', ')}. Use a CSS variable, ` +
+        'or add it to DELIBERATE with the reason it must not follow the theme.',
+    );
+  }
+});
+
+test('no component paints a bare white surface', () => {
+  // bg-white is a literal by another name: a white card on a near-black
+  // page. text-white and border-white survive only where they sit on a
+  // deliberately dark surface.
+  for (const file of COMPONENTS) {
+    const source = fs.readFileSync(file, 'utf8').replace(DELIBERATE_UTILITIES, '');
+    assert.equal(
+      /\bbg-white\b/.test(source),
+      false,
+      `${file} paints bg-white. Use bg-[var(--card)] so the ink theme resolves.`,
     );
   }
 });

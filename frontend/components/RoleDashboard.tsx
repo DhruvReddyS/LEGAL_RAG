@@ -23,8 +23,8 @@ const ROLE_DASHBOARD = {
     eyebrow: "Citizen legal access",
     title: "Understand your rights. Know your next step.",
     description: "A guided legal information workspace that translates verified authority into understandable procedures without pretending to replace a lawyer.",
-    accent: "#285047",
-    tint: "#f1e7dc",
+    accent: "var(--accent)",
+    tint: "var(--hover)",
     icon: UsersRound,
     agents: [
       { name: "Procedure Navigator", detail: "Turns a legal issue into a clear sequence of practical steps.", icon: ClipboardCheck, query: "Explain how to report a cognizable offence and what information I should preserve." },
@@ -37,8 +37,8 @@ const ROLE_DASHBOARD = {
     eyebrow: "Police intelligence console",
     title: "Procedure-led investigation. Evidence you can defend.",
     description: "A controlled operational workspace for lawful investigation, evidence integrity, scoped case search and fact-faithful FIR review drafts.",
-    accent: "#285047",
-    tint: "#edf1ed",
+    accent: "var(--accent)",
+    tint: "var(--hover)",
     icon: Fingerprint,
     agents: [
       { name: "FIR Review Agent", detail: "Preserves uncertainty, flags missing fields and grounds provisions.", icon: ClipboardCheck, workspace: true },
@@ -52,8 +52,8 @@ const ROLE_DASHBOARD = {
     eyebrow: "Advocate intelligence suite",
     title: "Build the argument. Test the opposition. Verify every authority.",
     description: "A private matter workspace for two-sided legal strategy, authority mapping, evidence challenges and citation-controlled research.",
-    accent: "#76512f",
-    tint: "#faf3e9",
+    accent: "var(--accent)",
+    tint: "var(--hover)",
     icon: Scale,
     agents: [
       { name: "Defence Strategy Agent", detail: "Builds lawful points, opposing arguments and verification status.", icon: Scale, workspace: true },
@@ -67,8 +67,8 @@ const ROLE_DASHBOARD = {
     eyebrow: "Platform administration",
     title: "Govern the corpus. Inspect the evidence trail.",
     description: "System-level visibility for corpus operations and neutral citation-controlled legal research.",
-    accent: "#4f5968",
-    tint: "#f1f3f6",
+    accent: "var(--ink)",
+    tint: "var(--hover)",
     icon: Gauge,
     agents: [
       { name: "Corpus Inspector", detail: "Reviews staged sources, validation gates and publication provenance.", icon: BookOpenCheck, workspace: true },
@@ -97,27 +97,27 @@ export default function RoleDashboard({ user, progress, onNavigate, onResearch }
 
   const workflow = <ol className="workflow-rail">{profile.workflow.map((step, index) => <li key={step}><span>{String(index + 1).padStart(2, "0")}</span><div><p>{step}</p><small>{index === profile.workflow.length - 1 ? "Professional judgement remains essential" : "A guided step in your workflow"}</small></div></li>)}</ol>;
   const capabilities = <div className={user.role === "citizen" ? "citizen-capabilities" : "capability-list"}>{profile.agents.map(agent => <button key={agent.name} onClick={() => launchAgent(agent)} className="premium-card"><agent.icon size={21} /><div><h3>{agent.name.replace(" Agent", "")}</h3><p>{agent.detail}</p></div></button>)}</div>;
-  const matterList = <div className="panel overflow-hidden"><div className="flex justify-between border-b border-[#ded7cc] p-5"><h3 className="font-semibold">{user.role === "police" ? "Investigation register" : "Client matter folio"}</h3><span className="text-xs text-[#65716e]">{cases.length} matter{cases.length === 1 ? "" : "s"}</span></div>{cases.length ? cases.slice(0, 4).map(item => <button key={item.id} onClick={() => onNavigate("workspace")} className="flex w-full items-center justify-between gap-3 border-b border-[#eee7dc] p-5 text-left transition hover:bg-[#faf3eb]"><span className="min-w-0 truncate text-sm">{item.title}</span><span className="text-xs capitalize text-[#785130]">{item.status}</span></button>) : <div className="p-7"><p className="display-type text-xl">A clear record starts here.</p><p className="mt-2 text-sm leading-6 text-[#65716e]">Open a matter to organise documents, evidence and your working analysis.</p></div>}<button className="button-secondary m-5" onClick={() => onNavigate("workspace")}>Open {user.role === "police" ? "case operations" : "matter workspace"}</button></div>;
+  const matterList = <div className="panel overflow-hidden"><div className="flex justify-between border-b border-[var(--border)] p-5"><h3 className="font-semibold">{user.role === "police" ? "Investigation register" : "Client matter folio"}</h3><span className="text-xs text-[var(--ink-soft)]">{cases.length} matter{cases.length === 1 ? "" : "s"}</span></div>{cases.length ? cases.slice(0, 4).map(item => <button key={item.id} onClick={() => onNavigate("workspace")} className="flex w-full items-center justify-between gap-3 border-b border-[var(--state-warn-bg)] p-5 text-left transition hover:bg-[var(--hover)]"><span className="min-w-0 truncate text-sm">{item.title}</span><span className="text-xs capitalize text-[var(--accent)]">{item.status}</span></button>) : <div className="p-7"><p className="display-type text-xl">A clear record starts here.</p><p className="mt-2 text-sm leading-6 text-[var(--ink-soft)]">Open a matter to organise documents, evidence and your working analysis.</p></div>}<button className="button-secondary m-5" onClick={() => onNavigate("workspace")}>Open {user.role === "police" ? "case operations" : "matter workspace"}</button></div>;
   return <section className={"role-home role-home-" + user.role}>
-    <div className="mb-8 flex flex-wrap items-center justify-between gap-2 border-b border-[#ded7cc] pb-4 text-xs text-[#65716e]"><p>{dateLabel}</p><p>Welcome, {firstName}</p></div>
+    <div className="mb-8 flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border)] pb-4 text-xs text-[var(--ink-soft)]"><p>{dateLabel}</p><p>Welcome, {firstName}</p></div>
     {user.role === "citizen" ? <>
       <div className="citizen-intro">
-        <div><p className="eyebrow">Your legal starting point</p><h1>Understand your rights.<br /><em>Know your next step.</em></h1><p className="intro-copy">You do not need to speak the language of law to understand where you stand. Start with a question. We will help you find the authority behind the answer.</p><button onClick={() => onNavigate("research")} className="button-primary mt-7"><Search size={17} />Ask a legal question</button><p className="mt-4 text-xs text-[#65716e]">Plain language. Traceable sources. Clear limitations.</p></div>
-        <aside className="citizen-note"><BookOpenCheck size={28} /><p className="display-type mt-6 text-3xl leading-tight">An answer is only as useful as the evidence behind it.</p><p className="mt-5 text-sm leading-7">Open the cited passage, see the source, and understand what an answer does—and does not—establish.</p><div className="mt-8 border-t border-[#cdbb9e] pt-5"><span className="display-type text-3xl">{progress?.canonical_documents?.toLocaleString() ?? "—"}</span><p className="mt-1 text-xs">Canonical authorities in the corpus</p></div></aside>
+        <div><p className="eyebrow">Your legal starting point</p><h1>Understand your rights.<br /><em>Know your next step.</em></h1><p className="intro-copy">You do not need to speak the language of law to understand where you stand. Start with a question. We will help you find the authority behind the answer.</p><button onClick={() => onNavigate("research")} className="button-primary mt-7"><Search size={17} />Ask a legal question</button><p className="mt-4 text-xs text-[var(--ink-soft)]">Plain language. Traceable sources. Clear limitations.</p></div>
+        <aside className="citizen-note"><BookOpenCheck size={28} /><p className="display-type mt-6 text-3xl leading-tight">An answer is only as useful as the evidence behind it.</p><p className="mt-5 text-sm leading-7">Open the cited passage, see the source, and understand what an answer does—and does not—establish.</p><div className="mt-8 border-t border-[var(--state-warn-line)] pt-5"><span className="display-type text-3xl">{progress?.canonical_documents?.toLocaleString() ?? "—"}</span><p className="mt-1 text-xs">Canonical authorities in the corpus</p></div></aside>
       </div>
       <h2 className="mb-5 mt-12 text-2xl">A little direction, when you need it.</h2>{capabilities}
-      <p className="mt-7 flex items-start gap-2 text-xs leading-5 text-[#65716e]"><ShieldCheck size={16} className="shrink-0" />Corpusil provides legal information. Important decisions should be reviewed with a qualified professional.</p>
+      <p className="mt-7 flex items-start gap-2 text-xs leading-5 text-[var(--ink-soft)]"><ShieldCheck size={16} className="shrink-0" />Corpusil provides legal information. Important decisions should be reviewed with a qualified professional.</p>
     </> : user.role === "police" ? <>
       <div className="mb-8 flex flex-wrap items-end justify-between gap-5"><div><p className="eyebrow">Police operations desk</p><h1 className="mt-3 text-4xl leading-tight">Procedure first.<br />A defensible record follows.</h1></div><button className="button-primary" onClick={() => onNavigate("workspace")}><ClipboardCheck size={17} />Open investigation</button></div>
-      <div className="police-desk"><aside className="operational-rail"><p className="mb-6 text-sm font-semibold">Investigation workflow</p>{workflow}<p className="mt-6 border-t border-white/15 pt-5 text-xs leading-6 text-[#d1ad77]">Private evidence is restricted to your authorised role and matter.</p></aside><div className="min-w-0 space-y-6">{matterList}<div><h2 className="mb-4 text-2xl">Procedure & evidence tools</h2>{capabilities}</div></div></div>
+      <div className="police-desk"><aside className="operational-rail"><p className="mb-6 text-sm font-semibold">Investigation workflow</p>{workflow}<p className="mt-6 border-t border-white/15 pt-5 text-xs leading-6 text-[var(--state-warn-line)]">Private evidence is restricted to your authorised role and matter.</p></aside><div className="min-w-0 space-y-6">{matterList}<div><h2 className="mb-4 text-2xl">Procedure & evidence tools</h2>{capabilities}</div></div></div>
     </> : user.role === "advocate" ? <>
       <div className="advocate-heading"><p className="eyebrow">Counsel’s working desk</p><h1>Build the argument.<br /><em>Test every assumption.</em></h1><p className="intro-copy">A considered position starts with both sides: governing authority, disputed evidence and the strongest opposing case.</p></div>
-      <div className="advocate-desk"><div className="drafting-feature"><Scale size={27} className="text-[#d1ad77]" /><h2 className="mt-6 text-3xl">The strategy brief</h2><p className="mt-4 max-w-md text-sm leading-7 text-white/70">Bring allegations, facts and procedural history together. Develop a two-sided analysis before committing to a legal position.</p><div className="my-7 grid grid-cols-2 gap-5 border-y border-white/15 py-5 text-sm"><p>Supporting position<span className="mt-2 block text-xs text-white/50">Evidence & governing authority</span></p><p>Opposing position<span className="mt-2 block text-xs text-white/50">Challenges & distinctions</span></p></div><button onClick={() => onNavigate("workspace")} className="button-secondary"><Scale size={16} />Prepare a strategy brief</button></div>{matterList}</div>
+      <div className="advocate-desk"><div className="drafting-feature"><Scale size={27} className="text-[var(--state-warn-line)]" /><h2 className="mt-6 text-3xl">The strategy brief</h2><p className="mt-4 max-w-md text-sm leading-7 text-[var(--paper)]/70">Bring allegations, facts and procedural history together. Develop a two-sided analysis before committing to a legal position.</p><div className="my-7 grid grid-cols-2 gap-5 border-y border-white/15 py-5 text-sm"><p>Supporting position<span className="mt-2 block text-xs text-[var(--paper)]/50">Evidence & governing authority</span></p><p>Opposing position<span className="mt-2 block text-xs text-[var(--paper)]/50">Challenges & distinctions</span></p></div><button onClick={() => onNavigate("workspace")} className="button-secondary"><Scale size={16} />Prepare a strategy brief</button></div>{matterList}</div>
       <h2 className="mb-4 mt-9 text-2xl">At the authority desk</h2>{capabilities}
     </> : <>
       <div className="mb-7 flex flex-wrap items-end justify-between gap-5"><div><p className="eyebrow">Corpus governance</p><h1 className="mt-3 text-4xl">Trust is an operational discipline.</h1><p className="intro-copy">Manage professional access, source quality and the publication trail.</p></div><button className="button-primary" onClick={() => onNavigate("workspace")}><Gauge size={16} />Open administration</button></div>
       <div className="admin-register"><div><Database size={22} /><strong>{progress?.canonical_documents?.toLocaleString() ?? "—"}</strong><span>Canonical sources</span></div><div><BookOpenCheck size={22} /><strong>{(progress?.global_points ?? progress?.qdrant_points)?.toLocaleString() ?? "—"}</strong><span>Indexed passages</span></div><div><ShieldCheck size={22} /><strong>{progress ? "Connected" : "Unavailable"}</strong><span>Corpus status endpoint</span></div></div>
-      <div className="mt-8 grid gap-7 lg:grid-cols-[1.4fr_1fr]"><div><h2 className="mb-5 text-2xl">Management & inspection</h2>{capabilities}<div className="mt-6 border-l-2 border-[#a57843] py-2 pl-5 text-sm leading-7 text-[#65716e]">Gold sources remain immutable. Extended sources move through staging, validation and publication. Review the queue and audit trail in administration.</div></div><div className="panel p-6"><h2 className="mb-6 text-2xl">Governance sequence</h2>{workflow}</div></div>
+      <div className="mt-8 grid gap-7 lg:grid-cols-[1.4fr_1fr]"><div><h2 className="mb-5 text-2xl">Management & inspection</h2>{capabilities}<div className="mt-6 border-l-2 border-[var(--state-warn-text)] py-2 pl-5 text-sm leading-7 text-[var(--ink-soft)]">Gold sources remain immutable. Extended sources move through staging, validation and publication. Review the queue and audit trail in administration.</div></div><div className="panel p-6"><h2 className="mb-6 text-2xl">Governance sequence</h2>{workflow}</div></div>
     </>}
   </section>;
 }

@@ -54,14 +54,14 @@ export default function DesktopUpdater() {
   };
 
   return (
-    <aside className="fixed bottom-5 right-5 z-[100] w-[min(390px,calc(100vw-2.5rem))] rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl shadow-slate-950/20">
+    <aside className="fixed bottom-5 right-5 z-[100] w-[min(390px,calc(100vw-2.5rem))] rounded-2xl border border-slate-200 bg-[var(--card)] p-4 shadow-2xl shadow-slate-950/20">
       <div className="flex items-start gap-3">
-        <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-950 text-sm font-semibold text-white">
+        <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-950 text-sm font-semibold text-[var(--paper)]">
           ↑
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-slate-950">Corpusil {update.version} is available</p>
-          <p className="mt-1 text-xs leading-5 text-[#a9b9af]">
+          <p className="mt-1 text-xs leading-5 text-[var(--ink-soft)]">
             {status === "installing"
               ? message
               : status === "error"
@@ -73,7 +73,7 @@ export default function DesktopUpdater() {
               type="button"
               disabled={status === "installing"}
               onClick={() => void install()}
-              className="rounded-lg bg-slate-950 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800 disabled:cursor-wait disabled:opacity-60"
+              className="rounded-lg bg-slate-950 px-3 py-2 text-xs font-semibold text-[var(--paper)] transition hover:bg-slate-800 disabled:cursor-wait disabled:opacity-60"
             >
               {status === "installing" ? "Installing…" : status === "error" ? "Try again" : "Install update"}
             </button>
@@ -81,7 +81,7 @@ export default function DesktopUpdater() {
               <button
                 type="button"
                 onClick={() => setUpdate(null)}
-                className="rounded-lg px-3 py-2 text-xs font-medium text-[#a9b9af] hover:bg-slate-100"
+                className="rounded-lg px-3 py-2 text-xs font-medium text-[var(--ink-soft)] hover:bg-slate-100"
               >
                 Later
               </button>
