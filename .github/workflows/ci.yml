@@ -235,6 +235,14 @@ jobs:
       # change can leave retrieval untouched and still take ground coverage
       # from 0.67 to 0.50 by altering a prompt -- which happened here, with
       # the retrieval gate green throughout.
+      # Asks whether the provision that governs a question is reachable at
+      # all. Recall cannot: its predicates match any passage containing a
+      # phrase, so a judgment quoting BNSS s.173 satisfies the FIR item while
+      # the section itself is absent from the top 100. Cheap -- embeddings
+      # only, no model -- so it runs before the answer evaluation.
+      - name: Check the governing provision is reachable
+        run: python scripts/check_provision_reach.py
+
       - name: Measure answer quality against the golden set
         run: python scripts/evaluate_answers.py --label ci
 

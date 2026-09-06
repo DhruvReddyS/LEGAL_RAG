@@ -369,6 +369,53 @@ of that rule now applies only when there is a cross-encoder score to judge.
 
 ---
 
+### 5.7 Following citations to the law in force
+
+The deepest retrieval defect in this project, and the one the other symptoms
+sat on top of.
+
+BNSS s.173 answers "how is an FIR registered?" and contains none of those
+words -- it says "information relating to the commission of a cognizable
+offence". Measured, the section does not appear in the top 100 for that
+question, while its own text retrieves it at rank 1. The index is sound; the
+gap is between how statutes are drafted and how people ask. The same holds
+for s.482 on anticipatory bail and BSA s.26 on dying declarations.
+
+Recall@5 read 0.927 throughout, because the golden set matches any passage
+*containing* a phrase and a judgment quoting the provision satisfies that.
+The metric was measuring "something relevant came back", never "the governing
+provision came back".
+
+What does rank for those questions is judgments, and they cite the repealed
+codes -- CrPC s.154 for the FIR, s.438 for anticipatory bail -- because they
+predate the Sanhitas. The concordance (§9.4) says where those provisions
+went. So `citation_following.py` reads what the retrieved passages rely on,
+follows it forward, and fetches the result. It is how a lawyer works: read
+the commentary, follow it to the statute.
+
+| question | before | after | cost |
+|---|---:|---:|---:|
+| how is an FIR registered | absent | rank 9 | 18 ms |
+| anticipatory bail grounds | absent | rank 9 | 11 ms |
+| dying declaration | absent | rank 9 | 6 ms |
+| arrest without a warrant | rank 8 | rank 8 | 7 ms |
+| "what did the Court hold in Puttaswamy" | — | adds nothing | 0 ms |
+
+No model, one extra Qdrant call, and nothing invented: a provision the
+concordance records as repealed without replacement yields nothing rather
+than a nearest-numbered guess, and a citation to a code already in force is
+not followed. Results are appended below everything retrieved on its merits,
+because this is corroboration the sources pointed at, not a better match.
+
+Two misses are honest and recorded. Default bail is not reached: the passages
+cite CrPC ss.437 and 437A, which map to the BNSS bail sections rather than to
+s.187, whose proviso creates the entitlement. Theft follows to BNS s.1,
+because the retrieved judgments happen not to cite IPC ss.378 or 379.
+Following citations reaches what the sources rely on, which is not always
+what the question needs.
+
+---
+
 ## 6. The two lanes
 
 The router (`adaptive_routing.py`) picks a lane per question. Any signal of
@@ -773,6 +820,15 @@ Citation accuracy is separate from recall on purpose: recall asks whether the
 governing authority came back anywhere, citation accuracy asks what fraction of
 what the reader is *shown* is correct.
 
+> **What recall does not measure, and this took months to notice.** Relevance
+> predicates match any passage *containing* a phrase, so a judgment quoting
+> BNSS s.173 satisfies the FIR item while the section itself is absent from the
+> top 100. Recall@5 read 0.927 while the governing provision could not be
+> reached for four of six core questions (§5.7). A recall metric over
+> phrase-matching predicates measures topical coverage, not authority. The
+> per-question provision check in §5.7 is the instrument that found it, and
+> nothing in the golden set replaces it.
+
 ### 13.3 Answer metrics (`app/evaluation/answer_quality.py`)
 
 Retrieval finding the law is necessary and not sufficient. A change can leave
@@ -907,12 +963,15 @@ Each is measured, and each has a stated direction rather than a shrug. Measured
 2. **Latency p50 is 102.6 s**, against a 90 s target. The publication gate change
    should reduce it — a broad question no longer retries twice before being
    discarded — but that is a prediction, not a measurement.
-3. **The currency questions still fail.** `theft-current-law` and
-   `evidence-current-law` retrieve no BNS or BSA passage in the top 20. The
-   metadata is correct (370 BNS and 180 BSA chunks carry the right act name), so
-   this is retrieval matching *topic* where the question is about *currency*:
-   164 years of commentary discusses IPC theft and the BNS provision appears in
-   one document. A rank penalty of 3 does not close that gap.
+3. **Statutory vocabulary still limits retrieval, though less.** Following
+   citations (§5.7) recovers the governing provision for the FIR,
+   anticipatory-bail and dying-declaration questions, which retrieval could
+   not reach at all. Two known misses remain: default bail, where the
+   passages cite CrPC ss.437 and 437A and so lead to the BNSS bail sections
+   rather than to s.187, and theft, where the retrieved judgments happen not
+   to cite IPC ss.378 or 379. Both are the same shape -- following citations
+   reaches what the sources rely on, which is not always what the question
+   needs -- and neither is fixed by ranking.
 4. **Reading grade is 14.4** across all roles, 14.1 for citizens. That is
    undergraduate level for an audience that includes people with no legal
    training. Statutory prose is polysyllabic by nature, so the figure runs high
@@ -972,6 +1031,7 @@ Each is measured, and each has a stated direction rather than a shrug. Measured
 | `repeal_labels.py`, `section_mapping.py` | Labels A and B; the concordance |
 | `citation_status.py` | One label builder for every lane |
 | `section_confidence.py` | Per-section grounding: authority tier, source count, currency |
+| `citation_following.py` | Reaching the provision in force via what the corpus cites |
 | `authority_check.py` | Checks a draft's citations against the codes in force |
 | `investigation_timeline.py` | Nine BNSS statutory deadlines, computed not recalled |
 | `investigation_compliance.py` | BNSS requirements per police action, three-state |

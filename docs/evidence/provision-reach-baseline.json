@@ -1,0 +1,65 @@
+{
+  "measured_at": "2026-09-06T19:26:59.941304+00:00",
+  "collection": "global_legal_corpus_v3",
+  "reached": 5,
+  "total": 8,
+  "reach_rate": 0.625,
+  "rows": [
+    {
+      "question": "How is an FIR registered?",
+      "provision": "BNSS s.173",
+      "rank": 9,
+      "reached": true,
+      "via_citation_following": true
+    },
+    {
+      "question": "When can the police arrest someone without a warrant?",
+      "provision": "BNSS s.35",
+      "rank": 8,
+      "reached": true,
+      "via_citation_following": false
+    },
+    {
+      "question": "On what grounds may anticipatory bail be granted?",
+      "provision": "BNSS s.482",
+      "rank": 9,
+      "reached": true,
+      "via_citation_following": true
+    },
+    {
+      "question": "What is default bail?",
+      "provision": "BNSS s.187",
+      "rank": null,
+      "reached": false,
+      "via_citation_following": false
+    },
+    {
+      "question": "Which law now governs the offence of theft?",
+      "provision": "BNS s.303",
+      "rank": null,
+      "reached": false,
+      "via_citation_following": false
+    },
+    {
+      "question": "Is a statement made by a dying person accepted as evidence?",
+      "provision": "BSA s.26",
+      "rank": 9,
+      "reached": true,
+      "via_citation_following": true
+    },
+    {
+      "question": "Must the grounds of arrest be communicated to the arrested person?",
+      "provision": "BNSS s.47",
+      "rank": null,
+      "reached": false,
+      "via_citation_following": false
+    },
+    {
+      "question": "What safeguards apply when a woman is arrested?",
+      "provision": "BNSS s.43",
+      "rank": 8,
+      "reached": true,
+      "via_citation_following": false
+    }
+  ]
+}
