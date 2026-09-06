@@ -13,14 +13,18 @@ from app.services.pipeline_telemetry import append_stage_metric, text_size
 
 
 MARKER_RE = re.compile(r"\[SRC:([^\]]+)\]")
-PROFESSIONAL_SECTION_LABELS = {
-    "direct_answer": "Direct answer",
-    "legal_basis": "Verified legal basis",
-    "application": "Application to your situation",
-    "next_step": "Practical next steps",
-    "limit": "Important limits and uncertainties",
-}
-
+# The same five verified categories, named for what each role is actually
+# reading for. A police officer reading "Practical next steps" reads advice;
+# the BNSS imposes obligations, and "Required procedural steps" is what the
+# section contains. An advocate needs the contrary case flagged as such, not
+# filed under "uncertainties".
+#
+# These strings are load-bearing beyond the answer text: frontend/lib/
+# answer-presentation.ts classifies sections by matching on the heading, so
+# a label that matches none of its patterns silently falls into the generic
+# body. test_section_labels.py pins the full set, and the frontend has a
+# matching test, so a new label fails on both sides rather than degrading
+# quietly on one.
 CITIZEN_SECTION_LABELS = {
     "direct_answer": "Direct answer",
     "legal_basis": "Why this is the legal position",
@@ -28,6 +32,32 @@ CITIZEN_SECTION_LABELS = {
     "next_step": "What you can do now",
     "limit": "Important limits",
 }
+
+POLICE_SECTION_LABELS = {
+    "direct_answer": "Direct answer",
+    "legal_basis": "Governing provision and legal basis",
+    "application": "Application to this matter",
+    "next_step": "Required procedural steps",
+    "limit": "Safeguards, limits and uncertainties",
+}
+
+ADVOCATE_SECTION_LABELS = {
+    "direct_answer": "Direct answer",
+    "legal_basis": "Authority and legal basis",
+    "application": "Application to these facts",
+    "next_step": "Steps available",
+    "limit": "Contrary considerations, limits and gaps",
+}
+
+ROLE_SECTION_LABELS = {
+    "citizen": CITIZEN_SECTION_LABELS,
+    "police": POLICE_SECTION_LABELS,
+    "advocate": ADVOCATE_SECTION_LABELS,
+}
+
+# Admin and any future role fall back to the citizen shape rather than to a
+# professional one: plain language is the safe default for an unknown reader.
+PROFESSIONAL_SECTION_LABELS = POLICE_SECTION_LABELS
 
 
 def response_generation_node(state: dict) -> dict:
@@ -44,11 +74,7 @@ def response_generation_node(state: dict) -> dict:
         # Removing whole lines is unsafe because one paragraph can contain both
         # supported and unsupported claims.
         role = str(state.get("role") or "citizen")
-        section_labels = (
-            CITIZEN_SECTION_LABELS
-            if role == "citizen"
-            else PROFESSIONAL_SECTION_LABELS
-        )
+        section_labels = ROLE_SECTION_LABELS.get(role, CITIZEN_SECTION_LABELS)
         supported_by_category: dict[str, list[str]] = {
             category: [] for category in section_labels
         }
