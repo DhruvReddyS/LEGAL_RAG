@@ -1,131 +1,108 @@
-# Where the project stands
+# What to do next
 
-*Written 6 September 2026, mid-rebuild. Superseded whenever the numbers below
-are re-measured.*
+*6 September 2026, evening. The v3 rebuild is complete and deployed; the
+answer-quality re-measurement is running.*
 
-## The short answer
+## Where things stand
 
-The **citizen module is feature-complete and its quality is unverified**.
-Every planned citizen feature is built and 719 tests pass, but the corpus
-index is being rebuilt after a parser fix that materially changes what is in
-it, and no answer-quality number measured before that rebuild is worth
-quoting. The police and advocate modules have their foundations plus, as of
-today, the first police feature.
+| | |
+|---|---|
+| Corpus | `global_legal_corpus_v3`, 24,810 points, deployed |
+| Backend tests | 919 |
+| Red-team | 36, re-run against v3 tonight, all pass |
+| Frontend | 38 tests, one palette, both themes |
+| Citizen | feature-complete |
+| Police | investigation workflow complete |
+| Advocate | complete except the parked debate room |
 
-## What is blocking, and it is only one thing
+Baselines are recorded in `docs/evidence/`. Both CI gates are wired.
 
-The v3 rebuild is at **149 of 381 documents**. It must finish before any
-answer number means anything.
+## 1. Ground coverage — 0.474, and the cause is now located
 
-The reason is worth stating plainly, because it is the largest single defect
-found in this project. Both section-heading patterns required a title after
-the section number. The 2023 Sanhitas print their titles as *marginal notes*
-in a narrow left column, often with no full stop. So the parser did not see
-them, and:
+This is the next fix and it is well understood, so it should be quick.
 
-- **BNSS s.35 and s.173 were absent from the index entirely.** s.35 governs
-  arrest without warrant; s.173 is the FIR provision, the most-asked question
-  in this corpus.
-- The four BNSS chunks containing "arrest without warrant" were labelled
-  `section='476'`, `''`, `'46'` and `'57'` — CrPC numbers attached to BNSS
-  text.
-- Deep was answering questions about arrest without ever retrieving the
-  provision that authorises it.
+Answers that publish name **under half** the statutory grounds. On
+`arrest-current-law` the answer gives six of the ten grounds in BNSS s.35(1)
+and misses *proclaimed offender* and *stolen property* — **both of which were
+retrieved**.
 
-Section coverage after the fix, against the official section counts:
+Three things were ruled out and one found, by reading the code rather than
+guessing:
 
-| act | parsed | official | coverage | was |
-|---|---:|---:|---:|---|
-| BNSS | 530 | 531 | 100% | 50% |
-| BNS | 344 | 358 | 96% | 77% |
-| BSA | 168 | 170 | 99% | 85% |
-| IPC | 477 | 511 | 93% | — |
-| Constitution | 457 | 395 | 116% | — |
+- **Not the evidence window.** `reasoning_node` receives every retrieved hit,
+  not a top-5 slice. All eight passages reach the model.
+- **Not truncation.** Each passage carries 1,800 characters, and the missing
+  grounds sit inside that.
+- **Not retrieval.** Both grounds were in the retrieved set.
+- **It is `MAX_CLAIMS = 10`.** Ten claims spread across five categories is
+  roughly two per category. BNSS s.35(1) enumerates ten grounds. The answer
+  cannot list ten grounds in two claims, so the cap is a hard ceiling on
+  coverage for any enumerative question — which is most statutory questions.
 
-The Constitution's 116% is legitimate: 378 plain articles with none numbered
-above 395, plus 79 genuine lettered articles (21A, 124A, 239A).
+### Why raising it is safe now and was not this morning
 
-## What you can test right now
+The cap was coupled to the abstention gate. Verification counts one
+**claim-marker pair** per citation, not per claim, so a well-sourced claim
+citing three passages produced three pairs. More claims and better sourcing
+both pushed the denominator up, the ratio down, and the answer into
+"insufficient evidence". Raising `MAX_CLAIMS` would have increased the
+abstention rate.
 
-Everything except answer quality. The stack runs, the API serves, and the
-citizen and admin surfaces work against the v2 index.
+That coupling is gone: publication now depends on absolute sufficiency, not on
+the ratio. So the cap can be raised on its own merits.
 
-```bash
-docker compose --env-file .env -f docker/docker-compose.yml up -d --wait postgres qdrant minio
-```
+**Suggested next step:** raise `MAX_CLAIMS` to 16–20, measure ground coverage
+and latency together, and watch the verification stage — it is the cost that
+scales, one LLM call per batch of pairs.
 
-```bash
-cd backend && ../.venv-ingest/bin/python -m pytest tests/ -q --ignore=tests/redteam
-```
+Note in passing: `VerificationResult.total_claims` holds the pair count, not
+the claim count. It feeds a published metric under a misleading name.
 
-Note that the rebuild is writing to `global_legal_corpus_v3` while the
-application still reads `global_legal_corpus_v2`, so testing now does not
-disturb it and does not see the fix either.
+## 2. Latency — 102.6 s p50 against a 90 s target
 
-## Features, by role
+The publication fix should reduce this on its own: a broad question no longer
+retries twice before being discarded, and `child-needing-care` spent 332
+seconds doing exactly that. That is a prediction, and the re-measurement will
+settle it. Do not tune latency until it lands — raising `MAX_CLAIMS` will push
+in the other direction, and the two must be read together.
 
-### Citizen — built
-Plain-language answers with citations · Fast and Deep lanes · emergency and
-refusal screening · abstention on corpus gaps · repeal and currency labelling
-· source inspector · document upload and analysis · feedback · session
-history · follow-up questions now routed to the lane that can resolve them.
+## 3. The currency questions still retrieve nothing
 
-### Citizen — not built
-Rights explainer (C-04) · forum router (C-05) · drafting beyond FIR facts
-(C-06) · multilingual (C-07) · upload redaction (C-02).
+`theft-current-law` and `evidence-current-law` return no BNS or BSA passage in
+the top 20. The metadata is correct — 370 BNS and 180 BSA chunks carry the
+right act name — so this is retrieval matching **topic** where the question is
+about **currency**. 164 years of commentary discusses IPC theft; the BNS
+provision appears in one document. A rank penalty of 3 does not close that gap.
 
-### Police — foundation, plus the first feature
-Case creation and evidence upload · private case corpus with proven isolation
-· FIR fact extraction and drafting agent · role profile and specialist
-prompts · **statutory investigation timeline** (nine BNSS deadlines,
-`POST /cases/{case_id}/investigation/timeline`).
+Worth trying, in order of how little they distort other queries:
 
-The rest of the investigation workflow is unstarted.
+1. Detect the currency question deterministically ("which law now governs",
+   "is X still in force") and filter to in-force sources for those queries only.
+2. Route them through the section mapper instead of retrieval: the concordance
+   already knows IPC s.378 → BNS s.303, and the answer is a mapping, not a
+   passage.
 
-### Advocate — foundation only
-Case corpus · defence strategy agent with adverse arguments · authority
-mapping. The debate room is unstarted and you have parked it deliberately.
+The second is more honest — the question *is* a concordance lookup — and it
+reuses work that already exists.
 
-### Admin — built
-User management · corpus statistics · ingestion progress · audit log, and it
-cannot reach private case material through a general search.
+## 4. Reading grade 14.4 on a citizen surface
 
-## Measurement, now that there is some
-
-Before today the only instrument was retrieval recall, which says the right
-passage came back and nothing about whether the answer used it. There are now
-five answer-quality metrics — abstention correctness, unsupported-claim rate,
-currency correctness, ground coverage and reading grade — with 45 ground
-expectations authored by reading BNSS ss.35, 43, 47, 187, 482, BSA s.26 and
-BNS s.303 out of this corpus.
-
-```bash
-python scripts/evaluate_answers.py --label v3
-```
-
-Both gates run in the CI quality group. The answer gate treats unsupported
-claims as a rule rather than a metric: no tolerance reaches it, and it cannot
-be recorded into a baseline.
+Undergraduate level for an audience that includes people with no legal
+training. Statutory prose is polysyllabic by nature so the figure runs high for
+any correct answer, but this is not where a citizen surface should sit. Note
+that a previous attempt to improve answers by prompt change took ground
+coverage from 0.67 to 0.50, so change one thing and measure it.
 
 ## Waiting on you
 
-1. **The five corpus gaps** — see [CORPUS_GAPS.md](CORPUS_GAPS.md). Which, if
-   any, to ingest, and for tenancy, which State. Doing none is a legitimate
-   choice: the system abstains correctly on all five today and the golden set
-   expects it, so leaving them costs zero measured score.
-2. **A schema migration for the investigation timeline.** The endpoint is
-   stateless because `Case` carries no offence or date fields. Persisting them
-   needs a migration, and you asked to approve those.
-3. **The official MHA concordance tables.** The 54 section mappings are still
-   model-authored. You ruled out human review of them, correctly — a reviewer
-   approves most and misses the wrong one — and no authoritative offline
-   source has been obtained.
+1. **The five corpus gaps** — [CORPUS_GAPS.md](CORPUS_GAPS.md). Three of the
+   four hosts carrying those Acts are unreachable from this machine, so this
+   needs either a network path or the PDFs dropped into
+   `data/legal_kb/raw/primary_law/civil_gaps/`. For tenancy it also needs a
+   State; Andhra Pradesh is the corpus's existing lean.
+2. **The debate room**, parked. §15 of the PRD has the cost.
 
-## After the rebuild, in order
+## Not worth doing yet
 
-1. Measure v3 against v2 on golden set v3; `evidence-current-law`,
-   `theft-current-law` and `arrest-current-law` should move.
-2. Record the answer-quality baseline.
-3. Re-measure the cross-encoder cost on a quiet machine — the 5,126 ms figure
-   was taken while the machine was swapping.
-4. Session-scoped evidence pool, so an elaboration does not re-retrieve.
+Adding features. Every module has working features and a measured quality
+problem; another surface makes the second harder to see.
