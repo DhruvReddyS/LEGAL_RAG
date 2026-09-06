@@ -202,3 +202,62 @@ class TestTheRecordedFindingIsHonoured:
         result = response_generation_node(self._state(addresses=None))
 
         assert result["final_answer"] != INSUFFICIENT_EVIDENCE
+
+
+class TestItJudgesTheQuestionTheUserAsked:
+    """Not the query retrieval ended up running.
+
+    The retrieval node broadens a query on its fallback path, appending
+    procedure language to widen the search. Judging coverage against that
+    broadened string adds focus tokens the passages cannot carry, so the
+    floor rejects every one of them.
+
+    Measured on art19-free-speech: publication said publish, with 18
+    distinct claims and a 0.556 support ratio, and this gate suppressed it
+    to a 15-word refusal. Passing the user's question instead produced a
+    304-word answer with no retries.
+
+    The offline probe missed it because it used the original wording -- the
+    harness measured one input and the pipeline ran another, which is the
+    mismatch this project keeps repeating.
+    """
+
+    def test_a_broadened_query_rejects_passages_the_original_accepts(self) -> None:
+        original = "What limits can the government place on freedom of speech?"
+        broadened = (
+            original
+            + " procedure complaint registration general diary station officer"
+            + " application filing process steps"
+        )
+        # Carries all five of the original question's focus terms, so it
+        # clears the no-rare-term floor of 0.45 outright. An earlier version
+        # used the Article 19(2) text, which scores 0.400 -- below the floor
+        # for the original query too, so the test failed on correct code and
+        # demonstrated nothing.
+        hits = [
+            _Hit(
+                "The government may place limits on the freedom of speech by "
+                "imposing reasonable restrictions in the interests of public "
+                "order, decency or morality."
+            )
+        ]
+
+        assert evidence_addresses_the_question(original, hits, set())
+        assert not evidence_addresses_the_question(broadened, hits, set()), (
+            "the fixture no longer demonstrates the failure; pick a broadening "
+            "that actually dilutes coverage below the floor"
+        )
+
+    def test_the_node_passes_the_users_question(self) -> None:
+        """Structural, because the broadening happens deep in a fallback
+        path that is awkward to force from a unit test -- but the call site
+        is unambiguous."""
+        import inspect
+
+        from app.agents import retrieval_agent
+
+        source = inspect.getsource(retrieval_agent)
+        assert 'evidence_addresses_the_question(\n            str(state.get("query") or query)' in source, (
+            "the sufficiency gate is no longer judging state['query']; if it "
+            "judges the broadened retrieval query it rejects everything"
+        )

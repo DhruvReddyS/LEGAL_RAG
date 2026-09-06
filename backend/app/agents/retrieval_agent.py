@@ -366,8 +366,17 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
         # nothing asked whether the source is about the question, which is
         # how a corpus gap produced a grounded answer from adjacent
         # material.
+        # Judged against the user's question, never the broadened retrieval
+        # query. The fallback path appends procedure language to widen the
+        # search, which adds focus tokens the passages cannot carry, so the
+        # coverage floor rejects everything -- measured on
+        # art19-free-speech: publication said publish with 18 claims and a
+        # 0.556 support ratio, and this gate suppressed it to a 15-word
+        # refusal. The offline probe passed that question because it used
+        # the original wording, which is precisely the harness/lane
+        # mismatch this project keeps repeating.
         "evidence_addresses_question": evidence_addresses_the_question(
-            query, hits, set(distinctive)
+            str(state.get("query") or query), hits, set(distinctive)
         ),
         "retrieved_chunks": hits,
         # Identity of the evidence this pass found. Generation is deterministic
