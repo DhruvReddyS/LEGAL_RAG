@@ -231,6 +231,26 @@ jobs:
           path: eval-result.json
           if-no-files-found: ignore
 
+      # Retrieval finding the right law is necessary and not sufficient. A
+      # change can leave retrieval untouched and still take ground coverage
+      # from 0.67 to 0.50 by altering a prompt -- which happened here, with
+      # the retrieval gate green throughout.
+      - name: Measure answer quality against the golden set
+        run: python scripts/evaluate_answers.py --label ci
+
+      - name: Fail on an answer-quality regression
+        run: >-
+          python scripts/check_answer_gate.py
+          --result docs/evidence/answers-ci.json
+
+      - name: Upload answer-quality result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: answer-quality
+          path: docs/evidence/answers-ci.json
+          if-no-files-found: ignore
+
   frontend:
     name: Frontend lint, test and build
     runs-on: ubuntu-24.04
