@@ -105,67 +105,77 @@
 .provisional-brief .legal-answer{font-size:.92rem;color:var(--ink-soft)}
 .provisional-brief .trust-row{margin-top:.7rem}
 
-/* Per-section grounding. Collapsed by default: it informs the careful
-   reader without competing with the answer for the ordinary one. */
-.section-grading {
-  margin-top: 0.75rem;
-  border: 1px solid #e9e5ef;
-  border-radius: 0.75rem;
-  background: #fdfcfe;
-  font-size: 0.75rem;
-}
-.section-grading > summary {
-  cursor: pointer;
-  padding: 0.55rem 0.85rem;
-  color: #54515d;
-  font-weight: 500;
-  list-style: none;
-}
-.section-grading > summary::-webkit-details-marker { display: none; }
-.section-grading .grading-flag { color: #8a5a12; font-weight: 400; }
-.section-grading ul { margin: 0; padding: 0 0.85rem 0.35rem; list-style: none; }
-.section-grading li {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.15rem 0.6rem;
-  padding: 0.5rem 0;
-  border-top: 1px solid #efebf3;
-}
-.section-grading .grading-section { color: #54515d; font-weight: 500; }
-.section-grading .grading-reason {
-  grid-column: 1 / -1;
-  color: #827b8c;
-  line-height: 1.45;
-}
-.grading-label {
-  justify-self: end;
-  border-radius: 0.375rem;
-  padding: 0.1rem 0.4rem;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  text-transform: capitalize;
-}
-.grading-strong { background: #f1faf5; color: #2e6b50; }
-.grading-moderate { background: #faf7f2; color: #8a5a12; }
-.grading-limited { background: #fff5f4; color: #b42318; }
-.section-grading .grading-note {
-  margin: 0;
-  padding: 0.5rem 0.85rem 0.7rem;
-  border-top: 1px solid #efebf3;
-  color: #75817b;
-  line-height: 1.45;
+/* ---------------------------------------------------------------------------
+   Three-state status, shared by every professional surface.
+
+   Deadlines, the compliance checklist, the citation check and per-section
+   grounding all express the same three states: this is fine, this needs
+   attention, and nobody established either. I first wrote them with
+   light-mode hex literals, which render unreadable under the ink theme -- a
+   cream panel on a near-black page, with the theme toggle sitting in
+   settings the whole time. One token set now drives all four, and both
+   themes define it.
+
+   The third state is why these are three colours and not two: an unknown is
+   not a pass and not a failure.
+   --------------------------------------------------------------------------- */
+:root {
+  --state-ok-bg: #f1faf5;
+  --state-ok-line: #d7eadf;
+  --state-ok-text: #2e6b50;
+  --state-warn-bg: #faf7f2;
+  --state-warn-line: #e7e0d6;
+  --state-warn-text: #8a5a12;
+  --state-bad-bg: #fff5f4;
+  --state-bad-line: #f3c7c3;
+  --state-bad-text: #b42318;
 }
 
-/* Compliance checklist. Three states, deliberately not a checkbox: an
-   unconfirmed requirement is neither done nor breached. */
-.compliance-satisfied { border-color: #d7eadf; background: #f1faf5; color: #2e6b50; }
-.compliance-failed { border-color: #f3c7c3; background: #fff5f4; color: #b42318; }
-.compliance-unrecorded { border-color: #e7e0d6; background: #faf7f2; color: #8a5a12; }
+:root[data-theme="ink"] {
+  --state-ok-bg: #1e2b24;
+  --state-ok-line: #2f473a;
+  --state-ok-text: #9ccdb0;
+  --state-warn-bg: #2b2720;
+  --state-warn-line: #473f31;
+  --state-warn-text: #d9b476;
+  --state-bad-bg: #2d2020;
+  --state-bad-line: #4a3130;
+  --state-bad-text: #e39b93;
+}
 
-/* Authority check. Ordered and coloured by what the drafter must do:
-   a repealed provision with no successor cannot be fixed by substitution. */
-.authority-current { border-color: #d7eadf; background: #f1faf5; color: #2e6b50; }
-.authority-moved { border-color: #ddd6e5; background: #fdfcfe; color: #54515d; }
-.authority-changed { border-color: #e7e0d6; background: #faf7f2; color: #8a5a12; }
-.authority-gone { border-color: #f3c7c3; background: #fff5f4; color: #b42318; }
-.authority-unchecked { border-color: #e9e5ef; background: #fdfcfe; color: #75817b; }
+.state-ok {border:1px solid var(--state-ok-line);background:var(--state-ok-bg);color:var(--state-ok-text);}
+.state-warn {border:1px solid var(--state-warn-line);background:var(--state-warn-bg);color:var(--state-warn-text);}
+.state-bad {border:1px solid var(--state-bad-line);background:var(--state-bad-bg);color:var(--state-bad-text);}
+.state-neutral {border:1px solid var(--border);background:var(--card);color:var(--ink-soft);}
+
+.state-tally {display:inline-flex;align-items:center;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:500;}
+.state-tally.is-ok {background:var(--state-ok-bg);color:var(--state-ok-text);}
+.state-tally.is-warn {background:var(--state-warn-bg);color:var(--state-warn-text);}
+.state-tally.is-bad {background:var(--state-bad-bg);color:var(--state-bad-text);}
+.state-tally.is-plain {background:var(--hover);color:var(--ink-soft);}
+
+/* A statutory citation beside a requirement. Monospace so section numbers
+   line up down the column, which is how they are read. */
+.provision-tag {flex:none;border-radius:6px;padding:2px 6px;background:var(--hover);color:var(--ink-soft);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;}
+
+.state-row {border-radius:12px;padding:14px;}
+.state-row + .state-row {margin-top:8px;}
+.state-row-title {color:var(--ink);font-size:13px;line-height:1.4;}
+.state-row-detail {margin-top:6px;color:var(--ink-soft);font-size:11px;line-height:1.45;}
+.state-row-status {flex:none;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
+.state-hint {color:var(--ink-soft);font-size:11px;line-height:1.45;}
+.state-field-hint {display:block;margin-top:4px;color:var(--ink-soft);font-size:10px;line-height:1.4;}
+
+.section-grading {margin-top:12px;border:1px solid var(--border);border-radius:12px;background:var(--card);font-size:12px;}
+.section-grading > summary {cursor:pointer;padding:9px 14px;color:var(--ink);font-weight:500;list-style:none;}
+.section-grading > summary::-webkit-details-marker {display:none;}
+.section-grading .grading-flag {color:var(--state-warn-text);font-weight:400;}
+.section-grading ul {margin:0;padding:0 14px 6px;list-style:none;}
+.section-grading li {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:8px 0;border-top:1px solid var(--border);}
+.section-grading .grading-section {color:var(--ink);font-weight:500;}
+.section-grading .grading-reason {grid-column:1/-1;color:var(--ink-soft);line-height:1.45;}
+.grading-label {justify-self:end;border-radius:6px;padding:2px 7px;font-size:11px;font-weight:600;text-transform:capitalize;}
+.grading-strong {background:var(--state-ok-bg);color:var(--state-ok-text);}
+.grading-moderate {background:var(--state-warn-bg);color:var(--state-warn-text);}
+.grading-limited {background:var(--state-bad-bg);color:var(--state-bad-text);}
+.section-grading .grading-note {margin:0;padding:8px 14px 11px;border-top:1px solid var(--border);color:var(--ink-soft);line-height:1.45;}

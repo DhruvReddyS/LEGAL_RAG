@@ -71,21 +71,19 @@ function DeadlineRow({ deadline }: { deadline: InvestigationDeadline }) {
   const breached = state === "overdue";
 
   const tone = undetermined
-    ? { wrap: "border-[#e7e0d6] bg-[#faf7f2]", accent: "text-[#8a5a12]", Icon: CircleHelp }
+    ? { wrap: "state-warn", accent: "text-[var(--state-warn-text)]", Icon: CircleHelp }
     : breached
-      ? { wrap: "border-[#f3c7c3] bg-[#fff5f4]", accent: "text-[#b42318]", Icon: AlertTriangle }
-      : { wrap: "border-[#d7eadf] bg-[#f1faf5]", accent: "text-[#2e6b50]", Icon: ShieldCheck };
+      ? { wrap: "state-bad", accent: "text-[var(--state-bad-text)]", Icon: AlertTriangle }
+      : { wrap: "state-ok", accent: "text-[var(--state-ok-text)]", Icon: ShieldCheck };
 
   return (
-    <article className={`rounded-xl border p-3.5 ${tone.wrap}`}>
+    <article className={`state-row ${tone.wrap}`}>
       <div className="flex items-start gap-2.5">
         <tone.Icon size={16} className={`mt-0.5 shrink-0 ${tone.accent}`} />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-            <p className="text-sm font-medium leading-5 text-[#54515d]">{deadline.obligation}</p>
-            <span className="shrink-0 rounded-md bg-white/70 px-1.5 py-0.5 font-mono text-[10px] text-[#897499]">
-              {deadline.provision}
-            </span>
+            <p className="state-row-title font-medium">{deadline.obligation}</p>
+            <span className="provision-tag">{deadline.provision}</span>
           </div>
 
           {undetermined ? (
@@ -94,21 +92,21 @@ function DeadlineRow({ deadline }: { deadline: InvestigationDeadline }) {
               This is not a finding of compliance.
             </p>
           ) : (
-            <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[#827b8c]">
+            <p className="state-row-detail flex flex-wrap items-center gap-x-2 gap-y-1">
               <span className={`inline-flex items-center gap-1 font-medium ${tone.accent}`}>
                 <Clock3 size={12} />
                 {formatDue(deadline.due_at as string)}
               </span>
               <span className={breached ? tone.accent : ""}>({remaining(deadline.due_at as string)})</span>
               {deadline.is_earliest_possible && (
-                <span className="text-[10px] text-[#75817b]">
+                <span className="text-[10px] opacity-80">
                   earliest it can expire — s.58 excludes travel from the place of arrest
                 </span>
               )}
             </p>
           )}
 
-          <p className="mt-1.5 text-[11px] leading-4 text-[#75817b]">
+          <p className="state-row-detail">
             {deadline.consequence}
             {!undetermined && <> Computed as {deadline.computed_from}.</>}
           </p>
@@ -171,17 +169,17 @@ export function InvestigationTimeline({ caseId }: { caseId: string }) {
   }, [timeline]);
 
   if (!caseId) {
-    return <p className="text-xs text-[#827b8c]">Select a matter to record its investigation dates.</p>;
+    return <p className="state-hint">Select a matter to record its investigation dates.</p>;
   }
 
   return (
     <div className="space-y-5">
       <div>
-        <div className="flex items-center gap-2 text-sm font-semibold text-[#54515d]">
-          <CalendarClock size={17} className="text-[#897499]" />
+        <div className="flex items-center gap-2 text-sm font-semibold text-[var(--ink)]">
+          <CalendarClock size={17} className="text-[var(--accent)]" />
           Statutory deadlines
         </div>
-        <p className="mt-1.5 text-xs leading-5 text-[#827b8c]">
+        <p className="state-hint mt-1.5">
           Computed from the BNSS by date arithmetic, not by the model. Every row names the
           provision it comes from. A date left blank produces a stated unknown rather than a guess.
         </p>
@@ -190,7 +188,7 @@ export function InvestigationTimeline({ caseId }: { caseId: string }) {
       <div className="grid gap-3 sm:grid-cols-2">
         {DATE_FIELDS.map(({ key, label, hint }) => (
           <label key={key} className="block">
-            <span className="block text-xs font-medium text-[#54515d]">{label}</span>
+            <span className="block text-xs font-medium text-[var(--ink)]">{label}</span>
             <input
               type="datetime-local"
               className="field mt-1.5 h-10 w-full"
@@ -199,12 +197,12 @@ export function InvestigationTimeline({ caseId }: { caseId: string }) {
                 setFacts((current) => ({ ...current, [key]: fromLocalInput(event.target.value) }))
               }
             />
-            {hint && <span className="mt-1 block text-[10px] leading-4 text-[#75817b]">{hint}</span>}
+            {hint && <span className="state-field-hint">{hint}</span>}
           </label>
         ))}
 
         <label className="block">
-          <span className="block text-xs font-medium text-[#54515d]">Offence gravity</span>
+          <span className="block text-xs font-medium text-[var(--ink)]">Offence gravity</span>
           <select
             className="field mt-1.5 h-10 w-full"
             value={facts.gravity}
@@ -216,13 +214,13 @@ export function InvestigationTimeline({ caseId }: { caseId: string }) {
             <option value="death_life_or_ten_years_or_more">Death, life, or ten years or more</option>
             <option value="other">Any other offence</option>
           </select>
-          <span className="mt-1 block text-[10px] leading-4 text-[#75817b]">
+          <span className="state-field-hint">
             Left unrecorded, the s.187(3) period is reported as undetermined rather than assumed.
           </span>
         </label>
 
         <div className="flex flex-col justify-end gap-2">
-          <label className="flex items-center gap-2 text-xs text-[#54515d]">
+          <label className="flex items-center gap-2 text-xs text-[var(--ink)]">
             <input
               type="checkbox"
               checked={facts.is_listed_sexual_offence}
@@ -232,7 +230,7 @@ export function InvestigationTimeline({ caseId }: { caseId: string }) {
             />
             Listed offence under s.193(2) — BNS ss.64–71, POCSO ss.4, 6, 8, 10
           </label>
-          <label className="flex items-center gap-2 text-xs text-[#54515d]">
+          <label className="flex items-center gap-2 text-xs text-[var(--ink)]">
             <input
               type="checkbox"
               checked={facts.is_unnatural_death}
@@ -249,24 +247,22 @@ export function InvestigationTimeline({ caseId }: { caseId: string }) {
         <button
           onClick={save}
           disabled={busy}
-          className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#303039] px-4 text-sm font-medium text-white disabled:opacity-40"
+          className="button-primary"
         >
           {busy ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
           Record dates
         </button>
-        {notice && <p className="text-xs text-[#827b8c]">{notice}</p>}
+        {notice && <p className="state-hint">{notice}</p>}
       </div>
 
       {counts && (
         <div className="flex flex-wrap gap-2 text-[11px]">
-          <span className="rounded-md bg-[#f1edf6] px-2 py-1 text-[#54515d]">{counts.tracked} obligations</span>
+          <span className="state-tally is-plain">{counts.tracked} obligations</span>
           {counts.breached > 0 && (
-            <span className="rounded-md bg-[#fff5f4] px-2 py-1 font-medium text-[#b42318]">{counts.breached} overdue</span>
+            <span className="state-tally is-bad">{counts.breached} overdue</span>
           )}
           {counts.undetermined > 0 && (
-            <span className="rounded-md bg-[#faf7f2] px-2 py-1 font-medium text-[#8a5a12]">
-              {counts.undetermined} cannot be determined
-            </span>
+            <span className="state-tally is-warn">{counts.undetermined} cannot be determined</span>
           )}
         </div>
       )}
@@ -276,13 +272,13 @@ export function InvestigationTimeline({ caseId }: { caseId: string }) {
           <DeadlineRow key={deadline.key} deadline={deadline} />
         ))}
         {timeline && timeline.deadlines.length === 0 && (
-          <p className="rounded-xl border border-[#e9e5ef] p-4 text-xs text-[#827b8c]">
+          <p className="state-row state-neutral state-hint">
             No statutory deadline follows from the dates recorded. That is not a finding that none
             applies — record the dates above and they will appear.
           </p>
         )}
         {!timeline && (
-          <p className="rounded-xl border border-dashed border-[#e9e5ef] p-4 text-xs text-[#827b8c]">
+          <p className="state-row state-neutral state-hint">
             Nothing recorded for this matter yet.
           </p>
         )}

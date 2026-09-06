@@ -7,12 +7,12 @@ import { checkDraftAuthorities } from "@/lib/api";
 import type { AuthorityCheckResult, AuthorityFinding, CitationCheck } from "@/lib/types";
 
 const FINDING: Record<AuthorityFinding, { label: string; Icon: typeof ShieldCheck; cls: string }> = {
-  still_current: { label: "In force", Icon: ShieldCheck, cls: "authority-current" },
-  renumbered: { label: "Renumbered", Icon: ArrowRight, cls: "authority-moved" },
-  elements_changed: { label: "Changed", Icon: AlertTriangle, cls: "authority-changed" },
-  not_re_enacted: { label: "Repealed, no successor", Icon: Slash, cls: "authority-gone" },
-  no_mapping_known: { label: "No counterpart listed", Icon: CircleHelp, cls: "authority-changed" },
-  not_checked: { label: "Not checked", Icon: CircleHelp, cls: "authority-unchecked" },
+  still_current: { label: "In force", Icon: ShieldCheck, cls: "state-ok" },
+  renumbered: { label: "Renumbered", Icon: ArrowRight, cls: "state-neutral" },
+  elements_changed: { label: "Changed", Icon: AlertTriangle, cls: "state-warn" },
+  not_re_enacted: { label: "Repealed, no successor", Icon: Slash, cls: "state-bad" },
+  no_mapping_known: { label: "No counterpart listed", Icon: CircleHelp, cls: "state-warn" },
+  not_checked: { label: "Not checked", Icon: CircleHelp, cls: "state-neutral" },
 };
 
 /**
@@ -56,7 +56,7 @@ export function AuthorityCheck({ caseId }: { caseId: string }) {
 
   return (
     <div className="space-y-4">
-      <p className="max-w-3xl text-xs leading-5 text-[#827b8c]">
+      <p className="state-hint max-w-3xl">
         Paste a draft. Every provision it cites is checked against the codes in force
         using the official concordance — no model reads the text. The three 2023 codes
         renumbered most of the IPC, CrPC and Evidence Act on 1 July 2024, and a few
@@ -67,7 +67,7 @@ export function AuthorityCheck({ caseId }: { caseId: string }) {
         value={draft}
         onChange={event => setDraft(event.target.value)}
         placeholder="Paste the petition, FIR, application or notice…"
-        className="min-h-40 w-full resize-y rounded-xl border border-[#ddd6e5] p-4 text-sm leading-6 outline-none focus:border-[#897499] focus:ring-4 focus:ring-[#897499]/10"
+        className="field min-h-40 w-full resize-y leading-6"
       />
 
       <div className="flex flex-wrap items-center gap-3">
@@ -75,23 +75,23 @@ export function AuthorityCheck({ caseId }: { caseId: string }) {
           {busy ? <Loader2 size={15} className="animate-spin" /> : <ScanText size={15} />}
           Check citations
         </button>
-        {notice && <span className="text-xs text-[#b42318]">{notice}</span>}
+        {notice && <span className="text-xs text-[var(--state-bad-text)]">{notice}</span>}
       </div>
 
       {result && (
         <>
           <div className="flex flex-wrap gap-2 text-[11px]">
-            <span className="rounded-md bg-[#f1edf6] px-2 py-1 text-[#54515d]">{result.checked.length} citations found</span>
+            <span className="state-tally is-plain">{result.checked.length} citations found</span>
             {result.needs_attention > 0 && (
-              <span className="rounded-md bg-[#fff5f4] px-2 py-1 font-medium text-[#b42318]">{result.needs_attention} need attention</span>
+              <span className="state-tally is-bad">{result.needs_attention} need attention</span>
             )}
             {result.not_checked > 0 && (
-              <span className="rounded-md bg-[#faf7f2] px-2 py-1 font-medium text-[#8a5a12]">{result.not_checked} outside the concordance</span>
+              <span className="state-tally is-warn">{result.not_checked} outside the concordance</span>
             )}
           </div>
 
           {!result.checked.length && (
-            <p className="rounded-xl border border-[#e9e5ef] p-4 text-xs text-[#827b8c]">
+            <p className="state-row state-neutral state-hint">
               No statutory citation was recognised in this text. That is not a finding
               that the draft cites nothing — check that provisions are written in a
               form the parser reads, such as &ldquo;section 438 of the Code of Criminal Procedure&rdquo;.
@@ -102,13 +102,13 @@ export function AuthorityCheck({ caseId }: { caseId: string }) {
             {rows.map(row => {
               const shown = FINDING[row.finding];
               return (
-                <li key={row.citation} className={`rounded-xl border p-3.5 ${shown.cls}`}>
+                <li key={row.citation} className={`state-row ${shown.cls}`}>
                   <div className="flex items-start gap-2.5">
                     <shown.Icon size={16} className="mt-0.5 shrink-0" />
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                        <p className="font-mono text-sm text-[#54515d]">{row.citation}</p>
-                        <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide">{shown.label}</span>
+                        <p className="state-row-title font-mono">{row.citation}</p>
+                        <span className="state-row-status">{shown.label}</span>
                       </div>
                       <p className="mt-1.5 text-xs leading-5">{row.advice}</p>
                     </div>
@@ -118,7 +118,7 @@ export function AuthorityCheck({ caseId }: { caseId: string }) {
             })}
           </ul>
 
-          <p className="text-[11px] leading-4 text-[#75817b]">
+          <p className="state-hint">
             The concordance covers the IPC, CrPC and Evidence Act only. Citations to other
             statutes are listed as unchecked rather than omitted, so a partial check is not
             mistaken for a complete one.
