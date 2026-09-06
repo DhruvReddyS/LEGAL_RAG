@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-05T18:26:59.346196+00:00",
+  "generated_at": "2026-09-06T02:43:37.981272+00:00",
   "collection": "global_legal_corpus_v2",
   "golden_set": "golden_set_v3.json",
   "limit": 20,
@@ -25,30 +25,31 @@
         "recall_at_1": 0.6363636363636364,
         "recall_at_5": 0.9454545454545454,
         "recall_at_20": 0.9636363636363636,
-        "mrr": 0.7525757575757576,
-        "ndcg_at_10": 0.8027767996879387,
-        "citation_accuracy_at_5": 0.5963636363636363,
+        "mrr": 0.7501515151515151,
+        "ndcg_at_10": 0.8016564727302694,
+        "citation_accuracy_at_5": 0.6212121212121212,
+        "citation_accuracy_raw_at_5": 0.5963636363636363,
         "abstention_accuracy": 0.6666666666666666,
         "false_abstention_rate": 0.03636363636363636,
-        "seconds_per_query": 0.10495605737704879,
+        "seconds_per_query": 0.10334186201639307,
         "by_role": {
           "advocate": {
             "items": 7,
             "recall_at_5": 0.714,
             "recall_at_20": 0.857,
-            "citation_accuracy_at_5": 0.629
+            "citation_accuracy_at_5": 0.619
           },
           "citizen": {
             "items": 23,
             "recall_at_5": 0.957,
             "recall_at_20": 0.957,
-            "citation_accuracy_at_5": 0.661
+            "citation_accuracy_at_5": 0.674
           },
           "police": {
             "items": 25,
             "recall_at_5": 1.0,
             "recall_at_20": 1.0,
-            "citation_accuracy_at_5": 0.528
+            "citation_accuracy_at_5": 0.573
           }
         }
       },
@@ -60,7 +61,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.4,
+          "citation_accuracy_shown": 0.3333333333333333,
           "wrongly_abstained": false
         },
         {
@@ -70,7 +71,7 @@
           "first_rank": 3,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.2,
+          "citation_accuracy_shown": 1.0,
           "wrongly_abstained": false
         },
         {
@@ -80,7 +81,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 1.0,
+          "citation_accuracy_shown": 1.0,
           "wrongly_abstained": false
         },
         {
@@ -90,7 +91,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.8,
+          "citation_accuracy_shown": 1.0,
           "wrongly_abstained": false
         },
         {
@@ -100,7 +101,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 1.0,
+          "citation_accuracy_shown": 1.0,
           "wrongly_abstained": false
         },
         {
@@ -110,7 +111,7 @@
           "first_rank": 5,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.2,
+          "citation_accuracy_shown": 1.0,
           "wrongly_abstained": false
         },
         {
@@ -120,7 +121,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.6,
+          "citation_accuracy_shown": 1.0,
           "wrongly_abstained": false
         },
         {
@@ -130,7 +131,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 1.0,
+          "citation_accuracy_shown": 1.0,
           "wrongly_abstained": false
         },
         {
@@ -140,7 +141,7 @@
           "first_rank": 3,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.2,
+          "citation_accuracy_shown": 0.0,
           "wrongly_abstained": false
         },
         {
@@ -150,7 +151,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.8,
+          "citation_accuracy_shown": 1.0,
           "wrongly_abstained": false
         },
         {
@@ -160,7 +161,7 @@
           "first_rank": 2,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.2,
+          "citation_accuracy_shown": 0.25,
           "wrongly_abstained": false
         },
         {
@@ -170,7 +171,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 1.0,
+          "citation_accuracy_shown": 1.0,
           "wrongly_abstained": false
         },
         {
@@ -180,7 +181,7 @@
           "first_rank": 2,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.8,
+          "citation_accuracy_shown": 0.0,
           "wrongly_abstained": false
         },
         {
@@ -190,7 +191,7 @@
           "first_rank": 2,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.8,
+          "citation_accuracy_shown": 0.6666666666666666,
           "wrongly_abstained": false
         },
         {
@@ -200,7 +201,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 1.0,
+          "citation_accuracy_shown": 1.0,
           "wrongly_abstained": false
         },
         {
@@ -210,7 +211,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 1.0,
+          "citation_accuracy_shown": 1.0,
           "wrongly_abstained": false
         },
         {
@@ -220,7 +221,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 1.0,
+          "citation_accuracy_shown": 0.75,
           "wrongly_abstained": false
         },
         {
@@ -230,7 +231,7 @@
           "first_rank": 3,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.6,
+          "citation_accuracy_shown": 0.3333333333333333,
           "wrongly_abstained": false
         },
         {
@@ -240,7 +241,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.2,
+          "citation_accuracy_shown": 0.25,
           "wrongly_abstained": false
         },
         {
@@ -250,7 +251,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.8,
+          "citation_accuracy_shown": 0.25,
           "wrongly_abstained": false
         },
         {
@@ -260,7 +261,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.6,
+          "citation_accuracy_shown": 0.6666666666666666,
           "wrongly_abstained": false
         },
         {
@@ -270,7 +271,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 1.0,
+          "citation_accuracy_shown": 1.0,
           "wrongly_abstained": false
         },
         {
@@ -280,7 +281,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.8,
+          "citation_accuracy_shown": 1.0,
           "wrongly_abstained": false
         },
         {
@@ -290,7 +291,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.8,
+          "citation_accuracy_shown": 1.0,
           "wrongly_abstained": false
         },
         {
@@ -300,7 +301,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.8,
+          "citation_accuracy_shown": 0.75,
           "wrongly_abstained": false
         },
         {
@@ -310,7 +311,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.2,
+          "citation_accuracy_shown": 0.0,
           "wrongly_abstained": false
         },
         {
@@ -320,7 +321,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.6,
+          "citation_accuracy_shown": 0.5,
           "wrongly_abstained": false
         },
         {
@@ -330,7 +331,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 1.0,
+          "citation_accuracy_shown": 1.0,
           "wrongly_abstained": false
         },
         {
@@ -340,7 +341,7 @@
           "first_rank": 3,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.6,
+          "citation_accuracy_shown": 0.3333333333333333,
           "wrongly_abstained": false
         },
         {
@@ -350,7 +351,7 @@
           "first_rank": 3,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.2,
+          "citation_accuracy_shown": 0.25,
           "wrongly_abstained": false
         },
         {
@@ -360,7 +361,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.2,
+          "citation_accuracy_shown": 0.3333333333333333,
           "wrongly_abstained": false
         },
         {
@@ -370,7 +371,7 @@
           "first_rank": 5,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.2,
+          "citation_accuracy_shown": 0.3333333333333333,
           "wrongly_abstained": false
         },
         {
@@ -380,7 +381,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.4,
+          "citation_accuracy_shown": 1.0,
           "wrongly_abstained": false
         },
         {
@@ -390,7 +391,7 @@
           "first_rank": 2,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.4,
+          "citation_accuracy_shown": 0.3333333333333333,
           "wrongly_abstained": false
         },
         {
@@ -400,7 +401,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 1.0,
+          "citation_accuracy_shown": 1.0,
           "wrongly_abstained": false
         },
         {
@@ -410,7 +411,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 1.0,
+          "citation_accuracy_shown": 1.0,
           "wrongly_abstained": false
         },
         {
@@ -420,7 +421,7 @@
           "first_rank": 8,
           "recall_at_5": 0.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.0,
+          "citation_accuracy_shown": 0.0,
           "wrongly_abstained": false
         },
         {
@@ -430,7 +431,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 1.0,
+          "citation_accuracy_shown": 1.0,
           "wrongly_abstained": false
         },
         {
@@ -440,7 +441,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 1.0,
+          "citation_accuracy_shown": 1.0,
           "wrongly_abstained": false
         },
         {
@@ -450,17 +451,17 @@
           "first_rank": null,
           "recall_at_5": 0.0,
           "recall_at_20": 0.0,
-          "citation_accuracy_at_5": 0.0,
+          "citation_accuracy_shown": 0.0,
           "wrongly_abstained": false
         },
         {
           "id": "arrest-current-law",
           "role": "police",
           "expectation": "answer",
-          "first_rank": 3,
+          "first_rank": 5,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.2,
+          "citation_accuracy_shown": 0.25,
           "wrongly_abstained": false
         },
         {
@@ -470,7 +471,7 @@
           "first_rank": null,
           "recall_at_5": 0.0,
           "recall_at_20": 0.0,
-          "citation_accuracy_at_5": 0.0,
+          "citation_accuracy_shown": 0.0,
           "wrongly_abstained": false
         },
         {
@@ -510,7 +511,7 @@
           "first_rank": 3,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.6,
+          "citation_accuracy_shown": 0.5,
           "wrongly_abstained": false
         },
         {
@@ -520,7 +521,7 @@
           "first_rank": 3,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.4,
+          "citation_accuracy_shown": 0.0,
           "wrongly_abstained": true
         },
         {
@@ -530,7 +531,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.6,
+          "citation_accuracy_shown": 0.5,
           "wrongly_abstained": false
         },
         {
@@ -540,7 +541,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.6,
+          "citation_accuracy_shown": 0.75,
           "wrongly_abstained": false
         },
         {
@@ -550,7 +551,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.8,
+          "citation_accuracy_shown": 0.75,
           "wrongly_abstained": false
         },
         {
@@ -560,7 +561,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.6,
+          "citation_accuracy_shown": 0.75,
           "wrongly_abstained": false
         },
         {
@@ -570,7 +571,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.4,
+          "citation_accuracy_shown": 0.3333333333333333,
           "wrongly_abstained": false
         },
         {
@@ -580,7 +581,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.6,
+          "citation_accuracy_shown": 0.0,
           "wrongly_abstained": true
         },
         {
@@ -590,7 +591,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.6,
+          "citation_accuracy_shown": 1.0,
           "wrongly_abstained": false
         },
         {
@@ -600,7 +601,7 @@
           "first_rank": 2,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.6,
+          "citation_accuracy_shown": 0.75,
           "wrongly_abstained": false
         },
         {
@@ -610,7 +611,7 @@
           "first_rank": 1,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.4,
+          "citation_accuracy_shown": 0.5,
           "wrongly_abstained": false
         },
         {
@@ -620,7 +621,7 @@
           "first_rank": 2,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.8,
+          "citation_accuracy_shown": 0.75,
           "wrongly_abstained": false
         },
         {
@@ -630,7 +631,7 @@
           "first_rank": 5,
           "recall_at_5": 1.0,
           "recall_at_20": 1.0,
-          "citation_accuracy_at_5": 0.2,
+          "citation_accuracy_shown": 1.0,
           "wrongly_abstained": false
         }
       ]

@@ -34,6 +34,8 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
 
+from app.core.config import settings  # noqa: E402
+
 DEFAULT_GOLDEN = ROOT / "data" / "legal_kb" / "evaluation" / "golden_set_v3.json"
 
 CONFIGS = ("dense", "sparse", "hybrid", "reranked")
@@ -45,7 +47,7 @@ from app.services.fast_research import COVERAGE_FLOOR as ABSTAIN_COVERAGE_FLOOR 
 
 
 async def _shown_to_the_reader(
-    service: Any, question: str, payloads: list[dict[str, Any]], *, collection: str, limit: int
+    service: Any, question: str, *, collection: str
 ) -> list[dict[str, Any]]:
     """The passages a user actually sees.
 
@@ -59,6 +61,7 @@ async def _shown_to_the_reader(
     Recall stays on the full retrieved set, which asks a different question:
     whether the governing authority was found at all.
     """
+    from app.core.config import settings
     from app.services.fast_research import (
         _focus_tokens,
         _select_diverse_hits,
@@ -66,19 +69,29 @@ async def _shown_to_the_reader(
     )
     from app.services.retrieval import RetrievalFilters, RetrievalTarget
 
-    focus = _focus_tokens(question)
-    _, distinctive = await service.distinctive_query_terms(
-        focus,
-        target=RetrievalTarget(
-            collection_name=collection,
-            filters=RetrievalFilters(corpus_tiers=["gold", "extended"]),
-        ),
+    # The lane's own limits, not the harness's. Recall is measured over 20
+    # candidates because it asks whether the authority was found at all; what
+    # the reader is shown comes from 8 candidates narrowed to 4, and scoring
+    # five slots drawn from twenty described a configuration production has
+    # never run.
+    target = RetrievalTarget(
+        collection_name=collection,
+        filters=RetrievalFilters(corpus_tiers=["gold", "extended"]),
     )
-    hits = [SimpleNamespace(payload=payload) for payload in payloads]
+    hits, _ = await service.search_across_collections_with_timings(
+        question,
+        targets=[target],
+        candidate_limit=settings.fast_candidate_limit,
+        result_limit=settings.fast_candidate_limit,
+        rerank=False,
+    )
+    focus = _focus_tokens(question)
+    _, distinctive = await service.distinctive_query_terms(focus, target=target)
     relevant = publishable_hits(
         hits, query=question, focus_tokens=focus, distinctive_terms=set(distinctive)
     )
-    return [hit.payload for hit in _select_diverse_hits(relevant, limit)]
+    selected = _select_diverse_hits(relevant, settings.fast_result_limit)
+    return [hit.payload for hit in selected]
 
 
 async def _retrieve(
@@ -226,7 +239,7 @@ async def evaluate(
                 shown = score(
                     item,
                     await _shown_to_the_reader(
-                        service, item.question, payloads, collection=collection, limit=5
+                        service, item.question, collection=collection
                     ),
                 )
                 results.append(outcome)
@@ -248,7 +261,7 @@ async def evaluate(
                         "first_rank": outcome.first_rank,
                         "recall_at_5": outcome.recall_at(5),
                         "recall_at_20": outcome.recall_at(20),
-                        "citation_accuracy_at_5": shown.precision_at(5),
+                        "citation_accuracy_shown": shown.precision_at(settings.fast_result_limit),
                         "wrongly_abstained": wrongly_declined,
                     }
                 )
@@ -261,10 +274,7 @@ async def evaluate(
                 "mrr": statistics.mean(r.reciprocal_rank() for r in results),
                 "ndcg_at_10": statistics.mean(r.ndcg_at(10) for r in results),
                 "citation_accuracy_at_5": statistics.mean(
-                    r.precision_at(5) for r in shown_results
-                ),
-                "citation_accuracy_raw_at_5": statistics.mean(
-                    r.precision_at(5) for r in results
+                    r.precision_at(settings.fast_result_limit) for r in shown_results
                 ),
                 "abstention_accuracy": (
                     abstain_correct / len(abstentions) if abstentions else None
@@ -288,7 +298,7 @@ async def evaluate(
                     "recall_at_5": round(statistics.mean(r.recall_at(5) for r in scoped), 3),
                     "recall_at_20": round(statistics.mean(r.recall_at(20) for r in scoped), 3),
                     "citation_accuracy_at_5": round(
-                        statistics.mean(r.precision_at(5) for r in scoped_shown), 3
+                        statistics.mean(r.precision_at(settings.fast_result_limit) for r in scoped_shown), 3
                     ),
                 }
             summary["by_role"] = by_role
