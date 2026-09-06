@@ -150,3 +150,80 @@ class TestTheRetryGateSharesThisDecision:
         state = {"verification_result": _result(yes=0, no=5), "retry_count": 2}
 
         assert LegalRAGWorkflow._route_after_verification(state) == "proceed"
+
+
+class TestFabricationIsScoredOnClaimsNotCitations:
+    """A claim citing three sources produces three claim-marker pairs.
+
+    `VerificationResult.score` is computed over those pairs, so a
+    well-sourced claim that one source strongly entails and two merely
+    touch scores 1 yes and 2 no -- and drags its own ratio down. The metric
+    penalised exactly the sourcing it should reward.
+
+    Measured 6 September: art19-free-speech had four claims pass
+    verification and still abstained, because the pair ratio fell under the
+    fabrication floor.
+    """
+
+    @staticmethod
+    def _multi_source(supported_claims: int, unsupported_claims: int) -> VerificationResult:
+        """Each supported claim cites three sources; one entails it."""
+        claims: list[ClaimVerification] = []
+        for index in range(supported_claims):
+            claims.append(
+                ClaimVerification(
+                    claim=f"supported-{index}", chunk_id="a", verdict="yes",
+                    category="legal_basis",
+                )
+            )
+            claims += [
+                ClaimVerification(claim=f"supported-{index}", chunk_id=chunk, verdict="no")
+                for chunk in ("b", "c")
+            ]
+        for index in range(unsupported_claims):
+            claims.append(
+                ClaimVerification(claim=f"dropped-{index}", chunk_id="d", verdict="no")
+            )
+        pairs = len(claims)
+        supported_pairs = sum(1 for c in claims if c.verdict == "yes")
+        return VerificationResult(
+            score=supported_pairs / pairs,
+            supported_claims=supported_pairs,
+            total_claims=pairs,
+            claims=claims,
+        )
+
+    def test_the_pair_ratio_and_the_claim_ratio_genuinely_differ(self) -> None:
+        """A guard on the fixture itself.
+
+        If these ever coincide, every assertion below passes under either
+        implementation and this class stops testing anything.
+        """
+        # 4 supported / 10 dropped straddles the floor: pair 0.182, claim
+        # 0.286. The first version used 4/6, whose pair ratio is 0.222 --
+        # already above the floor, so both implementations published and the
+        # class tested nothing. This guard is what caught that.
+        result = self._multi_source(supported_claims=4, unsupported_claims=10)
+
+        assert result.score < MINIMUM_SUPPORT_RATIO, "pair ratio no longer falls below the floor"
+        assert publication_decision(result).publish, "claim ratio no longer clears it"
+
+    def test_a_well_sourced_answer_is_not_read_as_fabrication(self) -> None:
+        """The art19-free-speech shape: four claims, each with two sources
+        that did not individually entail it."""
+        assert publication_decision(self._multi_source(4, 10)).publish
+
+    def test_wholesale_fabrication_still_fails_on_the_claim_ratio(self) -> None:
+        """One claim in twenty is fabrication however it is counted."""
+        decision = publication_decision(self._multi_source(1, 19))
+
+        assert not decision.publish
+        assert "fabrication" in decision.reason
+
+    def test_a_claim_needs_only_one_source_to_entail_it(self) -> None:
+        """Requiring every cited source to entail the claim would reject
+        the best-sourced claims first: the more sources a claim carries,
+        the more chances it has to be marked down."""
+        one_of_three = self._multi_source(supported_claims=3, unsupported_claims=0)
+
+        assert publication_decision(one_of_three).publish

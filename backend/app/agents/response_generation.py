@@ -68,6 +68,18 @@ def response_generation_node(state: dict) -> dict:
     hit_by_id = {str(hit.payload.get("chunk_id")): hit for hit in hits}
     section_grades: list[dict] = []
     publishable = publication_decision(result)
+    # Read, not recomputed: retrieval decided this when it had the query and
+    # the hits in front of it, and recorded it. Checked before the
+    # claim-level reasons because "the corpus does not cover this" is a
+    # different finding from "the claims did not hold up", and the second
+    # reads as a quality problem when it is a coverage one.
+    if state.get("evidence_addresses_question") is False:
+        publishable = type(publishable)(
+            False,
+            "no retrieved passage addresses the question; the corpus does not "
+            "cover it",
+            publishable.verified_claims,
+        )
     if not publishable.publish:
         answer = INSUFFICIENT_EVIDENCE
         cited_ids: list[str] = []

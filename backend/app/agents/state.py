@@ -17,6 +17,8 @@ class AgentState(TypedDict, total=False):
     history: list[dict[str, str]]
     intent: QueryIntent
     retrieval_query: str
+    distinctive_terms: tuple[str, ...]
+    evidence_addresses_question: bool
     retrieved_chunks: list[RetrievalHit]
     retrieval_signature: tuple[str, ...]
     previous_retrieval_signature: tuple[str, ...]

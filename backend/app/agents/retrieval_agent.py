@@ -10,6 +10,7 @@ from app.services.fast_research import (
     _payload_windows,
 )
 from app.ingestion.init_qdrant import ADVOCATE_CASE_DATA, GLOBAL_LEGAL_CORPUS, POLICE_CASE_DATA
+from app.agents.publication import evidence_addresses_the_question
 from app.core.config import settings
 from app.services.pipeline_telemetry import append_stage_metric, text_size
 
@@ -342,8 +343,32 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
             "retrieval_total_ms": timings.total_ms,
         },
     )
+    # Which query terms are rare enough to carry its topic. Computed here
+    # because the publication gate needs it and the Deep lane never had it:
+    # without it that gate falls back to the stricter no-rare-term floor and
+    # refuses questions the corpus can answer.
+    try:
+        _, distinctive = await service.distinctive_query_terms(
+            _focus_tokens(query),
+            target=targets[0],
+        )
+    except Exception:  # noqa: BLE001 - a term-frequency failure must not
+        # cost the answer. An empty set only makes the downstream floor
+        # stricter, which fails closed.
+        distinctive = []
+
     return {
         "retrieval_query": query,
+        "distinctive_terms": tuple(distinctive),
+        # Decided here, where the query and the passages are both in hand,
+        # and recorded once rather than recomputed at every publication
+        # path. Verification asks whether a claim follows from its source;
+        # nothing asked whether the source is about the question, which is
+        # how a corpus gap produced a grounded answer from adjacent
+        # material.
+        "evidence_addresses_question": evidence_addresses_the_question(
+            query, hits, set(distinctive)
+        ),
         "retrieved_chunks": hits,
         # Identity of the evidence this pass found. Generation is deterministic
         # (temperature 0.0), so an unchanged set guarantees an unchanged answer.

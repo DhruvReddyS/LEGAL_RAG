@@ -70,6 +70,15 @@ class InstrumentedFakeRetrieval:
     def __init__(self) -> None:
         self.passes = 0
 
+    async def distinctive_query_terms(self, terms, *, target):
+        """The real service computes term frequencies against the corpus.
+
+        Implemented on the fake so the tests exercise the same path as
+        production rather than the retrieval node's defensive fallback,
+        which would otherwise be the only branch they ever cover.
+        """
+        return {term: 1 for term in terms}, sorted(terms)
+
     async def search_across_collections_with_timings(self, query, **kwargs):
         self.passes += 1
         return [
@@ -81,7 +90,16 @@ class InstrumentedFakeRetrieval:
                     "source_type": "act",
                     "page_start": 1,
                     "page_end": 1,
-                    "text": "Registration is required.",
+                    # Evidence that actually matches the question asked. It
+                    # used to read "Registration is required." against a query
+                    # about an FIR being registered, sharing no stemmed token
+                    # with it -- harmless until the publication gate began
+                    # asking whether the evidence addresses the question, and
+                    # dishonest before that.
+                    "text": (
+                        "An FIR shall be registered without delay when the "
+                        "information discloses a cognizable offence."
+                    ),
                 },
                 dense_score=0.8,
                 sparse_score=2.0,
