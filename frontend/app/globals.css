@@ -287,18 +287,20 @@
 .feature-head p {margin-top:5px;max-width:62ch;font-size:12px;line-height:1.6;color:var(--ink-soft);}
 .feature-badge {display:inline-flex;align-items:center;gap:6px;flex:none;font-size:10px;font-weight:500;color:var(--state-ok-text);}
 
-.empty-matter {display:grid;justify-items:center;gap:10px;padding:56px 20px;border:1px dashed var(--border);border-radius:14px;text-align:center;}
-.empty-matter p {max-width:44ch;font-size:12px;line-height:1.6;color:var(--ink-soft);}
+.empty-case {display:grid;justify-items:center;gap:10px;padding:56px 20px;border:1px dashed var(--border);border-radius:14px;text-align:center;}
+.empty-case p {max-width:44ch;font-size:12px;line-height:1.6;color:var(--ink-soft);}
 
 /* The case file: what is on record for one matter, and the conversations
    that are allowed to read it. */
 .case-file {display:grid;gap:26px;}
-.case-facts {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;margin:0;background:var(--border);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
-.case-facts div {display:grid;gap:6px;padding:15px 17px;background:var(--card);}
+.case-facts {display:flex;flex-wrap:wrap;margin:0;background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.case-facts div {display:grid;gap:6px;flex:1 1 150px;padding:15px 17px;border-right:1px solid var(--border);border-top:1px solid var(--border);margin-top:-1px;}
+.case-facts div:last-child {border-right:0;}
 .case-facts dt {color:var(--ink-soft);font-size:9px;text-transform:uppercase;letter-spacing:.11em;}
 .case-facts dd {margin:0;color:var(--ink);font-size:15px;font-variant-numeric:tabular-nums;}
 .case-block {display:grid;gap:14px;}
 .case-block-head {display:flex;align-items:flex-start;justify-content:space-between;gap:18px;}
+.case-block-head .button-primary {flex:none;white-space:nowrap;}
 .case-block-head h4 {color:var(--ink);font-size:14px;font-weight:600;}
 .case-block-head p {margin-top:4px;max-width:46rem;color:var(--ink-soft);font-size:12px;line-height:1.6;}
 .case-chats {display:grid;gap:7px;padding:0;list-style:none;margin:0;}
@@ -335,7 +337,7 @@
 .case-line {padding:13px 15px;border:1px solid var(--border);border-radius:11px;background:var(--card);color:var(--ink);font-size:13px;line-height:1.6;}
 .case-line strong {font-weight:600;}
 .case-alert {padding:13px 15px;border:1px solid var(--state-bad-line);border-radius:11px;background:var(--state-bad-bg);color:var(--state-bad-text);font-size:13px;line-height:1.6;}
-.case-fact-wide {grid-column:span 2;}
+.case-fact-wide {flex:2 1 260px;}
 .case-title-row {display:flex;align-items:center;gap:8px;}
 .case-title-row button {flex:none;color:var(--ink-soft);opacity:0;transition:opacity .15s;}
 .case-facts div:hover .case-title-row button, .case-title-row button:focus-visible {opacity:1;}

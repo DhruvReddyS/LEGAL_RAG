@@ -30,17 +30,17 @@ export default function ProfessionalWorkspace({
 }) {
   const isPolice = user.role === "police";
   const roleCopy = isPolice ? {
-    eyebrow: "Police investigation operations",
+    eyebrow: "Police investigation work",
     matters: "Your investigations",
     description: "Lawful procedure, investigation records and ownership-isolated police evidence.",
     intake: "Investigation evidence intake",
     search: "Procedure & evidence search",
   } : {
-    eyebrow: "Advocate matter operations",
+    eyebrow: "Advocate case work",
     matters: "Your cases",
     description: "Two-sided authority research and ownership-isolated client evidence.",
     intake: "Client evidence intake",
-    search: "Authority & matter search",
+    search: "Authority & case search",
   };
   const [cases, setCases] = useState<LegalCase[]>([]);
   const [selectedId, setSelectedId] = useState("");
@@ -82,18 +82,21 @@ export default function ProfessionalWorkspace({
     listGeneratedDocuments(selectedId).then((r) => { if (!cancelled) setDrafts(r.documents); }).catch(() => { if (!cancelled) setDrafts(null); });
     return () => { cancelled = true; };
   }, [selectedId, documentRefresh, draft, analysis]);
-  const [timeline, setTimeline] = useState<InvestigationTimelineData | null>(null);
+  const [timeline, setTimeline] = useState<InvestigationTimelineData | "none" | null>(null);
   useEffect(() => {
     if (!selectedId || !isPolice) { setTimeline(null); return; }
     let cancelled = false;
     setTimeline(null);
-    getInvestigationTimeline(selectedId).then((r) => { if (!cancelled) setTimeline(r); }).catch(() => { if (!cancelled) setTimeline(null); });
+    getInvestigationTimeline(selectedId)
+      .then((r) => { if (!cancelled) setTimeline(r); })
+      .catch((error) => { if (!cancelled) setTimeline(error instanceof ApiError && error.status === 404 ? "none" : null); });
     return () => { cancelled = true; };
   }, [selectedId, isPolice, documentRefresh]);
+  const computed = timeline === "none" ? null : timeline;
   const nextDeadline = useMemo(() => {
-    const dated = (timeline?.deadlines ?? []).filter((item) => item.due_at && !item.is_breached);
+    const dated = (computed?.deadlines ?? []).filter((item) => item.due_at && !item.is_breached);
     return dated.sort((a, b) => Date.parse(a.due_at!) - Date.parse(b.due_at!))[0] ?? null;
-  }, [timeline]);
+  }, [computed]);
   const [caseFilter, setCaseFilter] = useState("");
   const visibleCases = useMemo(() => {
     const needle = caseFilter.trim().toLowerCase();
@@ -231,7 +234,7 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
       label: "Find authority",
       icon: FileSearch,
       title: roleCopy.search,
-      blurb: "Search the governed corpus and, when a matter is selected, its private evidence. Results never cross a matter boundary.",
+      blurb: "Search the law, and the files in the case you have selected. Results never cross into another case or another role.",
       needsMatter: false,
     },
     {
@@ -239,7 +242,7 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
       label: "Add evidence",
       icon: UploadCloud,
       title: roleCopy.intake,
-      blurb: "A PDF or UTF-8 statement. Scanned pages are OCR processed and indexed only for this role and this matter.",
+      blurb: "A PDF or UTF-8 statement. Scanned pages are read by OCR and indexed for this case alone.",
       needsMatter: true,
     },
     {
@@ -247,7 +250,7 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
       label: "Review documents",
       icon: ScanSearch,
       title: "Document analyzer",
-      blurb: "Read what was indexed for this matter, with the passage, its pages and its current-law status.",
+      blurb: "Read what was indexed for this case, with the passage, its pages and its current-law status.",
       needsMatter: true,
     },
   ];
@@ -333,7 +336,7 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
           </div>
 
           {current.needsMatter && !selectedId ? (
-            <div className="empty-matter">
+            <div className="empty-case">
               <FolderPlus size={26} className="text-[var(--ink-soft)]" />
               <p>Pick a case on the left, or start one, and this tool works only on that case. Nothing here reads any other case.</p>
             </div>
@@ -405,12 +408,16 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
                           <CalendarClock size={15} />Record dates
                         </button>
                       </div>
-                      {timeline?.breached.length ? (
-                        <p className="case-alert">{timeline.breached.length} time limit{timeline.breached.length === 1 ? " has" : "s have"} passed. Open the deadlines page for the provision and the consequence.</p>
+                      {computed?.breached.length ? (
+                        <p className="case-alert">{computed.breached.length} time limit{computed.breached.length === 1 ? " has" : "s have"} passed. Open the deadlines page for the provision and the consequence.</p>
                       ) : nextDeadline ? (
                         <p className="case-line"><strong>{nextDeadline.obligation}</strong> &mdash; due {new Date(nextDeadline.due_at!).toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })} under {nextDeadline.provision}.</p>
                       ) : (
-                        <p className="case-empty">{timeline === null ? "The timeline could not be read." : `No deadline can be computed yet: ${timeline.undetermined.length} of ${timeline.deadlines.length} depend on dates that are not recorded.`}</p>
+                        <p className="case-empty">{
+                          timeline === "none" ? "No dates recorded for this case yet, so no BNSS period can be computed. Record the arrest, remand and information dates to start the clock."
+                          : timeline === null ? "The timeline could not be read."
+                          : `No deadline can be computed yet: ${timeline.undetermined.length} of ${timeline.deadlines.length} depend on dates that are not recorded.`
+                        }</p>
                       )}
                     </section>
                   )}
@@ -447,7 +454,7 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
                     <div className="case-block-head">
                       <div>
                         <h4>Files in this case</h4>
-                        <p>Uploaded evidence, indexed so a chat in this case can quote it. No other case and no other officer can read them.</p>
+                        <p>Uploaded evidence, indexed so a chat in this case can quote it. No other case, and nobody else, can read them.</p>
                       </div>
                       <button className="button-primary" onClick={() => setView("evidence")}>
                         <UploadCloud size={15} />Add a file
@@ -533,8 +540,8 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
               {view === "search" && (
                 <div>
                   <div className="inline-flex rounded-lg bg-[var(--hover)] p-1">
-                    <button onClick={() => setSearchMode("case_specific")} className={`rounded-md px-3 py-1.5 text-xs font-medium ${searchMode === "case_specific" ? "bg-[var(--card)] text-[var(--ink)] shadow-sm" : "text-[var(--ink-soft)]"}`}>Selected matter</button>
-                    <button onClick={() => setSearchMode("general")} className={`rounded-md px-3 py-1.5 text-xs font-medium ${searchMode === "general" ? "bg-[var(--card)] text-[var(--ink)] shadow-sm" : "text-[var(--ink-soft)]"}`}>All my matters</button>
+                    <button onClick={() => setSearchMode("case_specific")} className={`rounded-md px-3 py-1.5 text-xs font-medium ${searchMode === "case_specific" ? "bg-[var(--card)] text-[var(--ink)] shadow-sm" : "text-[var(--ink-soft)]"}`}>This case</button>
+                    <button onClick={() => setSearchMode("general")} className={`rounded-md px-3 py-1.5 text-xs font-medium ${searchMode === "general" ? "bg-[var(--card)] text-[var(--ink)] shadow-sm" : "text-[var(--ink-soft)]"}`}>All my cases</button>
                   </div>
                   <textarea value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search legal authority and authorised evidence…" className="field mt-4 min-h-28 w-full resize-y leading-6" />
                   <button onClick={search} disabled={busy === "search" || !searchQuery.trim()} className="button-primary mt-3">
@@ -550,7 +557,7 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
                         <p className="mt-2 line-clamp-4 text-xs leading-5 text-[var(--ink-soft)]">{String(hit.payload.text ?? "")}</p>
                       </article>
                     ))}
-                    {!searchResults.length && <p className="state-hint">No results yet. Searching a selected matter includes its private evidence; searching all matters covers only your own.</p>}
+                    {!searchResults.length && <p className="state-hint">No results yet. Searching this case also reads the files in it; searching all your cases reads the law and nothing private.</p>}
                   </div>
                 </div>
               )}
@@ -570,7 +577,7 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
                       {busy === "upload" ? <Loader2 size={19} className="animate-spin" /> : <UploadCloud size={19} />}
                     </div>
                     <p className="mt-3 text-sm font-medium text-[var(--ink)]">Choose evidence to upload</p>
-                    <p className="mt-1 text-xs text-[var(--ink-soft)]">PDF or TXT / private to this matter</p>
+                    <p className="mt-1 text-xs text-[var(--ink-soft)]">PDF or TXT / stays inside this case</p>
                     <input type="file" accept="application/pdf,text/plain" className="hidden" disabled={busy === "upload"} onChange={(event) => upload(event.target.files?.[0])} />
                   </label>
                 </div>
