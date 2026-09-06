@@ -141,6 +141,68 @@ is more useful than one that half-covers it. The golden set expects
 abstention on all five, so **leaving them out costs zero measured score** —
 closing them means rewriting those five expectations first.
 
+## Acquisition status — 6 September 2026
+
+You approved closing these. I went to acquire the documents from official
+sources. **Three of the four hosts that carry them are unreachable from this
+machine**, so the work is blocked on network access, not on a decision.
+
+Reachable and fetched:
+
+| document | source | state |
+|---|---|---|
+| Specific Relief Act, 1963 | indiacode.nic.in | 17 pages, clean English — **ready** |
+| Noise Pollution (Regulation and Control) Rules, 2000 | cpcb.nic.in | 6 pages, clean English — **ready** |
+| POSH Rules, 2013 | shebox.wcd.gov.in | fetched, **not fit to ingest** (see below) |
+
+Unreachable (connection fails outright, not a 404):
+
+| host | carries |
+|---|---|
+| consumeraffairs.gov.in | Consumer Protection Act, 2019 |
+| wcd.nic.in | POSH Act, 2013 |
+| lddashboard.legislative.gov.in | POSH Act, several others |
+
+`indiacode.nic.in` answers, but serves only some of its own bitstreams: the
+Specific Relief Act downloads, while the Contract Act, the Consumer
+Protection Act, the POSH Act and the Environment (Protection) Act all return
+its generic error page on every URL form and both domains.
+
+### The POSH Rules file is a trap, and was not ingested
+
+It is a bilingual Gazette page. Pages 1–4 are Devanagari set in a legacy 8-bit
+font, which extracts as Latin gibberish — `jftLVªh laö Mhö ,yö&33004@99`.
+Embedding that would put nonsense vectors in the index where they can match
+nonsense queries. Only pages 5–6 are English, and they are the back half of
+the rules. It is staged, with a note, and left out.
+
+### Why the two ready files were not ingested either
+
+Two reasons, and the second is the one that matters.
+
+The rebuild is running. Adding to the manifest mid-run disturbs it.
+
+More importantly, **neither file on its own closes the gap it belongs to.**
+The golden set expects abstention on `contract-elements`, and the question is
+"the essential elements of a valid contract" — that is Indian Contract Act
+ss.10–30, which I could not get. The Specific Relief Act is about remedies for
+breach. Ingesting it alone risks turning a correct abstention into a partial
+answer about the wrong thing, which is worse than the abstention. Closing a
+gap halfway is not closing it.
+
 ## What I need from you
 
-Which of the five, if any — and for tenancy, which State.
+**For the four unreachable documents**, either a network path to those hosts,
+or the PDFs themselves dropped into
+`data/legal_kb/raw/primary_law/civil_gaps/`. The list, in the order I would
+ingest them:
+
+1. Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013
+2. Indian Contract Act, 1872
+3. Consumer Protection Act, 2019
+4. Environment (Protection) Act, 1986 and Air (Prevention and Control of Pollution) Act, 1981
+
+**For tenancy**, still a State decision. I would take Andhra Pradesh — the
+corpus already carries 16 AP High Court judgments and no other State — but
+that inference is mine, not yours, and the answer is only correct for the
+State chosen, which the answer would have to say.
