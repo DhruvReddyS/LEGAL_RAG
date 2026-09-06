@@ -106,8 +106,15 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
         hits, timings = await service.search_across_collections_with_timings(
             query,
             targets=targets,
-            candidate_limit=40 if retry_count else 20,
-            result_limit=8 if retry_count else 5,
+            candidate_limit=40 if retry_count else 24,
+            # Eight rather than five on the first pass. Measured on "when can
+            # the police arrest someone without a warrant": the governing
+            # provision and two of the statutory grounds -- proclaimed
+            # offender, possession of stolen property -- sit at ranks 4 to 8,
+            # so a five-passage window handed reasoning three judgments and two
+            # tangential sections and no complete statement of the rule. The
+            # per-chunk evidence cap bounds what this costs in prompt tokens.
+            result_limit=10 if retry_count else 8,
         )
         initial_query = query
         initial_hits = hits

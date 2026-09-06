@@ -325,3 +325,59 @@ a long section — the answer was being cut out of its own citation. It scored
 0.42 against a 0.53 baseline. Growing the window outward from the matched
 chunk recovered it to 0.53. A merge that can discard what it was built around
 is worse than no merge.
+
+## Ground coverage: what was tried, and what it cost
+
+The question this started from: an earlier Deep answer listed five grounds for
+warrantless arrest, a later one listed three. One sample could not say whether
+that was a change or run-to-run variation.
+
+**It was neither variance nor a single cause.** Three runs of the same question
+produced byte-identical answers -- 279 words, the same four grounds, coverage
+0.67 every time -- while wall time ranged from 55 s to 121 s. Generation is
+deterministic in content on this setup; only latency moves, and that tracks
+what else is running on the machine.
+
+Tracing the two absent grounds separated them:
+
+| ground | in the retrieved set | diagnosis |
+|---|---|---|
+| proclaimed offender | yes, rank 4 | reasoning dropped a ground it was given |
+| possession of stolen property | no, first at rank 6 | outside a five-passage window |
+
+They need different fixes, and the retrieval half exposed something worse: the
+five passages shown to reasoning were three judgments, BNSS s.79 and BNSS s.57.
+**BNSS s.35, the provision that actually governs arrest without warrant, was
+not among them.**
+
+### Widening the window, and the budget that bounds it
+
+| configuration | coverage | words | seconds |
+|---|---:|---:|---:|
+| 5 passages x 3,500 chars (baseline) | 0.67 | 279 | 55–121 |
+| 8 passages x 3,500 chars | **0.00** | 15 | 168–223 |
+| 8 passages x 1,800 chars | 0.67 | 270 | 71–90 |
+| 8 x 1,800 + prompt asking for every ground | **0.50** | 268 | 48–67 |
+
+The second row is the instructive one. Eight passages at 3,500 characters is
+roughly 7,000 tokens of evidence; it pushed verification past what fits and
+collapsed the answer to "insufficient evidence" -- fifteen words, no grounds,
+220 seconds spent producing them. The constraint is a *total* evidence budget,
+not a passage count, and widening the window is only useful if the cap falls
+with it.
+
+The fourth row is the one worth recording as a failure. Instructing the model
+that distinct statutory grounds are distinct points, with the omission named
+explicitly, **reduced** coverage from 0.67 to 0.50. Reverted.
+
+### Where this leaves it
+
+Kept: eight passages at 1,800 characters. Same coverage as the baseline, on
+less total evidence (14,400 characters against 17,500) and across more distinct
+authorities.
+
+Not solved: coverage is still 0.67, and a retrieved ground is still being
+dropped. That is a claim-selection problem in reasoning, not a retrieval one,
+and no prompt wording tried here moved it. The real remedy is likely the
+ranking -- an answer whose evidence does not include the governing section is
+working from the wrong material to begin with.

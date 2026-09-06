@@ -19,7 +19,14 @@ REASONING_NUM_PREDICT = 1800
 # costs about a second before the first output token. Legal chunks average
 # ~4,000 characters and the provision that grounds a claim is rarely in the
 # tail, so this trims prompt cost without trimming the answer.
-MAX_EVIDENCE_TEXT_CHARACTERS = 3500
+# Per passage, and the number that matters is this times the passage count.
+# Eight passages at 3,500 characters is roughly 7,000 tokens of evidence, which
+# pushed verification past what fits and collapsed the answer to
+# "insufficient evidence" -- 15 words, no grounds, and 220 seconds spent
+# getting there. Widening the window is only useful if the budget holds, so
+# the cap falls as the window grows: 8 x 1,800 is less evidence in total than
+# the 5 x 3,500 it replaces, and covers more of the rule.
+MAX_EVIDENCE_TEXT_CHARACTERS = 1800
 
 
 # Output length is the largest single cost in a Deep run: 1,345 tokens at a

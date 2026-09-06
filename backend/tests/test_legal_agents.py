@@ -447,7 +447,11 @@ async def test_initial_low_score_retrieval_uses_bounded_generalized_fallback() -
         retrieval,  # type: ignore[arg-type]
     )
 
-    assert retrieval.calls[0] == ("missing dog complaint", 20, 5)
+    # The first pass now takes 24 candidates and shows 8. Five was too narrow:
+    # on "when can the police arrest someone without a warrant" the governing
+    # provision and two statutory grounds sit at ranks 4 to 8, so reasoning was
+    # handed three judgments and two tangential sections instead of the rule.
+    assert retrieval.calls[0] == ("missing dog complaint", 24, 8)
     assert retrieval.calls[1][1:] == (40, 8)
     assert "General Diary entry" in retrieval.calls[1][0]
     assert [hit.payload["chunk_id"] for hit in result["retrieved_chunks"]][:3] == [
