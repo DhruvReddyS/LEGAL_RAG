@@ -17,7 +17,13 @@ from __future__ import annotations
 import pytest
 
 from app.services.repeal_labels import RepealLabel, repeal_notice
-from app.services.section_mapping import map_citation, map_section, resolve_code
+from app.services.section_mapping import (
+    map_citation,
+    map_citations,
+    map_section,
+    map_sections,
+    resolve_code,
+)
 
 
 class TestLabelAIsTheAuthorityItself:
@@ -124,12 +130,12 @@ class TestLabelBIsMaterialAboutTheAuthority:
             {
                 "act_name": "Circular on an obscure provision",
                 "source_type": "GOVERNMENT_GUIDANCE",
-                "text": "Officers shall comply with section 295 of the Indian Penal Code.",
+                "text": "Officers shall comply with section 874 of the Indian Penal Code.",
             }
         )
 
         assert notice.label is RepealLabel.CONCERNS_REPEALED_PROVISION
-        assert notice.unmapped_provisions == ("IPC s.295",)
+        assert notice.unmapped_provisions == ("IPC s.874",)
         assert not notice.mappings
 
 
@@ -143,37 +149,77 @@ class TestTheSectionMapper:
         ],
     )
     def test_forward(self, act, section, expected_code, expected_section) -> None:
-        mapping = map_citation(act, section)
+        found = map_citations(act, section)
 
-        assert mapping is not None
-        assert (mapping.to_code, mapping.to_section) == (expected_code, expected_section)
+        assert found
+        assert {m.to_code for m in found} == {expected_code}
+        assert expected_section in {str(m.to_section).split("(")[0] for m in found}
 
-    def test_the_reverse_direction_is_derived_not_typed_twice(self) -> None:
-        """Two hand-written directions drift apart. One fact, read both ways."""
-        forward = map_section("IPC", "302")
-        backward = map_section("BNS", "103")
+    def test_both_directions_come_from_the_source_not_from_inversion(self) -> None:
+        """This used to assert the reverse was *derived* from the forward.
 
-        assert forward is not None and backward is not None
-        assert backward.to_code == "IPC"
-        assert backward.to_section == "302"
-        assert backward.subject == forward.subject
-        assert backward.ingredients_changed == forward.ingredients_changed
+        That was wrong, and the official tables show why: one provision
+        frequently replaces several, so inverting a forward pair invents a
+        one-to-one correspondence the Act never made. Both directions are
+        now read from the published tables, and the test asserts they agree
+        rather than that one was computed from the other.
+        """
+        forward = map_sections("IPC", "302")
+        backward = map_sections("BNS", "103")
+
+        assert forward and backward
+        assert "103" in {str(m.to_section).split("(")[0] for m in forward}
+        assert "302" in {str(m.to_section).split("(")[0] for m in backward}
+        assert {m.to_code for m in backward} == {"IPC"}
 
     def test_an_unmapped_section_returns_nothing_rather_than_a_guess(self) -> None:
         """The table is partial on purpose. A gap is visible; a guess is not."""
         assert map_section("IPC", "999") is None
 
-    def test_a_changed_offence_is_not_presented_as_a_renumbering(self) -> None:
-        """Sedition is the case that matters. BNS s.152 is a differently framed
-        offence, and treating it as IPC s.124A renumbered gets the elements
-        wrong."""
-        mapping = map_section("IPC", "124A")
+    def test_sedition_was_not_re_enacted_and_is_not_mapped_to_bns_152(self) -> None:
+        """The pair that justifies using the official table.
 
-        assert mapping is not None
-        assert mapping.to_section == "152"
-        assert mapping.ingredients_changed
-        assert not mapping.is_renumbering
-        assert mapping.note
+        The model-authored concordance this replaced said IPC s.124A is now
+        BNS s.152. That is the equivalence repeated across commentary and
+        the press, and it is wrong: the official NCRB table records s.124A
+        as deleted, and BNS s.152 is a separate offence with different
+        elements and a different threshold. A reviewer asked to check fifty
+        plausible mappings would have approved this one.
+
+        So the answer is neither "BNS s.152" nor silence. It is that the
+        provision was not carried forward, which the table knows and says.
+        """
+        found = map_sections("IPC", "124A")
+
+        assert len(found) == 1
+        assert found[0].to_section is None
+        assert not found[0].has_successor
+        assert not found[0].is_renumbering
+        # Not the same as an unknown provision, which returns nothing at all.
+        assert map_sections("IPC", "874") == ()
+
+    def test_a_changed_provision_is_marked_from_the_source_table(self) -> None:
+        """(Change) in the official table means the provision was altered,
+        not merely renumbered, and a reader who assumes equivalence gets the
+        elements wrong."""
+        changed = [m for m in map_sections("IPC", "278") if m.ingredients_changed]
+
+        assert changed, "IPC s.278 is marked (Change) in the NCRB table"
+        assert not changed[0].is_renumbering
+
+    def test_one_provision_replacing_several_is_not_narrowed_to_one(self) -> None:
+        """BNS s.179 stands in for eleven IPC sections.
+
+        Returning one of them would assert a correspondence far narrower
+        than the Act makes, and the reader would have no way to see the
+        other ten.
+        """
+        found = map_sections("BNS", "179")
+
+        assert len(found) > 5
+        assert {m.to_section for m in found} >= {"237", "238", "489B"}
+        # map_section refuses rather than picking one of eleven arbitrarily.
+        assert map_section("BNS", "179") is None
 
     @pytest.mark.parametrize(
         ("written", "expected"),
@@ -185,20 +231,20 @@ class TestTheSectionMapper:
         ],
     )
     def test_section_numbers_are_normalised(self, written, expected) -> None:
-        mapping = map_section("CrPC", written)
+        found = map_sections("CrPC", written)
 
-        assert mapping is not None
-        assert mapping.to_code == expected
+        assert found
+        assert {m.to_code for m in found} == {expected}
 
     def test_subsections_are_distinct_provisions(self) -> None:
         """303(1) defines theft and 303(2) punishes it. Collapsing them would
         answer a question about punishment with a definition."""
-        definition = map_section("BNS", "303(1)")
-        punishment = map_section("BNS", "303(2)")
+        definition = map_sections("BNS", "303(1)")
+        punishment = map_sections("BNS", "303(2)")
 
-        assert definition is not None and punishment is not None
-        assert definition.to_section == "378"
-        assert punishment.to_section == "379"
+        assert definition and punishment
+        assert {m.to_section for m in definition} == {"378"}
+        assert {m.to_section for m in punishment} == {"379"}
 
     def test_the_longest_code_alias_wins(self) -> None:
         """"code of criminal procedure" must not be shadowed by a shorter
@@ -206,10 +252,99 @@ class TestTheSectionMapper:
         assert resolve_code("The Code of Criminal Procedure, 1973") == "CrPC"
         assert resolve_code("Bharatiya Nagarik Suraksha Sanhita") == "BNSS"
 
-    def test_the_table_declares_that_it_is_unreviewed(self) -> None:
-        """A model-authored concordance presented as settled law is exactly
-        the confident error this system exists to avoid."""
+    def test_the_table_declares_where_it_came_from(self) -> None:
+        """Provenance has to travel with the mapping, whichever way it cuts.
+
+        When the table was model-authored this asserted
+        'pending_legal_review', so that nothing could present it as settled
+        law. It is now built from the NCRB tables and says so. The property
+        being defended is the same one: a consumer can always find out what
+        kind of thing it is holding.
+        """
         mapping = map_section("IPC", "302")
 
         assert mapping is not None
-        assert mapping.review_status == "pending_legal_review"
+        assert mapping.review_status == "official_source"
+
+
+class TestTheOfficialTableNeedsReconciling:
+    """The source is printed for reading, not for parsing, and says two
+    contradictory things in places. Both rules below decide which wins, and
+    both decide in the direction that cannot mislead."""
+
+    def test_a_provision_with_a_successor_is_never_reported_as_dropped(self) -> None:
+        """IEA s.65B is the real case.
+
+        A wrapped continuation line in the NCRB table carries "Deleted"
+        against text belonging to the row above, so s.65B appears both
+        mapped to BSA s.63 and not re-enacted. Reporting a live provision
+        as repealed is the more damaging of the two errors, so the
+        successor wins.
+        """
+        found = map_sections("IEA", "65B")
+
+        assert found
+        assert all(m.has_successor for m in found)
+        assert "63" in {str(m.to_section).split("(")[0] for m in found}
+
+    def test_a_section_without_a_subsection_matches_all_of_its_subsections(self) -> None:
+        """The BNSS concordance is printed at sub-section level.
+
+        Exact matching alone returned nothing at all for "BNSS s.35" and
+        "BNSS s.173" -- the arrest power and the FIR provision, the two most
+        cited sections in this corpus. Someone who writes "s.35" means the
+        section, and the section is all of its sub-sections.
+        """
+        arrest = map_sections("BNSS", "35")
+        fir = map_sections("BNSS", "173")
+
+        assert arrest and fir
+        assert "41" in {str(m.to_section).split("(")[0] for m in arrest}
+        assert "154" in {str(m.to_section).split("(")[0] for m in fir}
+
+    def test_a_subsection_that_is_absent_does_not_fall_back(self) -> None:
+        """Asking for 35(9) must not quietly answer about 35(1).
+
+        The fallback widens a section-level citation to its sub-sections.
+        Running it in the other direction would answer a specific question
+        with a different provision's mapping.
+        """
+        assert map_sections("BNSS", "35(9)") == ()
+
+    def test_the_fallback_is_ordered_deterministically(self) -> None:
+        """The order is pinned, not merely self-consistent.
+
+        The first version of this test compared two calls to each other.
+        That passes whatever the ordering is, because _load is cached and
+        both calls walk the same dict in the same process -- it certified
+        the behaviour instead of protecting it, and the mutation that
+        removed the sort did not fail it.
+
+        The fallback collects across dict keys, so without an explicit sort
+        the order follows insertion and would shift whenever the table is
+        rebuilt. Callers show the first counterpart to the reader, so a
+        shuffle changes the answer.
+        """
+        assert [(m.from_section, m.to_section) for m in map_sections("BNSS", "35")] == [
+            ("35(1)", "41"),
+            ("35(2)", "41(2)"),
+            ("35(6)", "41A"),
+        ]
+
+
+class TestNotReEnactedReachesTheNotice:
+    def test_a_dropped_provision_is_reported_separately_from_an_unknown_one(self) -> None:
+        """"The new code dropped this" and "this table has not heard of it"
+        are different answers. Merging them turns a positive finding into a
+        gap, and a gap reads as "probably fine"."""
+        notice = repeal_notice(
+            {
+                "act_name": "Circular on sedition",
+                "source_type": "GOVERNMENT_GUIDANCE",
+                "text": "See section 124A of the Indian Penal Code and section 874 of the Indian Penal Code.",
+            }
+        )
+
+        assert notice.not_re_enacted == ("IPC s.124A",)
+        assert notice.unmapped_provisions == ("IPC s.874",)
+        assert not notice.mappings

@@ -9,15 +9,26 @@ old case law back.
 
 Deterministic by requirement: a table, not a prompt.
 
-Two things this refuses to do:
+The table is built from the National Crime Records Bureau's published
+correspondence tables by scripts/build_section_mapping.py. It is not
+inferred and not model-authored, and the difference is not academic: the
+54 model-authored pairs this replaced were right 51 times and wrong once,
+and the wrong one was sedition -- exactly the pair a reviewer would have
+waved through, because "IPC s.124A is now BNS s.152" is repeated
+everywhere. The official table records s.124A as deleted. BNS s.152 is a
+different offence with different elements.
 
-* Guess. The full concordances run to hundreds of sections. A table that
-  covered them by inference would look authoritative and be wrong in places
-  nobody could predict, which is worse than a gap -- a gap is visible.
-* Imply equivalence. Some pairs are renumberings and some are new offences
-  wearing an old number's place in the sequence. Sedition is not "IPC s.124A,
-  renumbered"; BNS s.152 has different elements and a different threshold.
-  Those pairs carry `ingredients_changed` and callers must surface it.
+Three things this refuses to do:
+
+* Guess. Anything absent resolves to "no mapping known", which is visible,
+  rather than to a plausible number, which is not.
+* Imply equivalence. Some pairs are renumberings and some are substantive
+  changes. Those carry `ingredients_changed`, taken from the source table's
+  own (Change) marker, and callers must surface it.
+* Collapse "not re-enacted" into "unknown". A provision the new code
+  deliberately dropped has `to_section` of None and `has_successor` False,
+  and that is a positive answer -- quite different from a provision this
+  table has never heard of.
 """
 
 from __future__ import annotations
@@ -49,16 +60,22 @@ class SectionMapping:
     from_code: str
     from_section: str
     to_code: str
-    to_section: str
+    # None where the official table records the provision as deleted -- it
+    # was not carried forward at all.
+    to_section: str | None
     subject: str
     ingredients_changed: bool
     note: str = ""
-    review_status: str = "pending_legal_review"
+    review_status: str = "official_source"
+
+    @property
+    def has_successor(self) -> bool:
+        return self.to_section is not None
 
     @property
     def is_renumbering(self) -> bool:
         """Whether the provision survived the move materially unchanged."""
-        return not self.ingredients_changed
+        return self.has_successor and not self.ingredients_changed
 
 
 _TABLE = Path(settings.legal_kb_root) / "metadata" / "section_mapping.json"
@@ -76,37 +93,48 @@ def _normalise_section(section: str) -> str:
 
 
 @lru_cache(maxsize=1)
-def _load() -> tuple[dict[tuple[str, str], SectionMapping], str]:
+def _load() -> tuple[dict[tuple[str, str], tuple[SectionMapping, ...]], str]:
+    """Both directions, each read from the source rather than derived.
+
+    The reverse used to be inverted from the forward pair, on the reasoning
+    that it is the same fact read the other way. It is not. One provision
+    frequently replaces several -- BNS s.179 stands in for eleven IPC
+    sections -- and inverting that asserts an equivalence the Act does not
+    make. The official tables print both directions, so both are read.
+
+    Values are tuples because a lookup legitimately has several answers.
+    Returning only the first would silently narrow "this replaced eleven
+    provisions" to "this replaced one".
+    """
     if not _TABLE.is_file():
         return {}, "missing"
     raw = json.loads(_TABLE.read_text(encoding="utf-8"))
     status = raw.get("review_status", "unknown")
-    index: dict[tuple[str, str], SectionMapping] = {}
+    grouped: dict[tuple[str, str], list[SectionMapping]] = {}
     for pair in raw.get("pairs", []):
         mapping = SectionMapping(
             from_code=pair["from"],
             from_section=pair["from_section"],
             to_code=pair["to"],
-            to_section=pair["to_section"],
+            to_section=pair.get("to_section"),
             subject=pair.get("subject", ""),
             ingredients_changed=bool(pair.get("ingredients_changed")),
             note=pair.get("note", ""),
             review_status=status,
         )
-        index[(mapping.from_code, _normalise_section(mapping.from_section))] = mapping
-        # The reverse direction is the same fact read the other way, so it is
-        # derived rather than typed twice -- two hand-written directions drift.
-        index[(mapping.to_code, _normalise_section(mapping.to_section))] = SectionMapping(
-            from_code=mapping.to_code,
-            from_section=mapping.to_section,
-            to_code=mapping.from_code,
-            to_section=mapping.from_section,
-            subject=mapping.subject,
-            ingredients_changed=mapping.ingredients_changed,
-            note=mapping.note,
-            review_status=status,
-        )
-    return index, status
+        key = (mapping.from_code, _normalise_section(mapping.from_section))
+        grouped.setdefault(key, []).append(mapping)
+
+    # A provision that has a successor cannot also have none. Both statements
+    # appear for IEA s.65B, because a wrapped continuation line in the source
+    # table carries "Deleted" against text belonging to the row above. Where
+    # they conflict the successor wins: claiming a provision was not
+    # re-enacted when it was is the more damaging of the two errors.
+    resolved = {}
+    for key, mappings in grouped.items():
+        with_successor = [m for m in mappings if m.has_successor]
+        resolved[key] = tuple(with_successor or mappings)
+    return resolved, status
 
 
 def resolve_code(text: str | None) -> str | None:
@@ -125,18 +153,62 @@ def resolve_code(text: str | None) -> str | None:
     return None
 
 
-def map_section(code: str, section: str) -> SectionMapping | None:
-    """The counterpart of one provision, in whichever direction applies.
+def _base_section(section: str) -> str:
+    return section.split("(")[0].strip()
 
-    Returns None when the pair is not in the table. That is a real answer:
-    "no mapping known" is safe, and a guessed one is not.
+
+def map_sections(code: str, section: str) -> tuple[SectionMapping, ...]:
+    """Every counterpart of one provision, in whichever direction applies.
+
+    Empty when the provision is not in the table -- "no mapping known",
+    which is safe. A single entry whose `has_successor` is False is the
+    other kind of answer: the table knows this provision and records that
+    it was not carried forward.
+
+    A citation without a sub-section matches every sub-section of that
+    section. The BNSS concordance is printed at sub-section level, so an
+    exact-match-only lookup returned nothing at all for "BNSS s.35" and
+    "BNSS s.173" -- the arrest power and the FIR provision, the two most
+    cited sections in this corpus. Someone who writes "s.35" means the
+    section, and the section is all of its sub-sections.
     """
     index, _ = _load()
-    return index.get((code, _normalise_section(section)))
+    normalised = _normalise_section(section)
+    exact = index.get((code, normalised))
+    if exact:
+        return exact
+    if "(" in normalised:
+        return ()
+    base = _base_section(normalised)
+    collected: list[SectionMapping] = []
+    for (entry_code, entry_section), mappings in index.items():
+        if entry_code == code and _base_section(entry_section) == base:
+            collected.extend(mappings)
+    # Deterministic order: the same query must not return a different first
+    # element between runs.
+    return tuple(sorted(collected, key=lambda m: (m.from_section, str(m.to_section))))
+
+
+def map_section(code: str, section: str) -> SectionMapping | None:
+    """The single counterpart, where there is exactly one.
+
+    None when the provision is unknown *and* when it has several
+    counterparts, because there is no honest way to pick one of eleven.
+    Callers that can present a list should use map_sections.
+    """
+    found = map_sections(code, section)
+    return found[0] if len(found) == 1 else None
+
+
+def map_citations(act_text: str | None, section: str | None) -> tuple[SectionMapping, ...]:
+    """Map a citation as it appears in a document."""
+    code = resolve_code(act_text)
+    if code is None or not section:
+        return ()
+    return map_sections(code, section)
 
 
 def map_citation(act_text: str | None, section: str | None) -> SectionMapping | None:
-    """Map a citation as it appears in a document."""
     code = resolve_code(act_text)
     if code is None or not section:
         return None
@@ -146,12 +218,16 @@ def map_citation(act_text: str | None, section: str | None) -> SectionMapping | 
 def coverage() -> dict[str, object]:
     index, status = _load()
     forward = {code: 0 for code in REPLACED_BY}
-    for (code, _), _mapping in index.items():
+    no_successor = 0
+    for (code, _), mappings in index.items():
         if code in forward:
             forward[code] += 1
+        no_successor += sum(1 for m in mappings if not m.has_successor)
     return {
         "directed_entries": len(index),
+        "pairs": sum(len(v) for v in index.values()),
         "forward_pairs": forward,
+        "provisions_not_re_enacted": no_successor,
         "review_status": status,
         "table": str(_TABLE),
     }

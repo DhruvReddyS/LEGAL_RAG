@@ -146,6 +146,7 @@ def response_generation_node(state: dict) -> dict:
         # where the reader most needs the strongest.
         replaced: dict[str, str] = {}
         renumbered: dict[str, str] = {}
+        not_re_enacted: set[str] = set()
         unverified = False
         for chunk_id in cited_ids:
             hit = hit_by_id.get(chunk_id)
@@ -164,14 +165,21 @@ def response_generation_node(state: dict) -> dict:
             # of the CrPC" from a 2025 judgment and never mentions that the
             # section is now BNSS s.35 -- the single most common currency
             # question in Indian law right now.
-            for mapping in repeal_notice(hit.payload).mappings:
+            notice = repeal_notice(hit.payload)
+            for mapping in notice.mappings:
                 key = f"{mapping.from_code} s.{mapping.from_section}"
                 value = f"{mapping.to_code} s.{mapping.to_section}"
                 if mapping.ingredients_changed:
                     value += " (the elements of the provision also changed)"
                 renumbered[key] = value
+            # A provision the new code dropped altogether. Saying nothing
+            # here would leave the reader assuming it survived under a new
+            # number, which is what happens with sedition: IPC s.124A was
+            # not re-enacted, and BNS s.152 is a different offence.
+            for reference in notice.not_re_enacted:
+                not_re_enacted.add(reference)
 
-        if replaced or renumbered or unverified:
+        if replaced or renumbered or not_re_enacted or unverified:
             answer += "\n\n## Source currency\n\n"
         if replaced:
             lines = "\n".join(
@@ -192,6 +200,17 @@ def response_generation_node(state: dict) -> dict:
                 "renumbered when the 2023 Sanhitas commenced on 1 July 2024:\n\n"
                 + moved
                 + "\n\n"
+            )
+        if not_re_enacted:
+            dropped = "\n".join(
+                f"- {reference} was **not carried forward** into the replacing Act. "
+                "It has no direct successor provision, so there is no renumbered "
+                "equivalent to rely on."
+                for reference in sorted(not_re_enacted)
+            )
+            answer += (
+                "One or more provisions cited above were repealed without "
+                "replacement:\n\n" + dropped + "\n\n"
             )
         if unverified:
             answer += (

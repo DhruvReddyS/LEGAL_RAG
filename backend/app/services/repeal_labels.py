@@ -34,7 +34,7 @@ from app.services.currency import CurrencyStatus, resolve_currency
 from app.services.section_mapping import (
     REPLACED_BY,
     SectionMapping,
-    map_section,
+    map_sections,
 )
 
 
@@ -65,6 +65,11 @@ class RepealNotice:
     # Cited provisions of a repealed code for which no mapping is known. Named
     # rather than hidden: silence would read as "unchanged".
     unmapped_provisions: tuple[str, ...] = ()
+    # Cited provisions the official concordance records as not carried
+    # forward. Deliberately separate from unmapped_provisions: "the new code
+    # dropped this" and "this table has not heard of it" are different
+    # answers, and merging them would turn a positive finding into a gap.
+    not_re_enacted: tuple[str, ...] = ()
     review_status: str = ""
 
     @property
@@ -126,6 +131,7 @@ def repeal_notice(payload: dict[str, Any]) -> RepealNotice:
 
     mappings: list[SectionMapping] = []
     unmapped: list[str] = []
+    dropped: list[str] = []
     seen: set[str] = set()
     for reference in provisions:
         act_key, _, section = str(reference).partition(":")
@@ -133,18 +139,22 @@ def repeal_notice(payload: dict[str, Any]) -> RepealNotice:
         if code is None or not section or reference in seen:
             continue
         seen.add(reference)
-        mapping = map_section(code, section)
-        if mapping is not None:
-            mappings.append(mapping)
-        else:
+        found = map_sections(code, section)
+        if not found:
             unmapped.append(f"{code} s.{section}")
+        elif all(not item.has_successor for item in found):
+            dropped.append(f"{code} s.{section}")
+        else:
+            mappings.extend(item for item in found if item.has_successor)
 
-    if not mappings and not unmapped:
+    if not mappings and not unmapped and not dropped:
         return RepealNotice(label=RepealLabel.NONE)
 
     replacement = None
     if mappings:
         replacement = REPLACED_BY.get(mappings[0].from_code)
+    elif dropped:
+        replacement = REPLACED_BY.get(dropped[0].split(" ")[0])
 
     return RepealNotice(
         label=RepealLabel.CONCERNS_REPEALED_PROVISION,
@@ -152,5 +162,6 @@ def repeal_notice(payload: dict[str, Any]) -> RepealNotice:
         repealed_on="2024-07-01",
         mappings=tuple(mappings[:_MAX_MAPPINGS]),
         unmapped_provisions=tuple(unmapped[:_MAX_MAPPINGS]),
-        review_status=mappings[0].review_status if mappings else "pending_legal_review",
+        not_re_enacted=tuple(dropped[:_MAX_MAPPINGS]),
+        review_status=mappings[0].review_status if mappings else "official_source",
     )
