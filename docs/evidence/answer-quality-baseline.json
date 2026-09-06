@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-09-06T15:04:14.898451+00:00",
+  "recorded_at": "2026-09-06T16:51:50.894939+00:00",
   "golden_set": "golden_set_v3.json",
   "measurement_config": {
     "collection": "global_legal_corpus_v3",
@@ -18,46 +18,46 @@
       "document_analysis": "090c2b8c8849"
     },
     "memory_before": {
-      "swap_used_gb": 1.05,
-      "swap_total_gb": 2.0,
-      "pageouts": 64659,
+      "swap_used_gb": 4.17,
+      "swap_total_gb": 5.0,
+      "pageouts": 88072,
       "was_swapping": true
     },
     "memory_after": {
-      "swap_used_gb": 17.18,
-      "swap_total_gb": 18.0,
-      "pageouts": 87676,
+      "swap_used_gb": 17.7,
+      "swap_total_gb": 19.0,
+      "pageouts": 109662,
       "was_swapping": true
     }
   },
   "metrics": {
-    "abstention_correct": 0.836,
-    "ground_coverage": 0.474,
-    "currency_correct": 0.632
+    "abstention_correct": 0.885,
+    "ground_coverage": 0.477,
+    "currency_correct": 0.65
   },
-  "ground_coverage_items": 7,
+  "ground_coverage_items": 8,
   "by_role": {
     "advocate": {
       "items": 7,
-      "abstention_correct": 0.714,
+      "abstention_correct": 0.857,
       "unsupported_claims_total": 0,
       "ground_coverage": null,
       "ground_coverage_items": 0,
       "currency_correct": 1.0,
       "currency_items": 3,
-      "reading_grade_mean": 12.9,
-      "latency_p50_s": 117.2
+      "reading_grade_mean": 13.8,
+      "latency_p50_s": 62.2
     },
     "citizen": {
       "items": 29,
-      "abstention_correct": 0.759,
+      "abstention_correct": 0.828,
       "unsupported_claims_total": 0,
-      "ground_coverage": 0.517,
-      "ground_coverage_items": 3,
-      "currency_correct": 0.5,
-      "currency_items": 6,
+      "ground_coverage": 0.512,
+      "ground_coverage_items": 4,
+      "currency_correct": 0.625,
+      "currency_items": 8,
       "reading_grade_mean": 14.1,
-      "latency_p50_s": 101.1
+      "latency_p50_s": 56.2
     },
     "police": {
       "items": 25,
@@ -65,10 +65,10 @@
       "unsupported_claims_total": 0,
       "ground_coverage": 0.442,
       "ground_coverage_items": 4,
-      "currency_correct": 0.6,
-      "currency_items": 10,
-      "reading_grade_mean": 14.9,
-      "latency_p50_s": 94.2
+      "currency_correct": 0.556,
+      "currency_items": 9,
+      "reading_grade_mean": 14.8,
+      "latency_p50_s": 49.9
     }
   }
 }
