@@ -282,3 +282,46 @@ any fusion weighting is changed.
 Abstention accuracy is 0.83 across every configuration: five of six known
 corpus gaps are correctly declined, and only `workplace-harassment` is
 answered.
+
+## Rejected: small-to-big retrieval
+
+Police citation accuracy is 0.44 — fewer than half the passages an officer is
+shown are on topic — while police recall@5 is 1.00 across 25 items. The
+passages are found; the wrong ones ride along. Small-to-big is the standard
+answer: match on the tight chunk, return the parent unit.
+
+Measured first. Of the passages shown to an officer, 52% belong to a unit that
+was split across several windows, so there was real headroom on paper.
+
+Implemented, and measured again:
+
+| | before | after |
+|---|---:|---:|
+| citation accuracy@5, overall | 0.53 | 0.53 |
+| citation accuracy@5, police | 0.44 | 0.43 |
+| citations opening mid-sentence | 83 of 231 (36%) | **83 of 231 (36%)** |
+
+Neutral on the metric it was meant to move, and it did not change the defect it
+was meant to fix at all.
+
+The reason is the interesting part. The mid-sentence citations are not
+fragments of split provisions. They are single-chunk units that begin
+mid-sentence because structure parsing never found a section boundary — 47% of
+chunks carry no section label, and 2,323 begin mid-sentence. Expanding a unit
+cannot help when the unit is itself an arbitrary block of text.
+
+So this is a parser problem wearing a retrieval costume, and the marginal-note
+fix is the actual remedy. Reverted rather than kept: it adds a Qdrant round
+trip and about a hundred lines for no measured benefit.
+
+Worth re-testing against v3, where section parsing recovers 137 BNSS sections
+and units should far more often be real provisions.
+
+### A bug worth recording from the attempt
+
+The first implementation truncated a merged unit from its start at 4,000
+characters, which drops the retrieved passage whenever the match sits late in
+a long section — the answer was being cut out of its own citation. It scored
+0.42 against a 0.53 baseline. Growing the window outward from the matched
+chunk recovered it to 0.53. A merge that can discard what it was built around
+is worse than no merge.
