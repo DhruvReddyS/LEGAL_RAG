@@ -42,6 +42,26 @@ Do not commit `.env`, start overlapping ingestion workers, or use
 `docker compose down -v` unless persistent database/vector/object data is
 intentionally being deleted.
 
+## Local setup
+
+With Docker Desktop and Node.js 18+ installed, run:
+
+```bash
+./scripts/setup_local.sh
+```
+
+The script creates a local `.env` when needed, installs frontend dependencies,
+builds and starts the Docker backend stack, and waits for the API health check.
+Then start the frontend in a second terminal:
+
+```bash
+cd frontend
+npm run dev
+```
+
+Open <http://localhost:3000>. The backend API is available at
+<http://localhost:8000/docs>.
+
 ## Current status
 
 Tier 0 and the verified web RAG MVP are complete: the Gold corpus, BGE-M3/Qdrant
