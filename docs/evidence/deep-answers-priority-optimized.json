@@ -1,0 +1,97 @@
+{
+  "generated_at": "2026-09-10T02:52:21.528318+00:00",
+  "collection": "global_legal_corpus_v3",
+  "generation_model": "qwen3-14b-16k:latest",
+  "prompt_versions": {
+    "query_understanding": "3bd57cb79f3e",
+    "reasoning": "28ee7dee4718",
+    "verification": "cceac5155b5d",
+    "drafting_fact_extraction": "26bf93f7493e",
+    "defence_strategy": "014cb50323bb",
+    "document_analysis": "090c2b8c8849"
+  },
+  "max_claims": 10,
+  "max_claim_characters": 600,
+  "runs": [
+    {
+      "role": "citizen",
+      "question": "When can the police arrest someone without a warrant?",
+      "total_ms": 121876.0,
+      "stages_ms": {
+        "role_context": 0.0,
+        "query_understanding": 1.0,
+        "retrieval": 192.0,
+        "reasoning": 68133.0,
+        "verification": 53491.0,
+        "response_generation": 2.0
+      },
+      "llm_calls": 2,
+      "output_tokens": 1196,
+      "answer_words": 345,
+      "answer": "## Direct answer\n\nThe police can arrest someone without a warrant if they have credible information that the person has committed a cognizable offence punishable with imprisonment for up to seven years [Source 1] [Source 2] [Source 3].\n\nThe police can also arrest someone without a warrant if they commit a cognizable offence in the presence of a police officer [Source 3] [Source 4].\n\n## Why this is the legal position\n\n- Section 41(1)(b) of the CrPC allows police to arrest without a warrant if certain conditions are met [Source 1] [Source 2] [Source 3].\n- Section 41(1)(a) of the CrPC allows police to arrest without a warrant if the person commits a cognizable offence in the presence of a police officer [Source 3] [Source 4].\n\n## How this applies to you\n\n- This applies when the police have credible information that the person has committed a cognizable offence punishable with imprisonment for up to seven years [Source 1] [Source 2] [Source 3].\n- This applies when the police witness the commission of a cognizable offence by the person [Source 3] [Source 4].\n\n## What you can do now\n\n1. The police must record their reasons for the arrest in writing [Source 1] [Source 2] [Source 3].\n2. The police must immediately take the person before a Magistrate or the officer in charge of the police station [Source 5].\n\n## Source currency\n\nThe sources above remain in force, but they cite provisions that were renumbered when the 2023 Sanhitas commenced on 1 July 2024:\n\n- CrPC s.35 is now BNSS s.29 (the elements of the provision also changed).\n- CrPC s.41 is now BNSS s.35(1) (the elements of the provision also changed).\n- CrPC s.60A is now BNSS s.62.\n\nThe remaining cited material supports the statements above, but its current-law status is not verified in the corpus metadata. Check the latest official text and amendments before relying on it for a live matter.\n\n---\n\n*Legal decision-support information, not a substitute for advice from a qualified professional who has reviewed the complete facts and current law.*",
+      "citations": 5,
+      "claims": 0,
+      "evidence_strength": "moderate"
+    },
+    {
+      "role": "citizen",
+      "question": "What are the rights of a person who has been arrested?",
+      "total_ms": 100558.0,
+      "stages_ms": {
+        "role_context": 0.0,
+        "query_understanding": 0.0,
+        "retrieval": 1078.0,
+        "reasoning": 55154.0,
+        "verification": 44292.0,
+        "response_generation": 1.0
+      },
+      "llm_calls": 2,
+      "output_tokens": 1135,
+      "answer_words": 274,
+      "answer": "## Direct answer\n\nA person who has been arrested has the right to be informed of the grounds of arrest as soon as possible [Source 1] [Source 2] [Source 3].\n\nThe arrested person has the right to inform a relative, friend, or nominated person about their arrest immediately [Source 2] [Source 3].\n\nThe arrested person has the right to meet an advocate of their choice during interrogation [Source 4].\n\n## Why this is the legal position\n\n- Section 48(1) of the Bharatiya Nagariya Suraksha Sanhita, 2023 requires the police to inform a relative or nominated person of the arrest [Source 2] [Source 3].\n- Section 38 of the Bharatiya Nagariya Suraksha Sanhita, 2023 guarantees the right to meet an advocate of choice during interrogation [Source 4].\n\n## How this applies to you\n\n- This requirement applies to all arrests, regardless of the nature of the offence, and is a constitutional safeguard [Source 1] [Source 5].\n- This applies to all arrests made under the Bharatiya Nagariya Suraksha Sanhita, 2023, and must be done without delay [Source 2] [Source 3].\n\n## Source currency\n\nThe sources above remain in force, but they cite provisions that were renumbered when the 2023 Sanhitas commenced on 1 July 2024:\n\n- CrPC s.50A is now BNSS s.48 (the elements of the provision also changed).\n\nThe remaining cited material supports the statements above, but its current-law status is not verified in the corpus metadata. Check the latest official text and amendments before relying on it for a live matter.\n\n---\n\n*Legal decision-support information, not a substitute for advice from a qualified professional who has reviewed the complete facts and current law.*",
+      "citations": 5,
+      "claims": 0,
+      "evidence_strength": "moderate"
+    },
+    {
+      "role": "citizen",
+      "question": "Is a statement made by a dying person accepted as evidence?",
+      "total_ms": 143969.0,
+      "stages_ms": {
+        "role_context": 0.0,
+        "query_understanding": 0.0,
+        "retrieval": 600.0,
+        "reasoning": 66296.0,
+        "verification": 77014.0,
+        "response_generation": 2.0
+      },
+      "llm_calls": 3,
+      "output_tokens": 1448,
+      "answer_words": 432,
+      "answer": "## Direct answer\n\nYes, a statement made by a dying person can be accepted as evidence under certain conditions [Source 1] [Source 2] [Source 3].\n\nDying declarations are not automatically admissible; they must meet specific legal criteria [Source 1] [Source 3] [Source 4].\n\n## Why this is the legal position\n\n- The Supreme Court has emphasized that the admissibility of dying declarations depends on the declarant's awareness of their impending death [Source 1] [Source 3] [Source 5].\n- Section 32(1) of the Indian Evidence Act, 1872, provides that dying declarations are relevant for proving the circumstances of the transaction that resulted in the declarant's death [Source 3].\n\n## How this applies to you\n\n- This applies when the statement is made by a person who is on the point of dying and relates to the cause or circumstances of their death [Source 1] [Source 2] [Source 3].\n- If the declarant did not know they were about to die, the statement may not be admissible as a dying declaration [Source 1] [Source 3] [Source 5].\n\n## What you can do now\n\n1. To use a dying declaration as evidence, it must be shown that the declarant was aware of their impending death at the time of making the statement [Source 1] [Source 3] [Source 5].\n2. The court must assess the credibility and context of the dying declaration before admitting it as evidence [Source 1] [Source 3] [Source 4].\n\n## Important limits\n\n- The admissibility of a dying declaration may be limited if it contradicts other evidence or if the declarant's mental state is in question [Source 1] [Source 3] [Source 4].\n\n## Source currency\n\nOne or more sources above is no longer in force:\n\n- **The Indian Evidence Act, 1872 1977 Accessible_Part_1( 6.81MB) | Accessible_Part_2( 6.67MB) | Accessible_Part_3( 8.13MB)** was replaced by The Bharatiya Sakshya Adhiniyam, 2023. It still governs conduct from before that date, so it may be the right authority for an older matter, but not for anything happening now.\n\nThe sources above remain in force, but they cite provisions that were renumbered when the 2023 Sanhitas commenced on 1 July 2024:\n\n- IEA s.32 is now BSA s.26 (the elements of the provision also changed).\n- IEA s.33 is now BSA s.27.\n\nThe remaining cited material supports the statements above, but its current-law status is not verified in the corpus metadata. Check the latest official text and amendments before relying on it for a live matter.\n\n---\n\n*Legal decision-support information, not a substitute for advice from a qualified professional who has reviewed the complete facts and current law.*",
+      "citations": 5,
+      "claims": 0,
+      "evidence_strength": "moderate"
+    },
+    {
+      "role": "police",
+      "question": "How must chain of custody be maintained for seized material?",
+      "total_ms": 85593.0,
+      "stages_ms": {
+        "role_context": 0.0,
+        "query_understanding": 0.0,
+        "retrieval": 767.0,
+        "reasoning": 60786.0,
+        "verification": 24006.0,
+        "response_generation": 1.0
+      },
+      "llm_calls": 2,
+      "output_tokens": 918,
+      "answer_words": 302,
+      "answer": "## Direct answer\n\nChain of custody for seized material must be documented with the name and signature of each person who handles the evidence, along with the date of transfer, evidence label or serial number, and reason for transfer [Source 1].\n\nChain of custody must be maintained through a written record that includes the name and signature of each person who takes possession or transports the evidence [Source 1].\n\n## Governing provision and legal basis\n\n- The Supreme Court in Criminal Appeal No. 1672/2019 mandates that a Chain of Custody Register be maintained from the point of collection to the logical end of the case, with counter-signatures at each stage [Source 2].\n\n## Application to this matter\n\n- This applies to seized material, including electronic evidence, which must be sealed in front of witnesses and have a clear written record of chain of custody maintained until it is handed over to the CFSL for forensic examination [Source 1].\n- This applies to all evidence, including DNA evidence, and the register must be appended as part of the Trial Court record [Source 2].\n\n## Required procedural steps\n\n- The investigating officer must ensure that the chain of custody form is completed with the name, signature, date, and reason for each transfer of evidence [Source 1].\n- The investigating officer must ensure that a Chain of Custody Register is maintained and appended to the Trial Court record as required by the Supreme Court [Source 2].\n\n## Source currency\n\nThe cited corpus material supports the statements above, but its current-law status is not verified in the corpus metadata. Check the latest official text and amendments before relying on it for a live matter.\n\n---\n\n*Legal decision-support information, not a substitute for advice from a qualified professional who has reviewed the complete facts and current law.*",
+      "citations": 2,
+      "claims": 0,
+      "evidence_strength": "moderate"
+    }
+  ]
+}

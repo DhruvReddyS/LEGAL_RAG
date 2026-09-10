@@ -86,6 +86,7 @@ class OllamaClient:
             "prompt": prompt,
             "stream": True,
             "think": False,
+            "keep_alive": settings.ollama_keep_alive,
             "options": {
                 "temperature": TEMPERATURE,
                 "num_ctx": context_window,
@@ -215,6 +216,7 @@ class OllamaClient:
             # The graph supplies bounded evidence, so a 16K window is ample and
             # avoids reserving the 40K model profile's much larger KV cache.
             "think": False,
+            "keep_alive": settings.ollama_keep_alive,
             "options": {
                 "temperature": TEMPERATURE,
                 "num_ctx": context_window,
@@ -409,7 +411,14 @@ class OllamaClient:
             operation="generate",
         )
 
-    async def structured(self, prompt: str, schema: type[T], *, attempts: int = 3) -> T:
+    async def structured(
+        self,
+        prompt: str,
+        schema: type[T],
+        *,
+        attempts: int = 3,
+        num_predict: int = 1800,
+    ) -> T:
         last_error: Exception | None = None
         schema_json = schema.model_json_schema()
         grammar_fallback = False
@@ -428,13 +437,13 @@ class OllamaClient:
                         self._request,
                         request_prompt,
                         format_=request_format,
-                        num_predict=1800,
+                        num_predict=num_predict,
                     )
                 else:
                     raw, _ = await self._async_request_with_metrics(
                         request_prompt,
                         format_=request_format,
-                        num_predict=1800,
+                        num_predict=num_predict,
                         operation="structured",
                     )
                 return schema.model_validate_json(raw)
@@ -452,6 +461,7 @@ class OllamaClient:
         schema: type[T],
         *,
         attempts: int = 3,
+        num_predict: int = 1800,
     ) -> tuple[T, list[dict[str, Any]]]:
         last_error: Exception | None = None
         schema_json = schema.model_json_schema()
@@ -470,7 +480,7 @@ class OllamaClient:
                 raw, metric = await self._async_request_with_metrics(
                     request_prompt,
                     format_=request_format,
-                    num_predict=1800,
+                    num_predict=num_predict,
                     operation="structured",
                     attempt=attempt,
                 )
@@ -500,3 +510,11 @@ class OllamaClient:
         error = error_type(f"Ollama structured output failed after {attempts} attempts")
         error.telemetry_metrics = metrics  # type: ignore[attr-defined]
         raise error from last_error
+
+    async def warmup(self) -> None:
+        """Load the configured model without making the first user wait."""
+        await self._async_request_with_metrics(
+            "Reply with OK.",
+            num_predict=2,
+            operation="warmup",
+        )

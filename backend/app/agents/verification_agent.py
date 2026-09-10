@@ -15,9 +15,9 @@ from app.services.pipeline_telemetry import append_stage_metric, structured_with
 # Reasoning caps evidence per chunk; verification did not, so the premise
 # block grew to ~12,900 tokens - 79% of the context window and 40-50 seconds
 # of prefill before the first output token. Legal chunks average ~700 words,
-# so 2,500 characters keeps the provision that grounds a claim while removing
+# so 1,800 characters keeps the provision that grounds a claim while removing
 # the surrounding material no claim cites.
-MAX_PREMISE_CHARACTERS = 2500
+MAX_PREMISE_CHARACTERS = 1800
 
 MARKER_RE = re.compile(r"\[SRC:([^\]]+)\]")
 CATEGORY_RE = re.compile(
@@ -36,10 +36,18 @@ CATEGORY_MAP = {
 class VerdictItem(BaseModel):
     index: int = Field(ge=1)
     verdict: Literal["yes", "partial", "no"]
-    reason: str = ""
+    reason: str = Field(default="", max_length=120)
 
 
 class VerificationBatch(BaseModel):
+    # Positional verdicts are the production format. Ten short strings replace
+    # ten repeated objects with indexes and reasons, cutting verifier decode
+    # substantially. `claims` remains accepted for compatibility with stored
+    # fixtures and as a defensive fallback if a model follows the older shape.
+    verdicts: list[Literal["yes", "partial", "no"]] = Field(
+        default_factory=list,
+        max_length=32,
+    )
     claims: list[VerdictItem] = Field(default_factory=list)
 
 
@@ -140,19 +148,40 @@ async def verification_node(state: dict, llm: OllamaClient) -> dict:
     fallback_used = False
     if valid_pairs:
         items = _format_verification_items(valid_pairs, hits_by_id)
-        prompt = f"""Each source block contains every CLAIM for one source followed by its PREMISE_TEXT.
-Verify every numbered CLAIM only against the PREMISE_TEXT in its own
-source block. Do not use another block. Return one result for every claim using its exact numeric
-claim index. Verdict must be yes, partial, or no. Use yes only when the premise directly entails the
-material claim; partial for incomplete support; no otherwise. Return JSON.
+        prompt = f"""Each source block contains numbered claims and its premise.
+Judge every claim only against the premise in its own block. Return one verdict per claim in numeric
+order as JSON: {{"verdicts":["yes","partial","no"]}}. Use yes only when the premise directly
+entails the material claim, partial for incomplete support, and no otherwise. Return no explanations.
 
 {items}"""
         try:
-            batch, llm_calls = await structured_with_metrics(llm, prompt, VerificationBatch)
+            verification_budget = min(256, max(128, 96 + len(valid_pairs) * 12))
+            batch, llm_calls = await structured_with_metrics(
+                llm,
+                prompt,
+                VerificationBatch,
+                num_predict=verification_budget,
+            )
             seen_indexes: set[int] = set()
 
-            def collect(items) -> None:
-                for item in items:
+            def collect(result: VerificationBatch) -> None:
+                if result.verdicts:
+                    for index, verdict in enumerate(result.verdicts, start=1):
+                        if index > len(valid_pairs) or index in seen_indexes:
+                            continue
+                        seen_indexes.add(index)
+                        category, claim, chunk_id = valid_pairs[index - 1]
+                        verified.append(
+                            ClaimVerification(
+                                claim=claim,
+                                chunk_id=chunk_id,
+                                category=category,
+                                verdict=verdict,
+                                reason="",
+                            )
+                        )
+                    return
+                for item in result.claims:
                     if item.index > len(valid_pairs) or item.index in seen_indexes:
                         continue
                     seen_indexes.add(item.index)
@@ -170,7 +199,7 @@ material claim; partial for incomplete support; no otherwise. Return JSON.
                         )
                     )
 
-            collect(batch.claims)
+            collect(batch)
 
             # The verifier routinely returns fewer verdicts than it was sent -
             # measured runs came back with three verdicts for ten and for
@@ -196,18 +225,34 @@ material claim; partial for incomplete support; no otherwise. Return JSON.
                 )
                 retry_prompt = (
                     "You returned no verdict for some claims. Return a verdict for "
-                    "EVERY numbered claim below and nothing else. Use the exact "
-                    "claim numbers shown. Verify each claim only against the "
-                    "PREMISE_TEXT in its own source block. Verdict must be yes, "
-                    "partial, or no. Return JSON.\n\n"
+                    "EVERY numbered claim below and nothing else. Return one "
+                    "verdict per claim in the order shown as JSON: "
+                    "{\"verdicts\":[\"yes\",\"partial\",\"no\"]}. Verify each "
+                    "claim only against its own premise. Return no explanations.\n\n"
                     f"{retry_items}"
                 )
                 try:
                     second, retry_calls = await structured_with_metrics(
-                        llm, retry_prompt, VerificationBatch
+                        llm,
+                        retry_prompt,
+                        VerificationBatch,
+                        num_predict=min(192, max(96, 64 + len(outstanding) * 12)),
                     )
                     llm_calls = [*llm_calls, *retry_calls]
-                    collect(second.claims)
+                    # Retry numbering is explicit and can be sparse. Convert
+                    # positional output back to the original claim indexes.
+                    if second.verdicts:
+                        second = VerificationBatch(
+                            claims=[
+                                VerdictItem(index=index, verdict=verdict)
+                                for index, verdict in zip(
+                                    outstanding,
+                                    second.verdicts,
+                                    strict=False,
+                                )
+                            ]
+                        )
+                    collect(second)
                 except RuntimeError as exc:
                     llm_calls = [*llm_calls, *getattr(exc, "telemetry_metrics", [])]
         except RuntimeError as exc:

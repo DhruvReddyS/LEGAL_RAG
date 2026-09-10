@@ -24,6 +24,7 @@ job_type = postgresql.ENUM(
     "document_analysis",
     "export",
     name="job_type",
+    create_type=False,
 )
 job_status = postgresql.ENUM(
     "queued",
@@ -32,10 +33,18 @@ job_status = postgresql.ENUM(
     "failed",
     "cancelled",
     name="job_status",
+    create_type=False,
 )
 
 
 def upgrade() -> None:
+    bind = op.get_bind()
+    # A failed or manually prepared deployment may already have one of these
+    # types. Referencing inline ENUM objects from create_table would attempt a
+    # second CREATE TYPE and prevent the service from ever reaching startup.
+    job_type.create(bind, checkfirst=True)
+    job_status.create(bind, checkfirst=True)
+
     op.create_table(
         "jobs",
         sa.Column("id", sa.UUID(), nullable=False),

@@ -32,7 +32,7 @@ containerised Ollama silently falls back to CPU:
 
 ```bash
 ollama serve
-ollama pull qwen3-14b-16k
+ollama pull qwen3:14b
 ```
 
 ### Configuration
@@ -52,7 +52,7 @@ Never commit `.env`, signing keys, real case data or passwords.
 
 ```bash
 curl localhost:8000/health/live     # process is up
-curl localhost:8000/health/ready    # dependencies are reachable
+curl localhost:8000/health/ready    # dependencies and model are reachable
 python scripts/verify_retrieval_health.py
 ```
 
@@ -138,8 +138,9 @@ swapped ones.
 ### Capacity
 
 The pilot host serves a handful of users because generation is serialised, not
-because the API is a bottleneck. Retrieval answers in ~90 ms; a Deep request
-takes 78–85 s and holds the model for its duration. Growth means more generation
+because the API is a bottleneck. Retrieval answers in ~90 ms; the current
+four-question Deep benchmark averages 66.5 s (59.3–85.0 s for the three citizen
+questions) and holds the model for its duration. Growth means more generation
 capacity — a second Ollama host, or a smaller model for non-adjudicating roles —
 not more API workers.
 

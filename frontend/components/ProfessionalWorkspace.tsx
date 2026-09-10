@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, BriefcaseBusiness, CalendarClock, Check, ClipboardCheck, ClipboardCopy, ScanText, CheckCircle2, Download, FilePlus2, FileSearch, FileText, FolderPlus, Loader2, MessageSquare, MessageSquarePlus, Pencil, Plus, Scale, ScanSearch, ShieldCheck, UploadCloud } from "lucide-react";
+import { AlertTriangle, ArrowRight, BriefcaseBusiness, CalendarClock, Check, ClipboardCheck, ClipboardCopy, ScanText, CheckCircle2, Download, FilePlus2, FileSearch, FileText, FolderPlus, Loader2, MessageSquare, MessageSquarePlus, Pencil, Plus, Scale, ScanSearch, ShieldCheck, UploadCloud } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { AuthorityCheck } from "@/components/AuthorityCheck";
 import { ComplianceChecklist } from "@/components/ComplianceChecklist";
@@ -140,6 +140,18 @@ export default function ProfessionalWorkspace({
     link.click();
     URL.revokeObjectURL(url);
   };
+  // Everything on screen belongs to one case. Selecting another one has to
+  // clear it: a draft, an analysis or a search result left standing under a
+  // different case's name is read as that case's material.
+  useEffect(() => {
+    setDraft(null);
+    setAnalysis(null);
+    setScenario("");
+    setSearchResults([]);
+    setNotice("");
+    setFailed(false);
+    setRenaming(false);
+  }, [selectedId]);
   const openDraft = async (documentId: string) => {
     if (!selectedId) return;
     setBusy("draft"); setNotice(""); setFailed(false);
@@ -255,6 +267,17 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
     },
   ];
   const current = tools.find((tool) => tool.key === view) ?? tools[0];
+  const workflow = isPolice
+    ? [
+        { label: "Open an investigation", detail: "Select or create the case record.", target: "casefile" as ViewKey },
+        { label: "Build the record", detail: "Add evidence and record dates.", target: "evidence" as ViewKey },
+        { label: "Review and act", detail: "Draft, verify and check compliance.", target: "agent" as ViewKey },
+      ]
+    : [
+        { label: "Open a case", detail: "Select or create the client matter.", target: "casefile" as ViewKey },
+        { label: "Build the record", detail: "Add evidence and find authority.", target: "evidence" as ViewKey },
+        { label: "Develop strategy", detail: "Analyse both sides and verify citations.", target: "agent" as ViewKey },
+      ];
 
   return (
     <section className="mx-auto max-w-[1440px] px-5 py-7 md:px-8 md:py-9">
@@ -266,6 +289,22 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
         </div>
         <div className="flex flex-none items-center gap-2 rounded-full border border-[var(--state-ok-line)] bg-[var(--state-ok-bg)] px-3 py-1.5 text-xs font-medium text-[var(--state-ok-text)]">
           <ShieldCheck size={14} /> Role isolation active
+        </div>
+      </div>
+
+      <div className="professional-path" aria-label={`${isPolice ? "Investigation" : "Case"} workflow`}>
+        <div className="professional-path-intro">
+          <span>Recommended path</span>
+          <strong>Move from facts to a reviewable result.</strong>
+        </div>
+        <div className="professional-path-steps">
+          {workflow.map((step, index) => (
+            <button key={step.target} onClick={() => setView(step.target)}>
+              <b>{String(index + 1).padStart(2, "0")}</b>
+              <span><strong>{step.label}</strong><small>{step.detail}</small></span>
+              {index < workflow.length - 1 && <ArrowRight size={14} aria-hidden="true" />}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -316,7 +355,8 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
           <nav aria-label="Case tools" className="tool-rail">
             {tools.map((tool) => (
               <button key={tool.key} onClick={() => setView(tool.key)} aria-current={view === tool.key ? "page" : undefined}>
-                <tool.icon size={16} />{tool.label}
+                <tool.icon size={16} />
+                <span><strong>{tool.label}</strong><small>{tool.title}</small></span>
               </button>
             ))}
           </nav>
@@ -325,6 +365,7 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
         <div className="feature-view">
           <div className="feature-head">
             <div>
+              <span className="feature-location">{selected ? selected.title : "No case selected"} / {current.label}</span>
               <h3>{current.title}</h3>
               <p>{current.blurb}</p>
             </div>

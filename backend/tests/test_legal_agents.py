@@ -746,6 +746,39 @@ async def test_verification_caps_premise_text_per_source() -> None:
 
 
 @pytest.mark.asyncio
+async def test_compact_positional_verdicts_map_to_the_correct_claims() -> None:
+    """The low-latency verifier format must preserve claim ordering."""
+    from app.agents.verification_agent import verification_node
+
+    class _CompactVerifier:
+        async def structured_with_metrics(self, prompt, schema, **kwargs):
+            assert kwargs["num_predict"] <= 256
+            assert '"verdicts"' in prompt
+            return schema(verdicts=["yes", "partial", "no"]), []
+
+    result = await verification_node(
+        {
+            "draft_answer": (
+                "[LEGAL_BASIS] First proposition. [SRC:chunk-1] "
+                "[APPLICATION] Second proposition. [SRC:chunk-2] "
+                "[LIMIT] Third proposition. [SRC:chunk-3]"
+            ),
+            "retrieved_chunks": [_hit("chunk-1"), _hit("chunk-2"), _hit("chunk-3")],
+            "agent_trace": [],
+        },
+        _CompactVerifier(),  # type: ignore[arg-type]
+    )
+
+    claims = result["verification_result"].claims
+    assert [(claim.chunk_id, claim.verdict) for claim in claims] == [
+        ("chunk-1", "yes"),
+        ("chunk-2", "partial"),
+        ("chunk-3", "no"),
+    ]
+    assert result["agent_trace"][-1].details["unadjudicated"] == 0
+
+
+@pytest.mark.asyncio
 async def test_verification_premise_cap_keeps_every_distinct_source() -> None:
     """Capping is per source, so a long chunk cannot crowd out a short one."""
     from app.agents.verification_agent import verification_node

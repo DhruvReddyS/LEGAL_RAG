@@ -83,6 +83,9 @@ class Settings(BaseSettings):
     ollama_base_url: str = "http://localhost:11434"
     ollama_model: str = "qwen3-14b-16k:latest"
     ollama_generation_concurrency: int = Field(default=1, ge=1, le=4)
+    # Retrieval warmup does not load Ollama. Keep the reasoning model resident
+    # so the first Deep request after a short idle period does not pay for it.
+    ollama_keep_alive: str = "30m"
     jwt_secret_key: SecretStr = SecretStr("development-access-secret-change-me")
     jwt_refresh_secret_key: SecretStr = SecretStr("development-refresh-secret-change-me")
     jwt_algorithm: str = "HS256"

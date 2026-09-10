@@ -274,17 +274,41 @@
 
 /* The feature rail. One item per tool, current one marked. */
 .tool-rail {display:grid;gap:2px;padding-top:16px;border-top:1px solid var(--border);}
-.tool-rail button {display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:7px;text-align:left;font-size:13px;color:var(--ink-soft);transition:background .15s,color .15s;}
+.tool-rail button {display:flex;align-items:center;gap:11px;padding:10px 11px;border-radius:9px;text-align:left;color:var(--ink-soft);transition:background .15s,color .15s;}
 .tool-rail button:hover {background:var(--hover);color:var(--ink);}
 .tool-rail button[aria-current="page"] {background:var(--hover);color:var(--ink);font-weight:500;}
 .tool-rail svg {flex:none;color:var(--ink-soft);}
 .tool-rail button[aria-current="page"] svg {color:var(--accent);}
+.tool-rail button>span {display:grid;gap:2px;min-width:0;}
+.tool-rail button strong {font-size:12px;font-weight:600;color:inherit;}
+.tool-rail button small {overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px;color:var(--ink-soft);}
 
 /* The single feature on show. */
 .feature-view {display:grid;gap:20px;}
 .feature-head {display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:12px;padding-bottom:16px;border-bottom:1px solid var(--border);}
 .feature-head h3 {font-size:19px;font-weight:600;letter-spacing:-.02em;color:var(--ink);}
 .feature-head p {margin-top:5px;max-width:62ch;font-size:12px;line-height:1.6;color:var(--ink-soft);}
+.feature-location {display:block;margin-bottom:5px;color:var(--accent);font-size:9px;font-weight:650;letter-spacing:.08em;text-transform:uppercase;}
+
+.professional-path,.admin-path {position:relative;margin-bottom:24px;padding:18px;border:1px solid var(--border);border-radius:17px;background:radial-gradient(circle at 5% 20%,var(--accent-soft),transparent 30%),var(--card);overflow:hidden;}
+.professional-path {display:grid;grid-template-columns:minmax(170px,.65fr) minmax(0,1.7fr);gap:20px;align-items:center;}
+.professional-path-intro {display:grid;gap:4px;padding:2px 8px;}
+.professional-path-intro span,.admin-path>div>span {color:var(--accent);font-size:9px;font-weight:650;letter-spacing:.1em;text-transform:uppercase;}
+.professional-path-intro strong,.admin-path>div>strong {font-family:var(--serif);font-size:17px;font-weight:400;line-height:1.25;}
+.professional-path-steps {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;}
+.professional-path-steps button,.admin-path nav button {display:flex;align-items:center;gap:9px;min-width:0;padding:11px;border:1px solid var(--border);border-radius:11px;background:color-mix(in srgb,var(--card) 88%,transparent);text-align:left;transition:border-color .15s,transform .15s;}
+.professional-path-steps button:hover,.admin-path nav button:hover {border-color:var(--accent);transform:translateY(-1px);}
+.professional-path-steps button>b,.admin-path nav button>b {flex:none;color:var(--accent);font-family:var(--serif);font-size:15px;font-weight:400;}
+.professional-path-steps button>span,.admin-path nav button>span {display:grid;gap:2px;min-width:0;}
+.professional-path-steps strong,.admin-path nav strong {font-size:11px;font-weight:650;color:var(--ink);}
+.professional-path-steps small,.admin-path nav small {font-size:9px;line-height:1.35;color:var(--ink-soft);}
+.professional-path-steps svg,.admin-path nav svg {flex:none;margin-left:auto;color:var(--ink-soft);}
+.admin-path {display:grid;grid-template-columns:minmax(210px,.75fr) minmax(0,1.4fr);gap:24px;align-items:center;margin-top:24px;}
+.admin-path>div {display:grid;gap:5px;padding:3px 8px;}
+.admin-path>div>p {font-size:10px;line-height:1.5;color:var(--ink-soft);}
+.admin-path nav {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;}
+.admin-section-anchor {scroll-margin-top:82px;}
+@media (max-width:900px) {.professional-path,.admin-path {grid-template-columns:1fr;}.professional-path-steps,.admin-path nav {grid-template-columns:1fr;}.professional-path-steps svg {transform:rotate(90deg);}}
 .feature-badge {display:inline-flex;align-items:center;gap:6px;flex:none;font-size:10px;font-weight:500;color:var(--state-ok-text);}
 
 .empty-case {display:grid;justify-items:center;gap:10px;padding:56px 20px;border:1px dashed var(--border);border-radius:14px;text-align:center;}

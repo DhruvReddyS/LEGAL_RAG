@@ -4,7 +4,7 @@ set -euo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 COMPOSE_FILE="$PROJECT_ROOT/docker/docker-compose.yml"
 ENV_FILE="$PROJECT_ROOT/.env"
-MODEL_NAME="${OLLAMA_MODEL:-qwen3-14b-16k:latest}"
+MODEL_NAME="${OLLAMA_MODEL:-qwen3:14b}"
 
 fail() {
   printf 'Aegis host setup: %s\n' "$1" >&2
@@ -44,7 +44,7 @@ docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --build
 printf 'Waiting for model warm-up and API readiness...\n'
 healthy=false
 for _ in $(seq 1 90); do
-  if curl --fail --silent --max-time 3 http://127.0.0.1:8000/health >/dev/null; then
+  if curl --fail --silent --max-time 3 http://127.0.0.1:8000/health/ready >/dev/null; then
     healthy=true
     break
   fi
@@ -54,11 +54,11 @@ test "$healthy" = true || fail "The backend did not become healthy within three 
 
 tailscale serve --bg http://127.0.0.1:8000 >/dev/null
 private_url="https://${dns_name}"
-curl --fail --silent --max-time 10 "${private_url}/health" >/dev/null \
-  || fail "Tailscale Serve was configured, but ${private_url}/health is not reachable."
+curl --fail --silent --max-time 10 "${private_url}/health/ready" >/dev/null \
+  || fail "Tailscale Serve was configured, but ${private_url}/health/ready is not reachable."
 
 printf '\nAegis private backend is ready.\n'
 printf 'Desktop backend URL: %s\n' "$private_url"
-printf 'Health check: %s/health\n' "$private_url"
+printf 'Health check: %s/health/ready\n' "$private_url"
 printf 'Model: %s (runs only on this host)\n' "$MODEL_NAME"
 printf '\nKeep this computer, Docker Desktop, Ollama, and Tailscale running while friends use Aegis.\n'

@@ -20,7 +20,14 @@ class InstrumentedFakeLLM:
     def __init__(self) -> None:
         self.generate_num_predict: list[int] = []
 
-    async def structured_with_metrics(self, prompt, schema, *, attempts=3):
+    async def structured_with_metrics(
+        self,
+        prompt,
+        schema,
+        *,
+        attempts=3,
+        num_predict=1800,
+    ):
         metric = {
             "operation": "structured",
             "attempt": 1,
@@ -31,8 +38,8 @@ class InstrumentedFakeLLM:
         if schema is VerificationBatch:
             return VerificationBatch(claims=[]), [metric]
         if schema is _GroundedDraft:
-            self.generate_num_predict.append(1800)
-            metric["num_predict_limit"] = 1800
+            self.generate_num_predict.append(num_predict)
+            metric["num_predict_limit"] = num_predict
             metric["prompt_eval_count"] = 987
             return _GroundedDraft(
                 claims=[
@@ -163,9 +170,9 @@ async def test_deep_workflow_records_retries_input_sizes_and_actual_prompt_token
     reasoning = next(stage for stage in stages if stage["stage"] == "reasoning")
     assert reasoning["llm_calls"][0]["prompt_eval_count"] == 987
     assert reasoning["llm_calls"][0]["context_window"] == 16384
-    assert reasoning["llm_calls"][0]["num_predict_limit"] == 1800
-    assert reasoning["outputs"]["reasoning_num_predict_limit"] == 1800
-    assert llm.generate_num_predict == [1800, 1800, 1800]
+    assert reasoning["llm_calls"][0]["num_predict_limit"] == 1200
+    assert reasoning["outputs"]["reasoning_num_predict_limit"] == 1200
+    assert llm.generate_num_predict == [1200, 1200, 1200]
 
 
 def test_ollama_request_metrics_use_server_token_counts(monkeypatch) -> None:

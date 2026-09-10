@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import inspect
 import logging
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
@@ -108,13 +109,40 @@ async def structured_with_metrics(
     schema: type[Any],
     *,
     attempts: int = 3,
+    num_predict: int | None = None,
 ) -> tuple[Any, list[dict[str, Any]]]:
     instrumented = getattr(llm, "structured_with_metrics", None)
     if callable(instrumented):
+        parameters = inspect.signature(instrumented).parameters
+        supports_budget = "num_predict" in parameters or any(
+            item.kind is inspect.Parameter.VAR_KEYWORD
+            for item in parameters.values()
+        )
+        if num_predict is not None and supports_budget:
+            return await instrumented(
+                prompt,
+                schema,
+                attempts=attempts,
+                num_predict=num_predict,
+            )
         return await instrumented(prompt, schema, attempts=attempts)
 
     started_ns = perf_counter_ns()
-    value = await llm.structured(prompt, schema, attempts=attempts)
+    structured = llm.structured
+    parameters = inspect.signature(structured).parameters
+    supports_budget = "num_predict" in parameters or any(
+        item.kind is inspect.Parameter.VAR_KEYWORD
+        for item in parameters.values()
+    )
+    if num_predict is not None and supports_budget:
+        value = await structured(
+            prompt,
+            schema,
+            attempts=attempts,
+            num_predict=num_predict,
+        )
+    else:
+        value = await structured(prompt, schema, attempts=attempts)
     return value, [
         {
             "operation": "structured",
@@ -123,6 +151,7 @@ async def structured_with_metrics(
             "prompt": text_size(prompt),
             "prompt_eval_count": None,
             "context_window": None,
+            "num_predict_limit": num_predict,
             "metrics_source": "client_fallback",
         }
     ]

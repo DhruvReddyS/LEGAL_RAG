@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+import asyncio
 import json
 import logging
 import re
@@ -61,7 +62,10 @@ async def lifespan(app: FastAPI):
         poll_interval_ms=settings.job_poll_interval_ms,
     )
     if settings.warm_query_models_on_startup:
-        await retrieval_service.warmup()
+        await asyncio.gather(
+            retrieval_service.warmup(),
+            app.state.legal_rag_workflow.llm.warmup(),
+        )
     if settings.job_worker_enabled:
         await app.state.job_worker.start()
     try:

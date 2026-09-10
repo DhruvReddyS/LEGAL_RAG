@@ -14,7 +14,7 @@ from app.agents.role_profiles import profile_prompt, specialist_prompt
 from app.services.pipeline_telemetry import append_stage_metric, structured_with_metrics, text_size
 
 
-REASONING_NUM_PREDICT = 1800
+REASONING_NUM_PREDICT = 1200
 # Prefill runs at roughly 240 tok/s, so every 1,000 characters of evidence
 # costs about a second before the first output token. Legal chunks average
 # ~4,000 characters and the provision that grounds a claim is rarely in the
@@ -196,6 +196,7 @@ USER_DOCUMENTS: {state['document_context']}"""
                 llm,
                 prompt,
                 _GroundedDraft,
+                num_predict=REASONING_NUM_PREDICT,
             )
             valid_ids = {
                 str(hit.payload.get("chunk_id")) for hit in hits
