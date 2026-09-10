@@ -15,7 +15,8 @@ The live `global_legal_corpus_v3` collection now contains **25,323 points**:
 | noise | Noise Pollution (Regulation and Control) Rules, 2000 | 8 | 12 | Rules 8, 7 and 5 rank first for night-noise questions |
 | POSH | POSH Act, 2013; POSH Rules, 2013 | 41 | 55 | Act s.9 and Rules 6/7 rank first for complaint questions |
 
-Measured warm citizen fast-mode results after the deployment fix:
+Measured citizen fast-mode results after the deployment fix (query embedding
+cache cold):
 
 | question | confidence | API time | result |
 |---|---:|---:|---|
