@@ -10,6 +10,17 @@ work is in [NEXT_STEPS.md](NEXT_STEPS.md).
 
 Every service is loopback-only. Nothing but Tailscale (§4) ever exposes a port.
 
+For the normal full-stack development setup, one command starts the data
+services, API and frontend. It uses port 5176 so port 3000 can remain assigned
+to another project:
+
+```bash
+./scripts/start_local.sh
+```
+
+Pass a different frontend port only when needed, for example
+`./scripts/start_local.sh 5180`.
+
 ```bash
 # 1. Infrastructure
 docker compose --env-file .env -f docker/docker-compose.yml up -d --wait postgres qdrant minio
