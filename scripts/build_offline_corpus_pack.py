@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import shutil
 import tarfile
@@ -20,7 +21,6 @@ from pathlib import Path
 from typing import Any
 
 
-COLLECTION = "global_legal_corpus"
 PACK_SCHEMA = 1
 
 
@@ -55,6 +55,11 @@ def canonical_tar_info(info: tarfile.TarInfo) -> tarfile.TarInfo:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--qdrant-url", default="http://127.0.0.1:6333")
+    parser.add_argument(
+        "--collection",
+        default=os.getenv("QDRANT_GLOBAL_COLLECTION", "global_legal_corpus_v3"),
+        help="Qdrant collection to package (defaults to the live v3 collection).",
+    )
     parser.add_argument("--legal-kb-root", type=Path, default=Path("data/legal_kb"))
     parser.add_argument("--output-dir", type=Path, default=Path("dist/offline"))
     parser.add_argument(
@@ -74,13 +79,14 @@ def main() -> None:
 
     qdrant_url = args.qdrant_url.rstrip("/")
     qdrant = request_json(f"{qdrant_url}/")
-    collection = request_json(f"{qdrant_url}/collections/{COLLECTION}")["result"]
+    collection_name = args.collection
+    collection = request_json(f"{qdrant_url}/collections/{collection_name}")["result"]
     point_count = int(collection.get("points_count") or 0)
     if point_count <= 0 or collection.get("status") != "green":
         raise SystemExit("The global corpus collection must be green and non-empty.")
 
     snapshot = request_json(
-        f"{qdrant_url}/collections/{COLLECTION}/snapshots", method="POST"
+        f"{qdrant_url}/collections/{collection_name}/snapshots", method="POST"
     )["result"]
     snapshot_name = snapshot["name"]
     corpus_version = "-".join(
@@ -110,9 +116,9 @@ def main() -> None:
     with tempfile.TemporaryDirectory(prefix="aegis-corpus-pack-") as temp_name:
         staging = Path(temp_name) / "aegis-global-corpus"
         (staging / "qdrant").mkdir(parents=True)
-        snapshot_path = staging / "qdrant" / f"{COLLECTION}.snapshot"
+        snapshot_path = staging / "qdrant" / f"{collection_name}.snapshot"
         download(
-            f"{qdrant_url}/collections/{COLLECTION}/snapshots/{snapshot_name}",
+            f"{qdrant_url}/collections/{collection_name}/snapshots/{snapshot_name}",
             snapshot_path,
         )
 
@@ -141,7 +147,7 @@ def main() -> None:
             "schema": PACK_SCHEMA,
             "created_at": datetime.now(timezone.utc).isoformat(),
             "corpus_version": corpus_version,
-            "collection": COLLECTION,
+            "collection": collection_name,
             "qdrant_version": qdrant.get("version"),
             "points": point_count,
             "physical_documents": len(document_rows),

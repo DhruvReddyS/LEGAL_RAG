@@ -39,7 +39,7 @@ and [`docs/PRD.md`](docs/PRD.md) §15 explains what it would cost.
 
 | | |
 |---|---|
-| Corpus | `global_legal_corpus_v3`, 24,810 points |
+| Corpus | `global_legal_corpus_v3`, 25,323 points (419 curated + 5 extended sources) |
 | Backend tests | 956 |
 | Cross-tenant red team | 36, passing |
 | Frontend tests | 38 |

@@ -15,7 +15,10 @@ def _point_id(chunk_id: str) -> str:
     return str(uuid.uuid5(uuid.NAMESPACE_URL, chunk_id))
 
 
-def _payload(chunk: LegalChunk) -> dict[str, object]:
+def legal_chunk_payload(
+    chunk: LegalChunk, *, corpus_tier: str = "gold"
+) -> dict[str, object]:
+    """Build the shared retrieval payload for curated and admin-added law."""
     payload: dict[str, object] = {
         "chunk_id": chunk.chunk_id,
         "text": chunk.text,
@@ -50,11 +53,16 @@ def _payload(chunk: LegalChunk) -> dict[str, object]:
         "heading_path": chunk.heading_path,
         "verified_official": chunk.verified_official,
         "quality_status": chunk.quality_status,
-        "corpus_tier": "gold",
+        "corpus_tier": corpus_tier,
     }
     if chunk.decision_date:
         payload["decision_date"] = f"{chunk.decision_date}T00:00:00Z"
     return payload
+
+
+def _payload(chunk: LegalChunk) -> dict[str, object]:
+    """Backward-compatible Gold payload helper used by ingestion tests."""
+    return legal_chunk_payload(chunk)
 
 
 async def replace_document_chunks(
@@ -76,7 +84,7 @@ async def replace_document_chunks(
                 settings.qdrant_dense_vector_name: embedding.dense,
                 settings.qdrant_sparse_vector_name: to_sparse_vector(embedding.sparse),
             },
-            payload=_payload(chunk),
+            payload=legal_chunk_payload(chunk),
         )
         for chunk, embedding in zip(chunks, embeddings, strict=True)
     ]
@@ -109,7 +117,9 @@ async def replace_document_chunks(
             with_vectors=False,
         )
         stale_point_ids.extend(
-            str(point.id) for point in existing if str(point.id) not in current_point_ids
+            str(point.id)
+            for point in existing
+            if str(point.id) not in current_point_ids
         )
         if scroll_offset is None:
             break

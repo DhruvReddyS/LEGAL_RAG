@@ -64,10 +64,12 @@ def hit(chunk_id: str, document_id: str, title: str, *, current: bool) -> Retrie
 
 @pytest.mark.asyncio
 async def test_fast_research_is_retrieval_only_and_exposes_currency_warning() -> None:
-    retrieval = FakeRetrieval([
-        hit("chunk-a", "doc-a", "Official Procedure Act", current=True),
-        hit("chunk-b", "doc-b", "Official Amendment", current=False),
-    ])
+    retrieval = FakeRetrieval(
+        [
+            hit("chunk-a", "doc-a", "Official Procedure Act", current=True),
+            hit("chunk-b", "doc-b", "Official Amendment", current=False),
+        ]
+    )
     service = FastLegalResearchService(retrieval)  # type: ignore[arg-type]
 
     result = await service.run(
@@ -103,9 +105,15 @@ async def test_fast_research_abstains_when_no_gold_evidence_is_found() -> None:
 
 
 @pytest.mark.asyncio
-async def test_fast_research_rejects_missing_child_results_for_missing_pet_query() -> None:
-    child_result = hit("child-a", "doc-child", "Procedure for missing children", current=True)
-    child_result.payload["text"] = "Police shall register information and trace a missing child."
+async def test_fast_research_rejects_missing_child_results_for_missing_pet_query() -> (
+    None
+):
+    child_result = hit(
+        "child-a", "doc-child", "Procedure for missing children", current=True
+    )
+    child_result.payload["text"] = (
+        "Police shall register information and trace a missing child."
+    )
     result = await FastLegalResearchService(FakeRetrieval([child_result])).run(  # type: ignore[arg-type]
         query="How should I report a missing pet dog and request an FIR?",
         role="citizen",
@@ -120,17 +128,29 @@ async def test_fast_research_rejects_missing_child_results_for_missing_pet_query
 
 
 @pytest.mark.asyncio
-async def test_fast_research_prefers_distinct_authorities_before_duplicate_passages() -> None:
+async def test_fast_research_prefers_distinct_authorities_before_duplicate_passages() -> (
+    None
+):
     first = hit("doc-a-1", "doc-a", "Authority A", current=True)
     duplicate = hit("doc-a-2", "doc-a", "Authority A", current=True)
     second = hit("doc-b-1", "doc-b", "Authority B", current=True)
     third = hit("doc-c-1", "doc-c", "Authority C", current=True)
     fourth = hit("doc-d-1", "doc-d", "Authority D", current=True)
-    result = await FastLegalResearchService(FakeRetrieval([first, duplicate, second, third, fourth])).run(  # type: ignore[arg-type]
-        query="When must police record information?", role="citizen", case_id=None, history=[]
+    result = await FastLegalResearchService(
+        FakeRetrieval([first, duplicate, second, third, fourth])
+    ).run(  # type: ignore[arg-type]
+        query="When must police record information?",
+        role="citizen",
+        case_id=None,
+        history=[],
     )
 
-    assert [item.chunk_id for item in result["citations"]] == ["doc-a-1", "doc-b-1", "doc-c-1", "doc-d-1"]
+    assert [item.chunk_id for item in result["citations"]] == [
+        "doc-a-1",
+        "doc-b-1",
+        "doc-c-1",
+        "doc-d-1",
+    ]
     assert result["agent_trace"][0].details["unique_document_count"] == 4
 
 
@@ -139,7 +159,10 @@ async def test_fast_research_does_not_pad_with_duplicate_authorities() -> None:
     first = hit("doc-a-1", "", "Same authority", current=True)
     duplicate = hit("doc-a-2", "", "Same authority", current=True)
     result = await FastLegalResearchService(FakeRetrieval([first, duplicate])).run(  # type: ignore[arg-type]
-        query="When must police record information?", role="citizen", case_id=None, history=[]
+        query="When must police record information?",
+        role="citizen",
+        case_id=None,
+        history=[],
     )
 
     assert [item.chunk_id for item in result["citations"]] == ["doc-a-1"]
@@ -149,7 +172,9 @@ async def test_fast_research_does_not_pad_with_duplicate_authorities() -> None:
 @pytest.mark.asyncio
 async def test_fast_research_bad_generic_match_cannot_report_high_confidence() -> None:
     unrelated = hit("generic-a", "doc-generic", "Unrelated judgment", current=True)
-    unrelated.payload["text"] = "The party may file the case before the appropriate court."
+    unrelated.payload["text"] = (
+        "The party may file the case before the appropriate court."
+    )
 
     result = await FastLegalResearchService(
         FakeRetrieval([unrelated], distinctive_terms=["pocso"])
@@ -166,16 +191,22 @@ async def test_fast_research_bad_generic_match_cannot_report_high_confidence() -
 
 
 @pytest.mark.asyncio
-async def test_fast_research_requires_rare_distinctive_term_and_surfaces_pocso() -> None:
+async def test_fast_research_requires_rare_distinctive_term_and_surfaces_pocso() -> (
+    None
+):
     generic = hit("generic-a", "doc-generic", "Unrelated judgment", current=True)
-    generic.payload["text"] = "The party may file the case before the appropriate court."
+    generic.payload["text"] = (
+        "The party may file the case before the appropriate court."
+    )
     pocso = hit(
         "pocso-a",
         "doc-pocso",
         "The Protection of Children from Sexual Offences Act, 2012",
         current=True,
     )
-    pocso.payload["text"] = "A person may file a POCSO case under the prescribed procedure."
+    pocso.payload["text"] = (
+        "A person may file a POCSO case under the prescribed procedure."
+    )
     retrieval = FakeRetrieval(
         [generic, pocso],
         distinctive_terms=["pocso"],
@@ -212,7 +243,9 @@ async def test_full_act_name_satisfies_acronym_mandatory_gate() -> None:
         "The Protection of Children from Sexual Offences Act, 2012",
         current=True,
     )
-    act.payload["text"] = "Protection of children from sexual offences is governed by this Act."
+    act.payload["text"] = (
+        "Protection of children from sexual offences is governed by this Act."
+    )
     retrieval = FakeRetrieval([act], distinctive_terms=["pocso"])
 
     result = await FastLegalResearchService(retrieval).run(  # type: ignore[arg-type]
@@ -233,10 +266,24 @@ def test_presentation_words_are_not_legal_focus_terms() -> None:
     ) == {"right", "equality", "article", "14"}
 
 
+def test_plural_focus_term_matches_singular_statutory_wording() -> None:
+    from app.services.fast_research import _lexical_coverage
+
+    assert (
+        _lexical_coverage(
+            {"loudspeakers", "noise"},
+            {"text": "The authority may regulate loudspeaker noise at night."},
+        )
+        == 1.0
+    )
+
+
 @pytest.mark.asyncio
 async def test_high_relevance_fast_match_is_labelled_strong() -> None:
     authority = hit("article-14", "constitution", "Article 14 authority", current=True)
-    authority.payload["text"] = "Article 14 guarantees equality before the law and equal protection."
+    authority.payload["text"] = (
+        "Article 14 guarantees equality before the law and equal protection."
+    )
     retrieval = FakeRetrieval(
         [authority],
         distinctive_terms=["equality"],
@@ -295,7 +342,10 @@ def test_three_letter_acronyms_are_correctable_without_becoming_ambiguous() -> N
     from app.services.legal_term_normalization import normalize_legal_terms
 
     assert normalize_legal_terms("what does bnd say").normalized == "what does BNS say"
-    assert normalize_legal_terms("under ipa section 302").normalized == "under IPC section 302"
+    assert (
+        normalize_legal_terms("under ipa section 302").normalized
+        == "under IPC section 302"
+    )
     # Ambiguity must still refuse: bns and bnss are both one edit from "bnss".
     assert normalize_legal_terms("under bnss rules").normalized == "under bnss rules"
 
@@ -347,7 +397,10 @@ class TestDistinctiveTermsAreNotReadFromTimings:
             [generic],
             distinctive_terms=["landlord"],
             term_document_counts={
-                "security": 1129, "deposit": 152, "returned": 261, "landlord": 37
+                "security": 1129,
+                "deposit": 152,
+                "returned": 261,
+                "landlord": 37,
             },
         )
 
@@ -454,11 +507,18 @@ class TestTheHarnessCannotDriftFromTheLane:
 
         question = "When must a woman police officer be involved in an arrest?"
         focus = _focus_tokens(question)
-        on_topic = self._hit("a", "A woman police officer shall make the arrest.", "doc-a")
-        off_topic = self._hit("b", "The schedule of fees for licences is annexed.", "doc-b")
+        on_topic = self._hit(
+            "a", "A woman police officer shall make the arrest.", "doc-a"
+        )
+        off_topic = self._hit(
+            "b", "The schedule of fees for licences is annexed.", "doc-b"
+        )
 
         kept = publishable_hits(
-            [on_topic, off_topic], query=question, focus_tokens=focus, distinctive_terms=set()
+            [on_topic, off_topic],
+            query=question,
+            focus_tokens=focus,
+            distinctive_terms=set(),
         )
 
         assert [h.payload["chunk_id"] for h in kept] == ["a"]
@@ -471,7 +531,9 @@ class TestTheHarnessCannotDriftFromTheLane:
         focus = _focus_tokens(question)
         # High word overlap, but never mentions the required rare term.
         plausible = self._hit(
-            "a", "What can be done about a neighbouring factory is a question for the board.", "doc-a"
+            "a",
+            "What can be done about a neighbouring factory is a question for the board.",
+            "doc-a",
         )
 
         kept = publishable_hits(

@@ -53,8 +53,17 @@ _MARGINAL_SECTION = re.compile(
     # the note is a wrapped phrase in a narrow column and frequently carries no
     # full stop, which cost 134 further sections including s.173, the FIR
     # provision that is the most-asked question in this corpus.
-    r"^\s*(?:(?P<margin>[A-Z][^\n]{0,70}?)\s{2,})?"
-    r"(?P<label>\d+[A-Z]?)\.\s+\(\d+[A-Z]?\)\s+(?P<body>\S.*)$"
+    r"^\s*(?:(?P<margin>[^\W\d_][^\n]{0,70}?)\s{2,})?"
+    # Gazette scans commonly extract ``9. (1)`` as ``9, (/)``. Accept those
+    # two punctuation/OCR variants only in this strongly anchored heading
+    # shape; ordinary prose still cannot open a section.
+    r"(?P<label>\d+[A-Z]?)[.,:]\s*\((?:\d+[A-Z]?|[/#Il])\)\s+(?P<body>\S.*)$"
+)
+_MARGINAL_PLAIN_SECTION = re.compile(
+    # A margin plus a large whitespace column is enough structure to identify
+    # provisions without a subsection, such as the POSH Act's section 24.
+    r"^\s*(?P<margin>[^\W\d_][^\n]{0,70}?)\s{2,}"
+    r"(?P<label>\d+[A-Z]?)[.,:]\s+(?P<body>\S.*)$"
 )
 
 _SUBSECTION = re.compile(r"^\s*\((?P<label>\d+[A-Z]?)\)\s+")
@@ -63,17 +72,58 @@ _LEGAL_SUBUNIT = re.compile(
     re.IGNORECASE,
 )
 _JUDGMENT_PARAGRAPH = re.compile(r"^\s*(?P<number>\d{1,4})[.)]\s+(?P<text>.+)")
-_GENERIC_HEADING = re.compile(r"^\s*(?:\d+(?:\.\d+)*[.)]?\s+)?[A-Z][A-Z0-9 ,/&()'’:-]{4,120}\s*$")
+_GENERIC_HEADING = re.compile(
+    r"^\s*(?:\d+(?:\.\d+)*[.)]?\s+)?[A-Z][A-Z0-9 ,/&()'’:-]{4,120}\s*$"
+)
 
 _JUDGMENT_HEADINGS = (
-    ("facts", re.compile(r"^(?:BRIEF\s+)?FACTS(?:\s+OF\s+THE\s+CASE)?$", re.IGNORECASE)),
-    ("issues", re.compile(r"^(?:ISSUES?|QUESTIONS?\s+FOR\s+(?:CONSIDERATION|DETERMINATION))$", re.IGNORECASE)),
-    ("appellant_arguments", re.compile(r"^(?:ARGUMENTS?|SUBMISSIONS?)\s+(?:OF|ON\s+BEHALF\s+OF)\s+(?:THE\s+)?(?:APPELLANT|PETITIONER)S?$", re.IGNORECASE)),
-    ("respondent_arguments", re.compile(r"^(?:ARGUMENTS?|SUBMISSIONS?)\s+(?:OF|ON\s+BEHALF\s+OF)\s+(?:THE\s+)?RESPONDENTS?$", re.IGNORECASE)),
-    ("court_analysis", re.compile(r"^(?:ANALYSIS|DISCUSSION|REASONS?|CONSIDERATION\s+BY\s+THE\s+COURT)$", re.IGNORECASE)),
-    ("authorities_cited", re.compile(r"^(?:AUTHORITIES|CASES|PRECEDENTS)\s+CITED$", re.IGNORECASE)),
-    ("ratio", re.compile(r"^(?:RATIO|RATIO\s+DECIDENDI|LEGAL\s+PRINCIPLES?)$", re.IGNORECASE)),
-    ("final_order", re.compile(r"^(?:FINAL\s+)?(?:ORDER|DECISION|CONCLUSION|OPERATIVE\s+DIRECTIONS?)$", re.IGNORECASE)),
+    (
+        "facts",
+        re.compile(r"^(?:BRIEF\s+)?FACTS(?:\s+OF\s+THE\s+CASE)?$", re.IGNORECASE),
+    ),
+    (
+        "issues",
+        re.compile(
+            r"^(?:ISSUES?|QUESTIONS?\s+FOR\s+(?:CONSIDERATION|DETERMINATION))$",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "appellant_arguments",
+        re.compile(
+            r"^(?:ARGUMENTS?|SUBMISSIONS?)\s+(?:OF|ON\s+BEHALF\s+OF)\s+(?:THE\s+)?(?:APPELLANT|PETITIONER)S?$",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "respondent_arguments",
+        re.compile(
+            r"^(?:ARGUMENTS?|SUBMISSIONS?)\s+(?:OF|ON\s+BEHALF\s+OF)\s+(?:THE\s+)?RESPONDENTS?$",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "court_analysis",
+        re.compile(
+            r"^(?:ANALYSIS|DISCUSSION|REASONS?|CONSIDERATION\s+BY\s+THE\s+COURT)$",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "authorities_cited",
+        re.compile(r"^(?:AUTHORITIES|CASES|PRECEDENTS)\s+CITED$", re.IGNORECASE),
+    ),
+    (
+        "ratio",
+        re.compile(r"^(?:RATIO|RATIO\s+DECIDENDI|LEGAL\s+PRINCIPLES?)$", re.IGNORECASE),
+    ),
+    (
+        "final_order",
+        re.compile(
+            r"^(?:FINAL\s+)?(?:ORDER|DECISION|CONCLUSION|OPERATIVE\s+DIRECTIONS?)$",
+            re.IGNORECASE,
+        ),
+    ),
 )
 
 
@@ -107,7 +157,9 @@ def _parse_acts(document: ExtractedDocument) -> list[StructuralUnit]:
                     page_end=end_page,
                     heading_path=list(path),
                     section=section,
-                    subsection=subsection_match.group("label") if subsection_match else None,
+                    subsection=subsection_match.group("label")
+                    if subsection_match
+                    else None,
                 )
             )
             current_lines = []
@@ -115,7 +167,11 @@ def _parse_acts(document: ExtractedDocument) -> list[StructuralUnit]:
     for page_number, line in _lines(document):
         heading = _ACT_HEADING.match(line)
         numbered = _NUMBERED_SECTION.match(line) or _COLUMN_SECTION.match(line)
-        marginal = None if numbered else _MARGINAL_SECTION.match(line)
+        marginal = (
+            None
+            if numbered
+            else (_MARGINAL_SECTION.match(line) or _MARGINAL_PLAIN_SECTION.match(line))
+        )
         legal_subunit = _LEGAL_SUBUNIT.match(line)
         if heading or numbered or marginal:
             flush()
@@ -127,11 +183,21 @@ def _parse_acts(document: ExtractedDocument) -> list[StructuralUnit]:
                 title = heading.group("title").strip()
                 display = " ".join(part for part in (kind, label, title) if part)
                 if kind in {"PART", "CHAPTER"}:
-                    path = [entry for entry in path if not entry.upper().startswith(("PART", "CHAPTER", "SECTION", "SEC."))]
+                    path = [
+                        entry
+                        for entry in path
+                        if not entry.upper().startswith(
+                            ("PART", "CHAPTER", "SECTION", "SEC.")
+                        )
+                    ]
                     path.append(display)
                     section = None
                 elif kind in {"SECTION", "SEC"}:
-                    path = [entry for entry in path if not entry.upper().startswith(("SECTION", "SEC."))]
+                    path = [
+                        entry
+                        for entry in path
+                        if not entry.upper().startswith(("SECTION", "SEC."))
+                    ]
                     path.append(display)
                     section = label
                 else:
@@ -140,7 +206,11 @@ def _parse_acts(document: ExtractedDocument) -> list[StructuralUnit]:
             elif numbered:
                 section = numbered.group("label")
                 display = f"Section {section} {numbered.group('title').strip()}"
-                path = [entry for entry in path if not entry.upper().startswith(("SECTION", "SEC."))]
+                path = [
+                    entry
+                    for entry in path
+                    if not entry.upper().startswith(("SECTION", "SEC."))
+                ]
                 path.append(display)
             else:
                 # Marginal-note layout. The title is the margin text when
@@ -150,7 +220,11 @@ def _parse_acts(document: ExtractedDocument) -> list[StructuralUnit]:
                 section = marginal.group("label")
                 margin = (marginal.group("margin") or "").strip().rstrip(".")
                 display = f"Section {section} {margin}".strip()
-                path = [entry for entry in path if not entry.upper().startswith(("SECTION", "SEC."))]
+                path = [
+                    entry
+                    for entry in path
+                    if not entry.upper().startswith(("SECTION", "SEC."))
+                ]
                 path.append(display)
             current_lines.append(line)
             continue
@@ -215,7 +289,9 @@ def _parse_judgment(document: ExtractedDocument) -> list[StructuralUnit]:
     return units
 
 
-def _parse_generic(document: ExtractedDocument, *, forms: bool = False) -> list[StructuralUnit]:
+def _parse_generic(
+    document: ExtractedDocument, *, forms: bool = False
+) -> list[StructuralUnit]:
     units: list[StructuralUnit] = []
     heading = "Form" if forms else "Document"
     current_lines: list[str] = []
@@ -237,7 +313,9 @@ def _parse_generic(document: ExtractedDocument, *, forms: bool = False) -> list[
             current_lines = []
 
     for page_number, line in _lines(document):
-        is_label = forms and bool(re.match(r"^\s*[A-Za-z][A-Za-z /()_-]{2,50}:\s*", line))
+        is_label = forms and bool(
+            re.match(r"^\s*[A-Za-z][A-Za-z /()_-]{2,50}:\s*", line)
+        )
         if _GENERIC_HEADING.fullmatch(line) or is_label:
             flush()
             heading = line.strip()
@@ -268,4 +346,6 @@ def parse_legal_structure(
         LegalDocumentType.HIGH_COURT_JUDGMENT,
     }:
         return _parse_judgment(document)
-    return _parse_generic(document, forms=document_type == LegalDocumentType.FORM_TEMPLATE)
+    return _parse_generic(
+        document, forms=document_type == LegalDocumentType.FORM_TEMPLATE
+    )

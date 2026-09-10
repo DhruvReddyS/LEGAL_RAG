@@ -92,11 +92,16 @@ async def test_admin_manages_professional_lifecycle_and_non_admin_is_denied() ->
 
             listed = await client.get("/admin/users", headers=admin_headers)
             assert listed.status_code == 200
-            assert any(item["id"] == str(professional_id) for item in listed.json()["users"])
+            assert any(
+                item["id"] == str(professional_id) for item in listed.json()["users"]
+            )
 
             login = await client.post(
                 "/auth/login",
-                json={"email": f"managed-police-{suffix}@example.com", "password": password},
+                json={
+                    "email": f"managed-police-{suffix}@example.com",
+                    "password": password,
+                },
             )
             assert login.status_code == 200
             professional_token = login.json()["access_token"]
@@ -116,7 +121,10 @@ async def test_admin_manages_professional_lifecycle_and_non_admin_is_denied() ->
             assert old_session.status_code == 401
             blocked_login = await client.post(
                 "/auth/login",
-                json={"email": f"managed-police-{suffix}@example.com", "password": password},
+                json={
+                    "email": f"managed-police-{suffix}@example.com",
+                    "password": password,
+                },
             )
             assert blocked_login.status_code == 401
 
@@ -149,13 +157,17 @@ async def test_admin_manages_professional_lifecycle_and_non_admin_is_denied() ->
             async with AsyncSessionLocal() as session:
                 ids = [item for item in (admin_id, professional_id, citizen_id) if item]
                 await session.execute(delete(AuditLog).where(AuditLog.user_id.in_(ids)))
-                await session.execute(delete(AuditLog).where(AuditLog.resource_id.in_(ids)))
+                await session.execute(
+                    delete(AuditLog).where(AuditLog.resource_id.in_(ids))
+                )
                 await session.execute(delete(User).where(User.id.in_(ids)))
                 await session.commit()
 
 
 @pytest.mark.asyncio
-async def test_validated_corpus_intake_publishes_only_to_extended_tier(monkeypatch) -> None:
+async def test_validated_corpus_intake_publishes_only_to_extended_tier(
+    monkeypatch,
+) -> None:
     admin = User(
         name="Corpus Admin",
         email=f"corpus-admin-{uuid.uuid4().hex}@example.com",
@@ -206,14 +218,22 @@ async def test_validated_corpus_intake_publishes_only_to_extended_tier(monkeypat
                 return [
                     ExtractedPage(
                         page_number=1,
-                        text="A verified legal provision " * 60,
-                        original_page_text="A verified legal provision " * 60,
+                        text=(
+                            "10. What agreements are contracts.\n"
+                            + "A verified legal provision " * 60
+                        ),
+                        original_page_text=(
+                            "10. What agreements are contracts.\n"
+                            + "A verified legal provision " * 60
+                        ),
                         extraction_method="text",
                         ocr_used=False,
                     )
                 ]
 
-            monkeypatch.setattr(DocumentStorageService, "download_case_document", fake_download)
+            monkeypatch.setattr(
+                DocumentStorageService, "download_case_document", fake_download
+            )
             monkeypatch.setattr("app.services.admin._extract_pages", fake_extract)
             retrieval = _FakeRetrieval()
             result, _, indexed = await publish_corpus_intake(
@@ -225,15 +245,46 @@ async def test_validated_corpus_intake_publishes_only_to_extended_tier(monkeypat
             source_id = result.corpus_source_id
             assert result.status == "published"
             assert indexed > 0
-            assert all(point.payload["corpus_tier"] == "extended" for point in retrieval.client.points)
-            assert all(point.payload["verified_official"] is True for point in retrieval.client.points)
+            assert all(
+                point.payload["corpus_tier"] == "extended"
+                for point in retrieval.client.points
+            )
+            assert all(
+                point.payload["verified_official"] is True
+                for point in retrieval.client.points
+            )
+            assert all(
+                point.payload["act_name"] == "Official Test Act"
+                for point in retrieval.client.points
+            )
+            assert any(
+                point.payload["section"] == "10" for point in retrieval.client.points
+            )
+            assert result.validation_summary["sections_detected"] == 1
+
+            original_source_id = result.corpus_source_id
+            result.status = "validated"
+            await session.commit()
+            republished, _, _ = await publish_corpus_intake(
+                session,
+                intake=result,
+                admin=admin,
+                retrieval=retrieval,  # type: ignore[arg-type]
+            )
+            assert republished.corpus_source_id == original_source_id
         finally:
             await session.execute(delete(AuditLog).where(AuditLog.user_id == admin.id))
             if intake_id:
-                await session.execute(delete(CorpusIntake).where(CorpusIntake.id == intake_id))
+                await session.execute(
+                    delete(CorpusIntake).where(CorpusIntake.id == intake_id)
+                )
             if storage_id:
-                await session.execute(delete(StorageObject).where(StorageObject.id == storage_id))
+                await session.execute(
+                    delete(StorageObject).where(StorageObject.id == storage_id)
+                )
             if source_id:
-                await session.execute(delete(CorpusSource).where(CorpusSource.id == source_id))
+                await session.execute(
+                    delete(CorpusSource).where(CorpusSource.id == source_id)
+                )
             await session.execute(delete(User).where(User.id == admin.id))
             await session.commit()

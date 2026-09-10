@@ -23,7 +23,9 @@ class TestAnAbsentTermIsRequired:
         ) == ["visa"]
 
     def test_otherwise_the_rarest_band_is_required(self) -> None:
-        assert _distinctive_from_counts({"landlord": 37, "deposit": 152}) == ["landlord"]
+        assert _distinctive_from_counts({"landlord": 37, "deposit": 152}) == [
+            "landlord"
+        ]
 
     def test_no_terms_require_nothing(self) -> None:
         assert _distinctive_from_counts({}) == []
@@ -57,9 +59,17 @@ class TestColloquialWordsAreNotTopics:
         assert "give" not in focus
         assert {"protections", "children"} <= focus
 
+    def test_citizen_request_wording_does_not_become_the_legal_topic(self) -> None:
+        focus = _focus_tokens(
+            "How do I file a workplace harassment complaint and what is the deadline?"
+        )
+
+        assert not {"file", "deadline"} & focus
+        assert {"workplace", "harassment", "complaint"} <= focus
+
 
 class TestARareInflectionIsNotAGap:
-    """"protections" appears in 35 chunks, "protection" in thousands.
+    """ "protections" appears in 35 chunks, "protection" in thousands.
 
     Counted alone the plural looks as rare as a genuinely absent topic --
     rarer, in fact, than "landlord" at 37 -- so it was required, and every
@@ -76,7 +86,7 @@ class TestARareInflectionIsNotAGap:
         assert _base_forms("taxes") == ("tax",)
 
     def test_es_is_not_stripped_after_a_consonant(self) -> None:
-        """"offences" must not become "offenc", a string no corpus contains."""
+        """ "offences" must not become "offenc", a string no corpus contains."""
         assert _base_forms("offences") == ("offence",)
 
     def test_a_y_plural_is_restored(self) -> None:

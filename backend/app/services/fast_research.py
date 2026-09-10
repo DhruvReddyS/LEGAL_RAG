@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import re
 from time import perf_counter
+from typing import Any
 
 from app.schemas.agents import AgentCitation, AgentTraceEvent, QueryIntent
 from app.core.config import settings
@@ -14,6 +15,7 @@ from app.services.retrieval import (
     HybridRetrievalService,
     RetrievalFilters,
     RetrievalTarget,
+    _base_forms,
 )
 from app.services.legal_term_normalization import (
     LEGAL_ACRONYM_EXPANSIONS,
@@ -30,29 +32,113 @@ from app.services.legal_term_normalization import (
 # almost no anchors. "passages", "statutory", "show", "relevant" and "verified"
 # were benchmark phrasing rather than general presentation vocabulary.
 FOCUS_STOPWORDS = {
-    "a", "an", "and", "any", "are", "be", "can", "do", "does", "for", "from",
-    "how", "i", "if", "in", "is", "it", "may", "me", "must", "my", "of", "on",
-    "or", "please", "should", "that", "the", "to", "under", "was", "what",
-    "when", "which", "who", "why", "will", "with", "you", "your",
+    "a",
+    "an",
+    "and",
+    "any",
+    "are",
+    "be",
+    "can",
+    "do",
+    "does",
+    "for",
+    "from",
+    "how",
+    "i",
+    "if",
+    "in",
+    "is",
+    "it",
+    "may",
+    "me",
+    "must",
+    "my",
+    "of",
+    "on",
+    "or",
+    "please",
+    "should",
+    "that",
+    "the",
+    "to",
+    "under",
+    "was",
+    "what",
+    "when",
+    "which",
+    "who",
+    "why",
+    "will",
+    "with",
+    "you",
+    "your",
     # Presentation vocabulary: how to answer, not what about.
-    "explain", "explanation", "language", "plain", "simple", "summarise",
-    "summarize", "tell", "understand",
+    "explain",
+    "explanation",
+    "language",
+    "plain",
+    "simple",
+    "summarise",
+    "summarize",
+    "tell",
+    "understand",
     # Indefinite pronouns and light verbs. These name no subject, and in a
     # legal corpus they are *rare* -- statutes say "any person", never
     # "someone" -- so the rarest-term rule below would seize on them and
     # require a word the corpus almost never uses. Measured: "someone" appears
     # in 90 chunks, which made it the required term for "when can police
     # arrest someone without a warrant" and rejected every correct passage.
-    "someone", "somebody", "anyone", "anybody", "something", "anything",
-    "everyone", "everybody", "get", "gets", "got", "give", "gives", "given",
-    "make", "makes", "take", "takes", "want", "wants", "need", "needs",
-    "know", "say", "says", "go", "going", "come", "put", "let",
+    "someone",
+    "somebody",
+    "anyone",
+    "anybody",
+    "something",
+    "anything",
+    "everyone",
+    "everybody",
+    "get",
+    "gets",
+    "got",
+    "give",
+    "gives",
+    "given",
+    "make",
+    "makes",
+    "take",
+    "takes",
+    "want",
+    "wants",
+    "need",
+    "needs",
+    "know",
+    "say",
+    "says",
+    "go",
+    "going",
+    "come",
+    "put",
+    "let",
     # Temporal deixis. "What is the law today" and "the law currently in
     # force" ask when, not what about, and legal prose does not date itself
     # that way -- "currently" appears in 57 chunks. Left in, they became the
     # required term and the question was declined for naming the present.
-    "today", "now", "currently", "current", "presently", "nowadays",
-    "recently", "still",
+    "today",
+    "now",
+    "currently",
+    "current",
+    "presently",
+    "nowadays",
+    "recently",
+    "still",
+    # Citizen request verbs and timing vocabulary. Statutes express these as
+    # "make a complaint", "prefer an appeal" and "within a period", so using
+    # the surface word as the rare mandatory topic rejects the right section.
+    "about",
+    "at",
+    "complain",
+    "deadline",
+    "file",
+    "filing",
 }
 
 
@@ -67,8 +153,12 @@ _STATUTORY_REFERENCE_RE = re.compile(
 )
 
 _REFERENCE_SINGULARS = {
-    "articles": "article", "sections": "section", "rules": "rule",
-    "orders": "order", "clauses": "clause", "regulations": "regulation",
+    "articles": "article",
+    "sections": "section",
+    "rules": "rule",
+    "orders": "order",
+    "clauses": "clause",
+    "regulations": "regulation",
 }
 
 
@@ -77,9 +167,7 @@ def _statutory_references(query: str) -> list[tuple[str, str]]:
     references: list[tuple[str, str]] = []
     for kind, number in _STATUTORY_REFERENCE_RE.findall(query):
         folded = kind.casefold()
-        references.append(
-            (_REFERENCE_SINGULARS.get(folded, folded), number.casefold())
-        )
+        references.append((_REFERENCE_SINGULARS.get(folded, folded), number.casefold()))
     return list(dict.fromkeys(references))
 
 
@@ -117,7 +205,9 @@ def _focus_tokens(query: str) -> set[str]:
 
 
 def _payload_windows(payload: dict) -> list[set[str]]:
-    title_tokens = re.findall(r"[a-z0-9]+", str(payload.get("title") or "").casefold())[:40]
+    title_tokens = re.findall(r"[a-z0-9]+", str(payload.get("title") or "").casefold())[
+        :40
+    ]
     body = " ".join(
         str(payload.get(field) or "")
         for field in ("act_name", "section", "court", "text")
@@ -155,16 +245,28 @@ def _lexical_coverage(query_tokens: set[str], payload: dict) -> float:
     if not query_tokens:
         return 0.0
     return max(
-        (len(query_tokens & window) / len(query_tokens) for window in _payload_windows(payload)),
+        (
+            len(_matched_terms_in_window(query_tokens, window)) / len(query_tokens)
+            for window in _payload_windows(payload)
+        ),
         default=0.0,
     )
+
+
+def _matched_terms_in_window(query_tokens: set[str], window: set[str]) -> set[str]:
+    """Match a query term through safe plural base forms as well as exactly."""
+    return {
+        term
+        for term in query_tokens
+        if term in window or bool(set(_base_forms(term)) & window)
+    }
 
 
 def _locally_matched_focus_terms(query_tokens: set[str], payload: dict) -> set[str]:
     """Return query terms that occur in at least one local relevance window."""
     matched: set[str] = set()
     for window in _payload_windows(payload):
-        matched.update(query_tokens & window)
+        matched.update(_matched_terms_in_window(query_tokens, window))
     return matched
 
 
@@ -344,7 +446,9 @@ class FastLegalResearchService:
                         "abstention_reason": "no_searchable_terms",
                         "legal_term_corrections": [
                             {"from": source, "to": target}
-                            for source, target in getattr(normalization, "corrections", ())
+                            for source, target in getattr(
+                                normalization, "corrections", ()
+                            )
                         ],
                     },
                 )
@@ -443,7 +547,10 @@ class FastLegalResearchService:
         # in the corpus -- the first half has nothing to say, and 0.34 is too
         # permissive for the second to carry the decision alone.
         relevant_hits = publishable_hits(
-            hits, query=query, focus_tokens=focus_tokens, distinctive_terms=distinctive_terms
+            hits,
+            query=query,
+            focus_tokens=focus_tokens,
+            distinctive_terms=distinctive_terms,
         )
         hits = _select_diverse_hits(relevant_hits, settings.fast_result_limit)
         if not hits:
@@ -466,7 +573,9 @@ class FastLegalResearchService:
                     title=str(payload.get("title") or "Unknown source"),
                     source_type=str(payload.get("source_type") or "unknown"),
                     page_start=int(payload.get("page_start") or 1),
-                    page_end=int(payload.get("page_end") or payload.get("page_start") or 1),
+                    page_end=int(
+                        payload.get("page_end") or payload.get("page_start") or 1
+                    ),
                     court=payload.get("court") or None,
                     act_name=payload.get("act_name") or None,
                     section=payload.get("section") or None,
@@ -479,7 +588,11 @@ class FastLegalResearchService:
                     **labels,
                 )
                 citations.append(citation)
-                descriptor = citation.act_name or citation.court or citation.source_type.replace("_", " ")
+                descriptor = (
+                    citation.act_name
+                    or citation.court
+                    or citation.source_type.replace("_", " ")
+                )
                 section = f", section {citation.section}" if citation.section else ""
                 # Stated inline, not only in a field the interface may not
                 # render. A citizen reading a Penal Code provision has to be
@@ -499,7 +612,11 @@ class FastLegalResearchService:
                         + (" (elements changed)" if m.ingredients_changed else "")
                         for m in citation.section_mappings[:2]
                     )
-                    repeal_note = f" [still in force; cites renumbered provisions: {moved}]" if moved else ""
+                    repeal_note = (
+                        f" [still in force; cites renumbered provisions: {moved}]"
+                        if moved
+                        else ""
+                    )
                 else:
                     repeal_note = ""
                 lines.append(
@@ -510,8 +627,9 @@ class FastLegalResearchService:
             if notice:
                 lines.append(notice)
             answer = "\n\n".join(lines)
-            unique_documents = len({str(hit.payload.get("canonical_document_id") or hit.point_id) for hit in hits})
-            coverage_scores = [_lexical_coverage(focus_tokens, hit.payload) for hit in hits]
+            coverage_scores = [
+                _lexical_coverage(focus_tokens, hit.payload) for hit in hits
+            ]
             matched_focus_terms = set().union(
                 *(
                     _locally_matched_focus_terms(focus_tokens, hit.payload)
@@ -521,16 +639,13 @@ class FastLegalResearchService:
             focus_term_recall = (
                 len(matched_focus_terms) / len(focus_tokens) if focus_tokens else 0.0
             )
-            mandatory_term_match_rate = (
-                sum(
-                    _mandatory_focus_match(
-                        distinctive_terms,
-                        _locally_matched_focus_terms(focus_tokens, hit.payload),
-                    )
-                    for hit in hits
+            mandatory_term_match_rate = sum(
+                _mandatory_focus_match(
+                    distinctive_terms,
+                    _locally_matched_focus_terms(focus_tokens, hit.payload),
                 )
-                / len(hits)
-            )
+                for hit in hits
+            ) / len(hits)
             mean_coverage = sum(coverage_scores) / len(coverage_scores)
             # Coverage and recall overlap, so multiplying them double-penalises
             # a passage for the same missing generic query word. A weighted
@@ -540,9 +655,7 @@ class FastLegalResearchService:
             # reflects how well the returned passages actually cover the
             # question rather than how many mandatory terms survived a gate
             # that no longer decides anything.
-            confidence = min(
-                0.85, 0.6 * mean_coverage + 0.4 * focus_term_recall
-            )
+            confidence = min(0.85, 0.6 * mean_coverage + 0.4 * focus_term_recall)
             strength = (
                 "strong"
                 if confidence >= 0.75
@@ -580,10 +693,14 @@ class FastLegalResearchService:
                         "result_count": len(hits),
                         "raw_result_count": raw_result_count,
                         "relevant_result_count": len(relevant_hits),
-                        "unique_document_count": len({_document_key(hit) for hit in hits}),
+                        "unique_document_count": len(
+                            {_document_key(hit) for hit in hits}
+                        ),
                         "mean_local_coverage": mean_coverage if hits else 0.0,
                         "focus_term_recall": focus_term_recall if hits else 0.0,
-                        "mandatory_term_match_rate": mandatory_term_match_rate if hits else 0.0,
+                        "mandatory_term_match_rate": mandatory_term_match_rate
+                        if hits
+                        else 0.0,
                         "distinctive_terms": sorted(distinctive_terms),
                         # The counts this lane computed, not the lexical
                         # path's, which no longer runs here and reports empty.
@@ -597,7 +714,8 @@ class FastLegalResearchService:
                         ],
                         "lexical_gate": 0.5,
                         "statutory_references": [
-                            f"{kind} {number}" for kind, number in _statutory_references(query)
+                            f"{kind} {number}"
+                            for kind, number in _statutory_references(query)
                         ],
                         "reranker_skipped": True,
                         "no_generative_claims": True,

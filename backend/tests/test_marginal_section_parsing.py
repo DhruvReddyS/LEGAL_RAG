@@ -59,10 +59,33 @@ class TestTheMarginalNoteLayout:
 
         assert {"2", "3"} <= sections
 
+    def test_common_gazette_ocr_variants_are_captured(self) -> None:
+        sections = _sections(
+            [
+                "Short title.       1.(/) This Act may be called the Example Act.",
+                "                 18: (/) Any person aggrieved may appeal.",
+                "Appropriate Government       24. The Government may publish guidance.",
+                "हटाने की शक्ति       30. (/) The Government may remove difficulties.",
+            ]
+        )
+        assert {"1", "18", "24", "30"} <= sections
+
+    def test_gazette_ocr_variants_are_captured(self) -> None:
+        sections = _sections(
+            [
+                "Complaint of        9, (/) Any aggrieved woman may make a complaint",
+                "Inquiry            11. (I) Subject to section 10, the Committee shall inquire",
+            ]
+        )
+
+        assert {"9", "11"} <= sections
+
     def test_the_marginal_note_becomes_the_section_title(self) -> None:
         units = parse_legal_structure(
             _document(
-                ["Definitions.            2. (1) In this Sanhita, unless the context requires,—"]
+                [
+                    "Definitions.            2. (1) In this Sanhita, unless the context requires,—"
+                ]
             ),
             LegalDocumentType.ACT,
         )
@@ -75,7 +98,9 @@ class TestTheMarginalNoteLayout:
         """A section labelled without its title is retrievable. An unlabelled
         one is not, so the label matters more than the title."""
         assert "35" in _sections(
-            ["      35. (1) Any police officer may without an order from a Magistrate arrest"]
+            [
+                "      35. (1) Any police officer may without an order from a Magistrate arrest"
+            ]
         )
 
     def test_a_lettered_section_is_captured(self) -> None:
@@ -89,10 +114,14 @@ class TestTheHeadingFirstLayoutStillWorks:
     must not cost that."""
 
     def test_a_conventional_numbered_section(self) -> None:
-        assert "378" in _sections(["378. Theft.", "Whoever, intending to take dishonestly"])
+        assert "378" in _sections(
+            ["378. Theft.", "Whoever, intending to take dishonestly"]
+        )
 
     def test_a_column_layout_section(self) -> None:
-        assert "302" in _sections(["Punishment for murder.        302. Punishment for murder"])
+        assert "302" in _sections(
+            ["Punishment for murder.        302. Punishment for murder"]
+        )
 
 
 class TestItDoesNotInventSections:
@@ -129,11 +158,26 @@ class TestTheMarginalNoteOftenHasNoFullStop:
     @pytest.mark.parametrize(
         ("line", "expected"),
         [
-            ("Information         173. (1) Every information relating to a cognizable offence", "173"),
-            ("Recording of         183. (1) Any Magistrate of the District in which", "183"),
-            ("When bail           480. (1) When any person accused of an offence", "480"),
-            ("Definitions.            2. (1) In this Sanhita, unless the context requires", "2"),
-            ("      35. (1) Any police officer may without an order from a Magistrate", "35"),
+            (
+                "Information         173. (1) Every information relating to a cognizable offence",
+                "173",
+            ),
+            (
+                "Recording of         183. (1) Any Magistrate of the District in which",
+                "183",
+            ),
+            (
+                "When bail           480. (1) When any person accused of an offence",
+                "480",
+            ),
+            (
+                "Definitions.            2. (1) In this Sanhita, unless the context requires",
+                "2",
+            ),
+            (
+                "      35. (1) Any police officer may without an order from a Magistrate",
+                "35",
+            ),
         ],
     )
     def test_every_layout_in_the_sanhitas(self, line: str, expected: str) -> None:

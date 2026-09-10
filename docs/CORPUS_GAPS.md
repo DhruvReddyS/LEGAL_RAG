@@ -1,8 +1,57 @@
 # Corpus gaps — for your decision
 
-Phase 1.7. **Nothing here has been ingested.** This lists what is missing,
-sizes it, and says what each addition would buy. The decision on scope is
-yours.
+Phase 1.7 began as the gap analysis below. On 10 September 2026, five clean
+official documents were published to the extended tier. The historical
+analysis is retained because it explains why the additions were chosen.
+
+## Live expansion status — 10 September 2026
+
+The live `global_legal_corpus_v3` collection now contains **25,323 points**:
+24,810 curated Gold points plus 513 structured extended-tier points.
+
+| area | official sources added | sections | chunks | live result |
+|---|---|---:|---:|---|
+| contract | Indian Contract Act, 1872; Specific Relief Act, 1963 | 228 | 446 | Contract Act s.10 ranks first for valid-contract questions |
+| noise | Noise Pollution (Regulation and Control) Rules, 2000 | 8 | 12 | Rules 8, 7 and 5 rank first for night-noise questions |
+| POSH | POSH Act, 2013; POSH Rules, 2013 | 41 | 55 | Act s.9 and Rules 6/7 rank first for complaint questions |
+
+Measured warm citizen fast-mode results after the deployment fix:
+
+| question | confidence | API time | result |
+|---|---:|---:|---|
+| workplace complaint and deadline | 0.85 | 542 ms | strong, POSH s.9 first |
+| loudspeaker noise at night | 0.80 | 525 ms | strong, Noise Rules s.8 first |
+| rental security deposit | 0.00 | 525 ms | correctly abstains; tenancy remains absent |
+
+The Docker backend had also been querying the legacy `global_legal_corpus`
+because Compose did not pass `QDRANT_GLOBAL_COLLECTION`. It now uses the v3
+collection from `.env`; adding documents without this fix would not have made
+the optimized corpus live.
+
+## Next additions
+
+1. **Consumer bundle:** Consumer Protection Act, 2019; Consumer Protection
+   (Consumer Disputes Redressal Commissions) Rules, 2020; E-Commerce Rules,
+   2020; Direct Selling Rules, 2021; jurisdiction and mediation rules; CCPA
+   misleading-advertisement and dark-pattern guidelines.
+2. **Andhra Pradesh tenancy bundle:** the current AP rent-control/tenancy
+   legislation and amendments, Transfer of Property Act ss.105–117, current AP
+   rules, official filing/authority guidance, and selected AP High Court cases.
+   State must be known before giving a tenancy answer.
+3. **Complete noise bundle:** Environment (Protection) Act, 1986, current noise
+   amendments, CPCB guidance, AP Pollution Control Board complaint routes, and
+   municipal/police enforcement guidance.
+4. **Question-driven judgments:** add current Supreme Court and relevant High
+   Court decisions only for questions where bare legislation does not resolve
+   the interpretation. Do not bulk-add judgments merely to increase size.
+5. **Operational guidance:** official forms, complaint portals, limitation
+   tables, authority directories, and state-specific escalation paths. These
+   make answers actionable, but each entry needs a review date because URLs and
+   procedures change.
+
+Every bundle should ship with golden questions, expected governing provisions,
+negative/out-of-scope questions, retrieval metrics, citation checks, and a
+currency review. More documents alone are not an acceptance criterion.
 
 ## What the corpus actually is
 
