@@ -44,6 +44,7 @@ data/legal_kb/raw/**/*.pdf
 # source-material README and Gold corpus provenance stay visible to Git.
 data/source_materials/**/*.pdf
 data/source_materials/legacy_collections/
+data/source_materials/candidate_imports/
 
 .DS_Store
 
