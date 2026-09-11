@@ -343,6 +343,8 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
             "retrieval_total_ms": timings.total_ms,
         },
     )
+    enrichment_started_ns = perf_counter_ns()
+    search_result_chunk_count = len(hits)
     # The provisions the retrieved passages rely on, fetched directly.
     #
     # Measured: BNSS s.173 answers "how is an FIR registered?" and does not
@@ -357,7 +359,11 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
     # pointed at, not a better match, and ranking it above passages that
     # earned their place would be a claim the search never made.
     try:
-        followed = await service.fetch_followed_provisions(hits, target=targets[0])
+        followed = await service.fetch_followed_provisions(
+            hits,
+            target=targets[0],
+            query=str(state.get("query") or query),
+        )
     except Exception:  # noqa: BLE001 - a failed lookup must not cost the
         # answer; what retrieval found on its merits still stands.
         followed = []
@@ -384,6 +390,21 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
         # cost the answer. An empty set only makes the downstream floor
         # stricter, which fails closed.
         distinctive = []
+    stage_metrics = append_stage_metric(
+        {**state, "stage_metrics": stage_metrics},
+        stage="retrieval_enrichment",
+        started_ns=enrichment_started_ns,
+        retry_index=retry_count,
+        inputs={
+            "search_result_chunk_count": search_result_chunk_count,
+            "query_focus_term_count": len(_focus_tokens(asked)),
+        },
+        outputs={
+            "followed_chunk_count": len(followed),
+            "distinctive_term_count": len(distinctive),
+            "final_chunk_count": len(hits),
+        },
+    )
 
     return {
         "retrieval_query": query,

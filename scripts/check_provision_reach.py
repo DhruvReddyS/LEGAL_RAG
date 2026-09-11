@@ -64,7 +64,11 @@ async def measure() -> dict:
             hits, _ = await service.search_across_collections_with_timings(
                 question, targets=[target], candidate_limit=40, result_limit=8
             )
-            followed = await service.fetch_followed_provisions(hits, target=target)
+            followed = await service.fetch_followed_provisions(
+                hits,
+                target=target,
+                query=question,
+            )
             merged = hits + followed
             rank = next(
                 (

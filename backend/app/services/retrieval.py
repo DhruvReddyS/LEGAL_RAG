@@ -24,8 +24,10 @@ from app.ingestion.init_qdrant import (
 )
 from app.ingestion.supersession import replacement_for
 from app.ingestion.sparse import to_sparse_vector
-from app.services.citation_following import provisions_worth_following
-from app.services.legal_term_normalization import LEGAL_ACRONYM_EXPANSIONS
+from app.services.citation_following import (
+    implementation_provisions_for_query,
+    provisions_worth_following,
+)
 
 
 @dataclass
@@ -728,6 +730,7 @@ class HybridRetrievalService:
         hits: list[RetrievalHit],
         *,
         target: RetrievalTarget,
+        query: str = "",
     ) -> list[RetrievalHit]:
         """The provisions the retrieved passages rely on, fetched directly.
 
@@ -742,7 +745,13 @@ class HybridRetrievalService:
         the concordance records as repealed without replacement yields
         nothing rather than a nearest-numbered guess.
         """
-        followed = provisions_worth_following(hits)
+        followed = list(provisions_worth_following(hits))
+        seen = {provision.key for provision in followed}
+        followed.extend(
+            provision
+            for provision in implementation_provisions_for_query(query)
+            if provision.key not in seen
+        )
         if not followed:
             return []
 
@@ -779,6 +788,12 @@ class HybridRetrievalService:
                 if str(payload.get("chunk_id")) in already:
                     continue
                 already.add(str(payload.get("chunk_id")))
+                payload["retrieval_enrichment_relation"] = (
+                    "implementation_bridge"
+                    if provision.citations == 0
+                    else "citation_forwarding"
+                )
+                payload["retrieval_enrichment_via"] = provision.via
                 found.append(
                     RetrievalHit(
                         point_id=str(point.id),

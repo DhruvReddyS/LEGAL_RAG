@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 from io import BytesIO
-from types import SimpleNamespace
 from urllib.error import HTTPError
 
 import pytest
@@ -160,6 +159,7 @@ async def test_deep_workflow_records_retries_input_sizes_and_actual_prompt_token
     stages = result["stage_metrics"]
     stage_names = [stage["stage"] for stage in stages]
     assert stage_names.count("retrieval") == 3
+    assert stage_names.count("retrieval_enrichment") == 3
     assert stage_names.count("reasoning") == 3
     assert stage_names.count("verification") == 3
     assert stage_names.count("retry") == 2
@@ -167,6 +167,14 @@ async def test_deep_workflow_records_retries_input_sizes_and_actual_prompt_token
     retrieval = next(stage for stage in stages if stage["stage"] == "retrieval")
     assert retrieval["outputs"]["reranker_input_chunk_count"] == 20
     assert retrieval["outputs"]["reranker_input_characters"] == 12000
+    enrichment = next(
+        stage for stage in stages if stage["stage"] == "retrieval_enrichment"
+    )
+    assert enrichment["outputs"]["distinctive_term_count"] > 0
+    assert enrichment["outputs"]["final_chunk_count"] == (
+        enrichment["inputs"]["search_result_chunk_count"]
+        + enrichment["outputs"]["followed_chunk_count"]
+    )
     reasoning = next(stage for stage in stages if stage["stage"] == "reasoning")
     assert reasoning["llm_calls"][0]["prompt_eval_count"] == 987
     assert reasoning["llm_calls"][0]["context_window"] == 16384

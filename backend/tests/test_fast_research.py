@@ -13,11 +13,13 @@ class FakeRetrieval:
         *,
         distinctive_terms: list[str] | None = None,
         term_document_counts: dict[str, int] | None = None,
+        followed: list[RetrievalHit] | None = None,
     ) -> None:
         self.hits = hits
         self.calls: list[dict] = []
         self.distinctive_terms = distinctive_terms or []
         self.term_document_counts = term_document_counts or {}
+        self.followed = followed or []
 
     async def search_with_timings(self, query: str, **kwargs):
         self.calls.append({"query": query, **kwargs})
@@ -38,6 +40,10 @@ class FakeRetrieval:
         """
         del terms, target
         return dict(self.term_document_counts), list(self.distinctive_terms)
+
+    async def fetch_followed_provisions(self, hits, *, target, query=""):
+        del hits, target, query
+        return list(self.followed)
 
 
 def hit(chunk_id: str, document_id: str, title: str, *, current: bool) -> RetrievalHit:
@@ -167,6 +173,31 @@ async def test_fast_research_does_not_pad_with_duplicate_authorities() -> None:
 
     assert [item.chunk_id for item in result["citations"]] == ["doc-a-1"]
     assert result["agent_trace"][0].details["unique_document_count"] == 1
+
+
+@pytest.mark.asyncio
+async def test_fast_research_places_exact_implementation_before_commentary() -> None:
+    commentary = hit("commentary", "doc-case", "Arrest judgment", current=True)
+    commentary.payload["text"] = (
+        "The grounds of arrest must be communicated to the arrested person."
+    )
+    provision = hit("bnss-47", "doc-bnss", "BNSS", current=True)
+    provision.payload["section"] = "47"
+    provision.payload["retrieval_enrichment_relation"] = "implementation_bridge"
+    retrieval = FakeRetrieval([commentary], followed=[provision])
+
+    result = await FastLegalResearchService(retrieval).run(  # type: ignore[arg-type]
+        query="Must grounds of arrest be communicated to the arrested person?",
+        role="citizen",
+        case_id=None,
+        history=[],
+    )
+
+    assert [item.chunk_id for item in result["citations"]][:2] == [
+        "bnss-47",
+        "commentary",
+    ]
+    assert result["timings"]["followed_chunk_count"] == 1
 
 
 @pytest.mark.asyncio

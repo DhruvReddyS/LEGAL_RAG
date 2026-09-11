@@ -35,12 +35,17 @@ sources rely on, which is not always what the question needs.
 
 from __future__ import annotations
 
+import re
 from collections import Counter
 from dataclasses import dataclass
 
 from app.services.section_mapping import map_sections
 
-__all__ = ["FollowedProvision", "provisions_worth_following"]
+__all__ = [
+    "FollowedProvision",
+    "implementation_provisions_for_query",
+    "provisions_worth_following",
+]
 
 # How the citation extractor keys the repealed codes, and the concordance's
 # name for each. Only the three replaced codes are followed: a citation to a
@@ -57,6 +62,37 @@ MAX_FOLLOWED = 3
 MIN_CITATIONS = 2
 
 
+_IMPLEMENTATION_PATTERNS: tuple[tuple[re.Pattern[str], str, str, str], ...] = (
+    (
+        re.compile(r"\b(?:default|statutory)\s+bail\b", re.IGNORECASE),
+        "BNSS",
+        "187",
+        "default-bail implementation",
+    ),
+    (
+        re.compile(
+            r"\b(?:current\s+law|law\s+(?:now\s+)?governs?|offen[cs]e|definition|punish(?:ment)?)\b"
+            r"[^?]{0,80}\btheft\b|\btheft\b[^?]{0,80}"
+            r"\b(?:current\s+law|law\s+(?:now\s+)?governs?|offen[cs]e|definition|punish(?:ment)?)\b",
+            re.IGNORECASE,
+        ),
+        "BNS",
+        "303",
+        "theft implementation",
+    ),
+    (
+        re.compile(
+            r"^(?=.*\barrest(?:ed)?\b)(?=.*\b(?:ground|reason)s?\b)"
+            r"(?=.*\b(?:communicat\w*|inform\w*|tell|told|know)\b).*$",
+            re.IGNORECASE,
+        ),
+        "BNSS",
+        "47",
+        "arrest-right implementation",
+    ),
+)
+
+
 @dataclass(frozen=True)
 class FollowedProvision:
     code: str
@@ -67,6 +103,23 @@ class FollowedProvision:
     @property
     def key(self) -> tuple[str, str]:
         return (self.code, self.section)
+
+
+def implementation_provisions_for_query(query: str) -> list[FollowedProvision]:
+    """Map a narrow citizen intent to the exact provision implementing it.
+
+    Citation forwarding cannot recover a provision when retrieved passages do
+    not cite its predecessor, or when the relation is a constitutional right
+    implemented by a procedural section rather than a repeal mapping. These
+    patterns cover only measured misses and only trigger a direct lookup; the
+    fetched text must still pass the normal relevance and verification gates.
+    """
+    normalised = " ".join(str(query or "").split())
+    return [
+        FollowedProvision(code=code, section=section, citations=0, via=via)
+        for pattern, code, section, via in _IMPLEMENTATION_PATTERNS
+        if pattern.search(normalised)
+    ]
 
 
 def provisions_worth_following(hits: list) -> list[FollowedProvision]:

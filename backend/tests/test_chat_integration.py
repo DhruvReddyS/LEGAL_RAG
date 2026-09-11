@@ -90,6 +90,15 @@ async def test_chat_persistence_and_session_ownership() -> None:
             session_id = uuid.UUID(body["session_id"])
             assert body["confidence_score"] == 0.9
             assert body["citations"][0]["chunk_id"] == "gold-chunk-test"
+            assert {
+                "request_setup_ms",
+                "safety_routing_ms",
+                "rag_service_ms",
+                "persistence_ms",
+                "api_overhead_ms",
+                "api_total_ms",
+            } <= body["timings_ms"].keys()
+            assert body["timings_ms"]["api_total_ms"] >= body["timings_ms"]["rag_service_ms"]
 
             history = await client.get(
                 f"/chat/sessions/{session_id}",

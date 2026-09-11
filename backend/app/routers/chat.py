@@ -38,6 +38,29 @@ from app.services.jobs import append_job_event
 router = APIRouter(prefix="/chat", tags=["chat"])
 
 
+def _complete_api_timings(
+    pipeline_timings: dict[str, object] | None,
+    *,
+    request_started: float,
+    request_setup_ms: float,
+    safety_routing_ms: float,
+    rag_service_ms: float,
+    persistence_ms: float,
+) -> dict[str, object]:
+    """Add endpoint overhead without confusing it with measured RAG stages."""
+    total_ms = (perf_counter() - request_started) * 1000
+    measured_ms = request_setup_ms + safety_routing_ms + rag_service_ms + persistence_ms
+    return {
+        **(pipeline_timings or {}),
+        "request_setup_ms": round(request_setup_ms, 2),
+        "safety_routing_ms": round(safety_routing_ms, 2),
+        "rag_service_ms": round(rag_service_ms, 2),
+        "persistence_ms": round(persistence_ms, 2),
+        "api_overhead_ms": round(max(0.0, total_ms - measured_ms), 2),
+        "api_total_ms": round(total_ms, 2),
+    }
+
+
 async def run_while_connected(http_request: Request, coroutine):
     """Cancel synchronous research when its browser request is stopped/disconnected."""
     task = asyncio.create_task(coroutine)
@@ -113,12 +136,16 @@ async def query_chat(
     )
     session.add(user_message)
     await session.flush()
+    request_setup_ms = (perf_counter() - request_started) * 1000
+    safety_routing_started = perf_counter()
     # Screened before routing, retrieval or generation. An emergency needs a
     # phone number now, and a request for a decision or an outcome would
     # otherwise be answered fluently from statute text and pass verification,
     # because every claim would be grounded. Grounding is not appropriateness.
     intervention = screen_citizen_query(request.query)
     if intervention is not None:
+        safety_routing_ms = (perf_counter() - safety_routing_started) * 1000
+        persistence_started = perf_counter()
         assistant_message = ChatMessage(
             session_id=chat_session.id,
             role=ChatMessageRole.ASSISTANT,
@@ -144,7 +171,15 @@ async def query_chat(
             )
         )
         await session.commit()
-        timings = {"api_total_ms": round((perf_counter() - request_started) * 1000, 2)}
+        persistence_ms = (perf_counter() - persistence_started) * 1000
+        timings = _complete_api_timings(
+            None,
+            request_started=request_started,
+            request_setup_ms=request_setup_ms,
+            safety_routing_ms=safety_routing_ms,
+            rag_service_ms=0.0,
+            persistence_ms=persistence_ms,
+        )
         return ChatQueryResponse(
             session_id=chat_session.id,
             message_id=assistant_message.id,
@@ -205,6 +240,8 @@ async def query_chat(
             headers={"Retry-After": str(exc.retry_after_seconds)},
         ) from exc
     runner = http_request.app.state.fast_research_service if routing.selected_mode == "fast" else workflow
+    safety_routing_ms = (perf_counter() - safety_routing_started) * 1000
+    rag_started = perf_counter()
     result = await run_while_connected(http_request, runner.run(
         query=request.query,
         role=user.role.value,
@@ -212,6 +249,7 @@ async def query_chat(
         history=history,
         **({"document_context": document_context} if document_context else {}),
     ))
+    rag_service_ms = (perf_counter() - rag_started) * 1000
     result["agent_trace"] = [
         *result["agent_trace"],
         AgentTraceEvent(
@@ -228,6 +266,7 @@ async def query_chat(
         routing.selected_mode == "fast"
         and result["confidence_score"] < settings.fast_auto_escalation_threshold
     ):
+        persistence_started = perf_counter()
         try:
             await user_rate_limiter.admit(
                 str(user.id),
@@ -293,8 +332,15 @@ async def query_chat(
             )
         )
         await session.commit()
-        timings = dict(result.get("timings", {}))
-        timings["api_total_ms"] = round((perf_counter() - request_started) * 1000, 2)
+        persistence_ms = (perf_counter() - persistence_started) * 1000
+        timings = _complete_api_timings(
+            result.get("timings", {}),
+            request_started=request_started,
+            request_setup_ms=request_setup_ms,
+            safety_routing_ms=safety_routing_ms,
+            rag_service_ms=rag_service_ms,
+            persistence_ms=persistence_ms,
+        )
         # The Fast brief is already computed and costs ~70ms. Discarding it
         # left the citizen staring at a blank multi-minute wait having been
         # given nothing, when provisional evidence was sitting in memory.
@@ -329,6 +375,7 @@ async def query_chat(
             job_id=job.id,
             escalation_threshold=settings.fast_auto_escalation_threshold,
         )
+    persistence_started = perf_counter()
     citations = [citation.model_dump(mode="json") for citation in result["citations"]]
     assistant_message = ChatMessage(
         session_id=chat_session.id,
@@ -362,8 +409,15 @@ async def query_chat(
         )
     )
     await session.commit()
-    timings = dict(result.get("timings", {}))
-    timings["api_total_ms"] = round((perf_counter() - request_started) * 1000, 2)
+    persistence_ms = (perf_counter() - persistence_started) * 1000
+    timings = _complete_api_timings(
+        result.get("timings", {}),
+        request_started=request_started,
+        request_setup_ms=request_setup_ms,
+        safety_routing_ms=safety_routing_ms,
+        rag_service_ms=rag_service_ms,
+        persistence_ms=persistence_ms,
+    )
     latency_target_ms = settings.fast_latency_target_ms if routing.selected_mode == "fast" else settings.deep_latency_target_ms
     target_met = timings["api_total_ms"] <= latency_target_ms if routing.selected_mode == "fast" else None
     return ChatQueryResponse(

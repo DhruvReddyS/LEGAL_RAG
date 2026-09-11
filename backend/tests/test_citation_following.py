@@ -19,6 +19,7 @@ import pytest
 from app.services.citation_following import (
     MAX_FOLLOWED,
     MIN_CITATIONS,
+    implementation_provisions_for_query,
     provisions_worth_following,
 )
 
@@ -120,6 +121,39 @@ class TestDegenerateInput:
     @pytest.mark.parametrize("junk", ["", "nonsense", "crpc:", ":154", "unknown:154"])
     def test_malformed_references_are_ignored(self, junk: str) -> None:
         assert provisions_worth_following([_Hit(junk), _Hit(junk)]) == []
+
+
+class TestImplementationBridge:
+    @pytest.mark.parametrize(
+        ("question", "expected"),
+        [
+            ("What is default bail?", ("BNSS", "187")),
+            ("Which law now governs the offence of theft?", ("BNS", "303")),
+            (
+                "Must the grounds of arrest be communicated to the arrested person?",
+                ("BNSS", "47"),
+            ),
+        ],
+    )
+    def test_measured_vocabulary_gap_reaches_its_implementation(
+        self,
+        question: str,
+        expected: tuple[str, str],
+    ) -> None:
+        assert expected in [
+            provision.key for provision in implementation_provisions_for_query(question)
+        ]
+
+    @pytest.mark.parametrize(
+        "question",
+        [
+            "When can police make an arrest without a warrant?",
+            "How do I report a lost phone?",
+            "Can bail be cancelled?",
+        ],
+    )
+    def test_adjacent_questions_do_not_trigger_a_bridge(self, question: str) -> None:
+        assert implementation_provisions_for_query(question) == []
 
 
 class TestTheLaneUsesIt:

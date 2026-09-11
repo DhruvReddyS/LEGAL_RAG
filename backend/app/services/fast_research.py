@@ -503,6 +503,10 @@ class FastLegalResearchService:
         # term returns an arbitrary page of its matches, so the right passage
         # is often not a candidate at all. Ranking has to come from the query.
         corpus_filters = RetrievalFilters(corpus_tiers=["gold", "extended"])
+        corpus_target = RetrievalTarget(
+            collection_name=GLOBAL_LEGAL_CORPUS,
+            filters=corpus_filters,
+        )
         # Run the frequency lookup alongside the search rather than after it.
         # These are Qdrant counts with no embedding step, so concurrently they
         # cost the lane nothing measurable.
@@ -515,14 +519,22 @@ class FastLegalResearchService:
         )
         term_frequencies = self.retrieval.distinctive_query_terms(
             focus_tokens,
-            target=RetrievalTarget(
-                collection_name=GLOBAL_LEGAL_CORPUS, filters=corpus_filters
-            ),
+            target=corpus_target,
         )
         (hits, retrieval_timings), (term_counts, distinctive) = await asyncio.gather(
             search, term_frequencies
         )
         raw_result_count = len(hits)
+        enrichment_started = perf_counter()
+        try:
+            followed = await self.retrieval.fetch_followed_provisions(
+                hits,
+                target=corpus_target,
+                query=query,
+            )
+        except Exception:  # noqa: BLE001 - exact-law enrichment is optional
+            followed = []
+        enrichment_ms = (perf_counter() - enrichment_started) * 1000
         # Computed here rather than taken from the timings. The lexical path
         # populated `lexical_distinctive_terms`; this lane no longer uses that
         # path, so reading it returned an empty set and made the mandatory-term
@@ -546,12 +558,38 @@ class FastLegalResearchService:
         # contract" appears over a hundred times, though contract law is not
         # in the corpus -- the first half has nothing to say, and 0.34 is too
         # permissive for the second to carry the decision alone.
-        relevant_hits = publishable_hits(
+        ranked_relevant_hits = publishable_hits(
             hits,
             query=query,
             focus_tokens=focus_tokens,
             distinctive_terms=distinctive_terms,
         )
+        # An implementation bridge points to an exact, current provision in
+        # the corpus whose statutory wording differs from the citizen's words.
+        # Put only that primary law first. Broader provisions discovered from
+        # cited predecessors remain corroboration after the ranked evidence.
+        followed_ids = {str(hit.payload.get("chunk_id")) for hit in followed}
+        implementation_hits = [
+            hit
+            for hit in followed
+            if hit.payload.get("retrieval_enrichment_relation")
+            == "implementation_bridge"
+        ]
+        citation_followed_hits = [
+            hit
+            for hit in followed
+            if hit.payload.get("retrieval_enrichment_relation")
+            != "implementation_bridge"
+        ]
+        relevant_hits = [
+            *implementation_hits,
+            *(
+                hit
+                for hit in ranked_relevant_hits
+                if str(hit.payload.get("chunk_id")) not in followed_ids
+            ),
+            *citation_followed_hits,
+        ]
         hits = _select_diverse_hits(relevant_hits, settings.fast_result_limit)
         if not hits:
             answer = INSUFFICIENT_EVIDENCE
@@ -670,6 +708,8 @@ class FastLegalResearchService:
             "qdrant_ms": retrieval_timings.qdrant_ms,
             "reranking_ms": retrieval_timings.reranking_ms,
             "retrieval_total_ms": retrieval_timings.total_ms,
+            "retrieval_enrichment_ms": round(enrichment_ms, 2),
+            "followed_chunk_count": len(followed),
             "embedding_cache_hit": retrieval_timings.embedding_cache_hit,
             "workflow_total_ms": total_ms,
         }
