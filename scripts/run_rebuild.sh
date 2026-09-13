@@ -21,12 +21,19 @@ REEXTRACT=0
 [ "${2:-}" = "--reextract" ] && REEXTRACT=1
 LEDGER="$ROOT/data/legal_kb/logs/ingestion_checkpoint.$COLLECTION.json"
 LOG="$ROOT/data/legal_kb/logs/rebuild.$COLLECTION.log"
-MANIFEST="$ROOT/data/legal_kb/metadata/source_manifests/documents.jsonl"
 EXTRACTED="$ROOT/data/legal_kb/processed/extracted_text"
-# Counted from the manifest, never hardcoded: this was pinned at 381 while the
-# corpus grew to 419, so the supervisor would have called the rebuild complete
-# with 38 documents still missing.
-TOTAL="$(grep -c . "$MANIFEST")"
+# The pipeline ingests one document per canonical content object, so that is
+# what completion is counted against: the manifest holds 419 physical rows, 38
+# of them duplicates, and the ledger records 381. Counting rows would leave the
+# supervisor retrying forever for documents that are never meant to be written.
+# Asked of the pipeline's own iterator so the two can never disagree.
+TOTAL="$("$ROOT/.venv-ingest/bin/python" -c "
+import sys; sys.path.insert(0, '$ROOT/backend')
+from pathlib import Path
+from app.ingestion.metadata import load_manifest, iter_canonical_documents
+print(len(list(iter_canonical_documents(load_manifest(Path('$ROOT/data/legal_kb/metadata/canonical_documents.jsonl'))))))
+")"
+[ "$TOTAL" -gt 0 ] 2>/dev/null || { echo "could not count canonical documents"; exit 1; }
 MAX_ATTEMPTS=40
 
 completed() {

@@ -11,9 +11,14 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 COLLECTION="${1:-global_legal_corpus_v4}"
 LEDGER="$ROOT/data/legal_kb/logs/ingestion_checkpoint.$COLLECTION.json"
 LOG="$ROOT/data/legal_kb/logs/rebuild.$COLLECTION.log"
-MANIFEST="$ROOT/data/legal_kb/metadata/source_manifests/documents.jsonl"
-
-TOTAL="$(grep -c . "$MANIFEST" 2>/dev/null || echo 0)"
+# One document per canonical content object -- the same count the pipeline
+# and the supervisor use.
+TOTAL="$("$ROOT/.venv-ingest/bin/python" -c "
+import sys; sys.path.insert(0, '$ROOT/backend')
+from pathlib import Path
+from app.ingestion.metadata import load_manifest, iter_canonical_documents
+print(len(list(iter_canonical_documents(load_manifest(Path('$ROOT/data/legal_kb/metadata/canonical_documents.jsonl'))))))
+" 2>/dev/null || echo 0)"
 
 echo "collection: $COLLECTION"
 
