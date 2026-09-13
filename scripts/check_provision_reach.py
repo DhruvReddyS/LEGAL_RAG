@@ -43,10 +43,24 @@ CASES: list[tuple[str, str, str]] = [
     ("What safeguards apply when a woman is arrested?", "BNSS", "43"),
 ]
 
+# The same eight provisions asked the way people ask. Reported separately and
+# never tuned against: a bridge written to the wording above can read 8/8 while
+# reaching almost nothing a person would type, and this is how that shows.
+HELD_OUT: list[tuple[str, str, str]] = [
+    ("how do i file a police complaint for a crime", "BNSS", "173"),
+    ("Under the new code, can cops arrest without a warrant?", "BNSS", "35"),
+    ("can I get bail before the police arrest me", "BNSS", "482"),
+    ("Police kept my son 60 days without filing a charge sheet, is he entitled to release?", "BNSS", "187"),
+    ("someone stole my phone, which law covers this now", "BNS", "303"),
+    ("Can the last words of a murdered person be used in court?", "BSA", "26"),
+    ("Do the police have to tell me why they are arresting me?", "BNSS", "47"),
+    ("rules for arresting a lady at night", "BNSS", "43"),
+]
+
 _ALIAS = {"BNSS": "nagarik suraksha", "BNS": "nyaya sanhita", "BSA": "sakshya adhiniyam"}
 
 
-async def measure() -> dict:
+async def measure(cases: list[tuple[str, str, str]] = CASES) -> dict:
     from app.core.config import settings
     from app.services.retrieval import (
         HybridRetrievalService, RetrievalFilters, RetrievalTarget,
@@ -60,7 +74,7 @@ async def measure() -> dict:
     )
     rows = []
     try:
-        for question, code, section in CASES:
+        for question, code, section in cases:
             hits, _ = await service.search_across_collections_with_timings(
                 question, targets=[target], candidate_limit=40, result_limit=8
             )
@@ -109,12 +123,15 @@ def main() -> int:
     arguments = parser.parse_args()
 
     report = asyncio.run(measure())
-    print(f"\n{'question':<52}{'provision':<12}{'rank':>6}")
-    print("-" * 72)
-    for row in report["rows"]:
-        print(f"{row['question'][:50]:<52}{row['provision']:<12}"
-              f"{str(row['rank'] or '—'):>6}{'  (followed)' if row['via_citation_following'] else ''}")
-    print(f"\nreached {report['reached']}/{report['total']}  ({report['reach_rate']:.0%})")
+    held_out = asyncio.run(measure(HELD_OUT))
+    report["held_out"] = {key: held_out[key] for key in ("reached", "total", "reach_rate", "rows")}
+    for title, block in (("gate questions", report), ("held-out rewordings", held_out)):
+        print(f"\n{title}\n{'question':<52}{'provision':<12}{'rank':>6}")
+        print("-" * 72)
+        for row in block["rows"]:
+            print(f"{row['question'][:50]:<52}{row['provision']:<12}"
+                  f"{str(row['rank'] or '—'):>6}{'  (followed)' if row['via_citation_following'] else ''}")
+        print(f"reached {block['reached']}/{block['total']}  ({block['reach_rate']:.0%})")
 
     if arguments.record:
         BASELINE.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")

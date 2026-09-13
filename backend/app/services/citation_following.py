@@ -62,35 +62,148 @@ MAX_FOLLOWED = 3
 MIN_CITATIONS = 2
 
 
-_IMPLEMENTATION_PATTERNS: tuple[tuple[re.Pattern[str], str, str, str], ...] = (
-    (
-        re.compile(r"\b(?:default|statutory)\s+bail\b", re.IGNORECASE),
-        "BNSS",
-        "187",
-        "default-bail implementation",
+@dataclass(frozen=True)
+class _Concept:
+    """One way of asking about a provision, as groups of interchangeable terms.
+
+    Every group in `all_of` must be present and no group in `none_of` may be.
+    A term with a space is a phrase matched on the normalised question; any
+    other term is a word prefix, so "arrest" covers "arrested" and "arresting".
+
+    These describe what a question is about, not how the golden set happens to
+    word it. The first version matched the evaluation questions almost word for
+    word -- "now governs" plus "arrest" plus "without a warrant" -- and reached
+    one of ten reworded questions. A table keyed to the test measures the
+    table, not retrieval.
+    """
+
+    code: str
+    section: str
+    via: str
+    all_of: tuple[tuple[str, ...], ...]
+    none_of: tuple[tuple[str, ...], ...] = ()
+
+
+_CURRENCY_CUES = (
+    "replac", "repeal", "still", "now", "new", "current", "govern", "appl",
+    "in force", "after", "which law", "what law", "which act", "valid",
+)
+
+_CONCEPTS: tuple[_Concept, ...] = (
+    # BNSS s.187's proviso creates the entitlement, and the passages that rank
+    # for bail questions cite CrPC ss.437/437A instead, so citation forwarding
+    # never reaches it. Asked either by name or by its trigger: the charge
+    # sheet not filed within the statutory period.
+    _Concept(
+        "BNSS", "187", "default-bail implementation",
+        all_of=(("bail",), ("default", "statutory", "compulsive", "compulsory", "indefeasible")),
+        none_of=(("anticipat", "cancel"),),
     ),
-    (
-        re.compile(
-            r"\b(?:current\s+law|law\s+(?:now\s+)?governs?|offen[cs]e|definition|punish(?:ment)?)\b"
-            r"[^?]{0,80}\btheft\b|\btheft\b[^?]{0,80}"
-            r"\b(?:current\s+law|law\s+(?:now\s+)?governs?|offen[cs]e|definition|punish(?:ment)?)\b",
-            re.IGNORECASE,
+    _Concept(
+        "BNSS", "187", "default-bail implementation",
+        all_of=(
+            ("charge sheet", "chargesheet", "final report", "investigation"),
+            ("day", "deadline", "time limit", "in time", "not filed", "without filing",
+             "not complet", "incomplete", "delay", "miss"),
+            ("bail", "release", "get out", "jail", "custody", "entitled"),
         ),
-        "BNS",
-        "303",
-        "theft implementation",
+        none_of=(("anticipat", "cancel"),),
     ),
-    (
-        re.compile(
-            r"^(?=.*\barrest(?:ed)?\b)(?=.*\b(?:ground|reason)s?\b)"
-            r"(?=.*\b(?:communicat\w*|inform\w*|tell|told|know)\b).*$",
-            re.IGNORECASE,
+    _Concept(
+        "BNS", "303", "theft implementation",
+        all_of=(
+            ("theft", "steal", "stole", "thief", "thiev"),
+            ("law", "code", "section", "defin", "punish", "offen", "crime", "ipc",
+             "bns", "sanhita", "cover", "say") + _CURRENCY_CUES,
         ),
-        "BNSS",
-        "47",
-        "arrest-right implementation",
+        # Offences built on theft have their own sections; the definition
+        # would take a display slot from the provision actually asked about.
+        none_of=(("receiv", "robber", "dacoit", "extort", "snatch"),),
+    ),
+    # A constitutional right (Article 22) implemented by a procedural section:
+    # no repeal mapping connects them, so nothing cites its way there.
+    _Concept(
+        "BNSS", "47", "arrest-right implementation",
+        all_of=(
+            ("arrest", "detain", "picked up"),
+            ("why", "reason", "ground", "cause"),
+            ("tell", "told", "inform", "communicat", "explain", "know", "said", "given"),
+        ),
+    ),
+    _Concept(
+        "BNSS", "35", "warrantless-arrest implementation",
+        all_of=(
+            ("arrest",),
+            ("without warrant", "without a warrant", "warrantless", "warrant less", "no warrant"),
+        ),
+    ),
+    # Asking which evidence law applies is answered by the Act itself, whose
+    # first section brings it into force in place of the 1872 Act.
+    _Concept(
+        "BSA", "1", "evidence-law currency",
+        all_of=(
+            ("evidence act", "evidence law", "law of evidence", "laws of evidence",
+             "indian evidence", "sakshya"),
+            _CURRENCY_CUES,
+        ),
+    ),
+    _Concept(
+        "BSA", "1", "evidence-law currency",
+        all_of=(("evidence",), ("which law", "what law", "which act", "what act")),
     ),
 )
+
+# Naming a repealed section in the question is the most direct signal there
+# is, and the official concordance already knows where each one went -- so
+# every repealed section is bridged, not only the ones someone measured.
+_OLD_CODE_NAMES = (
+    (re.compile(r"\b(?:i\.?\s?p\.?\s?c|indian\s+penal\s+code|penal\s+code)\b", re.I), "IPC"),
+    (re.compile(r"\b(?:cr\.?\s?p\.?\s?c|code\s+of\s+criminal\s+procedure|criminal\s+procedure\s+code)\b", re.I), "CrPC"),
+    (re.compile(r"\b(?:i\.?\s?e\.?\s?a|(?:indian\s+)?evidence\s+act)\b", re.I), "IEA"),
+)
+_SECTION_NUMBER = re.compile(
+    r"(?:\b(?:section|sec\.?|s\.|u/s)\s*)?\b(\d{1,3}[A-Z]?)\b(?:\s*\(\d+\))?", re.I
+)
+# A number this far from its code name is not a reference to that code.
+_REFERENCE_WINDOW = 18
+
+
+def _normalise(query: str) -> str:
+    return " ".join(re.sub(r"[-_/]", " ", str(query or "").lower()).split())
+
+
+def _present(term: str, text: str, words: tuple[str, ...]) -> bool:
+    if " " in term:
+        return term in text
+    return any(word.startswith(term) for word in words)
+
+
+def _concordance_provisions(query: str) -> list["FollowedProvision"]:
+    text = str(query or "")
+    codes = [(m.start(), m.end(), code) for pattern, code in _OLD_CODE_NAMES for m in pattern.finditer(text)]
+    if not codes:
+        return []
+    found: list[FollowedProvision] = []
+    for match in _SECTION_NUMBER.finditer(text):
+        number = match.group(1)
+        nearest = min(
+            codes,
+            key=lambda span: min(abs(match.start() - span[1]), abs(span[0] - match.end())),
+        )
+        gap = min(abs(match.start() - nearest[1]), abs(nearest[0] - match.end()))
+        if gap > _REFERENCE_WINDOW:
+            continue
+        for mapping in map_sections(nearest[2], number):
+            if not mapping.has_successor or not mapping.to_section:
+                continue
+            section = str(mapping.to_section).split("(")[0]
+            found.append(
+                FollowedProvision(
+                    code=mapping.to_code, section=section, citations=0,
+                    via=f"concordance: {nearest[2]} s.{number}",
+                )
+            )
+    return found
 
 
 @dataclass(frozen=True)
@@ -106,20 +219,30 @@ class FollowedProvision:
 
 
 def implementation_provisions_for_query(query: str) -> list[FollowedProvision]:
-    """Map a narrow citizen intent to the exact provision implementing it.
+    """The provisions a question itself points at, before any retrieval.
 
-    Citation forwarding cannot recover a provision when retrieved passages do
-    not cite its predecessor, or when the relation is a constitutional right
-    implemented by a procedural section rather than a repeal mapping. These
-    patterns cover only measured misses and only trigger a direct lookup; the
-    fetched text must still pass the normal relevance and verification gates.
+    Citation forwarding cannot recover a provision when the retrieved passages
+    do not cite its predecessor, or when the relation is a right implemented by
+    a procedural section rather than a repeal. Two sources close that gap: a
+    repealed section named in the question, routed through the official
+    concordance, and a small set of concepts for measured misses. Both only
+    trigger a lookup; the fetched text must still pass the normal relevance and
+    verification gates.
     """
-    normalised = " ".join(str(query or "").split())
-    return [
-        FollowedProvision(code=code, section=section, citations=0, via=via)
-        for pattern, code, section, via in _IMPLEMENTATION_PATTERNS
-        if pattern.search(normalised)
-    ]
+    text = _normalise(query)
+    words = tuple(re.findall(r"[a-z0-9]+", text))
+    found = _concordance_provisions(query)
+    for concept in _CONCEPTS:
+        if all(any(_present(term, text, words) for term in group) for group in concept.all_of) and not any(
+            any(_present(term, text, words) for term in group) for group in concept.none_of
+        ):
+            found.append(
+                FollowedProvision(code=concept.code, section=concept.section, citations=0, via=concept.via)
+            )
+    unique: dict[tuple[str, str], FollowedProvision] = {}
+    for provision in found:
+        unique.setdefault(provision.key, provision)
+    return list(unique.values())
 
 
 def provisions_worth_following(hits: list) -> list[FollowedProvision]:

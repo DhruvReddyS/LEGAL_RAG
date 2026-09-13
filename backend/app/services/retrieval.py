@@ -745,11 +745,15 @@ class HybridRetrievalService:
         the concordance records as repealed without replacement yields
         nothing rather than a nearest-numbered guess.
         """
-        followed = list(provisions_worth_following(hits))
+        # A narrow query-to-statute bridge is stronger than generic citation
+        # forwarding. Put it first so a provision discovered by both paths is
+        # promoted as the implementation the question asks for, rather than
+        # downgraded to corroboration after the four-result display cutoff.
+        followed = list(implementation_provisions_for_query(query))
         seen = {provision.key for provision in followed}
         followed.extend(
             provision
-            for provision in implementation_provisions_for_query(query)
+            for provision in provisions_worth_following(hits)
             if provision.key not in seen
         )
         if not followed:
@@ -760,13 +764,44 @@ class HybridRetrievalService:
         base = target.filters.to_qdrant()
 
         for provision in followed:
+            act_fragment = _ACT_NAME_FRAGMENTS[provision.code]
+            existing = next(
+                (
+                    hit
+                    for hit in hits
+                    if str(hit.payload.get("section") or "").strip()
+                    == provision.section
+                    and act_fragment.casefold()
+                    in str(hit.payload.get("act_name") or "").casefold()
+                ),
+                None,
+            )
+            if existing is not None:
+                payload = dict(existing.payload)
+                payload["retrieval_enrichment_relation"] = (
+                    "implementation_bridge"
+                    if provision.citations == 0
+                    else "citation_forwarding"
+                )
+                payload["retrieval_enrichment_via"] = provision.via
+                found.append(
+                    RetrievalHit(
+                        point_id=existing.point_id,
+                        payload=payload,
+                        dense_score=existing.dense_score,
+                        sparse_score=existing.sparse_score,
+                        fused_score=existing.fused_score,
+                        reranker_score=existing.reranker_score,
+                    )
+                )
+                continue
             conditions = [
                 models.FieldCondition(
                     key="section", match=models.MatchValue(value=provision.section)
                 ),
                 models.FieldCondition(
                     key="act_name",
-                    match=models.MatchText(text=_ACT_NAME_FRAGMENTS[provision.code]),
+                    match=models.MatchText(text=act_fragment),
                 ),
             ]
             if base is not None and base.must:
