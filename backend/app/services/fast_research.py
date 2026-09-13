@@ -23,6 +23,13 @@ from app.services.legal_term_normalization import (
 )
 
 
+# Hybrid search needs a broad enough window for authority and document
+# diversity selection before only four passages are shown. The evaluator
+# imports this constant so its displayed-result path cannot silently use a
+# smaller candidate pool than production.
+MIN_FAST_CANDIDATES = 20
+
+
 # Function words and words that describe how an answer should be presented.
 #
 # Two classes were removed. "police", "report", "law" and "legal" are among the
@@ -513,8 +520,8 @@ class FastLegalResearchService:
         search = self.retrieval.search_with_timings(
             query,
             filters=corpus_filters,
-            candidate_limit=max(settings.fast_candidate_limit, 20),
-            result_limit=max(settings.fast_candidate_limit, 20),
+            candidate_limit=max(settings.fast_candidate_limit, MIN_FAST_CANDIDATES),
+            result_limit=max(settings.fast_candidate_limit, MIN_FAST_CANDIDATES),
             rerank=False,
         )
         term_frequencies = self.retrieval.distinctive_query_terms(

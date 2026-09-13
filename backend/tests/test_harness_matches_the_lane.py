@@ -47,6 +47,13 @@ def test_it_takes_the_result_limit_from_settings(harness_source: str) -> None:
     """Not a literal. `fast_result_limit` is 4 and the harness scored 5."""
     assert "settings.fast_result_limit" in harness_source
     assert "settings.fast_candidate_limit" in harness_source
+    assert "MIN_FAST_CANDIDATES" in harness_source
+
+
+def test_it_includes_the_lane_exact_law_enrichment(harness_source: str) -> None:
+    assert "fetch_followed_provisions" in harness_source
+    assert "implementation_bridge" in harness_source
+    assert "citation_followed_hits" in harness_source
 
 
 def test_no_hardcoded_slot_count_survives(harness_source: str) -> None:
@@ -76,7 +83,21 @@ def test_the_lane_still_narrows_before_showing() -> None:
     """
     from app.core.config import settings
 
-    assert settings.fast_candidate_limit > settings.fast_result_limit, (
+    service_path = ROOT / "backend" / "app" / "services" / "fast_research.py"
+    service_tree = ast.parse(service_path.read_text(encoding="utf-8"))
+    minimum = next(
+        node.value.value
+        for node in service_tree.body
+        if isinstance(node, ast.Assign)
+        and any(
+            isinstance(target, ast.Name) and target.id == "MIN_FAST_CANDIDATES"
+            for target in node.targets
+        )
+        and isinstance(node.value, ast.Constant)
+        and isinstance(node.value.value, int)
+    )
+
+    assert max(settings.fast_candidate_limit, minimum) > settings.fast_result_limit, (
         "the lane retrieves more candidates than it shows; if that stops being "
         "true, the selection step is doing nothing"
     )

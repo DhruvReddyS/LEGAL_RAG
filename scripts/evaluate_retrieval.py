@@ -28,7 +28,6 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from types import SimpleNamespace
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -63,17 +62,16 @@ async def _shown_to_the_reader(
     """
     from app.core.config import settings
     from app.services.fast_research import (
+        MIN_FAST_CANDIDATES,
         _focus_tokens,
         _select_diverse_hits,
         publishable_hits,
     )
     from app.services.retrieval import RetrievalFilters, RetrievalTarget
 
-    # The lane's own limits, not the harness's. Recall is measured over 20
-    # candidates because it asks whether the authority was found at all; what
-    # the reader is shown comes from 8 candidates narrowed to 4, and scoring
-    # five slots drawn from twenty described a configuration production has
-    # never run.
+    # The lane's own broad candidate window followed by its narrow display
+    # limit. Measuring a smaller search window here would score a configuration
+    # production does not run.
     target = RetrievalTarget(
         collection_name=collection,
         filters=RetrievalFilters(corpus_tiers=["gold", "extended"]),
@@ -81,8 +79,8 @@ async def _shown_to_the_reader(
     hits, _ = await service.search_across_collections_with_timings(
         question,
         targets=[target],
-        candidate_limit=settings.fast_candidate_limit,
-        result_limit=settings.fast_candidate_limit,
+        candidate_limit=max(settings.fast_candidate_limit, MIN_FAST_CANDIDATES),
+        result_limit=max(settings.fast_candidate_limit, MIN_FAST_CANDIDATES),
         rerank=False,
     )
     focus = _focus_tokens(question)
@@ -90,7 +88,39 @@ async def _shown_to_the_reader(
     relevant = publishable_hits(
         hits, query=question, focus_tokens=focus, distinctive_terms=set(distinctive)
     )
-    selected = _select_diverse_hits(relevant, settings.fast_result_limit)
+    try:
+        followed = await service.fetch_followed_provisions(
+            hits,
+            target=target,
+            query=question,
+        )
+    except Exception:  # noqa: BLE001 - mirrors the lane's fail-open enrichment
+        followed = []
+    followed_ids = {str(hit.payload.get("chunk_id")) for hit in followed}
+    implementation_hits = [
+        hit
+        for hit in followed
+        if hit.payload.get("retrieval_enrichment_relation")
+        == "implementation_bridge"
+    ]
+    citation_followed_hits = [
+        hit
+        for hit in followed
+        if hit.payload.get("retrieval_enrichment_relation")
+        != "implementation_bridge"
+    ]
+    selected = _select_diverse_hits(
+        [
+            *implementation_hits,
+            *(
+                hit
+                for hit in relevant
+                if str(hit.payload.get("chunk_id")) not in followed_ids
+            ),
+            *citation_followed_hits,
+        ],
+        settings.fast_result_limit,
+    )
     return [hit.payload for hit in selected]
 
 
@@ -236,12 +266,10 @@ async def evaluate(
                 # Citation accuracy is about what the reader is shown, so it
                 # is scored on the lane's own selection rather than the raw
                 # retrieved list.
-                shown = score(
-                    item,
-                    await _shown_to_the_reader(
-                        service, item.question, collection=collection
-                    ),
+                shown_payloads = await _shown_to_the_reader(
+                    service, item.question, collection=collection
                 )
+                shown = score(item, shown_payloads)
                 results.append(outcome)
                 shown_results.append(shown)
                 # The cost side of the abstention gate. Tightening it to
@@ -262,6 +290,19 @@ async def evaluate(
                         "recall_at_5": outcome.recall_at(5),
                         "recall_at_20": outcome.recall_at(20),
                         "citation_accuracy_shown": shown.precision_at(settings.fast_result_limit),
+                        "shown_sources": [
+                            {
+                                "title": str(payload.get("title") or ""),
+                                "act_name": str(payload.get("act_name") or ""),
+                                "section": str(payload.get("section") or ""),
+                                "chunk_id": str(payload.get("chunk_id") or ""),
+                                "relevant": item.is_relevant(payload),
+                                "enrichment_relation": str(
+                                    payload.get("retrieval_enrichment_relation") or ""
+                                ),
+                            }
+                            for payload in shown_payloads
+                        ],
                         "wrongly_abstained": wrongly_declined,
                     }
                 )
@@ -367,6 +408,10 @@ def _measurement_config() -> dict[str, Any]:
         "reranker_input_characters": _reranker_budget(),
         "repealed_rank_penalty": settings.repealed_rank_penalty,
         "abstain_coverage_floor": ABSTAIN_COVERAGE_FLOOR,
+        "fast_min_candidate_limit": __import__(
+            "app.services.fast_research",
+            fromlist=["MIN_FAST_CANDIDATES"],
+        ).MIN_FAST_CANDIDATES,
         "prompt_versions": prompt_versions(),
     }
 
