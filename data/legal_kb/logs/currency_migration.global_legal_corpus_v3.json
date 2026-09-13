@@ -1,0 +1,12 @@
+{
+  "offset": null,
+  "scanned": 24810,
+  "written": 24810,
+  "counts": {
+    "in_force": 6073,
+    "unverified": 14989,
+    "superseded": 3748
+  },
+  "done": true,
+  "completed_at": "2026-09-06T11:30:53.772127+00:00"
+}

@@ -52,3 +52,4 @@ data/source_materials/candidate_imports/
 data/legal_kb/logs/rebuild.*.log
 .env.*
 !.env.example
+data/legal_kb/logs/measure_*.out
