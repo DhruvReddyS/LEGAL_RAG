@@ -35,12 +35,26 @@ def resolve_embedding_device() -> str:
     return "cpu"
 
 
+# How many batches must succeed before the encoder tries a larger one again.
+# Large enough that recovery is not triggered by the lull between two long
+# documents, small enough that a transient shortage does not pin throughput
+# low for the rest of a multi-hour build.
+_BATCHES_BEFORE_GROWING = 12
+
+
 class BGEM3Embedder:
     def __init__(self, model_name: str | None = None, *, use_fp16: bool | None = None) -> None:
         self.model_name = model_name or settings.embedding_model
         self.use_fp16 = use_fp16
         self._model: Any | None = None
         self._model_device: str | None = None
+        # The batch size this machine has actually been able to sustain. The
+        # backoff below used to live in a local, so every document started at
+        # the configured size, met the same wall and reloaded the model to get
+        # past it. Remembering it turns a per-document discovery into a
+        # per-process one.
+        self._sustained_batch_size: int | None = None
+        self._batches_since_backoff = 0
 
     def _clear_device_cache(self) -> None:
         try:
@@ -141,7 +155,7 @@ class BGEM3Embedder:
         # Keep model calls bounded on every device. Besides preventing MPS from
         # retaining an entire long document, this provides a durable callback
         # boundary for crash-resumable ingestion.
-        current_batch_size = batch_size
+        current_batch_size = min(batch_size, self._sustained_batch_size or batch_size)
         batch_offset = 0
         while batch_offset < len(texts):
             batch = texts[batch_offset : batch_offset + current_batch_size]
@@ -172,6 +186,8 @@ class BGEM3Embedder:
                 self._release_model()
                 if current_batch_size > 1:
                     current_batch_size = max(1, current_batch_size // 2)
+                    self._sustained_batch_size = current_batch_size
+                    self._batches_since_backoff = 0
                     self._load_model()
                     continue  # retry same offset with smaller batch
                 # batch_size=1 still OOMs on MPS — fall back to CPU for this item
@@ -201,10 +217,18 @@ class BGEM3Embedder:
             if on_batch is not None:
                 on_batch(start_index + batch_offset, batch_embeddings)
             batch_offset += len(batch)
-            # After a successful batch, try to restore batch size toward the
-            # original if it was reduced during OOM recovery.
-            if current_batch_size < batch_size:
-                current_batch_size = min(batch_size, current_batch_size * 2)
+            # Recover upwards slowly. Doubling after a single success meant a
+            # machine that could sustain four oscillated between four and
+            # eight for the rest of the run, paying a model reload on every
+            # swing back down.
+            self._batches_since_backoff += 1
+            if (
+                current_batch_size < batch_size
+                and self._batches_since_backoff >= _BATCHES_BEFORE_GROWING
+            ):
+                current_batch_size += 1
+                self._sustained_batch_size = current_batch_size
+                self._batches_since_backoff = 0
         # If we fell back to CPU, restore MPS for the next document.
         if self._model_device == "cpu" and resolve_embedding_device() == "mps":
             self._release_model()
