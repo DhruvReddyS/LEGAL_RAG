@@ -95,14 +95,30 @@ fi
 
 if [ -f "$LOG" ]; then
   echo
-  errors="$(grep -cE 'Traceback|CRITICAL|Exception:|"failed_documents": [1-9]' "$LOG" 2>/dev/null || true)"
+  # A traceback ending in KeyboardInterrupt or CancelledError is someone
+  # stopping the run, not the run failing -- counting those called a Ctrl-C
+  # four failures.
+  errors="$(awk '
+    /^Traceback/ { open = 1; next }
+    open && /^[A-Za-z_.]+(Error|Exception|Interrupt|Exit)/ {
+      if ($0 !~ /KeyboardInterrupt|CancelledError/) n++
+      open = 0
+    }
+    /CRITICAL|"failed_documents": [1-9]/ { n++ }
+    END { print n + 0 }' "$LOG" 2>/dev/null)"
   errors="${errors:-0}"
+  stops="$(grep -cE '^(KeyboardInterrupt|asyncio.exceptions.CancelledError)' "$LOG" 2>/dev/null || true)"
+  oom="$(grep -c 'mps_oom_recovery' "$LOG" 2>/dev/null || true)"
   echo "log: $LOG"
   if [ "$errors" -gt 0 ]; then
     echo "  $errors real failure(s) recorded -- inspect with:"
     echo "  grep -nE 'Traceback|CRITICAL|Exception:' '$LOG' | tail -20"
   else
     echo "  no failures recorded"
+  fi
+  [ "${stops:-0}" -gt 0 ] && echo "  ${stops} manual stop(s) (Ctrl-C) -- harmless, the run resumes"
+  if [ "${oom:-0}" -gt 0 ]; then
+    echo "  ${oom} GPU out-of-memory recoveries -- close other apps; check 'ollama ps' is empty"
   fi
   echo "last 6 lines:"
   tail -6 "$LOG" | sed 's/^/  /'
