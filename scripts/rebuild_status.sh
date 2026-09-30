@@ -62,8 +62,13 @@ for entry in completed.values():
         pass
 if len(stamps) >= 2:
     stamps.sort()
-    span = (stamps[-1] - stamps[0]).total_seconds()
-    rate = (len(stamps) - 1) / span if span > 0 else 0
+    # Measured over the most recent stretch, not the whole ledger. A run that
+    # was stopped overnight and resumed has a gap in the middle, and averaging
+    # across it reported nought documents an hour with an eta of 1,333 hours
+    # while the build was visibly moving.
+    window = stamps[-20:]
+    span = (window[-1] - window[0]).total_seconds()
+    rate = (len(window) - 1) / span if span > 0 else 0
     last = stamps[-1]
     idle = (datetime.now(timezone.utc) - last).total_seconds()
     print(f"last document: {last.astimezone():%H:%M:%S} ({idle/60:.0f} min ago)")
