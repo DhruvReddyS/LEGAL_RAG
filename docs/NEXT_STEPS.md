@@ -1,6 +1,6 @@
 # Where the project stands
 
-*7 September 2026. Corpus `global_legal_corpus_v3`, 24,810 points, deployed.*
+*7 September 2026. Corpus `global_legal_corpus_v3`, 25,323 points (24,810 gold plus 513 extended), deployed.*
 
 ## State
 

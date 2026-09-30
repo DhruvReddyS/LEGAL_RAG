@@ -1,6 +1,6 @@
 # Corpusil — Product and Architecture Reference
 
-> Current to 6 September 2026, against `global_legal_corpus_v3` (24,810 points).
+> Current to 6 September 2026, against `global_legal_corpus_v3` (25,323 points: 24,810 gold, 513 extended).
 > Every number in §13 and §15 is measured and reproducible from
 > `docs/evidence/`; nothing here is estimated unless it says so.
 
@@ -98,7 +98,7 @@ Everything is local. The only network calls are to `localhost`.
 |---|---|
 | Physical documents | 419 |
 | Canonical documents (after de-duplication) | 381 |
-| Indexed chunks | 25,517 |
+| Indexed chunks | 25,323 |
 | Median chunk | 109 words |
 | Collection | `global_legal_corpus` (name is configurable, §14.2) |
 
@@ -254,7 +254,7 @@ unindexed filter field turns a filtered query into a full scan.
 
 ### 4.9 Resumability
 
-A 25,517-chunk build takes hours and will be interrupted. It has been, three
+A 25,000-chunk build takes hours and will be interrupted. It has been, three
 times — once by a sandbox permission error, twice by Docker stopping underneath
 it.
 
@@ -562,7 +562,7 @@ when explicitly `true`) → unverified.
 
 This replaced seven separate reads of `payload["is_superseded"] is True`. That
 field was written by ingestion but added after the index was built, so all
-25,517 points held `None` and every one of those guards evaluated false forever
+25,517 points of that earlier build held `None` and every one of those guards evaluated false forever
 while reading as protective.
 
 ### 9.2 Failing closed, in three cases not two
