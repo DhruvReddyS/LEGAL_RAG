@@ -53,3 +53,5 @@ data/legal_kb/logs/rebuild.*.log
 .env.*
 !.env.example
 data/legal_kb/logs/measure_*.out
+data/legal_kb/logs/rebuild_forever.*
+data/legal_kb/logs/app_start.out
