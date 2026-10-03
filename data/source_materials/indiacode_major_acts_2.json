@@ -1,0 +1,62 @@
+[
+ {
+  "id": "banking-regulation-act-1949",
+  "title": "The Banking Regulation Act, 1949",
+  "domain": "central_act",
+  "document_type": "act",
+  "authority": "Government of India",
+  "jurisdiction": "India - Central",
+  "language": "English",
+  "legal_status": "CURRENT_REVIEW_REQUIRED",
+  "current_as_of": "2026-10-03",
+  "format": "pdf",
+  "filename": "cen__indiacode__act__banking-regulation-act-1949__en.pdf",
+  "url": "https://indiacode.gov.in/server/api/core/bitstreams/264432b5-2ee6-498b-b41f-4c961bd9738b/content",
+  "currency_note": "India Code records this as Act 10 of 1949, administered by Ministry Of Finance. India Code does not mark it repealed, which is evidence of currency but not of the latest amendment."
+ },
+ {
+  "id": "reserve-bank-of-india-act-1934",
+  "title": "The Reserve Bank of India Act, 1934",
+  "domain": "central_act",
+  "document_type": "act",
+  "authority": "Government of India",
+  "jurisdiction": "India - Central",
+  "language": "English",
+  "legal_status": "CURRENT_REVIEW_REQUIRED",
+  "current_as_of": "2026-10-03",
+  "format": "pdf",
+  "filename": "cen__indiacode__act__reserve-bank-of-india-act-1934__en.pdf",
+  "url": "https://indiacode.gov.in/server/api/core/bitstreams/e159cd99-2be8-4f80-b2f5-7c2fe3974829/content",
+  "currency_note": "India Code records this as Act 2 of 1934, administered by Ministry Of Finance. India Code does not mark it repealed, which is evidence of currency but not of the latest amendment."
+ },
+ {
+  "id": "van-sanrakshan-evam-samvardhan-adhiniyam-1980",
+  "title": "The Van (Sanrakshan Evam Samvardhan) Adhiniyam, 1980",
+  "domain": "central_act",
+  "document_type": "act",
+  "authority": "Government of India",
+  "jurisdiction": "India - Central",
+  "language": "English",
+  "legal_status": "CURRENT_REVIEW_REQUIRED",
+  "current_as_of": "2026-10-03",
+  "format": "pdf",
+  "filename": "cen__indiacode__act__van-sanrakshan-evam-samvardhan-adhiniyam-1980__en.pdf",
+  "url": "https://indiacode.gov.in/server/api/core/bitstreams/485d0162-8a33-4ce7-b89f-e6f33761ea56/content",
+  "currency_note": "India Code records this as Act 69 of 1980, administered by Ministry Of Environment, Forest And Climate Change. India Code does not mark it repealed, which is evidence of currency but not of the latest amendment."
+ },
+ {
+  "id": "electricity-act-2003",
+  "title": "The Electricity Act, 2003",
+  "domain": "central_act",
+  "document_type": "act",
+  "authority": "Government of India",
+  "jurisdiction": "India - Central",
+  "language": "English",
+  "legal_status": "CURRENT_REVIEW_REQUIRED",
+  "current_as_of": "2026-10-03",
+  "format": "pdf",
+  "filename": "cen__indiacode__act__electricity-act-2003__en.pdf",
+  "url": "https://indiacode.gov.in/server/api/core/bitstreams/2c523cf6-302e-4e58-afcc-21de052cb403/content",
+  "currency_note": "India Code records this as Act 36 of 2003, administered by Ministry Of Power. India Code does not mark it repealed, which is evidence of currency but not of the latest amendment."
+ }
+]
