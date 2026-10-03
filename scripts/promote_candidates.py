@@ -200,6 +200,28 @@ def dominant_script(text: str) -> str:
     return name if count / total > 0.5 else "none"
 
 
+# "Verified official" has to mean something checkable. It means the file was
+# fetched from a host the publisher controls: a Government of India or State
+# domain, a High Court, or the Supreme Court. A row with no recorded source URL
+# is not verified, however official its publisher looks, because nothing in the
+# manifest shows where the bytes came from.
+OFFICIAL_HOST = re.compile(
+    r"(^|\.)(gov\.in|nic\.in|sci\.gov\.in|rbi\.org\.in)$|"
+    r"(^|\.)(aphc\.gov\.in|tshc\.gov\.in|indiacode\.nic\.in)$", re.I)
+
+def verified_official(source_url: str | None) -> bool:
+    if not source_url or not source_url.startswith("http"):
+        return False
+    host = source_url.split("/")[2].split(":")[0].lower()
+    if host.startswith("www."):
+        host = host[4:]
+    parts = host.split(".")
+    for index in range(len(parts) - 1):
+        if OFFICIAL_HOST.search(".".join(parts[index:])):
+            return True
+    return False
+
+
 def source_records() -> dict[str, dict]:
     """What acquisition already knew about each file, keyed by filename.
 
@@ -416,7 +438,7 @@ def main() -> int:
             "sha256": checksum,
             "file_size": path.stat().st_size,
             "page_count": pages,
-            "verified_official": True,
+            "verified_official": verified_official(acquisition.get("url")),
             "ocr_required": chars < pages * 100,
             "retrieved_on": datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).date().isoformat(),
             "staged_at": datetime.now(timezone.utc).isoformat(),
