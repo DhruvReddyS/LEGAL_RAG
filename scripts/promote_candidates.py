@@ -38,6 +38,42 @@ OTHER_STATE = re.compile(r"\bkerala|cochin|malabar\b", re.I)
 ALREADY_INDEXED = re.compile(r"^(final_bns|final_bnss|final_bsa|the constitution of india)", re.I)
 
 CATEGORY = [
+    (re.compile(r"reserve bank|\brbi\b|master direction|banking regulation|"
+                r"payment (and settlement|aggregator|system)|prepaid payment|"
+                r"negotiable instrument|\bnpa\b|priority sector", re.I),
+     "primary_law/banking_finance"),
+    (re.compile(r"\birdai?\b|insurance regulatory|life insurance|general insurance|"
+                r"policyholder", re.I),
+     "primary_law/insurance"),
+    (re.compile(r"\bsebi\b|securities (and exchange|contracts)|listing obligations|"
+                r"mutual fund|insider trading", re.I),
+     "primary_law/securities_markets"),
+    (re.compile(r"income.tax|\bgst\b|central excise|customs act|finance act|"
+                r"direct tax|tax deducted", re.I),
+     "primary_law/taxation"),
+    (re.compile(r"environment \(protection\)|forest conservation|wildlife protection|"
+                r"air \(prevention|water \(prevention|pollution control|"
+                r"biological diversity|coastal regulation|green tribunal", re.I),
+     "primary_law/environment"),
+    (re.compile(r"clinical establishment|drugs and cosmetics|mental healthcare|"
+                r"transplantation of human organ|national medical commission|"
+                r"epidemic diseases|food safety", re.I),
+     "primary_law/health_medical"),
+    (re.compile(r"right of children to free and compulsory|university grants|"
+                r"national education policy|anti.ragging|\bncte\b|\baicte\b", re.I),
+     "primary_law/education"),
+    # Protective legislation for women and children is asked about as its own
+    # body of law - who may complain, to whom, within what time - so it gets
+    # its own slot rather than sitting under family law or general crime.
+    (re.compile(r"sexual-offences|child-rights|posh|sexual-harassment|dowry|sati|"
+                r"indecent-representation|immoral-traffic|child-marriage|juvenile|"
+                r"adoption|orphanages|infant-milk|national-commission-for-women", re.I),
+     "primary_law/women_children"),
+    (re.compile(r"termination-of-pregnancy|surrogacy|pcpndt|hiv-aids|maternity", re.I),
+     "primary_law/health_reproductive"),
+    (re.compile(r"disabilities", re.I), "primary_law/disability_welfare"),
+    (re.compile(r"code-on-wages|social-security|occupational-safety|industrial-relations", re.I),
+     "primary_law/labour_welfare"),
     (re.compile(r"__constitution__|__amendment__constitution-|__sor__", re.I),
      "primary_law/constitution"),
     (re.compile(r"consumer|bureau-of-indian-standards|ncdrc", re.I),
@@ -186,9 +222,10 @@ def source_type(path: Path) -> str:
             return kind
     return "act"
 
-def classify(path: Path) -> str:
+def classify(path: Path, title: str | None = None) -> str:
+    subject = f"{title or ''} {path.name}"
     for pattern, category in CATEGORY:
-        if pattern.search(path.name):
+        if pattern.search(subject):
             return category
     return "primary_law/other_relevant_laws"
 
@@ -201,6 +238,7 @@ PUBLISHERS = {
     "legislative": ("India - Central", "Legislative Department, Ministry of Law and Justice"),
     "ncdrc": ("India - Central", "National Consumer Disputes Redressal Commission"),
     "meity": ("India - Central", "Ministry of Electronics and Information Technology"),
+    "wcd": ("India - Central", "Ministry of Women and Child Development"),
 }
 
 def _publisher_token(name: str) -> str | None:
@@ -314,7 +352,7 @@ def main() -> int:
             continue
         else:
             name = title_from(path.name)
-        category = classify(path)
+        category = classify(path, name)
         promoted.append({
             "document_id": f"exp-doc-{uuid.uuid4().hex[:24]}",
             "canonical_document_id": f"exp-canonical-{checksum[:24]}",

@@ -88,6 +88,21 @@ def main() -> int:
     args = parser.parse_args()
 
     sources = json.loads(args.manifest.read_text())
+
+    # A slug truncated to a fixed width can collide, and two Acts sharing a
+    # filename means the second overwrites the first and never reaches the
+    # index. Refuse the manifest rather than lose a document quietly.
+    seen: dict[str, str] = {}
+    clashes = []
+    for source in sources:
+        earlier = seen.get(source["filename"])
+        if earlier:
+            clashes.append(f"  {source['filename']}\n    {earlier}\n    {source['title']}")
+        seen[source["filename"]] = source.get("title") or source["url"]
+    if clashes:
+        print("refusing this manifest, these entries share a filename:")
+        print("\n".join(clashes))
+        return 1
     DEST.mkdir(parents=True, exist_ok=True)
     known_failures = load_failed()
 
