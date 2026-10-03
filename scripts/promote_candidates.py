@@ -48,6 +48,8 @@ CATEGORY = [
     (re.compile(r"right to information|\brti\b|__cic__", re.I),
      "primary_law/transparency_rti"),
     (re.compile(r"__ncpcr__", re.I), "official_guidance/child_protection"),
+    (re.compile(r"__ncw__", re.I), "official_guidance/women_commission"),
+    (re.compile(r"__mha__", re.I), "official_guidance/mha"),
     (re.compile(r"__nhrc__", re.I), "official_guidance/human_rights"),
     (re.compile(r"reserve bank|\brbi\b|master direction|banking regulation|"
                 r"payment (and settlement|aggregator|system)|prepaid payment|"
@@ -269,6 +271,8 @@ PUBLISHERS = {
     "ncpcr": ("India - Central", "National Commission for Protection of Child Rights"),
     "nhrc": ("India - Central", "National Human Rights Commission"),
     "cic": ("India - Central", "Central Information Commission"),
+    "ncw": ("India - Central", "National Commission for Women"),
+    "mha": ("India - Central", "Ministry of Home Affairs"),
     "socialjustice": ("India - Central", "Department of Social Justice and Empowerment"),
 }
 
