@@ -42,7 +42,7 @@ CATEGORY = [
     (re.compile(r"__irdai?__", re.I), "primary_law/insurance"),
     (re.compile(r"__sebi__", re.I), "primary_law/securities_markets"),
     (re.compile(r"__incometax__", re.I), "primary_law/taxation"),
-    (re.compile(r"__moefcc__", re.I), "primary_law/environment"),
+    (re.compile(r"__moefc{0,2}__", re.I), "primary_law/environment"),
     (re.compile(r"__mohfw__", re.I), "primary_law/health_medical"),
     (re.compile(r"__moe__", re.I), "primary_law/education"),
     (re.compile(r"right to information|\brti\b|__cic__", re.I),
@@ -180,8 +180,13 @@ _SCRIPTS = {
     "telugu": (0x0C00, 0x0C7F),
 }
 
-def dominant_script(text: str) -> str:
-    """Which script the text is written in: 'latin', a named Indic script, or 'none'."""
+def dominant_script(text: str, min_chars: int = 200) -> str:
+    """Which script the text is written in: 'latin', a named Indic script, or 'none'.
+
+    min_chars is how much alphabetic text is needed before the answer is
+    trusted. A document body gets the default; a title, which is a dozen
+    characters, has to say so or it is always called undecidable.
+    """
     counts = {"latin": 0} | {name: 0 for name in _SCRIPTS}
     for char in text:
         if char.isalpha():
@@ -194,7 +199,7 @@ def dominant_script(text: str) -> str:
                     counts[name] += 1
                     break
     total = sum(counts.values())
-    if total < 200:
+    if total < min_chars:
         return "none"
     name, count = max(counts.items(), key=lambda pair: pair[1])
     return name if count / total > 0.5 else "none"
@@ -295,6 +300,12 @@ PUBLISHERS = {
     "cic": ("India - Central", "Central Information Commission"),
     "ncw": ("India - Central", "National Commission for Women"),
     "mha": ("India - Central", "Ministry of Home Affairs"),
+    "moef": ("India - Central", "Ministry of Environment, Forest and Climate Change"),
+    "mohfw": ("India - Central", "Ministry of Health and Family Welfare"),
+    "incometax": ("India - Central", "Income Tax Department"),
+    "sebi": ("India - Central", "Securities and Exchange Board of India"),
+    "irdai": ("India - Central", "Insurance Regulatory and Development Authority of India"),
+    "rbi": ("India - Central", "Reserve Bank of India"),
     "socialjustice": ("India - Central", "Department of Social Justice and Empowerment"),
 }
 
@@ -388,6 +399,10 @@ def main() -> int:
         # and generation all run in English, so a Hindi-only copy of an Act we
         # hold in English only crowds the ranking. Held, not discarded: a Hindi
         # deployment would want it, and so would a bilingual answer path.
+        if name_candidate := (overrides.get(path.name) or (acquired.get(path.name) or {}).get("title")):
+            if dominant_script(name_candidate, min_chars=8) == "devanagari":
+                held.append(record | {"reason": "title was recorded in Devanagari; an English answer cannot cite it",
+                                      "page_count": pages}); continue
         script = dominant_script(sample)
         if script in _SCRIPTS:
             held.append(record | {"reason": f"{script.title()}-only text; this corpus answers in English",

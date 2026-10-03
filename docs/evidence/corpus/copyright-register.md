@@ -1,7 +1,7 @@
 # Copyright and licensing register
 
 Generated 2026-10-03 from the canonical manifest.
-963 documents, 45 publishers.
+971 documents, 46 publishers.
 
 Every document in this corpus is a work of the Government of India, a State
 government, a High Court, or a statutory commission, obtained from that body's
@@ -28,9 +28,9 @@ login, a CAPTCHA, or a robots restriction.
 | 40 | Securities and Exchange Board of India | Government of India / State official publication | government work, free to use |
 | 40 | Central Board of Direct Taxes | Government of India / State official publication | government work, free to use |
 | 39 | Supreme Court of India | unrecorded | unrecorded |
+| 30 | National Centre for Disease Control, Ministry of Health and Family Welfare | Government of India / State official publication | government work, free to use |
 | 29 | Controller of Certifying Authorities, MeitY, Government of India | unrecorded | unrecorded |
 | 25 | Ministry of Home Affairs, Government of India - Internal Security-I Division | unrecorded | unrecorded |
-| 25 | National Centre for Disease Control, Ministry of Health and Family Welfare | Government of India / State official publication | government work, free to use |
 | 23 | Government of Andhra Pradesh | Government of India / State official publication | government work, free to use |
 | 21 | National Commission for Protection of Child Rights | Government of India / State official publication | government work, free to use |
 | 18 | High Court for the State of Telangana | Government of India / State official publication | government work, free to use |
@@ -50,6 +50,7 @@ login, a CAPTCHA, or a robots restriction.
 | 4 | Central Information Commission | Government of India / State official publication | government work, free to use |
 | 3 | Ministry of Home Affairs, Government of India | unrecorded | unrecorded |
 | 3 | National Commission for Women | Government of India / State official publication | government work, free to use |
+| 3 | Ministry of Environment, Forest and Climate Change | Government of India / State official publication | government work, free to use |
 | 2 | Department of Revenue, Ministry of Finance, Government of India | unrecorded | unrecorded |
 | 2 | Uttar Pradesh Police, Government of Uttar Pradesh | unrecorded | unrecorded |
 | 2 | Women and Child Development Department, Government of Haryana | unrecorded | unrecorded |

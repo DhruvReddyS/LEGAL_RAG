@@ -2,7 +2,7 @@
 
 Generated 2026-10-03 from the canonical manifest.
 
-953 of 963 documents are marked as verified official.
+961 of 971 documents are marked as verified official.
 10 are not, and each of those needs its source confirmed before
 anything it says is treated as authority.
 
@@ -25,8 +25,8 @@ filename alone; re-acquiring them is the way to close that gap.
 | 40 | www.incometaxindia.gov.in |
 | 39 | www.sci.gov.in |
 | 30 | www.meity.gov.in |
+| 30 | ncdc.mohfw.gov.in |
 | 29 | cca.gov.in |
-| 25 | ncdc.mohfw.gov.in |
 | 21 | ncpcr.gov.in |
 | 18 | tshc.gov.in |
 | 16 | socialjustice.gov.in |
@@ -40,6 +40,7 @@ filename alone; re-acquiring them is the way to close that gap.
 | 4 | www.labour.gov.in |
 | 4 | cic.gov.in |
 | 3 | cdn.ncw.gov.in |
+| 3 | moef.gov.in |
 | 2 | dor.gov.in |
 | 2 | uppolice.gov.in |
 | 1 | www.doj.gov.in |
