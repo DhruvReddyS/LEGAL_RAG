@@ -72,6 +72,10 @@ CATEGORY = [
     (re.compile(r"termination-of-pregnancy|surrogacy|pcpndt|hiv-aids|maternity", re.I),
      "primary_law/health_reproductive"),
     (re.compile(r"disabilities", re.I), "primary_law/disability_welfare"),
+    (re.compile(r"scheduled castes|scheduled tribes|atrocities|civil rights|"
+                r"transgender|older persons|senior citizens|untouchability|"
+                r"alcoholism|substance abuse|marginalised", re.I),
+     "primary_law/social_justice"),
     (re.compile(r"code-on-wages|social-security|occupational-safety|industrial-relations", re.I),
      "primary_law/labour_welfare"),
     (re.compile(r"__constitution__|__amendment__constitution-|__sor__", re.I),
