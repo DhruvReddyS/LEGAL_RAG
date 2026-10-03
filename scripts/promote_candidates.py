@@ -38,6 +38,15 @@ OTHER_STATE = re.compile(r"\bkerala|cochin|malabar\b", re.I)
 ALREADY_INDEXED = re.compile(r"^(final_bns|final_bnss|final_bsa|the constitution of india)", re.I)
 
 CATEGORY = [
+    (re.compile(r"__rbi__", re.I), "primary_law/banking_finance"),
+    (re.compile(r"__irdai?__", re.I), "primary_law/insurance"),
+    (re.compile(r"__sebi__", re.I), "primary_law/securities_markets"),
+    (re.compile(r"__incometax__", re.I), "primary_law/taxation"),
+    (re.compile(r"__moefcc__", re.I), "primary_law/environment"),
+    (re.compile(r"__mohfw__", re.I), "primary_law/health_medical"),
+    (re.compile(r"__moe__", re.I), "primary_law/education"),
+    (re.compile(r"right to information|\brti\b|__cic__", re.I),
+     "primary_law/transparency_rti"),
     (re.compile(r"__ncpcr__", re.I), "official_guidance/child_protection"),
     (re.compile(r"__nhrc__", re.I), "official_guidance/human_rights"),
     (re.compile(r"reserve bank|\brbi\b|master direction|banking regulation|"
@@ -97,7 +106,13 @@ CATEGORY = [
      "official_guidance/prisons_bail"),
     (re.compile(r"marriage|succession|divorce|guardian|domestic-violence|child-marriage|family-courts|shariat|muslim-women|senior-citizens|juvenile", re.I),
      "primary_law/family_personal_law"),
-    (re.compile(r"transfer-property|registration|stamp|land|endowment|panchayat|excise", re.I),
+    # Word boundaries only. Narrowing this to phrases like "stamp act" was
+    # tried and moved six real documents out, because a filename-derived title
+    # reads "Stamp 1899", not "The Indian Stamp Act, 1899". The regulators that
+    # used to collide here - a circular on registration of insurers - are
+    # matched by their publisher token further up, before this rule is reached.
+    (re.compile(r"\btransfer of property\b|transfer-property|\bregistration\b|"
+                r"\bstamp\b|\bland\b|\bendowment|\bpanchayat|\bexcise\b", re.I),
      "primary_law/property_land"),
     (re.compile(r"arbitration|mediation|commercial-courts|rti", re.I),
      "primary_law/civil_procedure"),
@@ -250,6 +265,7 @@ PUBLISHERS = {
     "wcd": ("India - Central", "Ministry of Women and Child Development"),
     "ncpcr": ("India - Central", "National Commission for Protection of Child Rights"),
     "nhrc": ("India - Central", "National Human Rights Commission"),
+    "cic": ("India - Central", "Central Information Commission"),
     "socialjustice": ("India - Central", "Department of Social Justice and Empowerment"),
 }
 

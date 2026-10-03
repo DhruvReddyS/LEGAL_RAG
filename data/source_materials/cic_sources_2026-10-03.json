@@ -1,0 +1,62 @@
+[
+ {
+  "id": "right-to-information-act__2005",
+  "title": "The Right to Information Act, 2005",
+  "domain": "transparency_rti",
+  "document_type": "act",
+  "authority": "Central Information Commission",
+  "jurisdiction": "India - Central",
+  "language": "English",
+  "legal_status": "CURRENT_REVIEW_REQUIRED",
+  "current_as_of": "2026-10-03",
+  "format": "pdf",
+  "filename": "central__cic__act__right-to-information-act__2005__en.pdf",
+  "url": "https://cic.gov.in/sites/default/files/RTI_English.pdf",
+  "currency_note": "Published by the Central Information Commission on its RTI Act page."
+ },
+ {
+  "id": "right-to-information-rules__2012",
+  "title": "The Right to Information Rules, 2012",
+  "domain": "transparency_rti",
+  "document_type": "rules",
+  "authority": "Central Information Commission",
+  "jurisdiction": "India - Central",
+  "language": "English",
+  "legal_status": "CURRENT_REVIEW_REQUIRED",
+  "current_as_of": "2026-10-03",
+  "format": "pdf",
+  "filename": "central__cic__rules__right-to-information-rules__2012__en.pdf",
+  "url": "https://cic.gov.in/sites/default/files/RTIRules2012_Eng.pdf",
+  "currency_note": "Notified in 2012; the Commission also publishes the Rules of 2019, held beside this."
+ },
+ {
+  "id": "right-to-information-rules__2019",
+  "title": "The Right to Information (Amendment) Rules, 2019",
+  "domain": "transparency_rti",
+  "document_type": "rules",
+  "authority": "Central Information Commission",
+  "jurisdiction": "India - Central",
+  "language": "English",
+  "legal_status": "CURRENT_REVIEW_REQUIRED",
+  "current_as_of": "2026-10-03",
+  "format": "pdf",
+  "filename": "central__cic__rules__right-to-information-rules__2019__en.pdf",
+  "url": "https://cic.gov.in/sites/default/files/RTIRules2019_Hindi.pdf",
+  "currency_note": "The Commission serves one bilingual file for the 2019 Rules; the English text follows the Hindi in the same document."
+ },
+ {
+  "id": "cic-landmark-decisions-compendium",
+  "title": "Compendium of Landmark Decisions of the Central Information Commission",
+  "domain": "transparency_rti",
+  "document_type": "guidance",
+  "authority": "Central Information Commission",
+  "jurisdiction": "India - Central",
+  "language": "English",
+  "legal_status": "CURRENT_REVIEW_REQUIRED",
+  "current_as_of": "2026-10-03",
+  "format": "pdf",
+  "filename": "central__cic__guidance__cic-landmark-decisions-compendium__en.pdf",
+  "url": "https://cic.gov.in/sites/default/files/cicdecisioncompedium.pdf",
+  "currency_note": "The Commission's own compendium of its landmark decisions, which are the leading authority on what must be disclosed under the Act."
+ }
+]
