@@ -2,7 +2,7 @@
 
 Generated 2026-10-03.
 
-971 canonical documents, 39,770 pages. 86 need OCR and are read
+970 canonical documents, 39,758 pages. 85 need OCR and are read
 with the English trained data, which is the only one installed.
 
 ## By domain
@@ -13,7 +13,7 @@ with the English trained data, which is the only one installed.
 | 79 | judgments/supreme_court |
 | 60 | official_guidance/mha |
 | 55 | rules_amendments_notifications |
-| 52 | primary_law/other_relevant_laws |
+| 51 | primary_law/other_relevant_laws |
 | 50 | official_guidance/prisons_bail |
 | 46 | law_commission_reports |
 | 41 | official_guidance/legal_aid |
@@ -55,7 +55,7 @@ with the English trained data, which is the only one installed.
 
 | Documents | Jurisdiction |
 |---|---|
-| 897 | India - Central |
+| 896 | India - Central |
 | 37 | India - Andhra Pradesh |
 | 18 | India/Central |
 | 18 | India - Telangana |
@@ -68,7 +68,7 @@ is not in the index.
 
 | Entries | Queue |
 |---|---|
-| 55 | quarantine |
+| 56 | quarantine |
 | 630 | duplicates |
 | 2 | needs_title |
 | 1 | failed_downloads |

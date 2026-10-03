@@ -1,7 +1,7 @@
 # Copyright and licensing register
 
 Generated 2026-10-03 from the canonical manifest.
-971 documents, 46 publishers.
+970 documents, 46 publishers.
 
 Every document in this corpus is a work of the Government of India, a State
 government, a High Court, or a statutory commission, obtained from that body's
@@ -50,10 +50,10 @@ login, a CAPTCHA, or a robots restriction.
 | 4 | Central Information Commission | Government of India / State official publication | government work, free to use |
 | 3 | Ministry of Home Affairs, Government of India | unrecorded | unrecorded |
 | 3 | National Commission for Women | Government of India / State official publication | government work, free to use |
-| 3 | Ministry of Environment, Forest and Climate Change | Government of India / State official publication | government work, free to use |
 | 2 | Department of Revenue, Ministry of Finance, Government of India | unrecorded | unrecorded |
 | 2 | Uttar Pradesh Police, Government of Uttar Pradesh | unrecorded | unrecorded |
 | 2 | Women and Child Development Department, Government of Haryana | unrecorded | unrecorded |
+| 2 | Ministry of Environment, Forest and Climate Change | Government of India / State official publication | government work, free to use |
 | 1 | Legislative Department, Ministry of Law and Justice, Government of India | unrecorded | unrecorded |
 | 1 | Bureau of Police Research and Development / Delhi Police | unrecorded | unrecorded |
 | 1 | Department of Justice, Ministry of Law and Justice, Government of India | unrecorded | unrecorded |

@@ -53,3 +53,4 @@
 {"batch": "primary_law", "file": "Final_BNSS.pdf", "reason": "second copy of an Act already indexed; near-duplicate passages", "sha256": "08950af287e00b95f128fa8f8eda6c47576c0645e0a388e06428bc5ed8857bde"}
 {"batch": "primary_law", "file": "Final_BSA Book.pdf", "reason": "second copy of an Act already indexed; near-duplicate passages", "sha256": "52c0327c07e13d5a615f36798700ff4f5fb2011e024312012aed20fca9bee4a0"}
 {"batch": "unclassified_scans", "file": "1773981259_702779f9fd467e4c7c5b.pdf", "reason": "unidentified scan; needs a title and source before promotion", "sha256": "027a1810073bb76ee5dad6a2e34458aebac04313e2185d4f9cd36e0da652eca5"}
+{"batch": "moef", "file": "central__moef__notification__1-zmp-of-mes-goms-notification-dtd-07-08-2019-28__en.pdf", "reason": "Hindi title behind a Latin acronym, and a zonal master plan for a Maharashtra eco-sensitive zone; out of scope for an Andhra-Pradesh-facing corpus", "sha256": null}

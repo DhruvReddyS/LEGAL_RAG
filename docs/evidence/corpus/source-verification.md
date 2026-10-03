@@ -2,7 +2,7 @@
 
 Generated 2026-10-03 from the canonical manifest.
 
-961 of 971 documents are marked as verified official.
+960 of 970 documents are marked as verified official.
 10 are not, and each of those needs its source confirmed before
 anything it says is treated as authority.
 
@@ -40,9 +40,9 @@ filename alone; re-acquiring them is the way to close that gap.
 | 4 | www.labour.gov.in |
 | 4 | cic.gov.in |
 | 3 | cdn.ncw.gov.in |
-| 3 | moef.gov.in |
 | 2 | dor.gov.in |
 | 2 | uppolice.gov.in |
+| 2 | moef.gov.in |
 | 1 | www.doj.gov.in |
 | 1 | hpsvacb.hp.gov.in |
 | 1 | cgca.gov.in |
