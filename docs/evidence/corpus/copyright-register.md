@@ -1,7 +1,7 @@
 # Copyright and licensing register
 
 Generated 2026-10-03 from the canonical manifest.
-1004 documents, 48 publishers.
+1036 documents, 48 publishers.
 
 Every document in this corpus is a work of the Government of India, a State
 government, a High Court, or a statutory commission, obtained from that body's
@@ -18,7 +18,7 @@ login, a CAPTCHA, or a robots restriction.
 |---|---|---|---|
 | 127 | Ministry of Home Affairs, Government of India - Women Safety Division | unrecorded | unrecorded |
 | 114 | Legislative Department, Ministry of Law and Justice | Government of India / State official publication | government work, free to use |
-| 65 | Government of India | Government of India / State official publication; unrecorded | government work, free to use; unrecorded |
+| 97 | Government of India | Government of India / State official publication; unrecorded | government work, free to use; unrecorded |
 | 47 | Law Commission of India | unrecorded | unrecorded |
 | 47 | Ministry of Women and Child Development | Government of India / State official publication | government work, free to use |
 | 42 | National Legal Services Authority | Government of India / State official publication; unrecorded | government work, free to use; unrecorded |
@@ -28,8 +28,8 @@ login, a CAPTCHA, or a robots restriction.
 | 40 | Securities and Exchange Board of India | Government of India / State official publication | government work, free to use |
 | 40 | Central Board of Direct Taxes | Government of India / State official publication | government work, free to use |
 | 39 | Supreme Court of India | unrecorded | unrecorded |
-| 30 | National Centre for Disease Control, Ministry of Health and Family Welfare | Government of India / State official publication | government work, free to use |
 | 29 | Controller of Certifying Authorities, MeitY, Government of India | unrecorded | unrecorded |
+| 29 | National Centre for Disease Control, Ministry of Health and Family Welfare | Government of India / State official publication | government work, free to use |
 | 25 | National Commission for Protection of Child Rights | Government of India / State official publication | government work, free to use |
 | 25 | Ministry of Environment, Forest and Climate Change | Government of India / State official publication | government work, free to use |
 | 24 | Ministry of Home Affairs, Government of India - Internal Security-I Division | unrecorded | unrecorded |
@@ -41,9 +41,9 @@ login, a CAPTCHA, or a robots restriction.
 | 12 | National Human Rights Commission | Government of India / State official publication | government work, free to use |
 | 9 | Ministry of Home Affairs, Government of India - Internal Security Division | unrecorded | unrecorded |
 | 9 | Mission Vatsalya, Government of India / UT Administration | unrecorded | unrecorded |
+| 9 | Ministry of Home Affairs | Government of India / State official publication | government work, free to use |
 | 8 | Ministry of Home Affairs, Government of India - Judicial Division | unrecorded | unrecorded |
 | 8 | Ministry of Home Affairs, Government of India - ICJS/NCRB Administration | unrecorded | unrecorded |
-| 8 | Ministry of Home Affairs | Government of India / State official publication | government work, free to use |
 | 7 | India Code | unrecorded | unrecorded |
 | 6 | Insolvency and Bankruptcy Board of India | Government of India / State official publication | government work, free to use |
 | 5 | Bureau of Police Research and Development, Ministry of Home Affairs, Government of India | unrecorded | unrecorded |

@@ -2,7 +2,7 @@
 
 Generated 2026-10-03 from the canonical manifest.
 
-994 of 1004 documents are marked as verified official.
+1026 of 1036 documents are marked as verified official.
 10 are not, and each of those needs its source confirmed before
 anything it says is treated as authority.
 
@@ -14,7 +14,7 @@ filename alone; re-acquiring them is the way to close that gap.
 
 | Documents | Host |
 |---|---|
-| 187 | www.mha.gov.in |
+| 188 | www.mha.gov.in |
 | 115 | www.legislative.gov.in |
 | 104 | cdnbbsr.s3waas.gov.in |
 | 70 | aphc.gov.in |
@@ -24,9 +24,10 @@ filename alone; re-acquiring them is the way to close that gap.
 | 40 | www.sebi.gov.in |
 | 40 | www.incometaxindia.gov.in |
 | 39 | www.sci.gov.in |
+| 32 | indiacode.gov.in |
 | 30 | www.meity.gov.in |
-| 30 | ncdc.mohfw.gov.in |
 | 29 | cca.gov.in |
+| 29 | ncdc.mohfw.gov.in |
 | 25 | ncpcr.gov.in |
 | 25 | moef.gov.in |
 | 18 | tshc.gov.in |

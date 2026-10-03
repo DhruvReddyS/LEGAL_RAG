@@ -7,18 +7,14 @@ worse than no system, so this is the report to read before trusting an answer.
 
 | Documents | Recorded status |
 |---|---|
-| 886 | current/verify |
-| 54 | precedential/verify |
-| 39 | precedent/status verify |
-| 12 | CURRENT_REVIEW_REQUIRED |
+| 932 | current/verify |
+| 93 | precedential/verify |
 | 11 | superseded |
-| 1 | CURRENT_GUIDANCE_REVIEW_REQUIRED |
-| 1 | GUIDANCE_REVIEW_REQUIRED |
 
 The vocabulary above is inconsistent: several spellings mean the same thing.
 Normalising it rewrites existing rows and has not been done.
 
-602 documents carry a currency note saying where they were published
+634 documents carry a currency note saying where they were published
 and how amendments reach them. The rest do not, and for those the status field
 is the only evidence.
 
