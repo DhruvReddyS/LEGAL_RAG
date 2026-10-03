@@ -142,11 +142,21 @@ def main() -> int:
                             "url": source["url"], "filename": source["filename"],
                             "reason": detail, "attempted": time.strftime("%Y-%m-%dT%H:%M:%S")})
 
-    if records:
-        FAILED.parent.mkdir(parents=True, exist_ok=True)
-        with FAILED.open("a") as handle:
-            for record in records:
-                handle.write(json.dumps(record) + "\n")
+    # Rewrite the queue rather than appending to it: entries whose file is now
+    # on disk were resolved by a later run, and a queue that keeps them is
+    # reporting failures that no longer exist.
+    FAILED.parent.mkdir(parents=True, exist_ok=True)
+    still_failing = [
+        row for row in known_failures.values()
+        if not ((DEST / row["filename"]).exists() and (DEST / row["filename"]).stat().st_size > 0)
+    ]
+    resolved = len(known_failures) - len(still_failing)
+    for record in records:
+        still_failing = [row for row in still_failing if row["url"] != record["url"]]
+        still_failing.append(record)
+    FAILED.write_text("".join(json.dumps(row) + "\n" for row in still_failing))
+    if resolved:
+        print(f"{resolved} earlier failure(s) cleared, the file is now held")
 
     print(f"\n{ok} downloaded, {skipped} already held or queued, {failed} failed")
     if failed:

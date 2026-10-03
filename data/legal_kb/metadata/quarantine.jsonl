@@ -25,5 +25,4 @@
 {"batch": "primary_law", "file": "Final_BNS.pdf", "reason": "second copy of an Act already indexed; near-duplicate passages", "sha256": "ab618cd8e16e5dfe59181eb24b42b3504ea0ed49425315b29a324e1e9f4445f3"}
 {"batch": "primary_law", "file": "Final_BNSS.pdf", "reason": "second copy of an Act already indexed; near-duplicate passages", "sha256": "08950af287e00b95f128fa8f8eda6c47576c0645e0a388e06428bc5ed8857bde"}
 {"batch": "primary_law", "file": "Final_BSA Book.pdf", "reason": "second copy of an Act already indexed; near-duplicate passages", "sha256": "52c0327c07e13d5a615f36798700ff4f5fb2011e024312012aed20fca9bee4a0"}
-{"batch": "unclassified_scans", "file": "1723616060_2a3a0a30527ffcffc634.pdf", "reason": "unidentified scan; needs a title and source before promotion", "sha256": "269429dbed2895cb5864e457da1b63076b001cdbfadd8b238e9b03913e1f2e6b"}
 {"batch": "unclassified_scans", "file": "1773981259_702779f9fd467e4c7c5b.pdf", "reason": "unidentified scan; needs a title and source before promotion", "sha256": "027a1810073bb76ee5dad6a2e34458aebac04313e2185d4f9cd36e0da652eca5"}

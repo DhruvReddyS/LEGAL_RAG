@@ -100,6 +100,9 @@ CATEGORY = [
      "official_guidance/legal_aid"),
     (re.compile(r"rules-of-practice|case-flow|e-filing|electronic-processes|appellate-side|writ-rules|commercial-courts", re.I),
      "primary_law/civil_procedure"),
+    (re.compile(r"audio-video|electronic recording|videograph|search and seizure|"
+                r"case diary|investigation manual|forensic", re.I),
+     "official_guidance/police_investigation"),
     (re.compile(r"high-court-manual|live-streaming|video-conferencing|court-recording|hearings-sop|judicial-manual", re.I),
      "official_guidance/police_courts"),
     (re.compile(r"pre-arrest|in-custody|utrc|premature-release|prison-legal-aid|juvenile|sexual-offences|community-mediation", re.I),
@@ -363,7 +366,8 @@ def main() -> int:
         if script in _SCRIPTS:
             held.append(record | {"reason": f"{script.title()}-only text; this corpus answers in English",
                                   "page_count": pages}); continue
-        if re.match(r"^\d{10,}_", path.name):
+        reviewed = overrides.get(path.name) or (acquired.get(path.name) or {}).get("title")
+        if re.match(r"^\d{10,}_", path.name) and not reviewed:
             held.append(record | {"reason": "unidentified scan; needs a title and source before promotion"}); continue
 
         # A content-hashed filename carries no title, and reading one off the
