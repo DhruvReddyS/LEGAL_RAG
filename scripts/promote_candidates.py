@@ -47,6 +47,9 @@ CATEGORY = [
     (re.compile(r"__moe__", re.I), "primary_law/education"),
     (re.compile(r"right to information|\brti\b|__cic__", re.I),
      "primary_law/transparency_rti"),
+    (re.compile(r"insolvency|bankruptcy|__ibbi__", re.I), "primary_law/insolvency"),
+    (re.compile(r"free and compulsory education|child and adolescent labour|child labour", re.I),
+     "primary_law/education"),
     (re.compile(r"__ncpcr__", re.I), "official_guidance/child_protection"),
     (re.compile(r"__ncw__", re.I), "official_guidance/women_commission"),
     (re.compile(r"__mha__", re.I), "official_guidance/mha"),
@@ -285,6 +288,34 @@ def classify(path: Path, title: str | None = None) -> str:
             return category
     return "primary_law/other_relevant_laws"
 
+# Three classes of document that are official and still do not belong in a
+# corpus answering legal questions for citizens, police and advocates in
+# Andhra Pradesh. Each is held with its reason, never deleted.
+
+# 1. An environmental notification for one named locality in another state.
+#    Same reasoning as another state's subordinate rules: it competes for the
+#    four display slots without governing anything a user here asks about.
+LOCAL_ENVIRONMENT = re.compile(
+    r"\b(dahanu|mahabaleshwar|panchgani|matheran|bhagirathi|doon valley|"
+    r"western ghats|dtepa|mes_gom)\b", re.I)
+
+# 2. Scheme administration. A circular setting the honorarium for a
+#    cook-cum-helper, or the norms for building a kitchen store, is government
+#    housekeeping rather than a legal instrument, and no one cites it as law.
+SCHEME_ADMINISTRATION = re.compile(
+    r"mid.?day meal|\bmdm\b|pm poshan|poshan shakti|tithi bhojan|"
+    r"cook.cum.helper|kitchen.cum.store|kitchen devices|kitchen garden|"
+    r"foodgrain|fortified salt|annual work plan|joint review mission|"
+    r"d\.o\. letter|do letter|delegation of powers|reconstitution of monitoring|"
+    r"engagement of (voluntary|civil society)|nomenclature of", re.I)
+
+# 3. A title that does not name the instrument it amends. "Second Amendment
+#    Rules, 2023" cannot be cited and cannot be told apart from its siblings.
+ORPHAN_AMENDMENT = re.compile(
+    r"^(the\s+)?(first|second|third|fourth|fifth)?\s*amendment\s+(rules|order)?[,\s]*\d{4}?\s*$|"
+    r"^amendment to the order\s*$|^extension of term of\b", re.I)
+
+
 # The publisher token in the filename, which is more reliable than guessing
 # the authority from the subject matter.
 PUBLISHERS = {
@@ -300,6 +331,7 @@ PUBLISHERS = {
     "cic": ("India - Central", "Central Information Commission"),
     "ncw": ("India - Central", "National Commission for Women"),
     "mha": ("India - Central", "Ministry of Home Affairs"),
+    "ibbi": ("India - Central", "Insolvency and Bankruptcy Board of India"),
     "moef": ("India - Central", "Ministry of Environment, Forest and Climate Change"),
     "mohfw": ("India - Central", "Ministry of Health and Family Welfare"),
     "incometax": ("India - Central", "Income Tax Department"),
@@ -403,6 +435,16 @@ def main() -> int:
             if dominant_script(name_candidate, min_chars=8) == "devanagari":
                 held.append(record | {"reason": "title was recorded in Devanagari; an English answer cannot cite it",
                                       "page_count": pages}); continue
+        subject = f"{name_candidate or ''} {path.name}"
+        if LOCAL_ENVIRONMENT.search(subject):
+            held.append(record | {"reason": "environmental notification for one named locality outside Andhra Pradesh and Telangana; out of scope",
+                                  "page_count": pages}); continue
+        if SCHEME_ADMINISTRATION.search(subject):
+            held.append(record | {"reason": "scheme administration circular, not a legal instrument",
+                                  "page_count": pages}); continue
+        if name_candidate and ORPHAN_AMENDMENT.match(name_candidate.strip()):
+            held.append(record | {"reason": "title does not name the instrument it amends, so it cannot be cited",
+                                  "page_count": pages}); continue
         script = dominant_script(sample)
         if script in _SCRIPTS:
             held.append(record | {"reason": f"{script.title()}-only text; this corpus answers in English",

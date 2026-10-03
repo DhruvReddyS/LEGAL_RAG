@@ -4,7 +4,7 @@ Two agents acquire documents into this corpus in parallel. This file is how
 they stay out of each other's way. Read it before starting a batch; the agent
 that finishes a batch updates it in the same commit.
 
-Last updated: 2026-10-03, after 970 canonical documents.
+Last updated: 2026-10-03, after 1,004 canonical documents.
 
 ## Who owns what
 
@@ -54,6 +54,9 @@ administrative tribunals, remaining criminal statutes.
 | moef environment, 29 notifications | all | titles recorded in Devanagari. The ministry forces a Hindi locale. Bodies are bilingual and fine, titles are not, and a title is what a citation shows a reader. Several were also eco-sensitive zone orders for single localities in Maharashtra and Uttarakhand, out of scope for an Andhra-Pradesh-facing corpus |
 | Kerala subordinate rules, 21 | all | another state's subordinate rules; held, not deleted, for a future Kerala deployment |
 | Telugu Constitution | 1 | only English trained data is installed, so a Telugu scan would be read as garbled Latin |
+| moef environment, resubmitted with English titles | 24 of 55 | eco-sensitive zone and monitoring-committee orders for Dahanu, Mahabaleshwar, Panchgani, Matheran, Bhagirathi, Doon Valley and the Western Ghats. Correct English titles now, but each governs one locality in Maharashtra or Uttarakhand. The 27 that were kept are the real central instruments: the Environment (Protection) Act and Rules, the hazardous waste, e-waste, battery waste, end-of-life vehicle and contaminated sites rules |
+| education batch | 30 of 34 | mid-day meal and PM POSHAN scheme administration: foodgrain payment to the FCI, kitchen-cum-store construction norms, cook-cum-helper honoraria, Tithi Bhojan, kitchen gardens, D.O. letters, joint review mission composition. Official, but government housekeeping rather than law, and nobody cites them as authority. The four kept are the Right to Education Act and Rules and the Child and Adolescent Labour Act with its commencement notification |
+| orphan amendment titles | 4 | titles reading only "First Amendment Rules, 2023", "Second Amendment Rules, 2023", "Amendment to the Order". A title that does not name the instrument it amends cannot be cited and cannot be told from its siblings |
 
 ## Rules that bite in practice
 
@@ -70,9 +73,45 @@ administrative tribunals, remaining criminal statutes.
 4. **Prefer the consolidated instrument** over a stack of amendment
    notifications, and prefer a central instrument over one aimed at a single
    locality in another state.
-5. **Decline optional cookies** on these CMS sites. The banner suppresses the
+5. **A document must be a legal instrument or official guidance on law.**
+   Promotion now holds three further classes, each with its reason: a
+   notification governing one named locality outside Andhra Pradesh and
+   Telangana; a scheme administration circular; and a title that does not name
+   the instrument it amends. The test to apply before adding a URL to a
+   manifest is whether a citizen, a police officer or an advocate would ever
+   cite it. Kitchen construction norms fail that test; the Right to Education
+   Act passes it.
+6. **Decline optional cookies** on these CMS sites. The banner suppresses the
    document list entirely: on legislative.gov.in it turned 0 visible documents
    into 114.
+
+## India Code is gone, and that is the single biggest constraint
+
+`indiacode.nic.in` is the only complete library of central Act texts, and it is
+unreachable from this network. Confirmed three ways: curl times out at 60
+seconds on every `/handle/` and `/bitstream/` path over both HTTP/2 and
+HTTP/1.1; only the bare root returns anything; and the browser gets an Akamai
+edge error, `errors.edgesuite.net`, rather than a page. It is blocked or broken
+at the CDN, not refusing our client.
+
+The Legislative Department's own pages link to it for every Act text, so that
+route closes too. Bare central Acts therefore have to come one ministry at a
+time from the body that administers them.
+
+Reachable and confirmed to serve titled documents: `ibbi.gov.in`
+(legal-framework/act, a dated table), `ncpcr.gov.in` (per-Act pages),
+`wcd.gov.in/documents/legislations` (50 Acts including central ones),
+`nalsa.gov.in`, `nhrc.nic.in`, `cic.gov.in`, `ncdrc.nic.in/bare-acts`,
+`socialjustice.gov.in`, `mha.gov.in/en/documents/national-advisories`,
+`tshc.gov.in/showChildDocTypes?id=21`, `aphc.gov.in/rules.php?type=1..4`,
+`legislative.gov.in/documents` (the Constitution and its amendments).
+
+Reachable but dead ends, do not spend turns on them: `nclt.gov.in/acts-rules`
+(404), `labour.gov.in` (its labour-codes page serves 125 content-hashed PDFs
+with no titles anywhere in the DOM; `documents/acts-and-policies` is empty),
+`clc.gov.in` (no document index), `appolice.gov.in` (service portal, zero PDFs),
+`ipindia.gov.in` (per-area resource pages exist but titles sit outside the link
+and IP law is low value for this project's users).
 
 ## Hosts that are dead from this network
 

@@ -2,7 +2,7 @@
 
 Generated 2026-10-03 from the canonical manifest.
 
-960 of 970 documents are marked as verified official.
+994 of 1004 documents are marked as verified official.
 10 are not, and each of those needs its source confirmed before
 anything it says is treated as authority.
 
@@ -14,7 +14,7 @@ filename alone; re-acquiring them is the way to close that gap.
 
 | Documents | Host |
 |---|---|
-| 190 | www.mha.gov.in |
+| 187 | www.mha.gov.in |
 | 115 | www.legislative.gov.in |
 | 104 | cdnbbsr.s3waas.gov.in |
 | 70 | aphc.gov.in |
@@ -27,7 +27,8 @@ filename alone; re-acquiring them is the way to close that gap.
 | 30 | www.meity.gov.in |
 | 30 | ncdc.mohfw.gov.in |
 | 29 | cca.gov.in |
-| 21 | ncpcr.gov.in |
+| 25 | ncpcr.gov.in |
+| 25 | moef.gov.in |
 | 18 | tshc.gov.in |
 | 16 | socialjustice.gov.in |
 | 14 | digi-services.aphc.ap.gov.in |
@@ -37,12 +38,13 @@ filename alone; re-acquiring them is the way to close that gap.
 | 8 | sclsc.gov.in |
 | 6 | bprd.nic.in |
 | 6 | consumeraffairs.gov.in |
+| 6 | ibbi.gov.in |
 | 4 | www.labour.gov.in |
 | 4 | cic.gov.in |
+| 4 | pmposhan.education.gov.in |
 | 3 | cdn.ncw.gov.in |
 | 2 | dor.gov.in |
 | 2 | uppolice.gov.in |
-| 2 | moef.gov.in |
 | 1 | www.doj.gov.in |
 | 1 | hpsvacb.hp.gov.in |
 | 1 | cgca.gov.in |
