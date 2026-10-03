@@ -1,9 +1,9 @@
 {
-  "recorded_at": "2026-09-30T17:54:17.970486+00:00",
+  "recorded_at": "2026-10-03T05:43:58.315237+00:00",
   "collection": "global_legal_corpus_v3",
   "points": 25323,
-  "physical_documents": 419,
-  "canonical_documents": 381,
+  "physical_documents": 579,
+  "canonical_documents": 541,
   "points_by_tier": {
     "gold": 24810,
     "extended": 513

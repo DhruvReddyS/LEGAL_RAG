@@ -55,3 +55,9 @@ data/legal_kb/logs/rebuild.*.log
 data/legal_kb/logs/measure_*.out
 data/legal_kb/logs/rebuild_forever.*
 data/legal_kb/logs/app_start.out
+
+# Session-local: agent settings, an unrelated reference checkout, and
+# ingestion logs that are regenerated on every run.
+.claude/
+PORTFOLIO_REF/
+data/legal_kb/logs/

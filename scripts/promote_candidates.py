@@ -21,6 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
 LIB = ROOT / "data/legal_kb"
 CAND = ROOT / "data/source_materials/candidate_imports"
+SOURCES = ROOT / "data/source_materials"
 MANIFEST = LIB / "metadata/canonical_documents.jsonl"
 STAGING = LIB / "metadata/canonical_documents.staged.jsonl"
 QUARANTINE = LIB / "metadata/quarantine.jsonl"
@@ -37,6 +38,10 @@ OTHER_STATE = re.compile(r"\bkerala|cochin|malabar\b", re.I)
 ALREADY_INDEXED = re.compile(r"^(final_bns|final_bnss|final_bsa|the constitution of india)", re.I)
 
 CATEGORY = [
+    (re.compile(r"__constitution__|__amendment__constitution-|__sor__", re.I),
+     "primary_law/constitution"),
+    (re.compile(r"consumer|bureau-of-indian-standards|ncdrc", re.I),
+     "primary_law/consumer_protection"),
     (re.compile(r"nalsa|lok-adalat|legal-services|legal-aid|para-legal|sahayata|yojana|shiksha|spruha|jagriti|samvad|dawn", re.I),
      "official_guidance/legal_aid"),
     (re.compile(r"rules-of-practice|case-flow|e-filing|electronic-processes|appellate-side|writ-rules|commercial-courts", re.I),
@@ -130,6 +135,27 @@ def dominant_script(text: str) -> str:
     return name if count / total > 0.5 else "none"
 
 
+def source_records() -> dict[str, dict]:
+    """What acquisition already knew about each file, keyed by filename.
+
+    The source manifests carry a title, a publisher and a currency note that
+    were checked against the page the link came from. Re-deriving any of that
+    from the filename throws away the better evidence.
+    """
+    records: dict[str, dict] = {}
+    for manifest in sorted(SOURCES.glob("*.json")):
+        try:
+            rows = json.loads(manifest.read_text())
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(rows, list):
+            continue
+        for row in rows:
+            if isinstance(row, dict) and row.get("filename"):
+                records[row["filename"]] = row | {"_manifest": manifest.name}
+    return records
+
+
 def sha256(path: Path) -> str:
     h = hashlib.sha256()
     with path.open("rb") as handle:
@@ -145,7 +171,9 @@ def title_from(name: str) -> str:
     return re.sub(r"\s+", " ", stem).title()
 
 SOURCE_TYPES = [
-    (re.compile(r"__(rules|regulations|amendment)__", re.I), "rule"),
+    (re.compile(r"__constitution__", re.I), "act"),
+    (re.compile(r"__sor__", re.I), "official_guidance"),
+    (re.compile(r"__(rules|regulations|amendment|notification)__", re.I), "rule"),
     (re.compile(r"__(guidance|manual|handbook|compendium|scheme)__", re.I), "official_guidance"),
     (re.compile(r"__act__", re.I), "act"),
     (re.compile(r"rules?|regulation|notification", re.I), "rule"),
@@ -170,6 +198,9 @@ PUBLISHERS = {
     "aphc": ("India - Andhra Pradesh", "High Court of Andhra Pradesh"),
     "tshc": ("India - Telangana", "High Court for the State of Telangana"),
     "nalsa": ("India - Central", "National Legal Services Authority"),
+    "legislative": ("India - Central", "Legislative Department, Ministry of Law and Justice"),
+    "ncdrc": ("India - Central", "National Consumer Disputes Redressal Commission"),
+    "meity": ("India - Central", "Ministry of Electronics and Information Technology"),
 }
 
 def _publisher_token(name: str) -> str | None:
@@ -224,6 +255,7 @@ def main() -> int:
             by_checksum[row["sha256"]] = row.get("title") or row.get("original_filename")
 
     overrides = json.loads(OVERRIDES.read_text()) if OVERRIDES.exists() else {}
+    acquired = source_records()
     promoted, held, duplicates, untitled = [], [], [], []
     for path in sorted(CAND.rglob("*.pdf")):
         checksum = sha256(path)
@@ -238,7 +270,10 @@ def main() -> int:
             with fitz.open(path) as doc:
                 pages = len(doc)
                 chars = sum(len(doc[i].get_text("text")) for i in range(min(pages, 12)))
-                sample = "".join(doc[i].get_text("text") for i in range(min(pages, 4)))
+                # The script decision reads every page. A bilingual gazette
+                # prints Hindi first and English after, so a sample of the
+                # opening pages calls an English document Devanagari-only.
+                sample = "".join(page.get_text("text") for page in doc)
                 suggested = suggest_title(doc) if pages else None
         except Exception as exc:
             held.append(record | {"reason": f"unreadable: {type(exc).__name__}"}); continue
@@ -268,7 +303,10 @@ def main() -> int:
         # A content-hashed filename carries no title, and reading one off the
         # page is unreliable. Such a document waits in a queue with its
         # suggestion until a reviewer records a title in title_overrides.json.
-        if path.name in overrides:
+        acquisition = acquired.get(path.name) or {}
+        if acquisition.get("title"):
+            name = acquisition["title"]
+        elif path.name in overrides:
             name = overrides[path.name]
         elif OPAQUE.search(path.name):
             untitled.append(record | {"suggested_title": suggested, "page_count": pages,
@@ -286,10 +324,13 @@ def main() -> int:
             "original_filename": path.name,
             "local_path": "",  # set when copied
             "source_type": source_type(path),
+            "currency_note": acquisition.get("currency_note"),
+            "source_url": acquisition.get("url"),
             "category": category,
-            "authority": authority(path),
-            "jurisdiction": jurisdiction(path),
-            "language": "Telugu" if re.search(r"telugu", path.name, re.I) else "English",
+            "authority": acquisition.get("authority") or authority(path),
+            "jurisdiction": acquisition.get("jurisdiction") or jurisdiction(path),
+            "language": (acquisition.get("language") if acquisition.get("language") not in (None, "unknown")
+                         else ("Telugu" if re.search(r"telugu", path.name, re.I) else "English")),
             "year": int(m.group(0)) if (m := re.search(r"(18|19|20)\d{2}", path.name)) else None,
             # A reviewer who titled a document "(superseded)" has already made
             # the currency finding; the manifest must carry it, or retrieval
