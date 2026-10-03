@@ -34,7 +34,7 @@ DELAY_SECONDS = 1.2
 
 # act_id encodes the jurisdiction: AC_CEN_ for a central Act, a state code
 # otherwise. There is no facet for this, so it is read off the identifier.
-PREFIX = {"CEN": "AC_CEN_", "AP": "AC_AP_", "TG": "AC_TG_", "TS": "AC_TG_"}
+PREFIX = {"CEN": "AC_CEN_", "AP": "AC_AP_", "TG": "AC_TS_", "TS": "AC_TS_"}
 
 # Each jurisdiction is a DSpace community. Without scoping to one, a search for
 # the Minimum Wages Act returns Haryana's, Punjab's and Jharkhand's adaptations
