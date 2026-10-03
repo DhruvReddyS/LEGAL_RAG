@@ -38,6 +38,8 @@ OTHER_STATE = re.compile(r"\bkerala|cochin|malabar\b", re.I)
 ALREADY_INDEXED = re.compile(r"^(final_bns|final_bnss|final_bsa|the constitution of india)", re.I)
 
 CATEGORY = [
+    (re.compile(r"__ncpcr__", re.I), "official_guidance/child_protection"),
+    (re.compile(r"__nhrc__", re.I), "official_guidance/human_rights"),
     (re.compile(r"reserve bank|\brbi\b|master direction|banking regulation|"
                 r"payment (and settlement|aggregator|system)|prepaid payment|"
                 r"negotiable instrument|\bnpa\b|priority sector", re.I),
@@ -72,6 +74,9 @@ CATEGORY = [
     (re.compile(r"termination-of-pregnancy|surrogacy|pcpndt|hiv-aids|maternity", re.I),
      "primary_law/health_reproductive"),
     (re.compile(r"disabilities", re.I), "primary_law/disability_welfare"),
+    (re.compile(r"human rights advisory|advisory .*(human rights|welfare|rehabilitat)|"
+                r"protection of human rights|bonded labour|leprosy|widows", re.I),
+     "official_guidance/human_rights"),
     (re.compile(r"scheduled castes|scheduled tribes|atrocities|civil rights|"
                 r"transgender|older persons|senior citizens|untouchability|"
                 r"alcoholism|substance abuse|marginalised", re.I),
@@ -243,6 +248,9 @@ PUBLISHERS = {
     "ncdrc": ("India - Central", "National Consumer Disputes Redressal Commission"),
     "meity": ("India - Central", "Ministry of Electronics and Information Technology"),
     "wcd": ("India - Central", "Ministry of Women and Child Development"),
+    "ncpcr": ("India - Central", "National Commission for Protection of Child Rights"),
+    "nhrc": ("India - Central", "National Human Rights Commission"),
+    "socialjustice": ("India - Central", "Department of Social Justice and Empowerment"),
 }
 
 def _publisher_token(name: str) -> str | None:
