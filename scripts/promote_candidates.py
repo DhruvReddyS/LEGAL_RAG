@@ -111,6 +111,12 @@ def main() -> int:
             held.append(record | {"reason": "subordinate rules of another state; out of scope for an AP-facing corpus"}); continue
         if ALREADY_INDEXED.search(path.name):
             held.append(record | {"reason": "second copy of an Act already indexed; near-duplicate passages"}); continue
+        # Tesseract here has only English trained data, so a scanned Telugu
+        # document would be read as garbled Latin and indexed as if it were
+        # text. Telugu support needs tel.traineddata and query-side handling.
+        if record.get("language") == "Telugu" or re.search(r"__te\.pdf$|telugu", path.name, re.I):
+            if chars < pages * 100:
+                held.append(record | {"reason": "Telugu scan, but only English OCR data is installed"}); continue
         if re.match(r"^\d{10,}_", path.name):
             held.append(record | {"reason": "unidentified scan; needs a title and source before promotion"}); continue
 
