@@ -123,9 +123,9 @@ BRIDGES: tuple[Bridge, ...] = (
     ),
 )
 
-# Widening a query that already uses legal language only dilutes it.
-_ALREADY_LEGAL = re.compile(
-    r"\b(?:section|article|act,|sanhita|adhiniyam|under the|rule \d|regulation)\b", re.I)
+# A query that already carries a bridge's own vocabulary has been widened once
+# already, or was written in legal language to begin with. Widening it again
+# only repeats terms and dilutes the question.
 
 
 def widen_for_retrieval(query: str) -> tuple[str, tuple[str, ...]]:
@@ -133,7 +133,10 @@ def widen_for_retrieval(query: str) -> tuple[str, tuple[str, ...]]:
 
     The person's own wording is preserved in full and always comes first.
     """
-    matched = [b for b in BRIDGES if any(cue.search(query) for cue in b.cues)]
+    matched = [
+        b for b in BRIDGES
+        if any(cue.search(query) for cue in b.cues) and b.terms not in query
+    ]
     if not matched:
         return query, ()
     # More than two domains means the cues are firing on something generic;
