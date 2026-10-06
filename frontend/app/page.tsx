@@ -150,9 +150,22 @@ export default function HomePage() {
 
   useEffect(() => {
     let mounted = true;
+    // Restoring the session must never be able to hang the app. A fetch that
+    // never settles -- the API restarting, the network dropping mid-flight --
+    // left `finally` unreached, so authChecked stayed false and the whole
+    // workspace sat on its loading icon with no way out and nothing on screen.
+    // Whatever happens, after this many milliseconds we decide: signed in if
+    // the call came back, signed out if it did not.
+    const AUTH_RESTORE_TIMEOUT_MS = 6000;
+    const withTimeout = <T,>(work: Promise<T>): Promise<T> =>
+      Promise.race([
+        work,
+        new Promise<T>((_, reject) =>
+          setTimeout(() => reject(new Error("auth restore timed out")), AUTH_RESTORE_TIMEOUT_MS)),
+      ]);
     const restoreAuth = async () => {
-      try { const current = await getMe(); if (mounted) setUser(current); }
-      catch { try { const current = await refreshSession(); if (mounted) setUser(current); } catch { if (mounted) setUser(null); } }
+      try { const current = await withTimeout(getMe()); if (mounted) setUser(current); }
+      catch { try { const current = await withTimeout(refreshSession()); if (mounted) setUser(current); } catch { if (mounted) setUser(null); } }
       finally { if (mounted) setAuthChecked(true); }
     };
     const poll = async () => { try { const next = await getIngestionProgress(); if (mounted) setProgress(next); } catch { if (mounted) setProgress(null); } };

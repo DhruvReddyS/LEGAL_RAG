@@ -217,6 +217,7 @@ async def query_chat(
         requested_mode="deep" if document_context else request.response_mode,
         case_id=chat_session.case_id,
         has_history=bool(history),
+        role=str(user.role),
     )
     if routing.selected_mode == "deep" and not settings.legacy_sync_long_running_enabled:
         raise HTTPException(

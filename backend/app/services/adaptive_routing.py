@@ -36,6 +36,7 @@ def route_legal_query(
     requested_mode: RequestedMode,
     case_id: object | None = None,
     has_history: bool = False,
+    role: str | None = None,
 ) -> RoutingDecision:
     """Select the smallest safe workflow without using an LLM in the routing path."""
 
@@ -45,6 +46,22 @@ def route_legal_query(
             selected_mode=requested_mode,
             reason="user_selected",
             signals=(f"explicit_{requested_mode}_mode",),
+        )
+
+    # Fast returns an evidence brief: the closest corpus passages, with the
+    # answer itself explicitly not synthesised. That serves an advocate or an
+    # investigating officer who wants to read the authority. It does not serve
+    # a citizen, who asked what their rights are and cannot be expected to
+    # read raw statutory passages and work the answer out. Asked "the police
+    # refused to register my FIR, what are my rights", routing sent a citizen
+    # to Fast and returned excerpts under a heading saying no opinion was
+    # being given.
+    if role == "citizen":
+        return RoutingDecision(
+            requested_mode="auto",
+            selected_mode="deep",
+            reason="citizen_needs_a_synthesised_answer",
+            signals=("citizen_role",),
         )
 
     signals: list[str] = []
