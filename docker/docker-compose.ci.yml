@@ -1,0 +1,23 @@
+services:
+  # CI needs S3 semantics, not a production object-store deployment. MinIO's
+  # community image is no longer distributed publicly, so use a pinned Moto
+  # server for bucket, object, versioning, and presigned-URL integration tests.
+  s3mock:
+    image: motoserver/moto:5.1.15
+    command:
+      - -H
+      - 0.0.0.0
+      - -p
+      - "9000"
+    ports:
+      - "127.0.0.1:9000:9000"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import socket; socket.create_connection(('127.0.0.1', 9000), 2).close()"
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s

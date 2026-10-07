@@ -59,8 +59,9 @@ jobs:
 
       - name: Start integration-test services
         run: >-
-          docker compose --env-file .env.example -f docker/docker-compose.yml
-          up -d --wait postgres qdrant minio
+          docker compose --env-file .env.example
+          -f docker/docker-compose.yml -f docker/docker-compose.ci.yml
+          up -d --wait postgres qdrant s3mock
 
       - name: Apply database migrations
         run: python -m alembic upgrade head
@@ -93,7 +94,9 @@ jobs:
 
       - name: Report service logs on failure
         if: failure()
-        run: docker compose -f docker/docker-compose.yml logs --tail 100
+        run: >-
+          docker compose -f docker/docker-compose.yml -f docker/docker-compose.ci.yml
+          logs --tail 100
 
 
   security:
@@ -140,8 +143,9 @@ jobs:
 
       - name: Start integration-test services
         run: >-
-          docker compose --env-file .env.example -f docker/docker-compose.yml
-          up -d --wait postgres qdrant minio
+          docker compose --env-file .env.example
+          -f docker/docker-compose.yml -f docker/docker-compose.ci.yml
+          up -d --wait postgres qdrant s3mock
 
       - name: Apply database migrations
         run: python -m alembic upgrade head
@@ -171,7 +175,9 @@ jobs:
 
       - name: Report service logs on failure
         if: failure()
-        run: docker compose -f docker/docker-compose.yml logs --tail 100
+        run: >-
+          docker compose -f docker/docker-compose.yml -f docker/docker-compose.ci.yml
+          logs --tail 100
 
 
   quality:
