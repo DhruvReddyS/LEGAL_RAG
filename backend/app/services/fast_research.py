@@ -17,6 +17,7 @@ from app.services.retrieval import (
     RetrievalTarget,
     _base_forms,
 )
+from app.services.lay_vocabulary import domain_vocabulary
 from app.services.legal_term_normalization import (
     LEGAL_ACRONYM_EXPANSIONS,
     normalize_legal_terms,
@@ -302,6 +303,25 @@ def _document_key(hit: object) -> str:
         return " ".join(str(stable_identity).casefold().split())
     return str(getattr(hit, "point_id"))
 
+# The share of a domain's statutory vocabulary a passage must use before the
+# domain route accepts it. Higher than COVERAGE_FLOOR because the test is
+# easier: a bridge contributes a dozen terms and an on-topic provision will
+# carry several of them, while an unrelated passage carries almost none.
+DOMAIN_COVERAGE_FLOOR = 0.25
+
+
+def _domain_coverage(domain_tokens: frozenset[str], payload: dict) -> float:
+    """How much of the domain's own vocabulary this passage actually uses."""
+    if not domain_tokens:
+        return 0.0
+    return max(
+        (
+            len(_matched_terms_in_window(set(domain_tokens), window)) / len(domain_tokens)
+            for window in _payload_windows(payload)
+        ),
+        default=0.0,
+    )
+
 
 def publishable_hits(
     hits: list,
@@ -309,6 +329,7 @@ def publishable_hits(
     query: str,
     focus_tokens: set[str],
     distinctive_terms: set[str],
+    domain_tokens: frozenset[str] = frozenset(),
 ) -> list:
     """The hits that may be shown, before one-per-document selection.
 
@@ -320,15 +341,21 @@ def publishable_hits(
     the reader has already been shown.
     """
     floor = COVERAGE_FLOOR if distinctive_terms else COVERAGE_FLOOR_WITHOUT_RARE_TERM
-    relevant = [
-        hit
-        for hit in hits
-        if _lexical_coverage(focus_tokens, hit.payload) >= floor
-        and _mandatory_focus_match(
+
+    def _passes(hit) -> bool:
+        if _lexical_coverage(focus_tokens, hit.payload) >= floor and _mandatory_focus_match(
             distinctive_terms,
             _locally_matched_focus_terms(focus_tokens, hit.payload),
-        )
-    ]
+        ):
+            return True
+        # The domain route. A separate way through the gate, not a lower
+        # floor on the lexical one: it asks a different question -- does this
+        # passage speak the statutory language of the domain the question is
+        # in -- and a query that fires no bridge contributes no tokens here,
+        # so every such query sees the gate exactly as before.
+        return _domain_coverage(domain_tokens, hit.payload) >= DOMAIN_COVERAGE_FLOOR
+
+    relevant = [hit for hit in hits if _passes(hit)]
     # When the question names a provision, a passage that does not cite it is
     # not an answer to that question however well its words overlap.
     references = _statutory_references(query)
@@ -565,11 +592,20 @@ class FastLegalResearchService:
         # contract" appears over a hundred times, though contract law is not
         # in the corpus -- the first half has nothing to say, and 0.34 is too
         # permissive for the second to carry the decision alone.
+        # Off by default. The gate is the one component where shipping an
+        # unmeasured change is a safety change, so the route exists and stays
+        # dark until the golden set says what it does to false refusals.
+        domain_tokens, _ = (
+            domain_vocabulary(query)
+            if settings.lay_vocabulary_gate_enabled
+            else (frozenset(), ())
+        )
         ranked_relevant_hits = publishable_hits(
             hits,
             query=query,
             focus_tokens=focus_tokens,
             distinctive_terms=distinctive_terms,
+            domain_tokens=domain_tokens,
         )
         # An implementation bridge points to an exact, current provision in
         # the corpus whose statutory wording differs from the citizen's words.

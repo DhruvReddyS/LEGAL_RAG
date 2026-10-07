@@ -60,6 +60,19 @@ class Settings(BaseSettings):
     # rather than a deletion so re-enabling it is a restart, and so the next
     # corpus can be measured with it rather than argued about.
     cross_encoder_reranking_enabled: bool = False
+    # A second, independent route through the Fast lane's coverage gate for
+    # questions asked in lay words. The lexical floor cannot bridge vocabulary
+    # -- "the shop refused to replace my phone" shares almost no token with
+    # "deficiency in service" -- so correct passages are retrieved by BGE-M3
+    # and then discarded. A dense-similarity floor would bridge it and also
+    # destroy the property the gate exists for: dense retrieval always returns
+    # its nearest neighbours, so a missing-pet question would be answered with
+    # missing-child procedure. This route instead asks whether the passage uses
+    # the statutory vocabulary of the domain the question is in, which bridges
+    # vocabulary while still abstaining when the corpus has no such law at all.
+    # Off until measured against the golden set; the gate is the one component
+    # where an unmeasured change is a safety change.
+    lay_vocabulary_gate_enabled: bool = False
     fast_candidate_limit: int = Field(default=8, ge=4, le=40)
     fast_result_limit: int = Field(default=4, ge=1, le=10)
     fast_latency_target_ms: int = Field(default=5000, ge=500, le=30000)

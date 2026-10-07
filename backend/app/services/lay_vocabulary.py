@@ -145,3 +145,31 @@ def widen_for_retrieval(query: str) -> tuple[str, tuple[str, ...]]:
         matched = matched[:2]
     added = " ".join(b.terms for b in matched)
     return f"{query} {added}", tuple(b.domain for b in matched)
+
+
+def domain_vocabulary(query: str) -> tuple[frozenset[str], tuple[str, ...]]:
+    """The statutory vocabulary this query's domain would be written in.
+
+    Returned as tokens rather than a query string because the coverage gate
+    compares token sets. `widen_for_retrieval` answers "what should we search
+    for"; this answers "what would an on-topic passage say", and the gate needs
+    the second. Empty when no bridge fires, which leaves the gate exactly as it
+    was for every query outside these domains.
+    """
+    matched = [b for b in BRIDGES if any(cue.search(query) for cue in b.cues)]
+    if not matched:
+        return frozenset(), ()
+    if len(matched) > 2:
+        matched = matched[:2]
+    tokens = {
+        token
+        for bridge in matched
+        for token in re.findall(r"[a-z0-9]+", bridge.terms.casefold())
+        if len(token) > 1 and token not in _VOCABULARY_STOPWORDS
+    }
+    return frozenset(tokens), tuple(b.domain for b in matched)
+
+
+_VOCABULARY_STOPWORDS = frozenset(
+    {"the", "a", "an", "of", "in", "or", "and", "for", "to", "before", "on", "by"}
+)
