@@ -1,0 +1,7 @@
+Fig. 1. Corpusil system architecture. A single request path forks once, at a
+deterministic router, into three lanes that never rejoin. The fast lane returns
+retrieved authority without invoking a language model; the deep lane runs a
+five-agent LangGraph pipeline in which no claim is published unless the
+verification agent maps it to a retrieved chunk. Dashed edges carry control
+rather than data: the bounded retry (at most two) and the two abstention paths.
+A = agent, S = service.

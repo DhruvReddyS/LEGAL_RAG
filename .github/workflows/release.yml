@@ -42,7 +42,9 @@ jobs:
       S3_PUBLIC_ENDPOINT_URL: http://localhost:9000
       S3_ACCESS_KEY_ID: ci-minio-user
       S3_SECRET_ACCESS_KEY: ci-minio-password
-      LEGAL_KB_ROOT: ../data/legal_kb
+      LEGAL_KB_ROOT: data/legal_kb
+      JOB_WORKER_ENABLED: "false"
+      WARM_QUERY_MODELS_ON_STARTUP: "false"
     steps:
       - name: Check out source
         uses: actions/checkout@v7
@@ -55,6 +57,9 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
           cache-dependency-path: backend/requirements-dev.txt
+
+      - name: Install OCR runtime
+        run: sudo apt-get update && sudo apt-get install --yes tesseract-ocr
 
       - name: Check release version
         run: python scripts/check_release_version.py --tag "$RELEASE_TAG"

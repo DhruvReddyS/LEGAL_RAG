@@ -36,7 +36,9 @@ jobs:
       S3_PUBLIC_ENDPOINT_URL: http://localhost:9000
       S3_ACCESS_KEY_ID: ci-minio-user
       S3_SECRET_ACCESS_KEY: ci-minio-password
-      LEGAL_KB_ROOT: ../data/legal_kb
+      LEGAL_KB_ROOT: data/legal_kb
+      JOB_WORKER_ENABLED: "false"
+      WARM_QUERY_MODELS_ON_STARTUP: "false"
       # Services are provisioned below, so an unreachable dependency is a
       # failure here rather than a silent skip.
       RUN_INTEGRATION: "1"
@@ -52,6 +54,9 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
           cache-dependency-path: backend/requirements-dev.txt
+
+      - name: Install OCR runtime
+        run: sudo apt-get update && sudo apt-get install --yes tesseract-ocr
 
       - name: Install backend test dependencies
         run: python -m pip install --disable-pip-version-check -r requirements-dev.txt
@@ -112,7 +117,9 @@ jobs:
       S3_PUBLIC_ENDPOINT_URL: http://localhost:9000
       S3_ACCESS_KEY_ID: ci-minio-user
       S3_SECRET_ACCESS_KEY: ci-minio-password
-      LEGAL_KB_ROOT: ../data/legal_kb
+      LEGAL_KB_ROOT: data/legal_kb
+      JOB_WORKER_ENABLED: "false"
+      WARM_QUERY_MODELS_ON_STARTUP: "false"
       RUN_INTEGRATION: "1"
       HF_HOME: ${{ github.workspace }}/.hf-cache
     steps:
@@ -192,7 +199,7 @@ jobs:
     env:
       DATABASE_URL: postgresql+asyncpg://legal_rag:ci-postgres-password@localhost:5432/legal_rag
       QDRANT_URL: http://localhost:6333
-      LEGAL_KB_ROOT: ../data/legal_kb
+      LEGAL_KB_ROOT: data/legal_kb
       HF_HOME: ${{ github.workspace }}/.hf-cache
     steps:
       - name: Check out source
