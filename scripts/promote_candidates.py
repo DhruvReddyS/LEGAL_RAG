@@ -45,6 +45,43 @@ CATEGORY = [
     (re.compile(r"__moefc{0,2}__", re.I), "primary_law/environment"),
     (re.compile(r"__mohfw__", re.I), "primary_law/health_medical"),
     (re.compile(r"__moe__", re.I), "primary_law/education"),
+    (re.compile(r"foreign exchange management|\bfema\b|chit fund|"
+                r"banking regulation|reserve bank of india act|negotiable instrument|"
+                r"recovery of debts|securitisation and reconstruction|"
+                r"banning of unregulated deposit|government securities|coinage", re.I),
+     "primary_law/banking_finance"),
+    (re.compile(r"\binsurance act\b|life insurance corporation|general insurance business|"
+                r"marine insurance", re.I),
+     "primary_law/insurance"),
+    (re.compile(r"benami|easement|land improvement|requisitioning and acquisition|"
+                r"urban land|coal bearing areas|ancient monuments", re.I),
+     "primary_law/property_land"),
+    (re.compile(r"probation of offenders|fugitive economic offenders|"
+                r"prevention of money.laundering|smugglers and foreign exchange|"
+                r"\bcofeposa\b|national security act|prevention of damage to public", re.I),
+     "primary_law/special_criminal_laws"),
+    (re.compile(r"\bcompanies act|limited liability partnership|competition act|"
+                r"partnership act|sale of goods|trusts act|societies registration|"
+                r"chartered accountants|cost and works|company secretaries", re.I),
+     "primary_law/corporate_commercial"),
+    (re.compile(r"motor vehicles|railways act|merchant shipping|carriage by|"
+                r"national highways|inland vessels|aircraft act|carriage of goods", re.I),
+     "primary_law/transport"),
+    (re.compile(r"patents act|trade ?marks act|copyright act|designs act|"
+                r"geographical indications|semiconductor integrated|plant varieties", re.I),
+     "primary_law/intellectual_property"),
+    (re.compile(r"army act|navy act|air force act|armed forces|territorial army|"
+                r"national cadet corps|cantonment", re.I),
+     "primary_law/defence_services"),
+    (re.compile(r"telecommunications|telegraph act|information technology|"
+                r"electricity act|petroleum|atomic energy|energy conservation", re.I),
+     "primary_law/infrastructure_utilities"),
+    (re.compile(r"citizenship|foreigners|passports|immigration|extradition|"
+                r"representation of the people|delimitation", re.I),
+     "primary_law/citizenship_elections"),
+    (re.compile(r"administrative tribunals|notaries|public servants|"
+                r"commissions of inquiry|central vigilance|lokpal", re.I),
+     "primary_law/public_administration"),
     (re.compile(r"right to information|\brti\b|__cic__", re.I),
      "primary_law/transparency_rti"),
     (re.compile(r"insolvency|bankruptcy|__ibbi__", re.I), "primary_law/insolvency"),
@@ -351,7 +388,7 @@ def jurisdiction(path: Path) -> str:
         return known[0]
     if re.search(r"^ap-|aphc|andhra", path.name, re.I) or path.name.startswith("ap__"):
         return "India - Andhra Pradesh"
-    if path.name.startswith("ts__") or re.search(r"telangana", path.name, re.I):
+    if path.name.startswith(("ts__", "tg__")) or re.search(r"telangana", path.name, re.I):
         return "India - Telangana"
     return "India - Central"
 
