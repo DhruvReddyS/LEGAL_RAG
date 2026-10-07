@@ -74,11 +74,6 @@ _JOB_WORKER_MODULES = frozenset({"test_jobs_integration"})
 # database every JOB_POLL_INTERVAL_MS.
 _LOCAL_BACKEND_PORT = int(os.environ.get("BACKEND_PORT", "8000"))
 
-# Starting the FastAPI lifespan boots the durable job worker, which claims
-# against PostgreSQL on its first poll.
-_LIFESPAN_TESTS = frozenset({"test_application_lifespan_owns_one_service_and_closes_it"})
-
-
 def _tcp_reachable(host: str, port: int, timeout: float = 0.75) -> bool:
     try:
         with socket.create_connection((host, port), timeout=timeout):
@@ -151,7 +146,6 @@ def pytest_collection_modifyitems(
         needs_database = (
             module.endswith("_integration")
             or module in _DATABASE_BACKED_MODULES
-            or item.name in _LIFESPAN_TESTS
         )
         if needs_database:
             item.add_marker(pytest.mark.integration)

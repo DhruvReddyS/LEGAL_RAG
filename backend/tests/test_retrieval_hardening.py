@@ -136,6 +136,17 @@ async def test_embedding_lane_is_not_blocked_by_reranking_lane() -> None:
 async def test_application_lifespan_owns_one_service_and_closes_it(monkeypatch) -> None:
     instances: list[Any] = []
 
+    class FakeLLM:
+        def __init__(self) -> None:
+            self.warmed = False
+            self.closed = False
+
+        async def warmup(self) -> None:
+            self.warmed = True
+
+        async def close(self) -> None:
+            self.closed = True
+
     class FakeService:
         def __init__(self) -> None:
             self.closed = False
@@ -148,12 +159,22 @@ async def test_application_lifespan_owns_one_service_and_closes_it(monkeypatch) 
         async def close(self) -> None:
             self.closed = True
 
+    class FakeWorkflow:
+        def __init__(self, retrieval_service: Any) -> None:
+            self.retrieval_service = retrieval_service
+            self.llm = FakeLLM()
+
     monkeypatch.setattr(main_module, "HybridRetrievalService", FakeService)
+    monkeypatch.setattr(main_module, "LegalRAGWorkflow", FakeWorkflow)
+    monkeypatch.setattr(main_module.settings, "warm_query_models_on_startup", True)
+    monkeypatch.setattr(main_module.settings, "job_worker_enabled", False)
 
     async with main_module.lifespan(main_module.app):
         assert len(instances) == 1
         assert main_module.app.state.retrieval_service is instances[0]
         assert instances[0].closed is False
         assert instances[0].warmed is True
+        assert main_module.app.state.legal_rag_workflow.llm.warmed is True
 
     assert instances[0].closed is True
+    assert main_module.app.state.legal_rag_workflow.llm.closed is True
