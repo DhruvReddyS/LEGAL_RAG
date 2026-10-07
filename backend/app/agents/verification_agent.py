@@ -123,16 +123,34 @@ def _format_verification_items(
     return "\n\n===== NEXT SOURCE =====\n\n".join(source_blocks)
 
 
+def build_premises(chunks) -> tuple[dict[str, str], int]:
+    """Premise text per chunk, capped, with the number of chunks that lost text.
+
+    The verifier sees at most MAX_PREMISE_CHARACTERS of a chunk. A claim
+    supported only by text past the cap is judged unsupported, which costs a
+    retry and can end in an abstention -- and the provisions most likely to
+    exceed the cap are long enumerations, exactly the ones worth citing. The
+    cap is a deliberate cost control and stays. Its invisibility was not: a
+    truncation that is never counted cannot be tuned against evidence.
+    """
+    premises: dict[str, str] = {}
+    truncated = 0
+    for chunk in chunks:
+        chunk_id = str(chunk.payload.get("chunk_id"))
+        text = str(chunk.payload.get("text") or "")
+        if len(text) > MAX_PREMISE_CHARACTERS:
+            truncated += 1
+        premises[chunk_id] = text[:MAX_PREMISE_CHARACTERS]
+    return premises, truncated
+
+
 async def verification_node(state: dict, llm: OllamaClient) -> dict:
     started_ns = perf_counter_ns()
     retry_index = int(state.get("retry_count", 0))
     draft = str(state.get("draft_answer") or "")
-    hits_by_id = {
-        str(hit.payload.get("chunk_id")): str(hit.payload.get("text") or "")[
-            :MAX_PREMISE_CHARACTERS
-        ]
-        for hit in state.get("retrieved_chunks", [])
-    }
+    hits_by_id, truncated_premise_count = build_premises(
+        state.get("retrieved_chunks", [])
+    )
     pairs = _categorized_claim_marker_pairs(draft)
     valid_pairs = [
         (category, claim, chunk_id)
@@ -338,6 +356,7 @@ entails the material claim, partial for incomplete support, and no otherwise. Re
             "verification_items": text_size(items),
             "prompt": text_size(prompt),
             "max_premise_characters": MAX_PREMISE_CHARACTERS,
+            "truncated_premise_count": truncated_premise_count,
         },
         outputs={
             "verified_claim_count": len(verified),

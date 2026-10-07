@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Corpusil Release and Deployment Architecture",
+    "output": "release-deployment-architecture.html",
+    "quality_profile": "showcase",
+    "animation": "none",
+    "repository": {"url": "https://github.com/DhruvReddyS/LEGAL_RAG", "provider": "github", "link_mode": "web", "revision": "102948f2150f35a83566252d9b9e9e6a4836ba07"},
+    "viewBox": [1240, 900],
+    "views": [
+      {"id": "release", "label": "Release path", "focus": ["github", "tauri", "api"], "note": "GitHub ships the thin desktop client, not the corpus or private services."},
+      {"id": "case", "label": "Private case flow", "focus": ["users", "api", "case_data", "vectors"], "note": "Ownership checks and case_id filters isolate police and advocate material."},
+      {"id": "corpus", "label": "Global corpus", "focus": ["corpus_source", "vectors", "rag"], "note": "Source PDFs are rebuildable; retrieval runs against the indexed collection."}
+    ]
+  },
+  "components": [
+    {"id": "users", "type": "external", "label": "Role users", "sublabel": "citizen · police · advocate", "pos": [20, 250], "size": [170, 70], "sources": [{"path": "backend/app/routers/auth.py", "line": 69, "end_line": 109, "label": "role onboarding"}, {"path": "backend/app/core/rbac.py", "line": 18, "end_line": 89, "label": "role permissions"}]},
+    {"id": "web", "type": "frontend", "label": "Web App", "sublabel": "static export · planned host", "pos": [245, 140], "size": [185, 70], "sources": [{"path": "frontend/next.config.mjs", "line": 1, "end_line": 6, "label": "static export"}, {"path": "frontend/lib/api.ts", "line": 31, "end_line": 57, "label": "backend selection"}]},
+    {"id": "tauri", "type": "frontend", "label": "Tauri Desktop", "sublabel": "signed thin client", "pos": [245, 360], "size": [185, 70], "sources": [{"path": "frontend/src-tauri/tauri.conf.json", "line": 6, "end_line": 10, "label": "embedded frontend"}, {"path": "frontend/lib/runtime-backend.ts", "line": 3, "end_line": 39, "label": "runtime server"}]},
+    {"id": "github", "type": "cloud", "label": "GitHub Release", "sublabel": "installers + updater", "pos": [20, 500], "size": [170, 70], "sources": [{"path": ".github/workflows/release.yml", "line": 108, "end_line": 209, "label": "desktop builds"}, {"path": ".github/workflows/release.yml", "line": 211, "end_line": 261, "label": "draft verification"}]},
+    {"id": "api", "type": "security", "label": "Private HTTPS API", "sublabel": "FastAPI · cookies · RBAC", "pos": [500, 250], "size": [190, 70], "sources": [{"path": "docs/OPERATIONS.md", "line": 126, "end_line": 156, "label": "pilot network"}, {"path": "backend/app/routers/auth.py", "line": 234, "end_line": 268, "label": "cookie auth"}, {"path": "backend/app/core/case_scope.py", "line": 28, "end_line": 73, "label": "case isolation"}]},
+    {"id": "rag", "type": "backend", "label": "RAG + job workers", "sublabel": "retrieve · reason · verify · OCR", "pos": [760, 250], "size": [195, 70], "sources": [{"path": "backend/app/agents/orchestrator.py", "line": 30, "end_line": 62, "label": "RAG graph"}, {"path": "backend/app/services/job_worker.py", "line": 71, "end_line": 162, "label": "durable jobs"}]},
+    {"id": "ollama", "type": "cloud", "label": "Private Ollama", "sublabel": "host-local legal model", "pos": [1065, 250], "size": [155, 70], "sources": [{"path": "docker/docker-compose.yml", "line": 183, "end_line": 208, "label": "model service"}]},
+    {"id": "case_data", "type": "database", "label": "Private case data", "sublabel": "PostgreSQL + versioned MinIO", "pos": [500, 540], "size": [190, 76], "sources": [{"path": "backend/app/models/case.py", "line": 15, "end_line": 79, "label": "case records"}, {"path": "backend/app/models/chat.py", "line": 16, "end_line": 85, "label": "chat records"}, {"path": "backend/app/services/storage.py", "line": 80, "end_line": 198, "label": "object isolation"}]},
+    {"id": "vectors", "type": "database", "label": "Qdrant vectors", "sublabel": "global + role-private collections", "pos": [760, 540], "size": [195, 76], "sources": [{"path": "backend/app/ingestion/init_qdrant.py", "line": 13, "end_line": 79, "label": "collections"}, {"path": "backend/app/services/retrieval.py", "line": 254, "end_line": 280, "label": "fail-closed filter"}]},
+    {"id": "corpus_source", "type": "database", "label": "Global corpus source", "sublabel": "data/legal_kb PDFs + manifests", "pos": [760, 735], "size": [195, 76], "sources": [{"path": "docker/docker-compose.yml", "line": 95, "end_line": 180, "label": "corpus mount"}, {"path": "README.md", "line": 18, "end_line": 21, "label": "active corpus"}]}
+  ],
+  "boundaries": [
+    {"kind": "region", "label": "User devices", "wraps": ["web", "tauri"], "pad": 20},
+    {"kind": "region", "label": "Private deployment host / data plane", "wraps": ["api", "rag", "ollama", "case_data", "vectors", "corpus_source"], "pad": 20},
+    {"kind": "security-group", "label": "No public database ports", "wraps": ["case_data", "vectors"], "pad": 14}
+  ],
+  "connections": [
+    {"from": "users", "to": "web", "label": "browser", "variant": "emphasis"},
+    {"from": "users", "to": "tauri", "label": "desktop", "variant": "emphasis"},
+    {"from": "github", "to": "tauri", "label": "install / update", "variant": "dashed"},
+    {"from": "web", "to": "api", "label": "HTTPS", "variant": "security"},
+    {"from": "tauri", "to": "api", "label": "HTTPS", "variant": "security"},
+    {"from": "api", "to": "rag", "label": "query", "variant": "emphasis"},
+    {"from": "rag", "to": "ollama", "label": "private inference", "variant": "dashed"},
+    {"from": "api", "to": "case_data", "label": "case files + metadata", "route": "orthogonal-v"},
+    {"from": "rag", "to": "vectors", "label": "scoped search", "route": "orthogonal-v"},
+    {"from": "corpus_source", "to": "vectors", "label": "offline ingest", "variant": "dashed", "route": "orthogonal-v"}
+  ],
+  "cards": [
+    {"dot": "cyan", "title": "Role behaviour", "items": ["Citizens self-register and use the shared legal corpus", "Police and advocates are admin-provisioned and see only their own cases", "Named case searches combine global law with role-private evidence"]},
+    {"dot": "rose", "title": "Storage boundary", "items": ["Raw case files: role-separated, versioned MinIO buckets", "Accounts, cases, extracted text, chat, jobs, and audit: PostgreSQL", "Global and private embeddings: Qdrant; canonical source PDFs: data/legal_kb"]},
+    {"dot": "emerald", "title": "Release and rollout", "items": ["GitHub Release contains the client only; the website is the same static UI", "Pilot on one private host behind Tailscale Serve or a TLS reverse proxy", "Before public launch add managed secrets, backups, monitoring, rate limits, and hardened ingress"]}
+  ]
+}
