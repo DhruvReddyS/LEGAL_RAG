@@ -149,7 +149,12 @@ with open(sys.argv[2], 'ab', buffering=0) as log:
     [ -f "$LOG" ] && tail -3 "$LOG"
     ;;
   stop)
-    if [ -f "$PIDFILE" ]; then kill "$(cat "$PIDFILE")" 2>/dev/null; rm -f "$PIDFILE"; fi
+    # Stop every keeper discovered from the process table. A stale or missing
+    # PID file is the exact failure mode this script now guards against; using
+    # only that file here would leave an unrecorded duplicate alive and able to
+    # restart the worker immediately after `stop` reports success.
+    pkill -f "rebuild_until_done.sh __loop $COLLECTION" 2>/dev/null
+    rm -f "$PIDFILE"
     pkill -f "run_rebuild.sh $COLLECTION" 2>/dev/null
     pkill -f "app.ingestion.pipeline" 2>/dev/null
     echo "stopped; the ledger keeps its place, so starting again resumes"

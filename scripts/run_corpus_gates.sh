@@ -94,7 +94,7 @@ record_result payload "${PIPESTATUS[0]}"
 # ------------------------------------------------------------- retrieval
 note "2/6 retrieval: recall@5 and citation accuracy@5"
 "$PY" "$ROOT/scripts/evaluate_retrieval.py" --collection "$COLLECTION" \
-  > "$OUT/retrieval-eval.json" 2> "$OUT/retrieval-eval.log"
+  --out "$OUT/retrieval-eval.json" > "$OUT/retrieval-eval.log" 2>&1
 retrieval_eval=$?
 if [ "$retrieval_eval" -eq 0 ]; then
   if [ "$RECORD" -eq 1 ]; then
