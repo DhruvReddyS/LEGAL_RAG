@@ -4,7 +4,28 @@ Two agents acquire documents into this corpus in parallel. This file is how
 they stay out of each other's way. Read it before starting a batch; the agent
 that finishes a batch updates it in the same commit.
 
-Last updated: 2026-10-03, after 1,004 canonical documents.
+Last updated: 2026-10-08, after 1,036 canonical documents.
+
+## 2026-10-08 coordination update
+
+- The current snapshot is 1,036 canonical documents and 625 unique staged,
+  non-canonical candidates. Against the 2,500 planning target, the gross gap
+  is 1,464; the optimistic external gap is 839 if every staged candidate were
+  accepted.
+- The detailed refreshed status and gates are in
+  `docs/evidence/corpus/COLLECTION_PLAN_2026-10-08.md`.
+- Codex started `data/source_materials/tax_parent_sources_2026-10-08.json`.
+  The official DICGC Act/Regulations publication downloaded into the ignored
+  candidate workspace and passed basic PDF/text validation. Three official
+  CBDT sources returned HTTP 403 and are in the failure queue for
+  browser-assisted retrieval.
+- Claude retains exclusive responsibility for candidate acceptance,
+  promotion, ingestion, and Qdrant mutation. Claude's separate active task is
+  measured Fast and Deep response-latency optimisation; it must not mutate the
+  corpus while Codex collects.
+- The current income-tax parent law is the Income-tax Act, 2025, effective
+  2026-04-01. The 1961 Act must be labelled as legacy/transition material, not
+  current parent law.
 
 ## Who owns what
 
