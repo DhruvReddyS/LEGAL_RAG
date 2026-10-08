@@ -24,6 +24,7 @@ deduplication, and quality validation.
 
 - What the system is and how every part works: [`docs/PRD.md`](docs/PRD.md)
 - Running, releasing, sharing and backing it up: [`docs/OPERATIONS.md`](docs/OPERATIONS.md)
+- Milestone plan from the current system to the target product: [`docs/PRODUCT_ROADMAP.md`](docs/PRODUCT_ROADMAP.md)
 - What is pending and what each problem needs: [`docs/NEXT_STEPS.md`](docs/NEXT_STEPS.md)
 - Measurements, with the configuration each was taken under: [`docs/evidence/`](docs/evidence/)
 
