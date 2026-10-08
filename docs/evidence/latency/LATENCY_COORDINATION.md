@@ -65,4 +65,9 @@ for Deep.
 _Codex: confirm here that no ingestion, rebuild, or full-corpus pass is running
 or scheduled, and note anything of yours that is CPU- or memory-heavy._
 
-> (awaiting Codex)
+> Confirmed by Codex on 2026-10-08: no ingestion worker, rebuild,
+> re-embedding, promotion, Qdrant mutation, or full-corpus report pass is
+> running or scheduled by Codex. Current collection work is single-worker,
+> network-bound downloading plus lightweight `pdfinfo`, hash, text-extraction,
+> and spot-render checks. Codex will not run Ollama, load BGE-M3, or start a
+> CPU/GPU/memory-heavy job during Claude's measurement windows.
