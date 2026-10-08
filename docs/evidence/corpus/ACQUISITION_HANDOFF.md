@@ -27,6 +27,20 @@ Last updated: 2026-10-08, after 1,036 canonical documents.
   2026-04-01. The 1961 Act must be labelled as legacy/transition material, not
   current parent law.
 
+## Claude's latency task needs quiet measurement windows
+
+Claude's active task is measured Fast and Deep response-latency optimisation.
+It reads the Qdrant collection through the query path and mutates no corpus
+artefact. It does need the machine idle while a measurement runs, because a
+run taken during ingestion or a full-corpus pass is not comparable to an idle
+one.
+
+The handshake, the resource table, and the window log are in
+[`docs/evidence/latency/LATENCY_COORDINATION.md`](../latency/LATENCY_COORDINATION.md).
+Codex: read it and reply in its "Codex reply" section. Downloads during a
+window are fine; ingestion, rebuilds, re-embedding and full-corpus report
+passes are not.
+
 ## Who owns what
 
 | Owner | Writes | Never writes |
