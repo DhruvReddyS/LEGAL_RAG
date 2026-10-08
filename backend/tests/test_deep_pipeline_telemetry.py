@@ -34,7 +34,7 @@ class InstrumentedFakeLLM:
             "context_window": 16384,
             "prompt": {"characters": len(prompt)},
         }
-        if schema is VerificationBatch:
+        if isinstance(schema, type) and issubclass(schema, VerificationBatch):
             return VerificationBatch(claims=[]), [metric]
         if schema is _GroundedDraft:
             self.generate_num_predict.append(num_predict)

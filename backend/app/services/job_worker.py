@@ -465,6 +465,12 @@ class DurableJobWorker:
                     # credit the work already done without claiming this one.
                     target = job.progress
                 update_job_progress(job, min(99, max(job.progress, target)))
+                # The source list travels as its own event rather than inside
+                # the stage event. A surface polls /jobs/{id} and reads the
+                # latest event of each kind; burying a payload inside the
+                # progress event would make showing it conditional on which
+                # stage happened to be last.
+                sources = data.pop("located_sources", None)
                 append_job_event(
                     session,
                     job,
@@ -474,8 +480,23 @@ class DurableJobWorker:
                         "transition": transition,
                         "label": DEEP_STAGE_LABELS.get(stage, "Working"),
                         **data,
+                        **({"located_source_count": len(sources)} if sources else {}),
                     },
                 )
+                if sources:
+                    append_job_event(
+                        session,
+                        job,
+                        event_type="located_sources",
+                        stage=stage,
+                        data={
+                            "sources": sources,
+                            # Said again at the top level, because a client
+                            # that reads only the envelope must still be told.
+                            "verification_status": "unverified",
+                            "is_final_answer": False,
+                        },
+                    )
 
     @staticmethod
     def _complete_job(

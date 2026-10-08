@@ -48,6 +48,11 @@ class JobResponse(BaseModel):
     # percentage on a multi-minute wait reads as a hang.
     stage: str | None = None
     stage_label: str | None = None
+    # The authorities retrieval has located, available from about 7% of the
+    # wall time. Not the answer and not verified: every entry carries
+    # verification_status "unverified" and is_final_answer false, and a
+    # surface must render them as sources found rather than as findings.
+    located_sources: list[dict[str, Any]] | None = None
 
 
 class JobListResponse(BaseModel):

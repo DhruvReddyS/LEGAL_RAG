@@ -93,7 +93,7 @@ class FakeStrategyLLM:
                     ),
                 ],
             )
-        if schema is VerificationBatch:
+        if isinstance(schema, type) and issubclass(schema, VerificationBatch):
             self.verify_calls += 1
             return VerificationBatch(
                 claims=[

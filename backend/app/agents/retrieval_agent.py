@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from time import perf_counter_ns
 
 from app.schemas.agents import AgentTraceEvent
@@ -69,6 +70,25 @@ def _topic_anchor_details(query: str, payload: dict) -> tuple[set[str], set[str]
     return focus_tokens, best_matches, len(best_matches) / len(focus_tokens)
 
 
+async def _distinctive_terms(service, focus_tokens, target) -> list[str]:
+    """The rare query terms, with every failure mode reduced to an empty set.
+
+    The failure handling lives in the coroutine rather than around the await
+    so that a service without this method -- several test doubles -- fails the
+    same way it did when the call was made inline. Creating the task would
+    otherwise raise AttributeError synchronously, outside any handler.
+
+    An empty set only makes the downstream floor stricter, so this fails
+    closed: a term-frequency outage can cost a refusal, never a published
+    claim.
+    """
+    try:
+        _, distinctive = await service.distinctive_query_terms(focus_tokens, target=target)
+        return list(distinctive)
+    except Exception:  # noqa: BLE001 - see above
+        return []
+
+
 async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
     started_ns = perf_counter_ns()
     retry_count = int(state.get("retry_count", 0))
@@ -103,6 +123,23 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
                 filters=RetrievalFilters(corpus_tiers=[], case_ids=[str(case_id)]),
             )
         )
+    # Which query terms are rare enough to carry the topic. These are Qdrant
+    # counts over the user's own question: no model, no embedding, and no
+    # dependence on what the search returns. Started here so the lookup runs
+    # *alongside* the search rather than after it -- the Fast lane has done
+    # this since the gate was added, and running the two serially put a
+    # measured 0.1-346 ms of pure waiting on the critical path for nothing.
+    #
+    # The user's question, not the broadened retrieval query -- the same
+    # distinction the sufficiency gate needs, and missing it here was worse.
+    # Computed on the broadened query, "Is untouchability prohibited by law?"
+    # yielded the distinctive term "authoritative", a word from the appended
+    # procedure language, and the gate then required every passage to contain
+    # it. Two questions that published fell to a 15-word refusal.
+    asked = str(state.get("query") or query)
+    distinctive_terms_task = asyncio.create_task(
+        _distinctive_terms(service, _focus_tokens(asked), targets[0])
+    )
     try:
         hits, timings = await service.search_across_collections_with_timings(
             query,
@@ -246,6 +283,10 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
                 if len(hits) == 8:
                     break
     except Exception as exc:
+        # Started before the search, so it outlives a failing search unless
+        # it is cancelled here. An orphaned task holds a Qdrant connection
+        # and logs "Task exception was never retrieved" on collection.
+        distinctive_terms_task.cancel()
         append_stage_metric(
             state,
             stage="retrieval",
@@ -370,26 +411,12 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
     if followed:
         hits = hits + followed
 
-    # Which query terms are rare enough to carry its topic. Computed here
-    # because the publication gate needs it and the Deep lane never had it:
-    # without it that gate falls back to the stricter no-rare-term floor and
-    # refuses questions the corpus can answer.
-    # The user's question, not the broadened retrieval query -- the same
-    # distinction the sufficiency gate needs, and missing it here was worse.
-    # Computed on the broadened query, "Is untouchability prohibited by law?"
-    # yielded the distinctive term "authoritative", a word from the appended
-    # procedure language, and the gate then required every passage to contain
-    # it. Two questions that published fell to a 15-word refusal.
-    asked = str(state.get("query") or query)
-    try:
-        _, distinctive = await service.distinctive_query_terms(
-            _focus_tokens(asked),
-            target=targets[0],
-        )
-    except Exception:  # noqa: BLE001 - a term-frequency failure must not
-        # cost the answer. An empty set only makes the downstream floor
-        # stricter, which fails closed.
-        distinctive = []
+    # Collected, not computed: the lookup was dispatched before the search
+    # and has been running throughout it. The publication gate needs these
+    # and the Deep lane never had them -- without them that gate falls back
+    # to the stricter no-rare-term floor and refuses questions the corpus can
+    # answer.
+    distinctive = await distinctive_terms_task
     stage_metrics = append_stage_metric(
         {**state, "stage_metrics": stage_metrics},
         stage="retrieval_enrichment",

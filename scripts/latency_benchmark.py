@@ -230,12 +230,28 @@ def _env_file_value(key: str) -> str | None:
 
 
 def stage_breakdown(pipeline_metrics: list[dict[str, Any]]) -> dict[str, Any]:
-    """Per-stage wall time and LLM accounting, summed across retries."""
+    """Per-stage wall time, and prefill separated from decode, across retries.
+
+    The key names here are the ones `OllamaClient._success_metric` actually
+    writes. An earlier version guessed `response_prompt_eval_count` and
+    `duration_ms`, which exist nowhere, so every prompt-token and LLM-time
+    figure in the first baseline came out as zero -- and a zero reads as "no
+    cost" rather than "not measured". Splitting prefill from decode is the
+    whole point: they respond to completely different changes. Prefill falls
+    when the prompt shrinks or a cached prefix is reused; decode falls only
+    when fewer tokens are written, which on this pipeline means a shorter
+    answer.
+    """
     stages: dict[str, float] = {}
     llm_calls = 0
     prompt_tokens = 0
     output_tokens = 0
     llm_ms = 0.0
+    prefill_ms = 0.0
+    decode_ms = 0.0
+    load_ms = 0.0
+    queue_ms = 0.0
+    first_token_ms: list[float] = []
     for metric in pipeline_metrics or []:
         stage = str(metric.get("stage"))
         if stage == "workflow_total":
@@ -243,15 +259,29 @@ def stage_breakdown(pipeline_metrics: list[dict[str, Any]]) -> dict[str, Any]:
         stages[stage] = round(stages.get(stage, 0.0) + float(metric.get("duration_ms") or 0.0), 2)
         for call in metric.get("llm_calls") or []:
             llm_calls += 1
-            prompt_tokens += int(call.get("response_prompt_eval_count") or 0)
+            prompt_tokens += int(call.get("prompt_eval_count") or 0)
             output_tokens += int(call.get("response_eval_count") or 0)
-            llm_ms += float(call.get("duration_ms") or 0.0)
+            llm_ms += float(call.get("wall_ms") or 0.0)
+            prefill_ms += float(call.get("ollama_prompt_eval_duration_ms") or 0.0)
+            decode_ms += float(call.get("ollama_eval_duration_ms") or 0.0)
+            load_ms += float(call.get("ollama_load_duration_ms") or 0.0)
+            queue_ms += float(call.get("generation_queue_wait_ms") or 0.0)
+            if call.get("time_to_first_response_token_ms") is not None:
+                first_token_ms.append(float(call["time_to_first_response_token_ms"]))
     return {
         "stages_ms": stages,
         "llm_call_count": llm_calls,
         "llm_prompt_tokens": prompt_tokens,
         "llm_output_tokens": output_tokens,
         "llm_total_ms": round(llm_ms, 2),
+        "llm_prefill_ms": round(prefill_ms, 2),
+        "llm_decode_ms": round(decode_ms, 2),
+        "llm_model_load_ms": round(load_ms, 2),
+        "llm_queue_wait_ms": round(queue_ms, 2),
+        "llm_first_token_ms_max": round(max(first_token_ms), 2) if first_token_ms else None,
+        "llm_decode_tokens_per_second": (
+            round(output_tokens / (decode_ms / 1000), 2) if decode_ms > 0 else None
+        ),
     }
 
 
@@ -503,6 +533,7 @@ async def run_fast(
         "embedding_cache_hit": timings.get("embedding_cache_hit"),
         **stage_breakdown(body.get("pipeline_metrics") or []),
         **answer_quality(body),
+        "pipeline_metrics": body.get("pipeline_metrics") or [],
     }
     return record
 
@@ -620,6 +651,12 @@ async def run_deep(
         "event_timeline": timeline,
         **stage_breakdown(result.get("pipeline_metrics") or []),
         **answer_quality(result),
+        "job_id": job_id,
+        # Kept verbatim. Every derived figure above is a guess about which
+        # keys the pipeline writes, and one of those guesses was wrong; with
+        # the raw metrics stored, the next mistake is a re-analysis rather
+        # than another forty minutes of measurement.
+        "pipeline_metrics": result.get("pipeline_metrics") or [],
     }
     return record
 
@@ -732,6 +769,15 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
             },
             "llm_calls_per_query": summarise([float(record["llm_call_count"]) for record in subset]),
             "llm_output_tokens_per_query": summarise([float(record["llm_output_tokens"]) for record in subset]),
+            "llm_prefill_ms": summarise([float(record["llm_prefill_ms"]) for record in subset]),
+            "llm_decode_ms": summarise([float(record["llm_decode_ms"]) for record in subset]),
+            "llm_decode_tokens_per_second": summarise(
+                [
+                    float(record["llm_decode_tokens_per_second"])
+                    for record in subset
+                    if record.get("llm_decode_tokens_per_second")
+                ]
+            ),
             "llm_prompt_tokens_per_query": summarise([float(record["llm_prompt_tokens"]) for record in subset]),
             "quality": {
                 "citations_per_query": summarise([float(record["citation_count"]) for record in subset]),

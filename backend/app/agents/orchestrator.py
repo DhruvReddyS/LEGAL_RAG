@@ -7,6 +7,7 @@ from typing import Awaitable, Callable
 from langgraph.graph import END, StateGraph
 from time import perf_counter, perf_counter_ns
 
+from app.agents.located_sources import located_sources
 from app.agents.publication import publication_decision
 from app.agents.query_understanding import query_understanding_node
 from app.agents.reasoning_agent import reasoning_node
@@ -123,10 +124,17 @@ class LegalRAGWorkflow:
     async def _retrieve(self, state: AgentState) -> dict:
         await self._notify("retrieval", "started")
         result = await retrieval_node(state, self.retrieval)
+        chunks = list(result.get("retrieved_chunks", []))
         await self._notify(
             "retrieval",
             "completed",
-            {"candidate_count": len(result.get("retrieved_chunks", []))},
+            {
+                "candidate_count": len(chunks),
+                # Carried on the progress callback rather than published by
+                # this node, because the graph does not own the transport. A
+                # caller with nowhere to put it ignores the key.
+                "located_sources": located_sources(chunks),
+            },
         )
         return result
 

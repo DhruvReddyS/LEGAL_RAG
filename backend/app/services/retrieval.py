@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import asyncio
 import gc
+import json
 import hashlib
+import logging
 import re
 from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor
@@ -28,6 +30,9 @@ from app.services.citation_following import (
     implementation_provisions_for_query,
     provisions_worth_following,
 )
+
+
+logger = logging.getLogger("legal_rag.retrieval")
 
 
 @dataclass
@@ -543,9 +548,71 @@ class HybridRetrievalService:
         async with self._embedding_slots:
             return await self._run_embedding(texts, batch_size=batch_size)
 
+    # Measured on this host, 8 October: a freshly loaded BGE-M3 encodes a short
+    # query in 286 ms at the median, 73 ms after another seven calls and 33 ms
+    # after seven more. The curve is not about the query -- lengths of 6 and 96
+    # tokens converge together, and a 20-token query cost 70 ms while a
+    # 32-token one cost 614 ms in the same pass -- so it is Metal kernel
+    # compilation and allocator warming amortised over the first calls, not
+    # anything per-shape or per-length.
+    #
+    # One warm-up call therefore left the next dozen or so real queries paying
+    # 70-680 ms each. Observed in the Fast baseline: the first query after a
+    # restart spent 682 ms in the embedder while the same query cost 0 ms warm.
+    WARMUP_MAX_ENCODES = 24
+    # Stop when a call is no faster than the one before it by more than this.
+    # Two consecutive flat calls, not one, because the curve is noisy.
+    WARMUP_CONVERGENCE_RATIO = 1.15
+    WARMUP_FLAT_CALLS_BEFORE_STOPPING = 2
+    # Distinct strings of different lengths. Distinct so nothing is served
+    # from a cache instead of the model, and varied so the warm-up resembles
+    # the traffic rather than one shape.
+    WARMUP_TEXTS = (
+        "legal corpus retrieval readiness",
+        "arrest without warrant cognizable offence",
+        "what are the rights of an arrested person under the Sanhita",
+        "registration of information relating to the commission of a cognizable offence by an officer in charge of a police station",
+    )
+
     async def warmup(self) -> None:
-        """Load the query embedder before readiness so the first user avoids cold-start latency."""
-        await self.embed_documents(["legal corpus retrieval readiness"], batch_size=1)
+        """Encode until the model stops getting faster, then stop.
+
+        Bounded by call count and by convergence rather than fixed, because
+        the curve belongs to the host: a CPU-only deployment and an
+        accelerated one do not flatten after the same number of calls, and a
+        fixed count would either under-warm one or waste boot time on the
+        other. Readiness already gates on this, so no request waits for it.
+        """
+        previous: float | None = None
+        flat_calls = 0
+        encodes = 0
+        for index in range(self.WARMUP_MAX_ENCODES):
+            text = self.WARMUP_TEXTS[index % len(self.WARMUP_TEXTS)]
+            started = perf_counter()
+            # A distinct suffix each time. The query cache is not consulted on
+            # this path, but an identical input could still be served from a
+            # model-side cache on some backends, which would flatten the curve
+            # without warming anything.
+            await self.embed_documents([f"{text} {index}"], batch_size=1)
+            elapsed_ms = (perf_counter() - started) * 1000
+            encodes += 1
+            if previous is not None and elapsed_ms * self.WARMUP_CONVERGENCE_RATIO >= previous:
+                flat_calls += 1
+                if flat_calls >= self.WARMUP_FLAT_CALLS_BEFORE_STOPPING:
+                    break
+            else:
+                flat_calls = 0
+            previous = elapsed_ms if previous is None else min(previous, elapsed_ms)
+        logger.info(
+            json.dumps(
+                {
+                    "event": "query_embedder_warmed",
+                    "encodes": encodes,
+                    "final_encode_ms": round(previous or 0.0, 2),
+                },
+                separators=(",", ":"),
+            )
+        )
 
     async def search(
         self,

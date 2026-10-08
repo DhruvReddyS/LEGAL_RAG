@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import re
+from functools import lru_cache
 from time import perf_counter_ns
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, create_model
 
 from app.schemas.agents import AgentTraceEvent, ClaimVerification, VerificationResult
 from app.services.generation import INSUFFICIENT_EVIDENCE
@@ -39,6 +40,11 @@ class VerdictItem(BaseModel):
     reason: str = Field(default="", max_length=120)
 
 
+# The grammar cannot force more verdicts than the base schema allows, and a
+# claim may cite three sources, so ten claims can produce thirty pairs.
+MAX_VERDICTS = 32
+
+
 class VerificationBatch(BaseModel):
     # Positional verdicts are the production format. Ten short strings replace
     # ten repeated objects with indexes and reasons, cutting verifier decode
@@ -46,9 +52,58 @@ class VerificationBatch(BaseModel):
     # fixtures and as a defensive fallback if a model follows the older shape.
     verdicts: list[Literal["yes", "partial", "no"]] = Field(
         default_factory=list,
-        max_length=32,
+        max_length=MAX_VERDICTS,
     )
     claims: list[VerdictItem] = Field(default_factory=list)
+
+
+@lru_cache(maxsize=MAX_VERDICTS + 1)
+def verdicts_for_exactly(claim_count: int) -> type[VerificationBatch]:
+    """A verdict schema the host cannot satisfy with a short array.
+
+    The verifier routinely returned fewer verdicts than it was sent --
+    measured runs came back with three verdicts for ten claims and for
+    fourteen -- and every consequence of that was bad in both directions at
+    once. The missing claims were asked for a second time, which is another
+    prompt, another prefill of the same premises and another decode; and any
+    claim still without a verdict after that was recorded as refuted, which
+    suppressed verified law the verifier had never actually rejected.
+
+    `minItems == maxItems == claim_count`, with `verdicts` required, is
+    compiled into the sampling grammar, so the array cannot close early and
+    cannot run long. The model is not being asked more politely to return
+    every verdict; it is made unable to do otherwise.
+
+    The bound is applied to the *requested* schema only. Validation stays as
+    permissive as the base class, deliberately: when a host cannot build the
+    grammar the client retries with plain JSON mode, and a model answering in
+    the older `claims` shape must still parse. Rejecting it would turn a
+    formatting difference into "Verifier unavailable", which marks every
+    claim partial -- strictly worse than the short array this exists to fix.
+
+    Deriving the schema per claim count rather than fixing it keeps the
+    positional contract: verdict *i* belongs to claim *i*, so a short array
+    would silently shift every later verdict onto the wrong claim.
+    """
+    bounded = max(1, min(claim_count, MAX_VERDICTS))
+
+    class BoundedVerificationBatch(VerificationBatch):
+        @classmethod
+        def model_json_schema(cls, *args, **kwargs):  # type: ignore[override]
+            schema = dict(VerificationBatch.model_json_schema(*args, **kwargs))
+            verdicts = dict(schema["properties"]["verdicts"])
+            verdicts["minItems"] = bounded
+            verdicts["maxItems"] = bounded
+            schema["properties"] = {**schema["properties"], "verdicts": verdicts}
+            # Required in the request, so the grammar cannot omit the array
+            # and fall back to the object form. `claims` stays optional.
+            schema["required"] = ["verdicts"]
+            schema["title"] = f"VerificationBatchOf{bounded}"
+            return schema
+
+    BoundedVerificationBatch.__name__ = f"VerificationBatchOf{bounded}"
+    BoundedVerificationBatch.__qualname__ = BoundedVerificationBatch.__name__
+    return BoundedVerificationBatch
 
 
 def _claim_marker_pairs(answer: str) -> list[tuple[str, str]]:
@@ -164,11 +219,17 @@ async def verification_node(state: dict, llm: OllamaClient) -> dict:
     prompt = ""
     llm_calls: list[dict] = []
     fallback_used = False
+    # Whether the "you skipped some claims" request had to be made. With the
+    # exact-length grammar in place this should stay false; recording it is
+    # how a host that ignores the bound becomes visible instead of merely
+    # slower.
+    second_request_used = False
     if valid_pairs:
         items = _format_verification_items(valid_pairs, hits_by_id)
         prompt = f"""Each source block contains numbered claims and its premise.
-Judge every claim only against the premise in its own block. Return one verdict per claim in numeric
-order as JSON: {{"verdicts":["yes","partial","no"]}}. Use yes only when the premise directly
+Judge every claim only against the premise in its own block. There are {len(valid_pairs)} claims in
+total; return exactly {len(valid_pairs)} verdicts in numeric order as JSON:
+{{"verdicts":["yes","partial","no"]}}. Use yes only when the premise directly
 entails the material claim, partial for incomplete support, and no otherwise. Return no explanations.
 
 {items}"""
@@ -177,7 +238,7 @@ entails the material claim, partial for incomplete support, and no otherwise. Re
             batch, llm_calls = await structured_with_metrics(
                 llm,
                 prompt,
-                VerificationBatch,
+                verdicts_for_exactly(len(valid_pairs)),
                 num_predict=verification_budget,
             )
             seen_indexes: set[int] = set()
@@ -229,6 +290,7 @@ entails the material claim, partial for incomplete support, and no otherwise. Re
                 if index not in seen_indexes
             ]
             if outstanding:
+                second_request_used = True
                 # Only the blocks the skipped claims actually cite. Re-sending
                 # every source cost ~7s of prefill to re-read premises that
                 # already had verdicts.
@@ -253,7 +315,7 @@ entails the material claim, partial for incomplete support, and no otherwise. Re
                     second, retry_calls = await structured_with_metrics(
                         llm,
                         retry_prompt,
-                        VerificationBatch,
+                        verdicts_for_exactly(len(outstanding)),
                         num_predict=min(192, max(96, 64 + len(outstanding) * 12)),
                     )
                     llm_calls = [*llm_calls, *retry_calls]
@@ -366,6 +428,8 @@ entails the material claim, partial for incomplete support, and no otherwise. Re
             "llm_skipped": not valid_pairs,
             "adjudicated_claim_count": len(adjudicated),
             "unadjudicated_claim_count": len(unadjudicated),
+            "second_verification_request_used": second_request_used,
+            "verdict_schema_exact_length": len(valid_pairs) if valid_pairs else 0,
         },
         llm_calls=llm_calls,
     )

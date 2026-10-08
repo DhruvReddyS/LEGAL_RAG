@@ -53,18 +53,45 @@ def test_query_set_is_versioned_and_covers_the_behaviours_under_protection() -> 
     assert {item["role"] for item in HARNESS.QUERY_SET} >= {"citizen", "police"}
 
 
-def test_stage_breakdown_sums_retries_and_accounts_for_every_llm_call() -> None:
-    """A retry is a second pass through the same stages, not a different stage.
+def test_stage_breakdown_reads_the_keys_the_pipeline_actually_writes() -> None:
+    """A retry is a second pass through the same stages, not a different one.
 
     Reporting only the last pass hid the cost the retry loop exists to bound.
+
+    The key names matter more than they look. An earlier version read
+    `response_prompt_eval_count` and `duration_ms`, which `_success_metric`
+    does not write, so an entire baseline recorded zero prompt tokens and
+    zero LLM time -- and a zero there reads as "free" rather than "not
+    measured". These are the real names.
     """
     metrics = [
         {"stage": "reasoning", "duration_ms": 1000.0, "llm_calls": [
-            {"duration_ms": 900.0, "response_prompt_eval_count": 3000, "response_eval_count": 800},
+            {
+                "wall_ms": 900.0,
+                "prompt_eval_count": 3000,
+                "response_eval_count": 800,
+                "ollama_prompt_eval_duration_ms": 300.0,
+                "ollama_eval_duration_ms": 560.0,
+                "ollama_load_duration_ms": 10.0,
+                "generation_queue_wait_ms": 1.0,
+                "time_to_first_response_token_ms": 320.0,
+            },
         ]},
         {"stage": "verification", "duration_ms": 500.0, "llm_calls": [
-            {"duration_ms": 400.0, "response_prompt_eval_count": 2000, "response_eval_count": 100},
-            {"duration_ms": 50.0, "response_prompt_eval_count": 300, "response_eval_count": 20},
+            {
+                "wall_ms": 400.0,
+                "prompt_eval_count": 2000,
+                "response_eval_count": 100,
+                "ollama_prompt_eval_duration_ms": 200.0,
+                "ollama_eval_duration_ms": 180.0,
+            },
+            {
+                "wall_ms": 50.0,
+                "prompt_eval_count": 300,
+                "response_eval_count": 20,
+                "ollama_prompt_eval_duration_ms": 20.0,
+                "ollama_eval_duration_ms": 25.0,
+            },
         ]},
         {"stage": "reasoning", "retry_index": 1, "duration_ms": 1200.0, "llm_calls": []},
         {"stage": "workflow_total", "duration_ms": 9999.0, "llm_calls": []},
@@ -75,6 +102,22 @@ def test_stage_breakdown_sums_retries_and_accounts_for_every_llm_call() -> None:
     assert breakdown["llm_call_count"] == 3
     assert breakdown["llm_output_tokens"] == 920
     assert breakdown["llm_prompt_tokens"] == 5300
+    assert breakdown["llm_total_ms"] == 1350.0
+    # Prefill and decode respond to completely different changes, so a single
+    # LLM total cannot tell you which one an optimisation moved.
+    assert breakdown["llm_prefill_ms"] == 520.0
+    assert breakdown["llm_decode_ms"] == 765.0
+    assert breakdown["llm_model_load_ms"] == 10.0
+    assert breakdown["llm_queue_wait_ms"] == 1.0
+    assert breakdown["llm_first_token_ms_max"] == 320.0
+    assert breakdown["llm_decode_tokens_per_second"] == round(920 / 0.765, 2)
+
+
+def test_a_breakdown_with_no_llm_calls_reports_no_decode_rate() -> None:
+    """Fast runs no model. A rate of zero would be a false measurement."""
+    breakdown = HARNESS.stage_breakdown([{"stage": "retrieval", "duration_ms": 40.0}])
+    assert breakdown["llm_call_count"] == 0
+    assert breakdown["llm_decode_tokens_per_second"] is None
 
 
 def test_answer_quality_records_what_must_not_regress() -> None:

@@ -37,7 +37,7 @@ class VerifyingFakeLLM(InstrumentedFakeLLM):
     """
 
     async def structured_with_metrics(self, prompt, schema, *, attempts=3):
-        if schema is VerificationBatch:
+        if isinstance(schema, type) and issubclass(schema, VerificationBatch):
             return VerificationBatch(
                 claims=[VerdictItem(index=1, verdict="yes", reason="supported")]
             ), [{"operation": "structured", "attempt": 1, "prompt": {"characters": len(prompt)}}]

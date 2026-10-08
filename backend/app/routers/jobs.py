@@ -402,6 +402,18 @@ async def read_job(
     if latest is not None:
         response.stage = latest.stage
         response.stage_label = latest.data.get("label")
+    # Read from the event log rather than stored on the job row: the events
+    # are already durable, already indexed by (job_id, id), and already the
+    # record a reconnecting stream replays from. A column would be a second
+    # copy of the same fact.
+    sources_event = await session.scalar(
+        select(JobEvent)
+        .where(JobEvent.job_id == job_id, JobEvent.event_type == "located_sources")
+        .order_by(JobEvent.id.desc())
+        .limit(1)
+    )
+    if sources_event is not None:
+        response.located_sources = list(sources_event.data.get("sources") or [])
     return response
 
 
