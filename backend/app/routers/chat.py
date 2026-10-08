@@ -10,7 +10,7 @@ from time import perf_counter
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
-from sqlalchemy import case, func, select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -498,20 +498,15 @@ async def list_chat_sessions(
                 func.row_number()
                 .over(
                     partition_by=ChatMessage.session_id,
-                    # Messages written in one transaction share a server-side
-                    # timestamp, so created_at alone leaves the winner to the
-                    # planner. An assistant message always follows the question
-                    # it answers, so it wins a tie. The preference is spelled
-                    # out rather than relying on the role column's sort: a
-                    # PostgreSQL enum orders by declaration order, not
-                    # alphabetically, so "user" sorts before "assistant".
-                    order_by=(
-                        ChatMessage.created_at.desc(),
-                        case(
-                            (ChatMessage.role == ChatMessageRole.ASSISTANT, 0),
-                            else_=1,
-                        ).asc(),
-                    ),
+                    # Insert order, descending. This used to order by
+                    # created_at and break the tie by preferring the assistant
+                    # role, because messages written in one transaction share
+                    # a server-side timestamp. That was correct here and
+                    # nowhere else -- the relationship that loads a
+                    # conversation had no such rule and could show the answer
+                    # above the question. `sequence` makes insert order a
+                    # property of the row, so the rule lives in one place.
+                    order_by=ChatMessage.sequence.desc(),
                 )
                 .label("rank"),
             )

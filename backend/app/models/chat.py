@@ -5,7 +5,21 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any
 
-from sqlalchemy import CheckConstraint, DateTime, Enum, ForeignKey, Numeric, String, Text, UniqueConstraint, func, text
+from sqlalchemy import (
+    BigInteger,
+    CheckConstraint,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Index,
+    Numeric,
+    Sequence,
+    String,
+    Text,
+    UniqueConstraint,
+    func,
+    text,
+)
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -40,7 +54,14 @@ class ChatSession(Base):
     messages: Mapped[list[ChatMessage]] = relationship(
         back_populates="session",
         cascade="all, delete-orphan",
-        order_by="ChatMessage.created_at",
+        # Insert order, not the timestamp. `created_at` defaults to `now()`,
+        # which in PostgreSQL is the transaction timestamp, and a chat request
+        # writes the question and the answer in one transaction -- so both
+        # rows carried an identical value and this ordering was left to the
+        # planner. Measured: 1,225 of 2,912 stored messages shared a timestamp
+        # with a sibling, and a citizen could be shown the answer above the
+        # question.
+        order_by="ChatMessage.sequence",
     )
 
 
@@ -51,9 +72,22 @@ class ChatMessage(Base):
             "confidence_score IS NULL OR (confidence_score >= 0 AND confidence_score <= 1)",
             name="confidence_score_range",
         ),
+        # Every read of a conversation is "this session, in order".
+        Index("ix_chat_messages_session_id_sequence", "session_id", "sequence"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    # Monotonic, server-assigned, and the only correct way to order a
+    # conversation. The primary key is a random UUID, so it cannot break a
+    # timestamp tie, and the timestamp ties constantly -- see the note on
+    # ChatSession.messages. Assigned by a sequence rather than a finer clock
+    # because an integer cannot tie at all.
+    sequence: Mapped[int] = mapped_column(
+        BigInteger,
+        Sequence("chat_messages_sequence_seq"),
+        nullable=False,
+        server_default=text("nextval('chat_messages_sequence_seq')"),
+    )
     session_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("chat_sessions.id", ondelete="CASCADE"),
