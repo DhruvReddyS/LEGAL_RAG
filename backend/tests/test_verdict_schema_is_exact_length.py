@@ -17,6 +17,8 @@ from __future__ import annotations
 
 import pytest
 
+from app.core.config import settings
+
 from app.agents.verification_agent import (
     MAX_VERDICTS,
     VerdictItem,
@@ -47,6 +49,18 @@ def _draft(claim_count: int) -> str:
 
 def _hits(claim_count: int) -> list[RetrievalHit]:
     return [_hit(f"chunk-{index}") for index in range(1, claim_count + 1)]
+
+
+@pytest.fixture
+def grammar_enabled(monkeypatch):
+    """The grammar is off in production until it is measured in isolation.
+
+    It cut model calls per query from 2.86 to 2.14 and unadjudicated claims
+    to zero, but the same run showed published citations falling from 3.14
+    per query to 2.43 on a host that decoded 58% faster, which cannot
+    separate the two. These tests cover the behaviour the setting selects.
+    """
+    monkeypatch.setattr(settings, "verification_exact_verdict_grammar_enabled", True)
 
 
 class RecordingLLM:
@@ -102,7 +116,7 @@ def test_schemas_are_cached_per_count() -> None:
 
 
 @pytest.mark.asyncio
-async def test_a_complete_verdict_array_costs_exactly_one_request() -> None:
+async def test_a_complete_verdict_array_costs_exactly_one_request(grammar_enabled) -> None:
     """The second request existed only to collect what the first skipped."""
     llm = RecordingLLM()
     state = {"draft_answer": _draft(6), "retrieved_chunks": _hits(6), "stage_metrics": []}
@@ -126,7 +140,7 @@ async def test_the_prompt_states_the_count_as_well_as_the_grammar() -> None:
 
 
 @pytest.mark.asyncio
-async def test_a_host_that_ignores_the_bound_still_gets_the_second_request() -> None:
+async def test_a_host_that_ignores_the_bound_still_gets_the_second_request(grammar_enabled) -> None:
     """The fallback is kept, not replaced.
 
     The grammar is enforced by the inference host, and this code cannot
@@ -166,3 +180,26 @@ def test_the_legacy_object_shape_is_still_accepted() -> None:
     batch = VerificationBatch(claims=[VerdictItem(index=1, verdict="partial", reason="thin")])
     assert batch.verdicts == []
     assert batch.claims[0].verdict == "partial"
+
+
+def test_the_grammar_is_off_by_default() -> None:
+    """Measured, effective, and not yet shown to be safe.
+
+    It removed the second verification request in all nine runs that had
+    needed one and drove unadjudicated claims to zero. It also coincided with
+    published citations falling 23% and answers graded insufficient tripling,
+    on a run whose host decoded 58% faster than the baseline -- so that run
+    cannot attribute either effect. Verification is the one component where
+    shipping an unmeasured change is a safety change, so the default is off
+    until it has a run of its own.
+    """
+    assert settings.verification_exact_verdict_grammar_enabled is False
+
+
+@pytest.mark.asyncio
+async def test_with_the_setting_off_the_permissive_schema_is_requested() -> None:
+    llm = RecordingLLM(verdicts_returned=0)
+    state = {"draft_answer": _draft(4), "retrieved_chunks": _hits(4), "stage_metrics": []}
+    await verification_node(state, llm)  # type: ignore[arg-type]
+    assert llm.schemas[0] is VerificationBatch
+    assert "minItems" not in VerificationBatch.model_json_schema()["properties"]["verdicts"]

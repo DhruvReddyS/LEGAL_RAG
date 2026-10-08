@@ -7,6 +7,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, create_model
 
+from app.core.config import settings
 from app.schemas.agents import AgentTraceEvent, ClaimVerification, VerificationResult
 from app.services.generation import INSUFFICIENT_EVIDENCE
 from app.services.llm import OllamaClient
@@ -233,12 +234,20 @@ total; return exactly {len(valid_pairs)} verdicts in numeric order as JSON:
 entails the material claim, partial for incomplete support, and no otherwise. Return no explanations.
 
 {items}"""
+        # Stating the count costs four tokens and is true whether or not the
+        # grammar is enforcing it, so it stays on both paths. It is not a
+        # substitute for the grammar: asking was what produced three verdicts
+        # for fourteen claims.
         try:
             verification_budget = min(256, max(128, 96 + len(valid_pairs) * 12))
             batch, llm_calls = await structured_with_metrics(
                 llm,
                 prompt,
-                verdicts_for_exactly(len(valid_pairs)),
+                (
+                    verdicts_for_exactly(len(valid_pairs))
+                    if settings.verification_exact_verdict_grammar_enabled
+                    else VerificationBatch
+                ),
                 num_predict=verification_budget,
             )
             seen_indexes: set[int] = set()
@@ -315,7 +324,11 @@ entails the material claim, partial for incomplete support, and no otherwise. Re
                     second, retry_calls = await structured_with_metrics(
                         llm,
                         retry_prompt,
-                        verdicts_for_exactly(len(outstanding)),
+                        (
+                            verdicts_for_exactly(len(outstanding))
+                            if settings.verification_exact_verdict_grammar_enabled
+                            else VerificationBatch
+                        ),
                         num_predict=min(192, max(96, 64 + len(outstanding) * 12)),
                     )
                     llm_calls = [*llm_calls, *retry_calls]

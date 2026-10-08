@@ -73,6 +73,29 @@ class Settings(BaseSettings):
     # Off until measured against the golden set; the gate is the one component
     # where an unmeasured change is a safety change.
     lay_vocabulary_gate_enabled: bool = False
+    # Pins the verifier's verdict array to exactly one verdict per claim, in
+    # the sampling grammar, so it cannot come back short. It demonstrably
+    # does what it claims: the second "you skipped some claims" request fell
+    # from 9 runs in 21 to none, unadjudicated claims from 0.095 per query to
+    # zero, and model calls per query from 2.86 to 2.14.
+    #
+    # Off anyway, because the same run showed published citations falling
+    # from 3.14 per query to 2.43 and answers graded insufficient rising from
+    # 9.5% to 28.6%. The mechanism is plausible rather than proven: a claim
+    # the verifier used to skip was excluded from the support denominator and
+    # never published, while a forced verdict on the same claim can be an
+    # explicit "no" that counts against the score. On q04 the first pass then
+    # became publishable, the retry stopped firing, and the answer lost two
+    # of its six citations.
+    #
+    # That run cannot settle it. The host decoded 58% faster than the
+    # baseline, and this pipeline is not reproducible run to run -- the same
+    # question published 312 words at verification 0.75 on one repeat and
+    # abstained at 0.43 on the next. Turning this on needs its own
+    # measurement with nothing else changed and the golden set behind it.
+    # This is the one component where shipping an unmeasured change is a
+    # safety change.
+    verification_exact_verdict_grammar_enabled: bool = False
     fast_candidate_limit: int = Field(default=8, ge=4, le=40)
     fast_result_limit: int = Field(default=4, ge=1, le=10)
     fast_latency_target_ms: int = Field(default=5000, ge=500, le=30000)

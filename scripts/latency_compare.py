@@ -163,6 +163,49 @@ def render(before: dict[str, Any], after: dict[str, Any]) -> str:
         lines.append("")
         lines.append(f"{len(rows_before)} runs before, {len(rows_after)} after.")
         lines.append("")
+        # Printed before the latency table, not after it. A Deep timing is
+        # output_tokens / decode_rate plus prefill, so a host that decodes
+        # faster makes every latency figure improve without a line of code
+        # changing. Measured: the same reasoning prompt producing the same 597
+        # tokens took 42.5 s in one run and 26.4 s in another -- 14.0 against
+        # 22.6 tokens per second -- because the first ran on a laptop that had
+        # been hot for an hour. A reader who sees the latency table first will
+        # have formed a conclusion before reaching the explanation.
+        confounds = [
+            ("Decode rate (tokens/second, p50)", "llm_decode_tokens_per_second", 0.50),
+            ("Output tokens per query (p50)", "llm_output_tokens", 0.50),
+            ("Prompt tokens per query (p50)", "llm_prompt_tokens", 0.50),
+        ]
+        confound_rows = []
+        for label, key, fraction in confounds:
+            first = _p(_series(rows_before, key), fraction)
+            second = _p(_series(rows_after, key), fraction)
+            if first is None and second is None:
+                continue
+            confound_rows.append((label, first, second, _delta(first, second)))
+        if confound_rows:
+            lines.append("### Read this first: was the host the same?")
+            lines.append("")
+            lines.append("| Measure | Before | After | Delta |")
+            lines.append("|---|---:|---:|---:|")
+            for label, first, second, delta in confound_rows:
+                lines.append(f"| {label} | {_ms(first)} | {_ms(second)} | {delta} |")
+            lines.append("")
+            rate_before = _p(_series(rows_before, "llm_decode_tokens_per_second"), 0.50)
+            rate_after = _p(_series(rows_after, "llm_decode_tokens_per_second"), 0.50)
+            if rate_before and rate_after:
+                ratio = rate_after / rate_before
+                if ratio > 1.10 or ratio < 0.91:
+                    lines.append(
+                        f"> **The host decoded {abs(1 - ratio) * 100:.0f}% "
+                        f"{'faster' if ratio > 1 else 'slower'} in the after run.** "
+                        "Deep latency is output tokens divided by this rate plus prefill, "
+                        "so the end-to-end deltas below are not attributable to the code "
+                        "change. Only figures that cannot move with throughput -- call "
+                        "counts, token counts, stage ordering, time to first output -- "
+                        "are safe to read as effects of the change."
+                    )
+                    lines.append("")
         lines.append("| Measure | Before (ms) | After (ms) | Delta |")
         lines.append("|---|---:|---:|---:|")
         for label, key, fraction in [
