@@ -85,7 +85,78 @@ observed Codex's single-worker downloading into `tmp/pdfs` during W1 and W4
 and it cost the measurement nothing detectable -- the host reported 0.0
 swapouts per second and a normalised load of 0.10 throughout.
 
-## Latency work is finished. Over to the handoff.
+## Ingestion window open: v5 is building, cutover is gated
+
+Codex closed the collection batch at 17:16 and released the window. Status:
+
+| | |
+|---|---|
+| Promotion scan | 530 of 1,344 candidates promoted, 13,200 pages. 113 quarantined, 2 untitled, 7 to OCR |
+| Canonical manifest | 1,036 → **1,566** documents, 1,556 with an official URL |
+| Target collection | **`global_legal_corpus_v5`**, a new collection. `global_legal_corpus_v4` is untouched at 49,684 points and still serving |
+| Cutover | a change to `QDRANT_GLOBAL_COLLECTION`, so a rollback is a restart |
+
+The quarantine reasons were the ones this repository already knew about, caught
+without intervention: 31 Devanagari-only, 27 scheme administration circulars,
+24 locality notifications outside AP and Telangana, 21 another state's
+subordinate rules, 4 orphan amendment titles, 3 second copies, 1 Telugu scan,
+1 unreadable, 1 unidentified.
+
+**Readiness is not being inferred from the point count.** 404 of the 530 are
+`primary_law/other_relevant_laws`, which is breadth rather than workflow
+coverage, and 7 are in the OCR queue -- including the Income-tax Act, so the
+tax workflow is not served by this batch whatever the index says. The audit
+remains the measure, not the count.
+
+### The two warned instruments
+
+Both are in the manifest at `current_status = "current/verify"`, which resolves
+`is_current` to false and puts them in the UNVERIFIED currency band. That band
+was all a reader got: both lanes said "the current-law status of one or more
+retrieved records is not verified" -- the identical sentence used for a
+circular nobody had checked.
+
+The reason was recorded for 1,164 of 1,566 documents and reached nobody.
+`currency_note` was arriving on `CanonicalDocument` as a pydantic *extra*, so
+it parsed, survived promotion, and had no field on `LegalChunk` to be copied
+into. The same hop that lost `source_url`. It is now a declared field and
+travels to the payload, and both lanes name the instrument and quote its
+reason.
+
+Run against v4, the collection serving users today:
+
+```
+733 of 733 indexed documents have no currency_note key at all
+332 recorded warnings absent from the index
+724 recorded official URLs absent from the index
+```
+
+### The v5 build was restarted, and why
+
+The first v5 build started at 17:38:33; the `currency_note` ingestion code
+landed at 17:41:54. The 553 points already written could not carry the field,
+and `--resume` skips completed documents rather than rewriting them. The
+collection and its ledger were dropped and the build restarted at 17:47 from
+zero. Verified on the restarted build: `source_url` set on 200 of 200 sampled
+points, `currency_note` key present on 200 of 200, and the empty values
+confirmed against the manifest as documents that genuinely record no note --
+zero mismatches.
+
+### Cutover is gated, not scheduled
+
+`scripts/check_currency_payload_gate.py` must pass with `--require-complete`
+before `QDRANT_GLOBAL_COLLECTION` changes. It fails when a recorded warning or
+URL is absent from the index, when a payload predates the field (and says to
+rebuild rather than resume), when either flagged instrument is indexed as
+current law or claims a settled `current_status`, and when the recorded reason
+stops mentioning what it was flagged for -- so finding the AP commencement
+notification later fails this gate and forces a re-read rather than silently
+passing.
+
+Then: the retrieval, answer, provision-reach and latency gates, v5 against v4,
+before anything is promoted to serving.
+
+## Latency work is finished. The latency handoff that preceded this
 
 Summary in [`LATENCY_EVIDENCE_REPORT.md`](LATENCY_EVIDENCE_REPORT.md). On a
 matched host: Fast p95 0.18 s to 0.14 s, Deep's first source-backed output
