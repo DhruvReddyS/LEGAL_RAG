@@ -130,6 +130,19 @@ def measure(report: dict[str, Any]) -> dict[str, Any]:
         measured["deep_unsupported_claims_per_query"] = round(
             sum(_series(deep, "verification_unsupported")) / len(deep), 4
         )
+        published = [record for record in deep if not HARNESS.abstained(record)]
+        # Always reported, including as zero when nothing published. An absent
+        # key reads as "not measured" and the check would skip silently.
+        measured["deep_ungrounded_published_answers"] = sum(
+            1 for record in published if not record.get("citation_count")
+        )
+        # How well supported a *published* answer is, which is the signal a
+        # citation count cannot give. See the note on EVIDENCE_KEYS. Omitted
+        # rather than zeroed when nothing published: a score of zero would be
+        # a false measurement, and the check skips a key it cannot compare.
+        scores = _series(published, "verification_score")
+        if scores:
+            measured["deep_mean_verification_score"] = round(sum(scores) / len(scores), 4)
         # Recorded, never gated. This is the host's property, not the
         # repository's, and it is here so a reader can see whether a latency
         # move was the code or the machine.
@@ -152,7 +165,27 @@ LATENCY_KEYS = (
     "deep_non_model_overhead_p95_ms",
     "deep_first_useful_output_p95_ms",
 )
-EVIDENCE_KEYS = ("fast_citations_per_query", "deep_citations_per_query")
+# Citation count is a floor against evidence being dropped, and it is not a
+# measure of quality. Measured on the contract question: Deep publishes **one**
+# citation -- Indian Contract Act s.10, the provision that defines a valid
+# contract's essentials -- supporting seven verified claims at a verification
+# score of 0.70, while Fast publishes four passages of which two are s.55 on
+# failure to perform at a fixed time and Sale of Goods s.12 on conditions and
+# warranties. Fewer, better sources scores worse on this metric and is the
+# better answer.
+#
+# So it stays as a tripwire anchored to a recorded baseline, not as a quality
+# bar, and `deep_mean_verification_score` is gated beside it. That pair is what
+# separates a genuine loss of support from a legitimately narrower answer: the
+# regression this gate was written after took one question from 4 citations at
+# score 0.75 to 1 citation at score **0.20**, while the contract question sat
+# at 1 citation and score 0.70 throughout. A human reading a citation-count
+# failure should check the score before treating it as a regression.
+EVIDENCE_KEYS = (
+    "fast_citations_per_query",
+    "deep_citations_per_query",
+    "deep_mean_verification_score",
+)
 
 
 def check(measured: dict[str, Any], contract: dict[str, Any]) -> list[str]:
@@ -192,6 +225,12 @@ def check(measured: dict[str, Any], contract: dict[str, Any]) -> list[str]:
                 f"{key} rose to {measured[key]} against a ceiling of {ceiling:.3f} "
                 f"(contract {recorded[key]}); refusing more often is not an optimisation"
             )
+    key = "deep_ungrounded_published_answers"
+    if key in measured and float(measured[key]) > 0:
+        failures.append(
+            f"{measured[key]} published answer(s) carry no citation at all; "
+            "an answer with no source is never publishable"
+        )
     key = "deep_unsupported_claims_per_query"
     if key in measured and key in recorded:
         ceiling = max(float(recorded[key]) * UNSUPPORTED_TOLERANCE, float(recorded[key]) + 0.5)

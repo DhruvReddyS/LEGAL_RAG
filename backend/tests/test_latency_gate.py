@@ -207,3 +207,61 @@ def test_a_run_with_validity_warnings_cannot_set_or_pass_the_gate(tmp_path) -> N
         assert GATE.main() == 2
     finally:
         sys.argv = argv
+
+
+def test_a_published_answer_with_no_citation_fails_absolutely() -> None:
+    """Not a band against a baseline. There is no acceptable number of these.
+
+    An abstention with no citation is correct; a *published* answer with none
+    is an ungrounded legal statement.
+    """
+    contract = {"query_set_version": "latency-v1", "measured": GATE.measure(_report([_deep()]))}
+    ungrounded = _deep(citation_count=0, answer="A contract requires free consent.")
+    failures = GATE.check(GATE.measure(_report([ungrounded])), contract)
+    assert any("no citation at all" in failure for failure in failures)
+
+
+def test_an_abstention_without_citations_is_not_counted_as_ungrounded() -> None:
+    refusal = _deep(
+        citation_count=0,
+        answer="I could not find enough reliable support in the indexed legal corpus for this answer.",
+    )
+    measured = GATE.measure(_report([refusal]))
+    assert measured["deep_ungrounded_published_answers"] == 0
+
+
+def test_a_narrower_but_better_supported_answer_is_not_punished_alone() -> None:
+    """The case that shows citation count is not a quality measure.
+
+    Measured on the contract question: Deep publishes one citation -- Indian
+    Contract Act s.10, the provision that defines a valid contract's
+    essentials -- supporting seven verified claims at a verification score of
+    0.70, while Fast publishes four passages of which two are s.55 on failure
+    to perform at a fixed time and Sale of Goods s.12 on conditions and
+    warranties.
+
+    The count metric prefers Fast's four. So the gate records the verification
+    score beside it, and a citation-count failure whose score held is a
+    prompt to look rather than a verdict. This test pins that the score is
+    gated, so nobody removes it and leaves the count alone.
+    """
+    assert "deep_mean_verification_score" in GATE.EVIDENCE_KEYS
+    well_supported = _deep(citation_count=1, verification_score=0.70)
+    measured = GATE.measure(_report([well_supported]))
+    assert measured["deep_mean_verification_score"] == pytest.approx(0.70)
+
+
+def test_support_collapsing_fails_even_when_citations_hold() -> None:
+    """The regression this gate was written after, in its clearest form.
+
+    One question went from 4 citations at verification 0.75 to 1 citation at
+    0.20. Had the citations held while the score collapsed, the count check
+    alone would have passed it.
+    """
+    contract = {
+        "query_set_version": "latency-v1",
+        "measured": GATE.measure(_report([_deep(verification_score=0.75)])),
+    }
+    collapsed = _deep(verification_score=0.20)
+    failures = GATE.check(GATE.measure(_report([collapsed])), contract)
+    assert any("deep_mean_verification_score" in failure for failure in failures)

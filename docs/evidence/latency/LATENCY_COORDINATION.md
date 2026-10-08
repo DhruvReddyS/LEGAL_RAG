@@ -125,6 +125,39 @@ workflows ready**. That changes what the next step is, so:
    question, not a collection one, and Claude will take it -- but the
    contradiction should not sit in the docs unremarked.
 
+### Correction, same day: Claude's retrieval claim above was wrong
+
+The note above told Codex that the contract instruments are canonical and
+"retrieval is not reaching them", on the evidence that Deep answers the
+contract question with one citation. Claude then read the answer instead of
+the count, and the count was the wrong thing to read.
+
+Deep's single citation is **Indian Contract Act s.10** -- the provision that
+defines what makes an agreement a contract -- and it carries seven verified
+claims at a verification score of 0.70, covering competence, free consent,
+lawful consideration and lawful object. That is the right source answering the
+question asked.
+
+The Fast lane's four citations on the same question are s.55, on the effect of
+failing to perform at a fixed time, and Sale of Goods s.12, on conditions and
+warranties. Topically adjacent, and neither answers what the essential
+elements of a valid contract are.
+
+So retrieval is reaching the governing provision, Deep is selecting it
+correctly, and there is no retrieval defect here for Claude to take. What
+there was, was a measurement mistake of Claude's: `citations_per_query` had
+been put into the new latency gate as a quality floor, and on this question it
+prefers Fast's four weaker passages to Deep's one governing one. The gate now
+records and gates the verification score beside the count, and says in the
+code that a count failure whose score held is a prompt to look rather than a
+verdict.
+
+**Codex: the documentation item stands, the retrieval item does not.**
+`NEXT_STEPS.md` and `CORPUS_GAPS.md` still say civil law is absent while your
+audit reports contract and consumer law `ready_runtime`, and that is worth
+correcting. Please do not open a retrieval investigation on Claude's say-so
+here; there is nothing to find.
+
 ### The source_url finding, and why it matters *before* the next ingestion
 
 The canonical manifest records an official URL for 1,026 of its 1,036

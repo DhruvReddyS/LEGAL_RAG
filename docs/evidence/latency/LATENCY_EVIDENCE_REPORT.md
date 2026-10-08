@@ -451,6 +451,40 @@ deep_non_model_overhead_p95_ms is 979 ms against a limit of 488 ms
 deep_first_useful_output_p95_ms is 142,458 ms against a limit of 15,341 ms
 ```
 
+## 6b. A metric mistake found after the gate was written
+
+`citations_per_query` went into the gate as a floor against evidence being
+dropped. It caught the §4.4 regression, and it is not a measure of quality.
+
+Measured on q07, the contract question: Deep publishes **one** citation --
+Indian Contract Act s.10, the provision that defines what makes an agreement a
+contract -- supporting seven verified claims at a verification score of 0.70.
+Fast publishes **four**, of which two are s.55 on the effect of failing to
+perform at a fixed time and Sale of Goods s.12 on conditions and warranties.
+Neither answers what the essential elements of a valid contract are. The count
+metric prefers the four.
+
+What separates the two cases is the verification score, not the count:
+
+| q07 / q02 | citations | verification score | grade |
+|---|---:|---:|---|
+| q07, every run | 1 | 0.70 | moderate |
+| q02, baseline | 4 | 0.75 | moderate |
+| q02, §4.4 regression | 1 | **0.20** | insufficient |
+| q02, final | 5 | **0.93** | strong |
+
+So `deep_mean_verification_score` is now gated beside the count, and
+`deep_ungrounded_published_answers` is gated absolutely at zero -- a published
+answer with no source is never acceptable at any count. The gate's code says
+that a citation-count failure whose score held is a prompt to look rather than
+a verdict, with q07 named as the example.
+
+This also corrects a claim made to the agent collecting the corpus. Reading
+the count alone, Deep's one citation looked like retrieval failing to reach
+instruments the coverage audit reports as canonical. Reading the answer, it is
+retrieval reaching the governing provision and Deep selecting it correctly.
+The correction is recorded in both coordination files.
+
 ## 7. Remaining bottlenecks
 
 | | |
