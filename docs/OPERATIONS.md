@@ -38,6 +38,32 @@ python -m uvicorn main:app --host 127.0.0.1 --port 8000
 cd ../frontend && npm run dev
 ```
 
+### The containerised backend will steal port 8000 from a native one
+
+`docker/docker-compose.yml` gives the `backend` service
+`restart: unless-stopped`. Once it has run, Docker brings it back on the next
+engine start, it binds `127.0.0.1:8000`, and a natively-run backend started
+afterwards fails with `address already in use` and exits.
+
+The failure is quiet and expensive. The container is built from the CPU torch
+wheel, so it resolves `EMBEDDING_DEVICE=auto` to `cpu` while the host resolves
+it to `mps`. Everything answers, `/health/ready` reports ready, and retrieval
+is several times slower. On 8 October this consumed a full latency measurement
+window before `/health/ready`'s `inference` block showed `"embedding": "cpu"`
+and gave it away.
+
+So when running the backend natively, stop the container first and check what
+is actually listening:
+
+```bash
+docker compose --env-file .env -f docker/docker-compose.yml stop backend
+lsof -nP -iTCP:8000 -sTCP:LISTEN
+curl -s localhost:8000/health/ready | python3 -m json.tool   # inference must say mps
+```
+
+`/health/ready` reports the resolved device for exactly this reason. Read it
+rather than assuming which process answered.
+
 Ollama runs **natively**, not in a container — it needs direct GPU access, and a
 containerised Ollama silently falls back to CPU:
 
