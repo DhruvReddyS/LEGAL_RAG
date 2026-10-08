@@ -38,6 +38,32 @@ python -m uvicorn main:app --host 127.0.0.1 --port 8000
 cd ../frontend && npm run dev
 ```
 
+### Unload the reasoning model before a corpus rebuild
+
+This host has 24 GB of unified memory and `qwen3-14b-16k` holds 11.7 GB of it,
+resident for 30 minutes after the last query. Start a rebuild while it is
+loaded and the embedder competes with it: measured 34.2 GB of swap in use and
+BGE-M3 taking **4.75 seconds** for a single-item batch, which is a rebuild
+measured in days rather than hours.
+
+Unloading it took swap to 18.1 GB and the encoder to **1.4-4.2 items a
+second** -- the same work, an order of magnitude faster, from one API call:
+
+```bash
+curl -s http://localhost:11434/api/generate \
+  -d '{"model":"qwen3-14b-16k:latest","keep_alive":0,"prompt":"","stream":false}'
+```
+
+`scripts/run_rebuild.sh` now does this itself before ensuring the collection
+exists, so it is not something anyone has to remember. The model reloads on
+the next query in about ten seconds, and nothing should be querying during a
+rebuild.
+
+This note corrects a standing assumption. "Ingestion makes this machine swap
+heavily, around 20 GB" has been recorded as a property of ingestion and worked
+around for weeks, including by scheduling measurement windows around it. It is
+a property of running both models at once.
+
 ### The containerised backend will steal port 8000 from a native one
 
 `docker/docker-compose.yml` gives the `backend` service

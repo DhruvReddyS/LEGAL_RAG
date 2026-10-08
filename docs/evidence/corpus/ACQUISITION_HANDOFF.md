@@ -263,6 +263,22 @@ and `/bitstream/` path times out at 60s on HTTP/2 and 1.1),
 
 `cdnbbsr.s3waas.gov.in` serves most ministry PDFs and is fast and reliable.
 
+## Ingestion does not have to make this machine swap
+
+The note below says ingestion swaps around 20 GB and that no retrieval
+measurement taken during it is comparable. The first half is avoidable.
+
+`qwen3-14b-16k` holds 11.7 GB of this host's 24 GB and stays resident for 30
+minutes after the last query. With it loaded, a rebuild measured 34.2 GB of
+swap in use and BGE-M3 taking 4.75 seconds for a single-item batch. Unloading
+it took swap to 18.1 GB and the encoder to 1.4-4.2 items a second -- the same
+work, an order of magnitude faster.
+
+`scripts/run_rebuild.sh` now unloads it before starting, so this is handled
+rather than remembered. The second half of the note still stands: a retrieval
+measurement taken during ingestion is not comparable to an idle one, because
+the embedder and Qdrant are busy whatever the swap figure says.
+
 ## State of the machine
 
 Ingestion into `global_legal_corpus_v4` runs in the background and takes port

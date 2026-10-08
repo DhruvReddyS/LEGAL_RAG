@@ -35,6 +35,39 @@ print(len(list(iter_canonical_documents(load_manifest(Path('$ROOT/data/legal_kb/
 ")"
 [ "$TOTAL" -gt 0 ] 2>/dev/null || { echo "could not count canonical documents"; exit 1; }
 MAX_ATTEMPTS=40
+OLLAMA_URL="${OLLAMA_BASE_URL:-http://127.0.0.1:11434}"
+
+# Evict the reasoning model before embedding anything.
+#
+# This host has 24 GB of unified memory and the 14B reasoning model holds 11.7
+# of it, resident for 30 minutes after the last query. The embedder then
+# competes with it, and the machine pages: measured 34.2 GB of swap in use and
+# BGE-M3 taking 4.75 seconds for a single-item batch, which is a rebuild
+# measured in days.
+#
+# Unloading the model took swap to 18.1 GB and the encoder to 1.4-4.2 items a
+# second -- the same work, an order of magnitude faster, from one API call.
+# Nothing is lost: it reloads on the next query in about ten seconds, and
+# nothing should be querying during a rebuild anyway.
+#
+# The project's own notes have treated "ingestion makes this machine swap
+# heavily" as a property of ingestion for weeks. It is a property of running
+# both models at once, and it is avoidable.
+unload_reasoning_model() {
+  command -v curl >/dev/null 2>&1 || return 0
+  local resident
+  resident="$(curl -s --max-time 5 "$OLLAMA_URL/api/ps" 2>/dev/null \
+    | python3 -c "import sys,json
+try: print(' '.join(m['name'] for m in json.load(sys.stdin).get('models', [])))
+except Exception: pass" 2>/dev/null)"
+  [ -n "$resident" ] || return 0
+  for model in $resident; do
+    printf '  unloading %s to free memory for the embedder\n' "$model"
+    curl -s --max-time 20 "$OLLAMA_URL/api/generate" \
+      -d "{\"model\":\"$model\",\"keep_alive\":0,\"prompt\":\"\",\"stream\":false}" \
+      >/dev/null 2>&1 || true
+  done
+}
 
 completed() {
   python3 -c "
@@ -85,6 +118,7 @@ if [ "$REEXTRACT" = 1 ]; then
 fi
 
 ensure_stack
+unload_reasoning_model
 echo "  ensuring collection $COLLECTION exists"
 ( cd "$ROOT/backend" && \
   QDRANT_GLOBAL_COLLECTION="$COLLECTION" QDRANT_URL=http://localhost:6333 \
