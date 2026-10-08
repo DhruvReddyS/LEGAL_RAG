@@ -278,9 +278,9 @@ are the unit.
 | | |
 |---|---|
 | Collection | `global_legal_corpus_v5` (new). `global_legal_corpus_v4` untouched at 49,684 points |
-| Progress | 226 of 1,563 unique documents, **10,876 of 55,321 pages (19.7%)** |
-| Measured throughput | about 2,090 pages an hour since the keeper restart |
-| Estimate | **about 21 hours**, consistent with the independent 18-24 hour figure from page throughput |
+| Progress | 236 of 1,563 unique documents, **11,216 of 55,321 pages (20.3%)** |
+| Measured throughput | **2,572 pages an hour**, from a 15-minute window: 16 documents, 643 pages |
+| Estimate | **17 hours** at that rate for the 44,105 pages remaining. Treat 17-24 hours as the range: the cumulative average since the keeper restart is lower at about 2,090 an hour, and the pending tail is heavier than the average document |
 | Detached | `caffeinate` holds sleep off; the ledger checkpoints per document, so a crash costs one document |
 
 ### Terminology, following POST_PROMOTION_QUALITY_AUDIT.md
