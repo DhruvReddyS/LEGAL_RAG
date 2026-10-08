@@ -32,6 +32,16 @@ class LegalChunk(BaseModel):
     # citation surface already reads `payload.get("source_url")`, so each one
     # was rendering a citation a citizen cannot open or check.
     source_url: str | None = None
+    # The acquirer's reason for doubting this document's currency. 1,164 of
+    # 1,566 canonical documents record one and not one of them reached a
+    # reader, because the chunk had no field for it -- the same hop that lost
+    # source_url.
+    #
+    # It is the difference between "the current-law status of one or more
+    # retrieved records is not verified" and "section 1(3) of this Act
+    # requires a commencement notification, which was not located". A citizen
+    # can act on the second.
+    currency_note: str | None = None
     court: str | None = None
     jurisdiction: str | None = None
     act_name: str | None = None
@@ -165,6 +175,7 @@ def chunk_structural_units(
                     title=document.title,
                     source_type=document.resolved_type().value,
                     source_url=document.source_url,
+                    currency_note=document.currency_note,
                     court=document.court,
                     jurisdiction=document.jurisdiction,
                     act_name=document.act_name,

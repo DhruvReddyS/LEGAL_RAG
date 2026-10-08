@@ -74,6 +74,7 @@ def _chunk_from_payload(
         # From the document, not the stored payload: a restore must be able to
         # add a field the indexed point never had.
         source_url=document.source_url,
+        currency_note=document.currency_note,
         court=document.court,
         jurisdiction=document.jurisdiction,
         act_name=document.act_name,

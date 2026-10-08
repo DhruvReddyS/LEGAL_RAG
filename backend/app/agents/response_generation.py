@@ -296,6 +296,34 @@ def response_generation_node(state: dict) -> dict:
                 "latest official text and amendments before relying on it for a live "
                 "matter."
             )
+            # Name the instrument and give the recorded reason. The sentence
+            # above is the same for an Act whose commencement notification was
+            # never located, a rules consolidation with a known later
+            # amendment chain, and a circular nobody has got round to
+            # checking. Those are three different warnings and the reason was
+            # recorded in the manifest for 1,164 of 1,566 documents.
+            specific: list[str] = []
+            seen_notes: set[str] = set()
+            for chunk_id in cited_ids:
+                hit = hit_by_id.get(chunk_id)
+                if hit is None:
+                    continue
+                payload = hit.payload
+                if resolve_currency(payload).status is not CurrencyStatus.UNVERIFIED:
+                    continue
+                note = " ".join(str(payload.get("currency_note") or "").split())
+                if not note:
+                    continue
+                name = str(
+                    payload.get("act_name") or payload.get("title") or "a cited source"
+                )
+                entry = f"- {name}: {note[:400]}"
+                if entry in seen_notes:
+                    continue
+                seen_notes.add(entry)
+                specific.append(entry)
+            if specific:
+                answer += "\n\nWhat is specifically unverified:\n\n" + "\n".join(specific)
         answer += (
             "\n\n---\n\n*Legal decision-support information, not a substitute for "
             "advice from a qualified professional who has reviewed the complete facts and current law.*"

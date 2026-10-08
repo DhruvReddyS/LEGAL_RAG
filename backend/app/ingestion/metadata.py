@@ -39,6 +39,12 @@ class CanonicalDocument(BaseModel):
     superseded_by: str | None = None
     language: str = "English"
     source_url: str | None = None
+    # Why this document's currency is in doubt, in the acquirer's own words.
+    # It was arriving as an `extra` -- the model allows them -- so it parsed,
+    # survived promotion, and was then invisible to every reader. Declared, so
+    # the chunker can copy it and a typo in the key fails here rather than
+    # silently dropping a warning a citizen needed.
+    currency_note: str | None = None
     sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     file_size: int = Field(gt=0)
     page_count: int = Field(gt=0)

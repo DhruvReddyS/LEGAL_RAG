@@ -421,11 +421,50 @@ def currency_notice(payloads: list[dict[str, Any]]) -> str | None:
         resolve_currency(payload).status is CurrencyStatus.UNVERIFIED
         for payload in payloads
     ):
-        return (
-            "Currency notice: the current-law status of one or more retrieved records "
-            "is not verified in the corpus. Confirm amendments, commencement and "
-            "repeal status before relying on them."
+        # Name the instruments and give the acquirer's own reason where one
+        # was recorded. "One or more retrieved records" told a reader nothing
+        # they could act on, and the reason was sitting in the manifest for
+        # 1,164 of 1,566 documents -- including an Act whose commencement
+        # notification was never located and a rules consolidation with a
+        # known later amendment chain. Those two are the cases this notice
+        # exists for, and it was describing them in the same words it used
+        # for a circular nobody had got round to checking.
+        unverified = [
+            payload
+            for payload in payloads
+            if resolve_currency(payload).status is CurrencyStatus.UNVERIFIED
+        ]
+        reasons: list[str] = []
+        seen: set[str] = set()
+        for payload in unverified:
+            note = " ".join(str(payload.get("currency_note") or "").split())
+            if not note:
+                continue
+            name = str(
+                payload.get("act_name") or payload.get("title") or "a cited source"
+            )
+            key = f"{name}|{note}"
+            if key in seen:
+                continue
+            seen.add(key)
+            reasons.append(f"{name} — {_compact(note, 320)}")
+        unnamed = sorted(
+            {
+                str(payload.get("act_name") or payload.get("title") or "a cited source")
+                for payload in unverified
+                if not str(payload.get("currency_note") or "").strip()
+            }
         )
+        notice = (
+            "Currency notice: the current-law status of the following is not verified "
+            "in this corpus. Confirm amendments, commencement and repeal status before "
+            "relying on them."
+        )
+        if reasons:
+            notice += "\n\n" + "\n".join(f"- {reason}" for reason in reasons)
+        if unnamed:
+            notice += "\n\n- status unchecked, no reason recorded: " + "; ".join(unnamed)
+        return notice
     return None
 
 

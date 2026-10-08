@@ -30,6 +30,11 @@ def legal_chunk_payload(
         # way to open the official text behind it. Empty string rather than
         # None so the key exists on every point and a filter on it is possible.
         "source_url": chunk.source_url or "",
+        # Named, specific doubt about this document's currency, to be shown
+        # beside the citation rather than aggregated into a generic notice.
+        # Both lanes already warn when a source is unverified; neither could
+        # say *why*, because this never left the manifest.
+        "currency_note": chunk.currency_note or "",
 
         "act_name": chunk.act_name or "",
         "section": chunk.section or "",
