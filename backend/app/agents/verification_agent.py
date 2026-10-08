@@ -227,17 +227,44 @@ async def verification_node(state: dict, llm: OllamaClient) -> dict:
     second_request_used = False
     if valid_pairs:
         items = _format_verification_items(valid_pairs, hits_by_id)
+        # Stating the expected verdict count is measured, effective, and not
+        # free, so it travels with the same setting as the grammar.
+        #
+        # Measured over three 21-run passes on one query set. With the count
+        # stated, the "you skipped some claims" second request fell from 9
+        # runs in 21 to none and unadjudicated claims from 0.095 per query to
+        # zero -- and the grammar turned out to be unnecessary to achieve
+        # that, because a run with the sentence and no grammar produced the
+        # identical 0 of 21 and the identical 2.143 model calls per query.
+        #
+        # The same two runs also published 2.43 citations per query against
+        # the baseline's 3.14, and graded 28.6% of answers insufficient
+        # against 9.5%. The mechanism is credible: a claim the verifier used
+        # to leave unjudged was excluded from the support denominator, while
+        # a forced verdict on that claim can be an explicit "no" that counts
+        # against the score -- enough to make a first pass publishable, which
+        # stops the retry firing, and the retry was where two of q04's six
+        # citations came from. Retries went from 3 runs in 21 to none in both
+        # runs that carried this sentence.
+        #
+        # Not proven, because those runs also decoded 58% faster than the
+        # baseline and this pipeline is not reproducible: the same question
+        # published 312 words at verification 0.75 on one repeat and
+        # abstained at 0.43 on the next. Fewer citations is the one direction
+        # a citizen surface cannot afford to move in by accident, so the
+        # default is the behaviour that produced more of them.
+        count_instruction = (
+            f"There are {len(valid_pairs)} claims in total; return exactly "
+            f"{len(valid_pairs)} verdicts in numeric order"
+            if settings.verification_exact_verdict_grammar_enabled
+            else "Return one verdict per claim in numeric order"
+        )
         prompt = f"""Each source block contains numbered claims and its premise.
-Judge every claim only against the premise in its own block. There are {len(valid_pairs)} claims in
-total; return exactly {len(valid_pairs)} verdicts in numeric order as JSON:
+Judge every claim only against the premise in its own block. {count_instruction} as JSON:
 {{"verdicts":["yes","partial","no"]}}. Use yes only when the premise directly
 entails the material claim, partial for incomplete support, and no otherwise. Return no explanations.
 
 {items}"""
-        # Stating the count costs four tokens and is true whether or not the
-        # grammar is enforcing it, so it stays on both paths. It is not a
-        # substitute for the grammar: asking was what produced three verdicts
-        # for fourteen claims.
         try:
             verification_budget = min(256, max(128, 96 + len(valid_pairs) * 12))
             batch, llm_calls = await structured_with_metrics(

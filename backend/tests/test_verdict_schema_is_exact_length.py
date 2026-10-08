@@ -131,12 +131,32 @@ async def test_a_complete_verdict_array_costs_exactly_one_request(grammar_enable
 
 
 @pytest.mark.asyncio
-async def test_the_prompt_states_the_count_as_well_as_the_grammar() -> None:
-    """Belt and braces: a host that drops the bound still reads the number."""
+async def test_the_prompt_states_the_count_when_the_setting_is_on(grammar_enabled) -> None:
+    """Belt and braces: a host that drops the bound still reads the number.
+
+    The sentence turned out to be the effective half. A run with it and no
+    grammar produced the same 0 second requests in 21 as a run with both.
+    """
     llm = RecordingLLM()
     state = {"draft_answer": _draft(4), "retrieved_chunks": _hits(4), "stage_metrics": []}
     await verification_node(state, llm)  # type: ignore[arg-type]
     assert "exactly 4 verdicts" in llm.prompts[0]
+
+
+@pytest.mark.asyncio
+async def test_the_prompt_does_not_state_the_count_by_default() -> None:
+    """The sentence travels with the setting, because it is not free.
+
+    Both runs that carried it published 2.43 citations per query against the
+    baseline's 3.14 and retried on none of 21 runs against three. Fewer
+    citations is the one direction a citizen surface cannot afford to move
+    in by accident, so the default is the behaviour that produced more.
+    """
+    llm = RecordingLLM(verdicts_returned=4)
+    state = {"draft_answer": _draft(4), "retrieved_chunks": _hits(4), "stage_metrics": []}
+    await verification_node(state, llm)  # type: ignore[arg-type]
+    assert "exactly 4 verdicts" not in llm.prompts[0]
+    assert "one verdict per claim" in llm.prompts[0]
 
 
 @pytest.mark.asyncio
