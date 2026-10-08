@@ -53,6 +53,14 @@ class JobResponse(BaseModel):
     # verification_status "unverified" and is_final_answer false, and a
     # surface must render them as sources found rather than as findings.
     located_sources: list[dict[str, Any]] | None = None
+    # Where a queued job sits, and roughly how long that is. A queued reader
+    # sees nothing at all until their job is claimed -- measured at 38.4 s for
+    # the second of two Deep jobs -- and running jobs concurrently to fix that
+    # was measured and rejected, because it made the first asker wait 81%
+    # longer for the same throughput. Saying "second in line, about a minute"
+    # costs one COUNT and is what the reader actually needed.
+    queue_position: int | None = None
+    estimated_wait_seconds: int | None = None
 
 
 class JobListResponse(BaseModel):

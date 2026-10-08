@@ -10,6 +10,7 @@ from typing import Any
 from sqlalchemy import select
 
 from app.agents.orchestrator import LegalRAGWorkflow
+from app.core.config import settings
 from app.core.database import AsyncSessionLocal
 from app.models import AuditLog, Case, CaseDocument, ChatMessage, Job, StorageObject, User
 from app.models.enums import ChatMessageRole, JobStatus, JobType
@@ -74,11 +75,14 @@ class DurableJobWorker:
         workflow: LegalRAGWorkflow,
         *,
         poll_interval_ms: int = 500,
+        concurrency: int | None = None,
     ) -> None:
         self.workflow = workflow
         self.poll_interval_seconds = poll_interval_ms / 1000
+        self.concurrency = max(1, concurrency if concurrency is not None else settings.job_worker_concurrency)
         self._stop = asyncio.Event()
         self._task: asyncio.Task[None] | None = None
+        self._in_flight: set[asyncio.Task[None]] = set()
 
     async def start(self) -> None:
         if self._task is not None:
@@ -107,18 +111,102 @@ class DurableJobWorker:
                 await recover_interrupted_jobs(session)
 
     async def _run(self) -> None:
-        while not self._stop.is_set():
-            job_id = await self._claim()
-            if job_id is None:
-                try:
-                    await asyncio.wait_for(
-                        self._stop.wait(),
-                        timeout=self.poll_interval_seconds,
-                    )
-                except TimeoutError:
+        """Claim up to `concurrency` jobs and run them together.
+
+        Generation is not what this parallelises -- `OllamaClient` holds its
+        own semaphore and still admits one request at a time. What runs
+        together is everything that needs no model, so a queued job's
+        retrieval completes and publishes its located sources while the job
+        ahead of it is still decoding. Measured before this: the second of two
+        Deep jobs waited 57.6 s before its retrieval began.
+
+        `claim_next_job` already locks with `skip_locked`, so concurrent
+        claims cannot collide, and `_execute` holds no shared state -- it
+        takes a job id and opens its own short sessions. The worker was built
+        for more than one of itself; it just never ran that way.
+        """
+        try:
+            while not self._stop.is_set():
+                if len(self._in_flight) >= self.concurrency:
+                    await self._reap(block=True)
                     continue
+                job_id = await self._claim()
+                if job_id is None:
+                    # Nothing to claim. Wait for a stop, for a running job to
+                    # finish, or for the poll interval -- whichever comes
+                    # first, so a finished job frees its slot immediately.
+                    waiters: set[asyncio.Task[None] | asyncio.Future[bool]] = {
+                        asyncio.ensure_future(self._stop.wait()),
+                        *self._in_flight,
+                    }
+                    done, pending = await asyncio.wait(
+                        waiters,
+                        timeout=self.poll_interval_seconds,
+                        return_when=asyncio.FIRST_COMPLETED,
+                    )
+                    for waiter in pending:
+                        if waiter not in self._in_flight:
+                            waiter.cancel()
+                    self._reap_completed()
+                    continue
+                task = asyncio.create_task(self._execute(job_id), name=f"durable-job-{job_id}")
+                self._in_flight.add(task)
+        finally:
+            await self._drain()
+
+    def _reap_completed(self) -> None:
+        """Clear finished tasks and surface anything `_execute` let escape.
+
+        A task whose exception is never retrieved is logged by asyncio at
+        garbage-collection time, detached from the job it belonged to.
+        `_execute` handles its own failures, so anything arriving here is a
+        defect and is named as one.
+        """
+        for task in [task for task in self._in_flight if task.done()]:
+            self._in_flight.discard(task)
+            if task.cancelled():
                 continue
-            await self._execute(job_id)
+            error = task.exception()
+            if error is not None:
+                logger.error(
+                    "durable job task escaped its own error handling error_type=%s",
+                    type(error).__name__,
+                )
+
+    async def _reap(self, *, block: bool) -> None:
+        """Clear finished jobs, optionally waiting for one to finish first.
+
+        The wait includes the stop event. Waiting on the jobs alone meant a
+        full pool could not observe a stop request until one of its jobs
+        completed -- up to a hundred and fifty seconds for a Deep run.
+        `stop()` would still get there by cancelling this loop outright, so
+        the bug was invisible in production and is not a reason to rely on a
+        hard cancel for a graceful shutdown.
+        """
+        if not self._in_flight:
+            return
+        if block:
+            stop_waiter = asyncio.ensure_future(self._stop.wait())
+            try:
+                await asyncio.wait(
+                    {*self._in_flight, stop_waiter},
+                    return_when=asyncio.FIRST_COMPLETED,
+                )
+            finally:
+                stop_waiter.cancel()
+        self._reap_completed()
+
+    async def _drain(self) -> None:
+        """Cancel what is still running on the way out.
+
+        `stop()` then re-queues whatever was interrupted, so a cancelled job
+        is picked up again rather than lost.
+        """
+        for task in list(self._in_flight):
+            task.cancel()
+        if self._in_flight:
+            await asyncio.gather(*self._in_flight, return_exceptions=True)
+        self._in_flight.clear()
 
     async def _claim(self) -> uuid.UUID | None:
         async with AsyncSessionLocal() as session:

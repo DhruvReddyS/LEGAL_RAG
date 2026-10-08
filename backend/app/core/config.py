@@ -103,6 +103,38 @@ class Settings(BaseSettings):
     deep_latency_target_ms: int = Field(default=300000, ge=5000, le=600000)
     job_worker_enabled: bool = True
     job_poll_interval_ms: int = Field(default=500, ge=100, le=5000)
+    # How many durable jobs the worker runs at once. Measured, and the answer
+    # is one.
+    #
+    # The reason to raise it looked sound: the worker ran a job end to end, so
+    # a queued reader's retrieval had not started and the sources it had
+    # already earned the right to see -- published at 0.57 s for a single user
+    # -- did not reach it until the job ahead finished. Generation stays
+    # serialised either way, so overlapping only the work that needs no model
+    # seemed free.
+    #
+    # It is not free. Two Deep jobs, two users, *different* questions:
+    #
+    #   concurrency 1   user 1  38.4 s     user 2  74.3 s
+    #   concurrency 2   user 1  69.5 s     user 2  74.2 s
+    #
+    # The last user finishes at ~74 s either way, because throughput is the
+    # single generation slot and that did not change. What changed is that
+    # the first asker's answer took 81% longer. Two jobs in flight interleave
+    # on the generation semaphore, which turns FIFO into round-robin: it
+    # preserves throughput, spreads the delay evenly, and there is no version
+    # of a queue of legal answers where that is the policy anyone wants. The
+    # first person to ask should be the first person answered.
+    #
+    # An earlier pass appeared to show the opposite -- user 2 improving from
+    # 89.5 s to 65.2 s -- because that benchmark gave both users the identical
+    # question, so the second job's prefill was served from the first's cached
+    # prefix. `--distinct-queries` exists on
+    # scripts/phase1_queued_deep_benchmark.py because of this.
+    #
+    # The setting stays so the measurement is repeatable and so a deployment
+    # with more than one generation slot can use it. The default is one.
+    job_worker_concurrency: int = Field(default=1, ge=1, le=8)
     fast_requests_per_minute: int = Field(default=30, ge=1, le=600)
     sync_deep_requests_per_minute: int = Field(default=2, ge=1, le=60)
     job_enqueues_per_minute: int = Field(default=6, ge=1, le=120)

@@ -22,6 +22,21 @@ QUERY = (
 )
 
 
+# A second, different question, for the case the default cannot measure.
+#
+# Both users asking the identical question makes the second job's prefill
+# nearly free: llama.cpp reuses the slot's cached prefix, so the measured
+# benefit of running jobs concurrently comes out larger than two real users
+# would see. The default stays the single query so runs remain comparable with
+# the stored evidence from 31 August; --distinct-queries measures the honest
+# case.
+SECOND_QUERY = (
+    "What must a police officer record and give to the arrested person when making an arrest "
+    "without a warrant, and what are the time limits that follow? Cite only retrieved sources "
+    "and abstain where support is absent."
+)
+
+
 def parse_timestamp(value: str) -> datetime:
     return datetime.fromisoformat(value.replace("Z", "+00:00"))
 
@@ -49,6 +64,7 @@ async def run(args: argparse.Namespace) -> dict:
             response.raise_for_status()
             tokens.append(str(response.json()["access_token"]))
 
+        queries = [QUERY, SECOND_QUERY if args.distinct_queries else QUERY]
         jobs: list[dict] = []
         for index, token in enumerate(tokens):
             started_ns = time.perf_counter_ns()
@@ -58,7 +74,7 @@ async def run(args: argparse.Namespace) -> dict:
                     "Authorization": f"Bearer {token}",
                     "Idempotency-Key": f"queued-{cohort}-{index + 1}",
                 },
-                json={"query": QUERY},
+                json={"query": queries[index]},
             )
             enqueue_ms = (time.perf_counter_ns() - started_ns) / 1_000_000
             response.raise_for_status()
@@ -112,7 +128,11 @@ async def run(args: argparse.Namespace) -> dict:
         return {
             "schema_version": 1,
             "generated_at": datetime.now(timezone.utc).isoformat(),
-            "scenario": "two_queued_deep_jobs",
+            "scenario": (
+                "two_queued_deep_jobs_distinct_queries"
+                if args.distinct_queries
+                else "two_queued_deep_jobs"
+            ),
             "credentials_recorded": False,
             "records": records,
         }
@@ -123,6 +143,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--base-url", default="http://127.0.0.1:8000")
     parser.add_argument("--timeout", type=float, default=720)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--distinct-queries",
+        action="store_true",
+        help="Give the second user a different question, so its prefill is not served from the first's cached prefix",
+    )
     return parser.parse_args()
 
 
