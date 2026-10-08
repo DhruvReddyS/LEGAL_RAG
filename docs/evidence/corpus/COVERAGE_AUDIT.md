@@ -2,52 +2,54 @@
 
 Generated: 2026-10-08  
 Requirements: `workflow-coverage-v1-2026-10-08`  
-Metadata records scanned: 3,224
+Metadata records scanned: 4,251
 
-This report measures whether minimum authoritative sources for a legal workflow are usable in the runtime corpus. It does **not** treat document volume as quality and it does not promote candidates.
+This metadata-only report measures whether minimum authoritative sources for a legal workflow are present in the canonical manifest. It does **not** prove that they are indexed in the collection serving users, treat document volume as quality, or promote candidates.
+
+> `canonical_complete` is a collection milestone, not a release claim. Runtime readiness requires a completed index plus the payload, retrieval, answer, currency, citation, and latency gates.
 
 ## Summary
 
 | Status | Workflows | Meaning |
 |---|---:|---|
-| `ready_runtime` | 17 | Every required source is canonical. |
-| `awaiting_promotion` | 5 | All required sources exist, but at least one is staged or downloaded for review. |
+| `canonical_complete` | 22 | Every required source is canonical; runtime indexing and quality still require verification. |
+| `awaiting_promotion` | 0 | All required sources exist, but at least one is staged or downloaded for review. |
 | `acquisition_planned` | 0 | All required sources are identified, but at least one is not downloaded. |
 | `partial` | 0 | Some required sources exist and at least one is missing. |
 | `gap` | 0 | No required source was matched. |
 
 ## Workflow matrix
 
-| Priority | Workflow | Personas | Runtime sources | Status | Missing minimum sources |
+| Priority | Workflow | Personas | Canonical sources | Status | Missing minimum sources |
 |---|---|---|---:|---|---|
-| P0 | Regular bail, anticipatory bail, default bail, and undertrial release | citizen, police, advocate | 1/1 | `ready_runtime` | — |
-| P0 | Fundamental rights and constitutional remedies | citizen, police, advocate | 1/1 | `ready_runtime` | — |
-| P0 | Admissibility, proof, and electronic evidence | police, advocate | 1/1 | `ready_runtime` | — |
-| P0 | Offence ingredients, exceptions, and punishment | citizen, police, advocate | 1/1 | `ready_runtime` | — |
-| P0 | Cybercrime complaints, intermediary duties, and digital evidence | citizen, police, advocate | 2/2 | `ready_runtime` | — |
-| P0 | Domestic violence protection and dowry complaints | citizen, police, advocate | 3/3 | `ready_runtime` | — |
-| P0 | FIR, arrest, notice, search, seizure, and investigation | citizen, police, advocate | 1/1 | `ready_runtime` | — |
-| P0 | Children in conflict with law and children needing care | citizen, police, advocate | 2/2 | `ready_runtime` | — |
-| P0 | POCSO reporting, offences, investigation, and child safeguards | citizen, police, advocate | 2/2 | `ready_runtime` | — |
-| P0 | SC/ST atrocities reporting, investigation, relief, and trial | citizen, police, advocate | 2/2 | `ready_runtime` | — |
-| P1 | Andhra Pradesh tenancy, eviction, deposits, and lease rights | citizen, advocate | 1/2 | `awaiting_promotion` | — |
-| P1 | Bank regulation, depositor protection, and deposit insurance | citizen, advocate | 2/3 | `awaiting_promotion` | — |
-| P1 | Defective goods, deficient services, refunds, and e-commerce complaints | citizen, advocate | 2/2 | `ready_runtime` | — |
-| P1 | Contract formation, breach, damages, and specific relief | citizen, advocate | 2/2 | `ready_runtime` | — |
-| P1 | Noise and environmental nuisance complaints | citizen, police, advocate | 2/2 | `ready_runtime` | — |
-| P1 | Current income-tax liability, procedure, and transition questions | citizen, advocate | 0/2 | `awaiting_promotion` | — |
-| P1 | Free legal aid and victim compensation | citizen, police, advocate | 2/2 | `ready_runtime` | — |
-| P1 | Road offences, accident reporting, insurance, and compensation | citizen, police, advocate | 1/2 | `awaiting_promotion` | — |
-| P1 | RTI request, appeal, exemptions, and complaint | citizen, advocate | 2/2 | `ready_runtime` | — |
-| P1 | Workplace sexual-harassment complaint and inquiry | citizen, advocate | 2/2 | `ready_runtime` | — |
-| P2 | Property transfer, registration, and limitation | citizen, advocate | 2/3 | `awaiting_promotion` | — |
-| P2 | Company governance and insolvency procedure | advocate | 2/2 | `ready_runtime` | — |
+| P0 | Regular bail, anticipatory bail, default bail, and undertrial release | citizen, police, advocate | 1/1 | `canonical_complete` | — |
+| P0 | Fundamental rights and constitutional remedies | citizen, police, advocate | 1/1 | `canonical_complete` | — |
+| P0 | Admissibility, proof, and electronic evidence | police, advocate | 1/1 | `canonical_complete` | — |
+| P0 | Offence ingredients, exceptions, and punishment | citizen, police, advocate | 1/1 | `canonical_complete` | — |
+| P0 | Cybercrime complaints, intermediary duties, and digital evidence | citizen, police, advocate | 2/2 | `canonical_complete` | — |
+| P0 | Domestic violence protection and dowry complaints | citizen, police, advocate | 3/3 | `canonical_complete` | — |
+| P0 | FIR, arrest, notice, search, seizure, and investigation | citizen, police, advocate | 1/1 | `canonical_complete` | — |
+| P0 | Children in conflict with law and children needing care | citizen, police, advocate | 2/2 | `canonical_complete` | — |
+| P0 | POCSO reporting, offences, investigation, and child safeguards | citizen, police, advocate | 2/2 | `canonical_complete` | — |
+| P0 | SC/ST atrocities reporting, investigation, relief, and trial | citizen, police, advocate | 2/2 | `canonical_complete` | — |
+| P1 | Andhra Pradesh tenancy, eviction, deposits, and lease rights | citizen, advocate | 2/2 | `canonical_complete` | — |
+| P1 | Bank regulation, depositor protection, and deposit insurance | citizen, advocate | 3/3 | `canonical_complete` | — |
+| P1 | Defective goods, deficient services, refunds, and e-commerce complaints | citizen, advocate | 2/2 | `canonical_complete` | — |
+| P1 | Contract formation, breach, damages, and specific relief | citizen, advocate | 2/2 | `canonical_complete` | — |
+| P1 | Noise and environmental nuisance complaints | citizen, police, advocate | 2/2 | `canonical_complete` | — |
+| P1 | Current income-tax liability, procedure, and transition questions | citizen, advocate | 2/2 | `canonical_complete` | — |
+| P1 | Free legal aid and victim compensation | citizen, police, advocate | 2/2 | `canonical_complete` | — |
+| P1 | Road offences, accident reporting, insurance, and compensation | citizen, police, advocate | 2/2 | `canonical_complete` | — |
+| P1 | RTI request, appeal, exemptions, and complaint | citizen, advocate | 2/2 | `canonical_complete` | — |
+| P1 | Workplace sexual-harassment complaint and inquiry | citizen, advocate | 2/2 | `canonical_complete` | — |
+| P2 | Property transfer, registration, and limitation | citizen, advocate | 3/3 | `canonical_complete` | — |
+| P2 | Company governance and insolvency procedure | advocate | 2/2 | `canonical_complete` | — |
 
 ## Evidence by workflow
 
 ### P0 — Regular bail, anticipatory bail, default bail, and undertrial release
 
-Status: `ready_runtime`. Jurisdiction: India - Central.
+Status: `canonical_complete`. Jurisdiction: India - Central.
 
 | Minimum source | Required | State | Matched title |
 |---|---|---|---|
@@ -56,7 +58,7 @@ Status: `ready_runtime`. Jurisdiction: India - Central.
 
 ### P0 — Fundamental rights and constitutional remedies
 
-Status: `ready_runtime`. Jurisdiction: India - Central.
+Status: `canonical_complete`. Jurisdiction: India - Central.
 
 | Minimum source | Required | State | Matched title |
 |---|---|---|---|
@@ -64,7 +66,7 @@ Status: `ready_runtime`. Jurisdiction: India - Central.
 
 ### P0 — Admissibility, proof, and electronic evidence
 
-Status: `ready_runtime`. Jurisdiction: India - Central.
+Status: `canonical_complete`. Jurisdiction: India - Central.
 
 | Minimum source | Required | State | Matched title |
 |---|---|---|---|
@@ -72,7 +74,7 @@ Status: `ready_runtime`. Jurisdiction: India - Central.
 
 ### P0 — Offence ingredients, exceptions, and punishment
 
-Status: `ready_runtime`. Jurisdiction: India - Central.
+Status: `canonical_complete`. Jurisdiction: India - Central.
 
 | Minimum source | Required | State | Matched title |
 |---|---|---|---|
@@ -80,7 +82,7 @@ Status: `ready_runtime`. Jurisdiction: India - Central.
 
 ### P0 — Cybercrime complaints, intermediary duties, and digital evidence
 
-Status: `ready_runtime`. Jurisdiction: India - Central.
+Status: `canonical_complete`. Jurisdiction: India - Central.
 
 | Minimum source | Required | State | Matched title |
 |---|---|---|---|
@@ -89,7 +91,7 @@ Status: `ready_runtime`. Jurisdiction: India - Central.
 
 ### P0 — Domestic violence protection and dowry complaints
 
-Status: `ready_runtime`. Jurisdiction: India - Central.
+Status: `canonical_complete`. Jurisdiction: India - Central.
 
 | Minimum source | Required | State | Matched title |
 |---|---|---|---|
@@ -99,7 +101,7 @@ Status: `ready_runtime`. Jurisdiction: India - Central.
 
 ### P0 — FIR, arrest, notice, search, seizure, and investigation
 
-Status: `ready_runtime`. Jurisdiction: India - Central.
+Status: `canonical_complete`. Jurisdiction: India - Central.
 
 | Minimum source | Required | State | Matched title |
 |---|---|---|---|
@@ -107,7 +109,7 @@ Status: `ready_runtime`. Jurisdiction: India - Central.
 
 ### P0 — Children in conflict with law and children needing care
 
-Status: `ready_runtime`. Jurisdiction: India - Central.
+Status: `canonical_complete`. Jurisdiction: India - Central.
 
 | Minimum source | Required | State | Matched title |
 |---|---|---|---|
@@ -116,7 +118,7 @@ Status: `ready_runtime`. Jurisdiction: India - Central.
 
 ### P0 — POCSO reporting, offences, investigation, and child safeguards
 
-Status: `ready_runtime`. Jurisdiction: India - Central.
+Status: `canonical_complete`. Jurisdiction: India - Central.
 
 | Minimum source | Required | State | Matched title |
 |---|---|---|---|
@@ -125,7 +127,7 @@ Status: `ready_runtime`. Jurisdiction: India - Central.
 
 ### P0 — SC/ST atrocities reporting, investigation, relief, and trial
 
-Status: `ready_runtime`. Jurisdiction: India - Central.
+Status: `canonical_complete`. Jurisdiction: India - Central.
 
 | Minimum source | Required | State | Matched title |
 |---|---|---|---|
@@ -134,26 +136,26 @@ Status: `ready_runtime`. Jurisdiction: India - Central.
 
 ### P1 — Andhra Pradesh tenancy, eviction, deposits, and lease rights
 
-Status: `awaiting_promotion`. Jurisdiction: Andhra Pradesh.
+Status: `canonical_complete`. Jurisdiction: Andhra Pradesh.
 
 | Minimum source | Required | State | Matched title |
 |---|---|---|---|
 | Transfer of Property Act, 1882 | yes | `canonical` | Transfer of Property Act, 1882 |
-| Applicable Andhra Pradesh rent-control/tenancy Act | yes | `candidate_downloaded` | The Andhra Pradesh Residential and Non-Residential Premises Tenancy Act, 2017 |
+| Applicable Andhra Pradesh rent-control/tenancy Act | yes | `canonical` | The Andhra Pradesh Residential and Non-Residential Premises Tenancy Act, 2017 |
 
 ### P1 — Bank regulation, depositor protection, and deposit insurance
 
-Status: `awaiting_promotion`. Jurisdiction: India - Central.
+Status: `canonical_complete`. Jurisdiction: India - Central.
 
 | Minimum source | Required | State | Matched title |
 |---|---|---|---|
 | Reserve Bank of India Act, 1934 | yes | `canonical` | The Reserve Bank of India Act, 1934 |
 | Banking Regulation Act, 1949 | yes | `canonical` | The Banking Regulation Act, 1949 |
-| DICGC Act and Regulations | yes | `candidate_downloaded` | The Deposit Insurance and Credit Guarantee Corporation Act, 1961 |
+| DICGC Act and Regulations | yes | `canonical` | The Deposit Insurance and Credit Guarantee Corporation Act, 1961 |
 
 ### P1 — Defective goods, deficient services, refunds, and e-commerce complaints
 
-Status: `ready_runtime`. Jurisdiction: India - Central.
+Status: `canonical_complete`. Jurisdiction: India - Central.
 
 | Minimum source | Required | State | Matched title |
 |---|---|---|---|
@@ -162,7 +164,7 @@ Status: `ready_runtime`. Jurisdiction: India - Central.
 
 ### P1 — Contract formation, breach, damages, and specific relief
 
-Status: `ready_runtime`. Jurisdiction: India - Central.
+Status: `canonical_complete`. Jurisdiction: India - Central.
 
 | Minimum source | Required | State | Matched title |
 |---|---|---|---|
@@ -171,25 +173,25 @@ Status: `ready_runtime`. Jurisdiction: India - Central.
 
 ### P1 — Noise and environmental nuisance complaints
 
-Status: `ready_runtime`. Jurisdiction: India - Central plus State enforcement.
+Status: `canonical_complete`. Jurisdiction: India - Central plus State enforcement.
 
 | Minimum source | Required | State | Matched title |
 |---|---|---|---|
-| Environment (Protection) Act, 1986 | yes | `canonical` | Environment (Protection) Act, 1986 (as amended in 1991) |
+| Environment (Protection) Act, 1986 | yes | `canonical` | The Environment (Protection) Act, 1986 |
 | Noise Pollution Rules, 2000 | yes | `canonical` | The Noise Pollution (Regulation and Control) Rules, 2000 |
 
 ### P1 — Current income-tax liability, procedure, and transition questions
 
-Status: `awaiting_promotion`. Jurisdiction: India - Central.
+Status: `canonical_complete`. Jurisdiction: India - Central.
 
 | Minimum source | Required | State | Matched title |
 |---|---|---|---|
-| Income-tax Act, 2025 as amended | yes | `candidate_downloaded` | The Income-tax Act, 2025 (as amended by the Finance Act, 2026) |
-| Income-tax Rules, 2026 | yes | `candidate_downloaded` | The Income-tax Rules, 2026 |
+| Income-tax Act, 2025 as amended | yes | `canonical` | The Income-tax Act, 2025 (as amended by the Finance Act, 2026) |
+| Income-tax Rules, 2026 | yes | `canonical` | The Income-tax Rules, 2026 |
 
 ### P1 — Free legal aid and victim compensation
 
-Status: `ready_runtime`. Jurisdiction: India - Central plus State implementation.
+Status: `canonical_complete`. Jurisdiction: India - Central plus State implementation.
 
 | Minimum source | Required | State | Matched title |
 |---|---|---|---|
@@ -198,16 +200,16 @@ Status: `ready_runtime`. Jurisdiction: India - Central plus State implementation
 
 ### P1 — Road offences, accident reporting, insurance, and compensation
 
-Status: `awaiting_promotion`. Jurisdiction: India - Central.
+Status: `canonical_complete`. Jurisdiction: India - Central.
 
 | Minimum source | Required | State | Matched title |
 |---|---|---|---|
 | Motor Vehicles Act, 1988 | yes | `canonical` | Motor Vehicles Act, 1988 |
-| Central Motor Vehicles Rules, 1989 | yes | `candidate_downloaded` | The Central Motor Vehicles Rules, 1989 (historical consolidation; amendment reconciliation required) |
+| Central Motor Vehicles Rules, 1989 | yes | `canonical` | The Central Motor Vehicles Rules, 1989 (historical consolidation; amendment reconciliation required) |
 
 ### P1 — RTI request, appeal, exemptions, and complaint
 
-Status: `ready_runtime`. Jurisdiction: India - Central.
+Status: `canonical_complete`. Jurisdiction: India - Central.
 
 | Minimum source | Required | State | Matched title |
 |---|---|---|---|
@@ -216,7 +218,7 @@ Status: `ready_runtime`. Jurisdiction: India - Central.
 
 ### P1 — Workplace sexual-harassment complaint and inquiry
 
-Status: `ready_runtime`. Jurisdiction: India - Central.
+Status: `canonical_complete`. Jurisdiction: India - Central.
 
 | Minimum source | Required | State | Matched title |
 |---|---|---|---|
@@ -225,17 +227,17 @@ Status: `ready_runtime`. Jurisdiction: India - Central.
 
 ### P2 — Property transfer, registration, and limitation
 
-Status: `awaiting_promotion`. Jurisdiction: India - Central plus State procedure.
+Status: `canonical_complete`. Jurisdiction: India - Central plus State procedure.
 
 | Minimum source | Required | State | Matched title |
 |---|---|---|---|
 | Transfer of Property Act, 1882 | yes | `canonical` | Transfer of Property Act, 1882 |
-| Registration Act, 1908 | yes | `candidate_downloaded` | The Registration Act, 1908 |
-| Limitation Act, 1963 | yes | `canonical` | Limitation Act, 1963 official record |
+| Registration Act, 1908 | yes | `canonical` | The Registration Act, 1908 |
+| Limitation Act, 1963 | yes | `canonical` | The Limitation Act, 1963 |
 
 ### P2 — Company governance and insolvency procedure
 
-Status: `ready_runtime`. Jurisdiction: India - Central.
+Status: `canonical_complete`. Jurisdiction: India - Central.
 
 | Minimum source | Required | State | Matched title |
 |---|---|---|---|

@@ -123,7 +123,7 @@ def main() -> None:
         "## Review and collection state",
         "",
         f"- Staged for promotion: {staged_total['documents']:,} PDFs, {staged_total['pages']:,} pages, {staged_total['bytes']:,} bytes ({size_label(staged_total['bytes'])}).",
-        f"- Workflow coverage: {coverage['workflows']} defined workflows; {coverage['by_status'].get('ready_runtime', 0)} runtime-ready and {coverage['by_status'].get('awaiting_promotion', 0)} awaiting promotion.",
+        f"- Workflow coverage: {coverage['workflows']} defined workflows; {coverage['by_status'].get('canonical_complete', coverage['by_status'].get('ready_runtime', 0))} canonical-complete and {coverage['by_status'].get('awaiting_promotion', 0)} awaiting promotion. Runtime readiness still requires index and quality gates.",
         "- Remaining metadata-level source gaps: 0. Further collection is driven by failed evaluations or unresolved currency/commencement evidence, not a target PDF count.",
         "- Two review blockers remain explicit: the CMVR base PDF is an old consolidation requiring amendment reconciliation; the AP tenancy Act requires authoritative commencement/rules evidence.",
         "",

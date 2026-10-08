@@ -28,25 +28,34 @@ The metadata-only workflow audit is reproducible with:
 python3 scripts/coverage_gap_audit.py
 ```
 
-Current result across 22 defined workflows:
+Current metadata result across 22 defined workflows after the 530-document
+promotion:
 
 | State | Workflows |
 |---|---:|
-| Ready in the runtime corpus | 17 |
-| All sources acquired but awaiting review/promotion | 5 |
+| Canonical manifest complete | 22 |
+| All sources acquired but awaiting review/promotion | 0 |
 | Partially covered | 0 |
 | Completely uncovered | 0 |
 
-All 10 P0 workflows have their minimum sources in the canonical corpus. The
-remaining source work is narrow:
+All 10 P0 workflows and all 12 P1/P2 workflows have their minimum sources in
+the canonical manifest. This does not yet mean the live runtime is ready: the
+new `global_legal_corpus_v5` index is still building, while users remain on
+`v4`. The promoted sources become runtime-ready only after the complete-index,
+payload, retrieval, answer, citation, currency, and latency gates pass.
 
-1. Review and promote the current Income-tax Act/Rules candidate bundle.
-2. Review and promote the DICGC Act/Regulations candidate.
-3. Review and promote the Registration Act candidate.
-4. Review the official Central Motor Vehicles Rules base text as a historical
-   consolidation and assemble later final amendments before calling it current.
-5. Review the Andhra Pradesh tenancy Act candidate and attach authoritative
-   commencement/rules evidence before treating its provisions as operative.
+The remaining source-quality work is narrow:
+
+1. OCR and validate the seven promoted documents flagged `ocr_required`,
+   including the tax material.
+2. Assemble later final amendments to the official Central Motor Vehicles
+   Rules historical consolidation before calling it current.
+3. Attach authoritative commencement/rules evidence for the Andhra Pradesh
+   tenancy Act before treating its provisions as operative.
+4. Reclassify the 404 promoted documents that currently sit in the broad
+   `primary_law/other_relevant_laws` bucket where narrower routing is justified.
+5. Expand the scenario bank and let measured failures—not PDF count—drive the
+   next acquisition batch.
 
 The existing golden set contains 61 questions: 29 citizen, 25 police, and only
 7 advocate questions. That is enough for regression detection, not enough to

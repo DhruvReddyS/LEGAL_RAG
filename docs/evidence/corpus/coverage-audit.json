@@ -1,25 +1,24 @@
 {
   "generated_on": "2026-10-08",
   "requirements_version": "workflow-coverage-v1-2026-10-08",
-  "inventory_records_scanned": 3224,
+  "inventory_records_scanned": 4251,
   "summary": {
     "workflows": 22,
     "by_status": {
-      "awaiting_promotion": 5,
-      "ready_runtime": 17
+      "canonical_complete": 22
     },
     "by_priority": {
       "P0": {
         "total": 10,
-        "ready_runtime": 10
+        "canonical_complete": 10
       },
       "P1": {
         "total": 10,
-        "ready_runtime": 6
+        "canonical_complete": 10
       },
       "P2": {
         "total": 2,
-        "ready_runtime": 1
+        "canonical_complete": 2
       }
     }
   },
@@ -41,7 +40,7 @@
         "free speech",
         "writ remedies"
       ],
-      "status": "ready_runtime",
+      "status": "canonical_complete",
       "core_required": 1,
       "core_canonical": 1,
       "core_available_any_state": 1,
@@ -75,7 +74,7 @@
         "woman arrest safeguards",
         "search procedure"
       ],
-      "status": "ready_runtime",
+      "status": "canonical_complete",
       "core_required": 1,
       "core_canonical": 1,
       "core_available_any_state": 1,
@@ -109,7 +108,7 @@
         "general exceptions",
         "punishment"
       ],
-      "status": "ready_runtime",
+      "status": "canonical_complete",
       "core_required": 1,
       "core_canonical": 1,
       "core_available_any_state": 1,
@@ -142,7 +141,7 @@
         "confessions",
         "document proof"
       ],
-      "status": "ready_runtime",
+      "status": "canonical_complete",
       "core_required": 1,
       "core_canonical": 1,
       "core_available_any_state": 1,
@@ -176,7 +175,7 @@
         "default bail",
         "BNSS section 479"
       ],
-      "status": "ready_runtime",
+      "status": "canonical_complete",
       "core_required": 1,
       "core_canonical": 1,
       "core_available_any_state": 1,
@@ -219,7 +218,7 @@
         "special court",
         "support person"
       ],
-      "status": "ready_runtime",
+      "status": "canonical_complete",
       "core_required": 2,
       "core_canonical": 2,
       "core_available_any_state": 2,
@@ -262,7 +261,7 @@
         "protection officer",
         "dowry complaint"
       ],
-      "status": "ready_runtime",
+      "status": "canonical_complete",
       "core_required": 3,
       "core_canonical": 3,
       "core_available_any_state": 3,
@@ -314,7 +313,7 @@
         "special court",
         "victim relief"
       ],
-      "status": "ready_runtime",
+      "status": "canonical_complete",
       "core_required": 2,
       "core_canonical": 2,
       "core_available_any_state": 2,
@@ -357,7 +356,7 @@
         "care and protection",
         "bail for child"
       ],
-      "status": "ready_runtime",
+      "status": "canonical_complete",
       "core_required": 2,
       "core_canonical": 2,
       "core_available_any_state": 2,
@@ -400,7 +399,7 @@
         "intermediary request",
         "electronic evidence"
       ],
-      "status": "ready_runtime",
+      "status": "canonical_complete",
       "core_required": 2,
       "core_canonical": 2,
       "core_available_any_state": 2,
@@ -442,7 +441,7 @@
         "commission jurisdiction",
         "online marketplace"
       ],
-      "status": "ready_runtime",
+      "status": "canonical_complete",
       "core_required": 2,
       "core_canonical": 2,
       "core_available_any_state": 2,
@@ -485,7 +484,7 @@
         "injunction",
         "specific performance"
       ],
-      "status": "ready_runtime",
+      "status": "canonical_complete",
       "core_required": 2,
       "core_canonical": 2,
       "core_available_any_state": 2,
@@ -527,7 +526,7 @@
         "local committee",
         "inquiry procedure"
       ],
-      "status": "ready_runtime",
+      "status": "canonical_complete",
       "core_required": 2,
       "core_canonical": 2,
       "core_available_any_state": 2,
@@ -570,9 +569,9 @@
         "insurance duty",
         "claims tribunal"
       ],
-      "status": "awaiting_promotion",
+      "status": "canonical_complete",
       "core_required": 2,
-      "core_canonical": 1,
+      "core_canonical": 2,
       "core_available_any_state": 2,
       "missing_core": [],
       "sources": [
@@ -589,10 +588,10 @@
           "id": "cmv-rules",
           "label": "Central Motor Vehicles Rules, 1989",
           "required": true,
-          "state": "candidate_downloaded",
+          "state": "canonical",
           "matched_title": "The Central Motor Vehicles Rules, 1989 (historical consolidation; amendment reconciliation required)",
-          "inventory_source": "data/source_materials/motor_vehicle_rules_sources_2026-10-08.json",
-          "filename": "central__indiacode__rules__central-motor-vehicles-rules-1989__en.pdf"
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
         }
       ]
     },
@@ -613,7 +612,7 @@
         "victim compensation",
         "support services"
       ],
-      "status": "ready_runtime",
+      "status": "canonical_complete",
       "core_required": 2,
       "core_canonical": 2,
       "core_available_any_state": 2,
@@ -656,7 +655,7 @@
         "industrial nuisance",
         "complaint authority"
       ],
-      "status": "ready_runtime",
+      "status": "canonical_complete",
       "core_required": 2,
       "core_canonical": 2,
       "core_available_any_state": 2,
@@ -667,7 +666,7 @@
           "label": "Environment (Protection) Act, 1986",
           "required": true,
           "state": "canonical",
-          "matched_title": "Environment (Protection) Act, 1986 (as amended in 1991)",
+          "matched_title": "The Environment (Protection) Act, 1986",
           "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
           "filename": null
         },
@@ -698,7 +697,7 @@
         "second appeal",
         "exemption"
       ],
-      "status": "ready_runtime",
+      "status": "canonical_complete",
       "core_required": 2,
       "core_canonical": 2,
       "core_available_any_state": 2,
@@ -740,9 +739,9 @@
         "rent control",
         "lease termination"
       ],
-      "status": "awaiting_promotion",
+      "status": "canonical_complete",
       "core_required": 2,
-      "core_canonical": 1,
+      "core_canonical": 2,
       "core_available_any_state": 2,
       "missing_core": [],
       "sources": [
@@ -759,10 +758,10 @@
           "id": "ap-rent",
           "label": "Applicable Andhra Pradesh rent-control/tenancy Act",
           "required": true,
-          "state": "candidate_downloaded",
+          "state": "canonical",
           "matched_title": "The Andhra Pradesh Residential and Non-Residential Premises Tenancy Act, 2017",
-          "inventory_source": "data/source_materials/ap_tenancy_sources_2026-10-08.json",
-          "filename": "ap__indiacode__act__andhra-pradesh-residential-and-non-residential-premises-tenancy-act-2017__en.pdf"
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
         }
       ]
     },
@@ -782,9 +781,9 @@
         "assessment",
         "1961-to-2025 transition"
       ],
-      "status": "awaiting_promotion",
+      "status": "canonical_complete",
       "core_required": 2,
-      "core_canonical": 0,
+      "core_canonical": 2,
       "core_available_any_state": 2,
       "missing_core": [],
       "sources": [
@@ -792,19 +791,19 @@
           "id": "it-act-2025",
           "label": "Income-tax Act, 2025 as amended",
           "required": true,
-          "state": "candidate_downloaded",
+          "state": "canonical",
           "matched_title": "The Income-tax Act, 2025 (as amended by the Finance Act, 2026)",
-          "inventory_source": "data/source_materials/tax_parent_sources_2026-10-08.json",
-          "filename": "central__incometax__act__income-tax-act-2025__en.pdf"
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
         },
         {
           "id": "it-rules-2026",
           "label": "Income-tax Rules, 2026",
           "required": true,
-          "state": "candidate_downloaded",
+          "state": "canonical",
           "matched_title": "The Income-tax Rules, 2026",
-          "inventory_source": "data/source_materials/tax_parent_sources_2026-10-08.json",
-          "filename": "central__incometax__rules__income-tax-rules-2026__en.pdf"
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
         }
       ]
     },
@@ -824,9 +823,9 @@
         "failed bank",
         "RBI authority"
       ],
-      "status": "awaiting_promotion",
+      "status": "canonical_complete",
       "core_required": 3,
-      "core_canonical": 2,
+      "core_canonical": 3,
       "core_available_any_state": 3,
       "missing_core": [],
       "sources": [
@@ -852,10 +851,10 @@
           "id": "dicgc-act",
           "label": "DICGC Act and Regulations",
           "required": true,
-          "state": "candidate_downloaded",
+          "state": "canonical",
           "matched_title": "The Deposit Insurance and Credit Guarantee Corporation Act, 1961",
-          "inventory_source": "data/source_materials/indiacode_central_acts.json",
-          "filename": "cen__indiacode__act__deposit-insurance-and-credit-guarantee-corporation-act-1961__en.pdf"
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
         }
       ]
     },
@@ -874,7 +873,7 @@
         "insolvency commencement",
         "resolution process"
       ],
-      "status": "ready_runtime",
+      "status": "canonical_complete",
       "core_required": 2,
       "core_canonical": 2,
       "core_available_any_state": 2,
@@ -916,9 +915,9 @@
         "limitation",
         "lease"
       ],
-      "status": "awaiting_promotion",
+      "status": "canonical_complete",
       "core_required": 3,
-      "core_canonical": 2,
+      "core_canonical": 3,
       "core_available_any_state": 3,
       "missing_core": [],
       "sources": [
@@ -935,17 +934,17 @@
           "id": "registration",
           "label": "Registration Act, 1908",
           "required": true,
-          "state": "candidate_downloaded",
+          "state": "canonical",
           "matched_title": "The Registration Act, 1908",
-          "inventory_source": "data/source_materials/indiacode_central_acts.json",
-          "filename": "cen__indiacode__act__registration-act-1908__en.pdf"
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
         },
         {
           "id": "limitation",
           "label": "Limitation Act, 1963",
           "required": true,
           "state": "canonical",
-          "matched_title": "Limitation Act, 1963 official record",
+          "matched_title": "The Limitation Act, 1963",
           "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
           "filename": null
         }

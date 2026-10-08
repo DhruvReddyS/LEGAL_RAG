@@ -7,6 +7,13 @@ publish. It answers one narrower question: for each supported workflow, are
 the minimum authoritative instruments already canonical, waiting in staging,
 downloaded for review, merely listed in a manifest, or still missing?
 
+"Canonical" means present in the canonical manifest. It does *not* mean the
+document is indexed in the collection currently serving users. That
+distinction matters during a blue/green rebuild: the manifest can be complete
+while the live collection is still on the previous version. Runtime readiness
+must be established by the post-build payload, retrieval, answer, currency,
+citation, and latency gates.
+
 Usage:
     python scripts/coverage_gap_audit.py
     python scripts/coverage_gap_audit.py --requirements path/to/file.json
@@ -140,7 +147,7 @@ def audit(requirements: dict[str, Any], records: list[Record]) -> dict[str, Any]
         canonical = sum(source["state"] == "canonical" for source in core)
         available = sum(source["state"] != "missing" for source in core)
         if core and canonical == len(core):
-            status = "ready_runtime"
+            status = "canonical_complete"
         elif core and available == len(core):
             if any(source["state"] == "manifest_only" for source in core):
                 status = "acquisition_planned"
@@ -178,9 +185,9 @@ def audit(requirements: dict[str, Any], records: list[Record]) -> dict[str, Any]
             "by_priority": {
                 priority: {
                     "total": sum(workflow["priority"] == priority for workflow in workflows),
-                    "ready_runtime": sum(
+                    "canonical_complete": sum(
                         workflow["priority"] == priority
-                        and workflow["status"] == "ready_runtime"
+                        and workflow["status"] == "canonical_complete"
                         for workflow in workflows
                     ),
                 }
@@ -200,7 +207,9 @@ def render_markdown(report: dict[str, Any]) -> str:
         f"Requirements: `{report['requirements_version']}`  ",
         f"Metadata records scanned: {report['inventory_records_scanned']:,}",
         "",
-        "This report measures whether minimum authoritative sources for a legal workflow are usable in the runtime corpus. It does **not** treat document volume as quality and it does not promote candidates.",
+        "This metadata-only report measures whether minimum authoritative sources for a legal workflow are present in the canonical manifest. It does **not** prove that they are indexed in the collection serving users, treat document volume as quality, or promote candidates.",
+        "",
+        "> `canonical_complete` is a collection milestone, not a release claim. Runtime readiness requires a completed index plus the payload, retrieval, answer, currency, citation, and latency gates.",
         "",
         "## Summary",
         "",
@@ -208,20 +217,20 @@ def render_markdown(report: dict[str, Any]) -> str:
         "|---|---:|---|",
     ]
     meanings = {
-        "ready_runtime": "Every required source is canonical.",
+        "canonical_complete": "Every required source is canonical; runtime indexing and quality still require verification.",
         "awaiting_promotion": "All required sources exist, but at least one is staged or downloaded for review.",
         "acquisition_planned": "All required sources are identified, but at least one is not downloaded.",
         "partial": "Some required sources exist and at least one is missing.",
         "gap": "No required source was matched.",
     }
-    for status in ("ready_runtime", "awaiting_promotion", "acquisition_planned", "partial", "gap"):
+    for status in ("canonical_complete", "awaiting_promotion", "acquisition_planned", "partial", "gap"):
         lines.append(f"| `{status}` | {summary['by_status'].get(status, 0)} | {meanings[status]} |")
 
     lines += [
         "",
         "## Workflow matrix",
         "",
-        "| Priority | Workflow | Personas | Runtime sources | Status | Missing minimum sources |",
+        "| Priority | Workflow | Personas | Canonical sources | Status | Missing minimum sources |",
         "|---|---|---|---:|---|---|",
     ]
     for workflow in sorted(report["workflows"], key=lambda row: (row["priority"], row["id"])):
