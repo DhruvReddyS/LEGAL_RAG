@@ -24,6 +24,13 @@ def legal_chunk_payload(
         "text": chunk.text,
         "source_type": chunk.source_type,
         "title": chunk.title,
+        # Read by every citation surface -- Fast, Deep, the defence strategy
+        # agent and the interim source list -- and absent from every point in
+        # the live index until now, so a citizen was shown a provision with no
+        # way to open the official text behind it. Empty string rather than
+        # None so the key exists on every point and a filter on it is possible.
+        "source_url": chunk.source_url or "",
+
         "act_name": chunk.act_name or "",
         "section": chunk.section or "",
         "subsection": chunk.subsection or "",

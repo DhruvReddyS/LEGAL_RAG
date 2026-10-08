@@ -25,6 +25,13 @@ class LegalChunk(BaseModel):
     source_id: str
     title: str
     source_type: str
+    # The official page or file this passage came from. Carried from the
+    # canonical document, which has held it all along: 1,026 of 1,036
+    # documents record one, and none of them reached a reader, because the
+    # chunk dropped it here and the retrieval payload had no such key. Every
+    # citation surface already reads `payload.get("source_url")`, so each one
+    # was rendering a citation a citizen cannot open or check.
+    source_url: str | None = None
     court: str | None = None
     jurisdiction: str | None = None
     act_name: str | None = None
@@ -157,6 +164,7 @@ def chunk_structural_units(
                     source_id=document.source_id,
                     title=document.title,
                     source_type=document.resolved_type().value,
+                    source_url=document.source_url,
                     court=document.court,
                     jurisdiction=document.jurisdiction,
                     act_name=document.act_name,
