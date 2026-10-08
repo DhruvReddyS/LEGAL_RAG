@@ -146,3 +146,35 @@ def test_the_validity_guard_watches_the_paging_rate_not_cumulative_swap() -> Non
 def test_busy_process_markers_name_the_tasks_that_invalidate_a_run() -> None:
     assert "promote_candidates" in HARNESS.BUSY_PROCESS_MARKERS
     assert any("rebuild" in marker for marker in HARNESS.BUSY_PROCESS_MARKERS)
+
+
+def test_abstention_is_the_refusal_text_not_the_strength_label() -> None:
+    """These are different facts and conflating them corrupted the rate.
+
+    Deep publishes a 247-word answer with four citations and still labels
+    `evidence_strength` "insufficient" when the published score falls under
+    0.5. Reading that label as a refusal reported 29% abstention on a query
+    set where the pipeline refused one question in seven.
+    """
+    published_but_thin = {
+        "answer": "A police officer may arrest without a warrant where the Sanhita so provides. [Source 1]",
+        "evidence_strength": "insufficient",
+        "citations": [{"title": "BNSS", "source_type": "act"}],
+    }
+    assert HARNESS.abstained(published_but_thin) is False
+    quality = HARNESS.answer_quality(published_but_thin)
+    assert quality["abstained"] is False
+    assert quality["published_but_graded_insufficient"] is True
+
+    refusal = {
+        "answer": "I could not find enough reliable support in the indexed legal corpus for this answer.",
+        "evidence_strength": "insufficient",
+        "citations": [],
+    }
+    assert HARNESS.abstained(refusal) is True
+    assert HARNESS.answer_quality(refusal)["published_but_graded_insufficient"] is False
+
+
+def test_an_empty_answer_counts_as_an_abstention() -> None:
+    assert HARNESS.abstained({"answer": "", "citations": []}) is True
+    assert HARNESS.abstained({"citations": []}) is True

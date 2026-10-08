@@ -255,6 +255,31 @@ def stage_breakdown(pipeline_metrics: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+# The abstention sentinel, copied rather than imported so the harness does not
+# need the backend package on its path to classify a stored record.
+ABSTENTION_MARKERS = (
+    "could not find enough reliable support",
+    "Insufficient verified evidence",
+)
+
+
+def abstained(body: dict[str, Any]) -> bool:
+    """Whether the pipeline declined to answer.
+
+    Deliberately not `evidence_strength == "insufficient"`. That field grades
+    the published score: Deep publishes a 247-word answer with four
+    citations and still labels it "insufficient" when the score falls under
+    0.5. Treating the label as a refusal reported an abstention rate of 29%
+    on a query set where the pipeline actually refused one question in
+    seven, which would have made any later change look like a safety
+    regression or a safety improvement at random.
+    """
+    answer = str(body.get("answer") or "").strip()
+    if not answer:
+        return True
+    return any(marker.casefold() in answer.casefold() for marker in ABSTENTION_MARKERS)
+
+
 def answer_quality(body: dict[str, Any]) -> dict[str, Any]:
     """Quality fields that must not regress when latency improves."""
     answer = str(body.get("answer") or "")
@@ -267,7 +292,14 @@ def answer_quality(body: dict[str, Any]) -> dict[str, Any]:
     return {
         "answer_words": len(answer.split()),
         "answer_characters": len(answer),
-        "abstained": answer.strip().startswith("Insufficient") or body.get("evidence_strength") == "insufficient",
+        "abstained": abstained(body),
+        # Published, but on a score the pipeline itself grades as thin. Not
+        # an abstention, and worth watching separately: an optimisation that
+        # moved answers from "moderate" into this band would be a quality
+        # regression that no abstention rate would show.
+        "published_but_graded_insufficient": (
+            body.get("evidence_strength") == "insufficient" and not abstained(body)
+        ),
         "citation_count": len(citations),
         "distinct_source_titles": len({str(citation.get("title")) for citation in citations}),
         "distinct_source_types": len({str(citation.get("source_type")) for citation in citations}),
@@ -316,22 +348,22 @@ async def _job_queue_depth() -> int:
 
 async def drain_benchmark_jobs(
     client: httpx.AsyncClient,
-    headers_by_role: dict[str, dict[str, str]],
+    credentials_by_role: dict[str, "Credentials"],
     *,
     timeout_s: float = 900.0,
 ) -> dict[str, Any]:
     """Cancel the benchmark cohort's outstanding jobs and wait for an idle queue."""
     cancelled = 0
-    for headers in headers_by_role.values():
+    for credentials in credentials_by_role.values():
         try:
-            listing = await client.get("/jobs", headers=headers)
+            listing = await credentials.request("GET", "/jobs")
             listing.raise_for_status()
         except Exception:  # noqa: BLE001 - cleanup is best effort
             continue
         for job in listing.json().get("items", []):
             if job.get("status") in {"queued", "running"}:
                 try:
-                    await client.post(f"/jobs/{job['id']}/cancel", headers=headers)
+                    await credentials.request("POST", f"/jobs/{job['id']}/cancel")
                     cancelled += 1
                 except Exception:  # noqa: BLE001
                     pass
@@ -366,32 +398,88 @@ async def _provision_professional(email: str, name: str, role: str, password: st
         await session.commit()
 
 
-async def register(client: httpx.AsyncClient, cohort: str, role: str, password: str) -> dict[str, str]:
+# Access tokens expire after 30 minutes by default. A three-repeat Deep run
+# takes longer than that, and the first one died on the final poll of the last
+# query with a 401 -- 38 minutes of measurement lost to an expiry the harness
+# never considered. Re-minting well inside the window is cheaper than
+# discovering the boundary.
+TOKEN_REFRESH_AFTER_SECONDS = 15 * 60
+
+
+class Credentials:
+    """One benchmark account, with a token that outlives a long Deep run.
+
+    Logging in before every request would be simpler and would trip the
+    per-account login limit during the Fast phase, where seven queries
+    complete inside a second.
+    """
+
+    def __init__(self, client: httpx.AsyncClient, email: str, password: str, role: str) -> None:
+        self._client = client
+        self.email = email
+        self.password = password
+        self.role = role
+        self._token: str | None = None
+        self._minted_at = 0.0
+
+    async def _login(self) -> None:
+        response = await self._client.post(
+            "/auth/login", json={"email": self.email, "password": self.password}
+        )
+        response.raise_for_status()
+        self._token = str(response.json()["access_token"])
+        self._minted_at = time.monotonic()
+
+    def adopt(self, token: str) -> None:
+        self._token = token
+        self._minted_at = time.monotonic()
+
+    async def headers(self) -> dict[str, str]:
+        if self._token is None or time.monotonic() - self._minted_at > TOKEN_REFRESH_AFTER_SECONDS:
+            await self._login()
+        return {"Authorization": f"Bearer {self._token}"}
+
+    async def request(self, method: str, url: str, **kwargs: Any) -> httpx.Response:
+        """One retry on 401, because a token can expire mid-query."""
+        response = await self._client.request(method, url, headers=await self.headers(), **kwargs)
+        if response.status_code == 401:
+            await self._login()
+            response = await self._client.request(
+                method, url, headers=await self.headers(), **kwargs
+            )
+        return response
+
+
+async def register(client: httpx.AsyncClient, cohort: str, role: str, password: str) -> Credentials:
     email = f"latency-bench-{cohort}-{role}@example.com"
     name = f"Latency Benchmark {role}"
+    credentials = Credentials(client, email, password, role)
     if role == "citizen":
         response = await client.post(
             "/auth/register",
             json={"name": name, "email": email, "password": password, "role": role},
         )
         response.raise_for_status()
-        return {"Authorization": f"Bearer {response.json()['access_token']}"}
+        credentials.adopt(str(response.json()["access_token"]))
+        return credentials
     await _provision_professional(email, name, role, password)
-    login = await client.post("/auth/login", json={"email": email, "password": password})
-    login.raise_for_status()
-    return {"Authorization": f"Bearer {login.json()['access_token']}"}
+    await credentials.headers()
+    return credentials
 
 
 async def run_fast(
     client: httpx.AsyncClient,
-    headers: dict[str, str],
+    credentials: Credentials,
     item: dict[str, str],
     repeat: int,
 ) -> dict[str, Any]:
+    # The token is minted before the clock starts. A login inside the measured
+    # window would be charged to the lane.
+    await credentials.headers()
     started = time.perf_counter_ns()
-    response = await client.post(
+    response = await credentials.request(
+        "POST",
         "/chat/query",
-        headers=headers,
         json={"query": item["query"], "response_mode": "fast"},
     )
     wall_ms = (time.perf_counter_ns() - started) / 1_000_000
@@ -421,11 +509,12 @@ async def run_fast(
 
 async def run_deep(
     client: httpx.AsyncClient,
-    headers: dict[str, str],
+    credentials: Credentials,
     item: dict[str, str],
     repeat: int,
     poll_interval_s: float,
 ) -> dict[str, Any]:
+    headers = await credentials.headers()
     enqueue_started = time.perf_counter_ns()
     enqueue = await client.post(
         "/jobs/deep-review",
@@ -439,10 +528,13 @@ async def run_deep(
     timeline: list[dict[str, Any]] = []
     first_progress_ms: float | None = None
     first_useful_ms: float | None = None
+    first_final_ms: float | None = None
+    located_source_count = 0
     stream_finished = asyncio.Event()
 
     async def consume_events() -> None:
-        nonlocal first_progress_ms, first_useful_ms
+        nonlocal first_progress_ms, first_useful_ms, first_final_ms
+        nonlocal located_source_count
         try:
             async with client.stream("GET", f"/jobs/{job_id}/events", headers=headers) as response:
                 response.raise_for_status()
@@ -459,13 +551,35 @@ async def run_deep(
                             "offset_ms": round(offset_ms, 2),
                         }
                     )
+                    if event.get("event_type") == "located_sources":
+                        timeline[-1]["source_count"] = len(
+                            (event.get("data") or {}).get("sources") or []
+                        )
                     if first_progress_ms is None and event.get("stage") not in {None, "queued"}:
                         first_progress_ms = offset_ms
                     # Useful output means source-backed content a reader can
-                    # act on, not a progress label. A citation or an answer
-                    # chunk is the first thing that qualifies.
-                    if first_useful_ms is None and event.get("event_type") in {"citation", "answer_chunk"}:
+                    # act on, not a progress label. Before the progressive
+                    # change the earliest such event was a citation, written
+                    # only after verification, so this equalled end-to-end.
+                    # The definition is deliberately unchanged by that work:
+                    # a located-source event qualifies on the same test, and
+                    # a baseline recorded before those events existed scores
+                    # identically under this rule.
+                    if first_useful_ms is None and event.get("event_type") in {
+                        "citation",
+                        "answer_chunk",
+                        "located_sources",
+                    }:
                         first_useful_ms = offset_ms
+                    # The final, verified output. Recorded separately so an
+                    # earlier first glimpse cannot be mistaken for the answer
+                    # arriving sooner.
+                    if first_final_ms is None and event.get("event_type") in {"citation", "answer_chunk"}:
+                        first_final_ms = offset_ms
+                    if event.get("event_type") == "located_sources":
+                        located_source_count = len(
+                            (event.get("data") or {}).get("sources") or []
+                        )
         except Exception as exc:  # noqa: BLE001 - a lost stream must not lose the run
             timeline.append({"stream_error": type(exc).__name__})
         finally:
@@ -474,7 +588,7 @@ async def run_deep(
     event_task = asyncio.create_task(consume_events())
     job: dict[str, Any] = {}
     while True:
-        status_response = await client.get(f"/jobs/{job_id}", headers=headers)
+        status_response = await credentials.request("GET", f"/jobs/{job_id}")
         status_response.raise_for_status()
         job = status_response.json()
         if job.get("status") in {"succeeded", "failed", "cancelled"}:
@@ -500,6 +614,8 @@ async def run_deep(
         "enqueue_ms": round(enqueue_ms, 2),
         "time_to_first_progress_ms": round(first_progress_ms, 2) if first_progress_ms is not None else None,
         "time_to_first_useful_output_ms": round(first_useful_ms, 2) if first_useful_ms is not None else None,
+        "time_to_first_final_output_ms": round(first_final_ms, 2) if first_final_ms is not None else None,
+        "located_source_count": located_source_count,
         "timings_ms": result.get("timings_ms") or {},
         "event_timeline": timeline,
         **stage_breakdown(result.get("pipeline_metrics") or []),
@@ -547,7 +663,7 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         environment["validity_warnings"] = guard
 
         roles = sorted({item["role"] for item in items})
-        headers_by_role = {role: await register(client, cohort, role, password) for role in roles}
+        credentials_by_role = {role: await register(client, cohort, role, password) for role in roles}
 
         records: list[dict[str, Any]] = []
         modes = ["fast", "deep"] if args.mode == "both" else [args.mode]
@@ -560,17 +676,17 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
                 warm = items[0]
                 print(f"[{mode}] warm-up ({warm['id']}) ...", flush=True)
                 if mode == "fast":
-                    await run_fast(client, headers_by_role[warm["role"]], warm, repeat=-1)
+                    await run_fast(client, credentials_by_role[warm["role"]], warm, repeat=-1)
                 else:
-                    await run_deep(client, headers_by_role[warm["role"]], warm, -1, args.poll_interval)
+                    await run_deep(client, credentials_by_role[warm["role"]], warm, -1, args.poll_interval)
             for repeat in range(args.repeats):
                 for item in items:
                     label = f"[{mode}] {item['id']} r{repeat}"
                     print(f"{label} ...", end="", flush=True)
                     if mode == "fast":
-                        record = await run_fast(client, headers_by_role[item["role"]], item, repeat)
+                        record = await run_fast(client, credentials_by_role[item["role"]], item, repeat)
                     else:
-                        record = await run_deep(client, headers_by_role[item["role"]], item, repeat, args.poll_interval)
+                        record = await run_deep(client, credentials_by_role[item["role"]], item, repeat, args.poll_interval)
                     records.append(record)
                     print(
                         f" {record['wall_ms'] / 1000:7.2f} s  "
@@ -583,7 +699,7 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
                 # The Fast lane enqueues a Deep job whenever its confidence
                 # falls below the escalation threshold. Left alone, that work
                 # runs during the next phase and corrupts it.
-                drained = await drain_benchmark_jobs(client, headers_by_role)
+                drained = await drain_benchmark_jobs(client, credentials_by_role)
                 print(f"[fast] drained escalated jobs: {drained}", flush=True)
                 environment["fast_phase_drain"] = drained
 
@@ -597,6 +713,13 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
                     float(record["time_to_first_useful_output_ms"])
                     for record in subset
                     if record.get("time_to_first_useful_output_ms") is not None
+                ]
+            ),
+            "time_to_first_final_output_ms": summarise(
+                [
+                    float(record["time_to_first_final_output_ms"])
+                    for record in subset
+                    if record.get("time_to_first_final_output_ms") is not None
                 ]
             ),
             "stage_p50_ms": {
@@ -617,6 +740,11 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
                 ),
                 "answer_words": summarise([float(record["answer_words"]) for record in subset]),
                 "abstention_rate": round(sum(bool(record["abstained"]) for record in subset) / len(subset), 4),
+                "published_but_graded_insufficient_rate": round(
+                    sum(bool(record.get("published_but_graded_insufficient")) for record in subset)
+                    / len(subset),
+                    4,
+                ),
                 "verification_score": summarise(
                     [
                         float(record["verification_score"])
