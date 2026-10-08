@@ -58,12 +58,15 @@ Manifest: `data/source_materials/tax_parent_sources_2026-10-08.json`
 These files enter `candidate_imports/` only. Claude validates legal status,
 currency, duplicates, title quality, text extraction, and promotion.
 
-First fetch result: the DICGC combined publication downloaded and passed basic
-PDF validation (61 pages, 1,412,452 bytes, extractable English text, SHA-256
+Fetch result: the DICGC combined publication downloaded and passed basic PDF
+validation (61 pages, 1,412,452 bytes, extractable English text, SHA-256
 `d925b1a912f90c415c6a83df6c363c14493f35dbfc1be4b18677ce76cce10d4d`).
-The three official CBDT endpoints returned HTTP 403 to the automated fetcher
-and are queued for browser-assisted retrieval; they are not silently replaced
-with unofficial copies.
+The three initial CBDT endpoints returned HTTP 403 to the automated fetcher.
+Browser-assisted review exposed the official CBDT media endpoints, and all
+three files were then downloaded and validated: 2,214 pages and 369,649,553
+bytes combined. The legacy 1961 export starts with six section-139 pages before
+the full Act begins at PDF page 7, so Claude must review its internal ordering
+before promotion. No unofficial substitute was used.
 
 ## Work sequence
 

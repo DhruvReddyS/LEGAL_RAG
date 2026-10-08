@@ -4,17 +4,21 @@ Owner: Codex acquisition lane. Promotion and ingestion owner: Claude.
 
 ## Outcome
 
-- 11 official-source PDFs downloaded into the ignored
+- 14 official-source PDFs downloaded into the ignored
   `data/source_materials/candidate_imports/` review workspace.
-- 306 pages and 14,050,251 bytes in total.
+- 2,520 pages and 383,699,804 bytes in total.
 - 10 PDFs (245 pages; 12,637,799 bytes) are in the priority parent-law batch.
-- 1 DICGC Act/Regulations PDF (61 pages; 1,412,452 bytes) is in the tax/banking
-  batch.
+- 4 PDFs (2,275 pages; 371,062,005 bytes) are in the tax/banking batch.
 - Every held file starts with a valid PDF signature, opens with Poppler,
   reports a non-zero page count, provides extractable English text, and passed
   first-page visual inspection.
 - No promotion, ingestion, embedding, Qdrant write, or canonical count change
   was performed.
+- The accepted corpus therefore remains 1,036 documents, with a gross gap of
+  1,464 to the 2,500 planning target. If all 14 files in this batch prove
+  net-new and are accepted, that gross gap falls to 1,450; combined with the
+  625 pre-existing staged candidates, the optimistic external collection gap
+  would fall from 839 to 825. These are planning bounds, not acceptance counts.
 
 ## Priority parent-law batch
 
@@ -40,9 +44,9 @@ Manifest: `data/source_materials/tax_parent_sources_2026-10-08.json`
 | Document | Pages | Bytes | SHA-256 | Disposition |
 |---|---:|---:|---|---|
 | DICGC Act, 1961 and General Regulations, 1961 | 61 | 1,412,452 | `d925b1a912f90c415c6a83df6c363c14493f35dbfc1be4b18677ce76cce10d4d` | Held for Claude review |
-| Income-tax Act, 2025, amended by Finance Act, 2026 | - | - | - | Official CBDT endpoint returned HTTP 403; queued for browser-assisted retrieval |
-| Income-tax Rules, 2026 | - | - | - | Official CBDT endpoint returned HTTP 403; queued for browser-assisted retrieval |
-| Income-tax Act, 1961 legacy consolidation | - | - | - | Official CBDT endpoint returned HTTP 403; queued for browser-assisted retrieval |
+| Income-tax Act, 2025, amended by Finance Act, 2026 | 674 | 118,184,791 | `ee2a32197b8935636c97efbbbf6fc198b3d30a5694bc9ce2c28c6764fa65ab7f` | Held for Claude review; operative from 2026-04-01 |
+| Income-tax Rules, 2026 | 423 | 72,323,106 | `0fdd7ece7a8660512fe6c119d96cca594eefe33fa1413ddce3f1c0d0218c1521` | Held for Claude review; rule 1 states commencement on 2026-04-01 |
+| Income-tax Act, 1961 legacy consolidation | 1,117 | 179,141,656 | `73d264fd05bc3b19ee003f399aeb50faf7ea36a42f345fa94ebb9b3a2ad0cb93` | Held for transition/repeal-and-savings review; CBDT export starts with six section-139 pages before the full Act begins at PDF page 7 |
 
 ## Currency findings Claude must preserve
 
@@ -60,6 +64,10 @@ Manifest: `data/source_materials/tax_parent_sources_2026-10-08.json`
    guidelines subject to their savings clause.
 5. The Food Safety Act source is an official FSSAI copy, but later amendments
    still require a separate current-effect review.
+6. The official CBDT Income-tax Act, 2025 and Income-tax Rules, 2026 PDFs both
+   state commencement on 2026-04-01. The 1961 consolidation is legacy material
+   and has an exporter page-order anomaly that must not be mistaken for a
+   complete-current-law signal.
 
 ## Next acceptance action
 

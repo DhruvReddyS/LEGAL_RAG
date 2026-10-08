@@ -11,8 +11,9 @@
     "current_as_of": "2026-10-08",
     "format": "pdf",
     "filename": "central__incometax__act__income-tax-act-2025__en.pdf",
-    "url": "https://www.incometaxindia.gov.in/documents/d/guest/income_tax_act_2025_as_amended_by_fa_act_2026-pdf",
-    "currency_note": "Official CBDT consolidation of Act No. 30 of 2025, effective 2026-04-01 and amended by the Finance Act, 2026. Verify later amendments before promotion."
+    "url": "https://wm.incometaxindia.gov.in/documents/d/guest/income-tax-document-income-tax-act-2025_2026_2026-05-29_05-47-30_5d8348_en",
+    "landing_url": "https://www.incometaxindia.gov.in/en/income-tax-act-2025",
+    "currency_note": "Official CBDT consolidation of Act No. 30 of 2025, effective 2026-04-01 and amended by the Finance Act, 2026. The retrieved official PDF is 674 pages and identifies that status on its first page. Verify later amendments before promotion."
   },
   {
     "id": "cbdt-income-tax-rules-2026",
@@ -26,8 +27,9 @@
     "current_as_of": "2026-10-08",
     "format": "pdf",
     "filename": "central__incometax__rules__income-tax-rules-2026__en.pdf",
-    "url": "https://www.incometaxindia.gov.in/documents/d/guest/en-notified-it-rules-2026-20-03-2026-pdf",
-    "currency_note": "Official English notification hosted by CBDT. Verify commencement, corrigenda, and later amendments before promotion."
+    "url": "https://wm.incometaxindia.gov.in/documents/d/guest/income-tax-document-income-tax-rules-2026_2026-04-18_10-56-56_45638f_en",
+    "landing_url": "https://www.incometaxindia.gov.in/income-tax-rule-2026",
+    "currency_note": "Official CBDT English consolidation, G.S.R. 198(E), dated 2026-03-20. Rule 1 states that the Rules came into force on 2026-04-01. Verify corrigenda and later amendments before promotion."
   },
   {
     "id": "cbdt-income-tax-act-1961-legacy-fa-2026",
@@ -41,8 +43,10 @@
     "current_as_of": "2026-10-08",
     "format": "pdf",
     "filename": "central__incometax__act__income-tax-act-1961-legacy__en.pdf",
-    "url": "https://www.incometaxindia.gov.in/documents/d/guest/income_tax_act_1961_as_amended_by_fa_act_2026-1-pdf",
-    "currency_note": "Official CBDT legacy consolidation retained for pre-2026 matters and transition research. The Income-tax Act, 2025 took effect on 2026-04-01; verify repeal, savings, and transition provisions before citing this text as governing law."
+    "url": "https://wm.incometaxindia.gov.in/documents/d/guest/income-tax-document-income-tax-act-1961_2026_2026-06-05_05-35-21_3f20ac_en",
+    "landing_url": "https://www.incometaxindia.gov.in/en/income-tax-act",
+    "currency_note": "Official CBDT legacy consolidation retained for pre-2026 matters and transition research. The Income-tax Act, 2025 took effect on 2026-04-01; verify repeal, savings, and transition provisions before citing this text as governing law.",
+    "validation_note": "The CBDT-generated PDF starts with six pages from section 139 before the full Act begins at PDF page 7. The text is extractable, but this internal ordering anomaly must be reviewed before promotion."
   },
   {
     "id": "dicgc-act-1961-february-2025",

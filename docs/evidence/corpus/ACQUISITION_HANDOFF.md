@@ -15,10 +15,12 @@ Last updated: 2026-10-08, after 1,036 canonical documents.
 - The detailed refreshed status and gates are in
   `docs/evidence/corpus/COLLECTION_PLAN_2026-10-08.md`.
 - Codex started `data/source_materials/tax_parent_sources_2026-10-08.json`.
-  The official DICGC Act/Regulations publication downloaded into the ignored
-  candidate workspace and passed basic PDF/text validation. Three official
-  CBDT sources returned HTTP 403 and are in the failure queue for
-  browser-assisted retrieval.
+  The official DICGC Act/Regulations publication and all three official CBDT
+  parent-law sources downloaded into the ignored candidate workspace and
+  passed PDF, text, and first-page visual validation. The browser-discovered
+  CBDT media URLs replace the automated endpoints that returned HTTP 403.
+  Claude should remove the three now-resolved CBDT rows from the failure queue
+  during acceptance because `data/legal_kb/**` remains Claude-owned.
 - Claude retains exclusive responsibility for candidate acceptance,
   promotion, ingestion, and Qdrant mutation. Claude's separate active task is
   measured Fast and Deep response-latency optimisation; it must not mutate the
