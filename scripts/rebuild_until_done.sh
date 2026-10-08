@@ -12,7 +12,14 @@
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# Defaulted, and the default is announced. `status` with no collection used to
+# silently report on global_legal_corpus_v4 while a v5 build was running, and
+# printing a stale v4 ledger next to a live v5 one is how a reader concludes
+# that two rebuilds are in flight.
 COLLECTION="${2:-global_legal_corpus_v4}"
+if [ -z "${2:-}" ] && [ "${1:-start}" != "__loop" ]; then
+  printf 'no collection given; reporting on %s\n' "$COLLECTION" >&2
+fi
 LOG="$ROOT/data/legal_kb/logs/rebuild_forever.$COLLECTION.log"
 PIDFILE="$ROOT/data/legal_kb/logs/rebuild_forever.$COLLECTION.pid"
 
@@ -65,9 +72,33 @@ loop() {
 
 case "${1:-start}" in
   start)
-    if running; then echo "already running as pid $(cat "$PIDFILE")"; exit 0; fi
+    # Ask the process table, not the PID file.
+    #
+    # The two guards that were here both missed a real case and a second
+    # keeper was started on top of a running one. `running` reads the PID
+    # file, and the PID file had been deleted; the supervisor check looks for
+    # run_rebuild.sh, and the supervisor was momentarily down because the
+    # keeper restarts it every 20 seconds. Neither noticed the keeper itself,
+    # which is the thing that must be unique. Two keepers then shared one
+    # worker, the PID file pointed at the stale one, and stopping "the"
+    # rebuild stopped the wrong one.
+    live_keepers="$(pgrep -f "rebuild_until_done.sh __loop $COLLECTION" | tr '\n' ' ' | sed 's/ $//')"
+    if [ -n "$live_keepers" ]; then
+      count=$(printf '%s\n' $live_keepers | wc -l | tr -d ' ')
+      if [ "$count" -gt 1 ]; then
+        echo "refusing to start: $count keepers are already running for $COLLECTION (pids $live_keepers)."
+        echo "that is a broken state -- stop all but one before continuing:"
+        echo "  kill $live_keepers   # then ./scripts/rebuild_until_done.sh start $COLLECTION"
+        exit 1
+      fi
+      # Repair a PID file that disagrees with reality rather than leaving a
+      # stop command pointed at nothing.
+      printf '%s\n' "$live_keepers" >"$PIDFILE"
+      echo "already running as pid $live_keepers"
+      exit 0
+    fi
     if pgrep -f "run_rebuild.sh $COLLECTION" >/dev/null; then
-      echo "a supervisor for $COLLECTION is already running; stop it first or use status"; exit 1
+      echo "a supervisor for $COLLECTION is already running without a keeper; stop it first or use status"; exit 1
     fi
     mkdir -p "$(dirname "$LOG")"
     # Detach into its own session, so closing the terminal, logging out, or
@@ -80,13 +111,39 @@ with open(sys.argv[2], 'ab', buffering=0) as log:
     subprocess.Popen([sys.argv[1], '__loop', sys.argv[3]], stdout=log, stderr=log)
 " "$0" "$LOG" "$COLLECTION" >>"$LOG" 2>&1 &
     sleep 3
-    pgrep -f "rebuild_until_done.sh __loop $COLLECTION" | head -1 >"$PIDFILE"
+    # Exactly one, or say so. `head -1` here is what wrote a stale pid into
+    # the file when two keepers were running: it picked whichever the process
+    # table listed first.
+    started="$(pgrep -f "rebuild_until_done.sh __loop $COLLECTION" | tr '\n' ' ' | sed 's/ $//')"
+    if [ -z "$started" ]; then
+      echo "keeper did not start; see ${LOG#"$ROOT"/}"; exit 1
+    fi
+    if [ "$(printf '%s\n' $started | wc -l | tr -d ' ')" -gt 1 ]; then
+      echo "started, but $(printf '%s\n' $started | wc -l | tr -d ' ') keepers are now running (pids $started)."
+      echo "stop all but one: kill $started"
+      exit 1
+    fi
+    printf '%s\n' "$started" >"$PIDFILE"
     sleep 2
     echo "keeper running as pid $(cat "$PIDFILE"); log: ${LOG#"$ROOT"/}"
     ;;
   __loop) loop ;;
   status)
-    if running; then echo "keeper: running (pid $(cat "$PIDFILE"))"; else echo "keeper: not running"; fi
+    live="$(pgrep -f "rebuild_until_done.sh __loop $COLLECTION" | tr '\n' ' ' | sed 's/ $//')"
+    if [ -z "$live" ]; then
+      echo "keeper: not running"
+    else
+      n=$(printf '%s\n' $live | wc -l | tr -d ' ')
+      if [ "$n" -gt 1 ]; then
+        echo "keeper: $n RUNNING (pids $live) -- more than one is a broken state"
+      else
+        echo "keeper: running (pid $live)"
+      fi
+      if [ -f "$PIDFILE" ] && ! printf '%s\n' $live | grep -qx "$(cat "$PIDFILE")"; then
+        echo "keeper: the pid file says $(cat "$PIDFILE"), which is not among them; repairing"
+        printf '%s\n' "$live" | head -1 >"$PIDFILE"
+      fi
+    fi
     echo "documents: $(done_count)/$(total)"
     pgrep -f "app.ingestion.pipeline" >/dev/null && echo "worker: embedding" || echo "worker: idle"
     [ -f "$LOG" ] && tail -3 "$LOG"

@@ -263,28 +263,60 @@ and `/bitstream/` path times out at 60s on HTTP/2 and 1.1),
 
 `cdnbbsr.s3waas.gov.in` serves most ministry PDFs and is fast and reliable.
 
-## The machine is busy until roughly 23:40 — v5 is building
+## The machine is busy for roughly another 21 hours — v5 is building
 
 Codex: the promotion and ingestion window you released is in use. Please keep
-off CPU, GPU and memory until this finishes, as Claude did during its
-measurement windows. Network-bound downloading is fine.
+off CPU, GPU and memory until this finishes. Network-bound work is fine.
+
+**The earlier "23:40 / 5.2 hours" estimate in this file was wrong and is
+withdrawn.** It was computed from document count, and document count is not
+the unit of work: the completed documents average 48 pages and the pending
+ones include a 1,117-page Income-tax Act 1961, the 803-page Constitution, the
+764-page Customs Tariff Act and a 748-page mutual-fund master circular. Pages
+are the unit.
 
 | | |
 |---|---|
-| Collection | `global_legal_corpus_v5` (new). `global_legal_corpus_v4` is untouched at 49,684 points |
-| Promoted | 530 of 1,344 candidates, 13,200 pages. Manifest 1,036 → 1,566 documents |
-| Progress | 120 of 1,563 documents, 4,212 points, at 4.6 documents a minute |
-| Estimate | about 5.2 hours remaining |
+| Collection | `global_legal_corpus_v5` (new). `global_legal_corpus_v4` untouched at 49,684 points |
+| Progress | 226 of 1,563 unique documents, **10,876 of 55,321 pages (19.7%)** |
+| Measured throughput | about 2,090 pages an hour since the keeper restart |
+| Estimate | **about 21 hours**, consistent with the independent 18-24 hour figure from page throughput |
 | Detached | `caffeinate` holds sleep off; the ledger checkpoints per document, so a crash costs one document |
 
-Rate notes, because the first attempt was 30 times slower and the reason is
-reusable. The reasoning model holds 11.7 GB of this host's 24 and stays
-resident for 30 minutes after the last query; with it loaded the encoder paged
-and took 4.75 seconds for a single-item batch. Unloading it took the rebuild
-from 0.89 to 4.6 documents a minute. `run_rebuild.sh` now unloads it itself.
-MPS still runs out of memory intermittently -- 34 recoveries in the last few
-thousand log lines -- and each one costs that document a fall back to CPU, so
-the rate is a mix of the two paths rather than the MPS ceiling.
+### Terminology, following POST_PROMOTION_QUALITY_AUDIT.md
+
+The 22 workflows are **`canonical_complete`**: every minimum source is in the
+canonical manifest. That is manifest completeness and nothing more.
+**Runtime readiness** is separate and still gated on a completed v5 plus the
+payload, retrieval, answer, currency, citation and latency checks. Neither
+this file nor any status note should use one to mean the other, and point
+count means neither: 453 of the manifest sits in broad
+`other_relevant_laws`, 101 documents are OCR-required and must not be treated
+as searchable until extraction is verified, 10 have no source URL and 11 did
+not pass the verified-official rule.
+
+The two isolated risks stand: the Andhra Pradesh tenancy Act's commencement
+(section 1(3), notification not located) and the stale CMVR 1989
+consolidation. Both are blocked from reading as settled current law by
+`scripts/check_currency_payload_gate.py`, which is one of the gates above.
+
+### Two operator traps found and closed
+
+Claude started a second keeper on top of a running one, and Codex found it:
+two keepers shared one worker and the PID file pointed at the stale one, so
+stopping "the" rebuild stopped the wrong keeper. Both guards in
+`rebuild_until_done.sh start` missed it -- one reads the PID file, which had
+been deleted, and the other looks for the supervisor, which was momentarily
+down because the keeper restarts it every 20 seconds. Neither checked for the
+keeper itself, which is the thing that must be unique. `start` now asks the
+process table, refuses when a keeper is alive whatever the PID file says,
+repairs a PID file that disagrees with reality, and reports the broken state
+explicitly when more than one is found.
+
+`status` with no collection argument silently reported on
+`global_legal_corpus_v4`. Printing a stale v4 ledger while a v5 build runs is
+how a reader concludes two rebuilds are in flight, which Claude did. It now
+announces which collection it is reporting on.
 
 ## Ingestion does not have to make this machine swap
 
