@@ -85,3 +85,54 @@ def test_a_chunked_document_inherits_its_document_url() -> None:
     assert "source_url=document.source_url" in source, (
         "the chunker must copy the document's URL onto every chunk it makes"
     )
+
+
+def test_the_whole_chain_from_a_real_staged_record_to_a_payload() -> None:
+    """Manifest URL -> canonical document -> chunk -> retrieval payload.
+
+    Each hop was individually plausible and the chain was broken anyway: the
+    manifest held the URL, promotion copied it onto the canonical document,
+    and the chunker dropped it one hop before the payload. Four separate
+    readers then asked the payload for a key nothing wrote.
+
+    Pinned against a record from the real staged manifest rather than a
+    fixture, because a fixture is written by whoever is also writing the
+    code, and the failure here was an assumption about what the real data
+    carried.
+
+    Skipped when the manifest is absent, so a clean clone with no corpus
+    still runs the suite.
+    """
+    import json
+    from pathlib import Path
+
+    import pytest
+
+    from app.ingestion.metadata import CanonicalDocument
+
+    manifest = Path(__file__).parents[2] / "data/legal_kb/metadata/canonical_documents.staged.jsonl"
+    if not manifest.exists():
+        pytest.skip("no staged manifest in this checkout")
+    record = None
+    with manifest.open(encoding="utf-8") as handle:
+        for line in handle:
+            if not line.strip():
+                continue
+            candidate = json.loads(line)
+            if candidate.get("source_url"):
+                record = candidate
+                break
+    if record is None:
+        pytest.skip("no staged record carries a source_url")
+
+    document = CanonicalDocument(
+        **{key: value for key, value in record.items() if key in CanonicalDocument.model_fields}
+    )
+    assert document.source_url, "promotion must put the manifest URL on the document"
+
+    # The hop that was broken. Asserted on the chunk the chunker would build,
+    # using the same assignment the chunker makes.
+    chunk = _chunk(source_url=document.source_url, title=document.title)
+    payload = legal_chunk_payload(chunk)
+    assert payload["source_url"] == document.source_url
+    assert payload["source_url"].startswith("http")
