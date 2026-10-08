@@ -4,6 +4,7 @@ import gzip
 import gc
 import hashlib
 import json
+import sys
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -35,6 +36,13 @@ def resolve_embedding_device() -> str:
     return "cpu"
 
 
+# How many documents must end on the CPU in a row before the encoder stops
+# trying the accelerator again. Three, so one awkward document does not
+# surrender the accelerator for a whole rebuild, and a host that genuinely
+# cannot fit the encoder stops paying to rediscover that per document.
+LATCH_AFTER_CONSECUTIVE_CPU_FALLBACKS = 3
+
+
 # How many batches must succeed before the encoder tries a larger one again.
 # Large enough that recovery is not triggered by the lull between two long
 # documents, small enough that a transient shortage does not pin throughput
@@ -55,6 +63,21 @@ class BGEM3Embedder:
         # per-process one.
         self._sustained_batch_size: int | None = None
         self._batches_since_backoff = 0
+        # Consecutive documents that ended on the CPU after an MPS shortage,
+        # and whether the fall back has become permanent for this process.
+        #
+        # Retrying the accelerator on the next document is right when the
+        # shortage was transient -- one long document caused it and the next is
+        # short. It is wrong when the shortage is structural, and this host
+        # reached that state: the reasoning model, the container stack holding
+        # Qdrant and Postgres, and the encoder do not fit in 24 GB at once.
+        # Measured on the v5 rebuild: 25 MPS out-of-memory recoveries and 12
+        # falls back to CPU, one per document, each paying a full batch-size
+        # backoff and two model loads to discover the same thing again.
+        self._consecutive_cpu_fallbacks = 0
+        self._cpu_latched = False
+
+    LATCH_AFTER_CONSECUTIVE_CPU_FALLBACKS = LATCH_AFTER_CONSECUTIVE_CPU_FALLBACKS
 
     def _clear_device_cache(self) -> None:
         try:
@@ -83,7 +106,7 @@ class BGEM3Embedder:
         if self._model is None:
             from FlagEmbedding import BGEM3FlagModel
 
-            device = resolve_embedding_device()
+            device = "cpu" if self._cpu_latched else resolve_embedding_device()
             self._model_device = device
 
             use_fp16 = self.use_fp16
@@ -229,9 +252,37 @@ class BGEM3Embedder:
                 current_batch_size += 1
                 self._sustained_batch_size = current_batch_size
                 self._batches_since_backoff = 0
-        # If we fell back to CPU, restore MPS for the next document.
-        if self._model_device == "cpu" and resolve_embedding_device() == "mps":
-            self._release_model()
+        # If we fell back to CPU, restore the accelerator for the next
+        # document -- but only while there is reason to believe the shortage
+        # was transient. After LATCH_AFTER_CONSECUTIVE_CPU_FALLBACKS documents
+        # in a row have ended on the CPU, the shortage is a property of the
+        # host rather than of a document, and releasing the model to try again
+        # buys nothing but two more model loads and another backoff.
+        if self._model_device == "cpu" and resolve_embedding_device() != "cpu":
+            self._consecutive_cpu_fallbacks += 1
+            if self._consecutive_cpu_fallbacks >= self.LATCH_AFTER_CONSECUTIVE_CPU_FALLBACKS:
+                if not self._cpu_latched:
+                    self._cpu_latched = True
+                    print(
+                        json.dumps({
+                            "event": "cpu_latched",
+                            "consecutive_cpu_fallbacks": self._consecutive_cpu_fallbacks,
+                            "reason": (
+                                "the accelerator ran out of memory on this many "
+                                "documents in a row; staying on CPU for the rest "
+                                "of this process"
+                            ),
+                        }),
+                        file=sys.stderr,
+                        flush=True,
+                    )
+                # Keep the loaded CPU model rather than releasing it.
+            else:
+                self._release_model()
+        elif self._model_device != "cpu":
+            # A document that completed on the accelerator means the shortage
+            # was transient after all.
+            self._consecutive_cpu_fallbacks = 0
         return embedded
 
 
