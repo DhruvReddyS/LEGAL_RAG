@@ -1,0 +1,955 @@
+{
+  "generated_on": "2026-10-08",
+  "requirements_version": "workflow-coverage-v1-2026-10-08",
+  "inventory_records_scanned": 3224,
+  "summary": {
+    "workflows": 22,
+    "by_status": {
+      "awaiting_promotion": 5,
+      "ready_runtime": 17
+    },
+    "by_priority": {
+      "P0": {
+        "total": 10,
+        "ready_runtime": 10
+      },
+      "P1": {
+        "total": 10,
+        "ready_runtime": 6
+      },
+      "P2": {
+        "total": 2,
+        "ready_runtime": 1
+      }
+    }
+  },
+  "workflows": [
+    {
+      "id": "constitutional-rights",
+      "priority": "P0",
+      "domain": "constitutional_law",
+      "workflow": "Fundamental rights and constitutional remedies",
+      "jurisdiction": "India - Central",
+      "personas": [
+        "citizen",
+        "police",
+        "advocate"
+      ],
+      "question_families": [
+        "equality",
+        "life and liberty",
+        "free speech",
+        "writ remedies"
+      ],
+      "status": "ready_runtime",
+      "core_required": 1,
+      "core_canonical": 1,
+      "core_available_any_state": 1,
+      "missing_core": [],
+      "sources": [
+        {
+          "id": "constitution",
+          "label": "Current English Constitution of India",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "The Constitution of India, 2026 (English Version)",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        }
+      ]
+    },
+    {
+      "id": "fir-arrest-search",
+      "priority": "P0",
+      "domain": "criminal_procedure",
+      "workflow": "FIR, arrest, notice, search, seizure, and investigation",
+      "jurisdiction": "India - Central",
+      "personas": [
+        "citizen",
+        "police",
+        "advocate"
+      ],
+      "question_families": [
+        "zero FIR",
+        "arrest without warrant",
+        "woman arrest safeguards",
+        "search procedure"
+      ],
+      "status": "ready_runtime",
+      "core_required": 1,
+      "core_canonical": 1,
+      "core_available_any_state": 1,
+      "missing_core": [],
+      "sources": [
+        {
+          "id": "bnss",
+          "label": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        }
+      ]
+    },
+    {
+      "id": "criminal-offences",
+      "priority": "P0",
+      "domain": "criminal_law",
+      "workflow": "Offence ingredients, exceptions, and punishment",
+      "jurisdiction": "India - Central",
+      "personas": [
+        "citizen",
+        "police",
+        "advocate"
+      ],
+      "question_families": [
+        "offence classification",
+        "ingredients",
+        "general exceptions",
+        "punishment"
+      ],
+      "status": "ready_runtime",
+      "core_required": 1,
+      "core_canonical": 1,
+      "core_available_any_state": 1,
+      "missing_core": [],
+      "sources": [
+        {
+          "id": "bns",
+          "label": "Bharatiya Nyaya Sanhita, 2023",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "THE BHARATIYA NYAYA SANHITA, 2023",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        }
+      ]
+    },
+    {
+      "id": "criminal-evidence",
+      "priority": "P0",
+      "domain": "evidence",
+      "workflow": "Admissibility, proof, and electronic evidence",
+      "jurisdiction": "India - Central",
+      "personas": [
+        "police",
+        "advocate"
+      ],
+      "question_families": [
+        "electronic records",
+        "burden of proof",
+        "confessions",
+        "document proof"
+      ],
+      "status": "ready_runtime",
+      "core_required": 1,
+      "core_canonical": 1,
+      "core_available_any_state": 1,
+      "missing_core": [],
+      "sources": [
+        {
+          "id": "bsa",
+          "label": "Bharatiya Sakshya Adhiniyam, 2023",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        }
+      ]
+    },
+    {
+      "id": "bail-undertrial",
+      "priority": "P0",
+      "domain": "criminal_procedure",
+      "workflow": "Regular bail, anticipatory bail, default bail, and undertrial release",
+      "jurisdiction": "India - Central",
+      "personas": [
+        "citizen",
+        "police",
+        "advocate"
+      ],
+      "question_families": [
+        "bailable offence",
+        "anticipatory bail",
+        "default bail",
+        "BNSS section 479"
+      ],
+      "status": "ready_runtime",
+      "core_required": 1,
+      "core_canonical": 1,
+      "core_available_any_state": 1,
+      "missing_core": [],
+      "sources": [
+        {
+          "id": "bnss",
+          "label": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        },
+        {
+          "id": "undertrial-guidance",
+          "label": "Official BNSS section 479 implementation guidance",
+          "required": false,
+          "state": "canonical",
+          "matched_title": "Implementation of the provisions of Section 479 of 'The Bharatiya Nagarik Suraksha Sanhita, 2023\u2019 (BNSS) by State Prison authorities for providing relief to undertrial prisoners.",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        }
+      ]
+    },
+    {
+      "id": "pocso-child-protection",
+      "priority": "P0",
+      "domain": "child_protection",
+      "workflow": "POCSO reporting, offences, investigation, and child safeguards",
+      "jurisdiction": "India - Central",
+      "personas": [
+        "citizen",
+        "police",
+        "advocate"
+      ],
+      "question_families": [
+        "mandatory reporting",
+        "child-friendly procedure",
+        "special court",
+        "support person"
+      ],
+      "status": "ready_runtime",
+      "core_required": 2,
+      "core_canonical": 2,
+      "core_available_any_state": 2,
+      "missing_core": [],
+      "sources": [
+        {
+          "id": "pocso-act",
+          "label": "Protection of Children from Sexual Offences Act, 2012",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "The Protection of Children from Sexual Offences Act, 2012",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        },
+        {
+          "id": "pocso-rules",
+          "label": "POCSO Rules, 2020",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "Protection of Children from Sexual Offences (POCSO) Rules, 2020 29/05/2026",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        }
+      ]
+    },
+    {
+      "id": "domestic-violence-dowry",
+      "priority": "P0",
+      "domain": "family_and_women",
+      "workflow": "Domestic violence protection and dowry complaints",
+      "jurisdiction": "India - Central",
+      "personas": [
+        "citizen",
+        "police",
+        "advocate"
+      ],
+      "question_families": [
+        "protection order",
+        "residence order",
+        "protection officer",
+        "dowry complaint"
+      ],
+      "status": "ready_runtime",
+      "core_required": 3,
+      "core_canonical": 3,
+      "core_available_any_state": 3,
+      "missing_core": [],
+      "sources": [
+        {
+          "id": "dv-act",
+          "label": "Protection of Women from Domestic Violence Act, 2005",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "Protection Of Women From Domestic Violence Act 2005",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        },
+        {
+          "id": "dv-rules",
+          "label": "Protection of Women from Domestic Violence Rules, 2006",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "The Protection of Women from Domestic Violence Rules, 2006",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        },
+        {
+          "id": "dowry-act",
+          "label": "Dowry Prohibition Act, 1961",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "The Dowry Prohibition Act, 1961 (as amended in 1986)",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        }
+      ]
+    },
+    {
+      "id": "scst-atrocities",
+      "priority": "P0",
+      "domain": "social_justice",
+      "workflow": "SC/ST atrocities reporting, investigation, relief, and trial",
+      "jurisdiction": "India - Central",
+      "personas": [
+        "citizen",
+        "police",
+        "advocate"
+      ],
+      "question_families": [
+        "scheduled offence",
+        "FIR and investigation",
+        "special court",
+        "victim relief"
+      ],
+      "status": "ready_runtime",
+      "core_required": 2,
+      "core_canonical": 2,
+      "core_available_any_state": 2,
+      "missing_core": [],
+      "sources": [
+        {
+          "id": "scst-act",
+          "label": "SC/ST (Prevention of Atrocities) Act, 1989",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "The Scheduled Castes and Scheduled Tribes (Prevention of Atrocities) Act, 1989",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        },
+        {
+          "id": "scst-rules",
+          "label": "SC/ST (Prevention of Atrocities) Rules, 1995",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "The Scheduled Castes and Scheduled Tribes (Prevention of Atrocities) Rules, 1995",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        }
+      ]
+    },
+    {
+      "id": "juvenile-justice",
+      "priority": "P0",
+      "domain": "child_protection",
+      "workflow": "Children in conflict with law and children needing care",
+      "jurisdiction": "India - Central",
+      "personas": [
+        "citizen",
+        "police",
+        "advocate"
+      ],
+      "question_families": [
+        "apprehension of child",
+        "Juvenile Justice Board",
+        "care and protection",
+        "bail for child"
+      ],
+      "status": "ready_runtime",
+      "core_required": 2,
+      "core_canonical": 2,
+      "core_available_any_state": 2,
+      "missing_core": [],
+      "sources": [
+        {
+          "id": "jj-act",
+          "label": "Juvenile Justice Act, 2015",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "The Juvenile Justice Care And Protection Of Children Act 2015",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        },
+        {
+          "id": "jj-rules",
+          "label": "Juvenile Justice Model Rules, 2016",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "The Juvenile Justice (Care and Protection of Children) Model Rules, 2016 29/05/2026",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        }
+      ]
+    },
+    {
+      "id": "cybercrime-digital-evidence",
+      "priority": "P0",
+      "domain": "technology_and_cybercrime",
+      "workflow": "Cybercrime complaints, intermediary duties, and digital evidence",
+      "jurisdiction": "India - Central",
+      "personas": [
+        "citizen",
+        "police",
+        "advocate"
+      ],
+      "question_families": [
+        "online fraud",
+        "identity theft",
+        "intermediary request",
+        "electronic evidence"
+      ],
+      "status": "ready_runtime",
+      "core_required": 2,
+      "core_canonical": 2,
+      "core_available_any_state": 2,
+      "missing_core": [],
+      "sources": [
+        {
+          "id": "it-act",
+          "label": "Information Technology Act, 2000",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "09 Jun The Information Technology Act, 2000 (No. 21 Of 2000) ACT2000",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        },
+        {
+          "id": "it-rules",
+          "label": "Current IT Rules/notifications compendium",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "Notifications and Rules made under the Information Technology Act, 2000 (compendium)",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        }
+      ]
+    },
+    {
+      "id": "consumer-disputes",
+      "priority": "P1",
+      "domain": "consumer_law",
+      "workflow": "Defective goods, deficient services, refunds, and e-commerce complaints",
+      "jurisdiction": "India - Central",
+      "personas": [
+        "citizen",
+        "advocate"
+      ],
+      "question_families": [
+        "defective product",
+        "refund refusal",
+        "commission jurisdiction",
+        "online marketplace"
+      ],
+      "status": "ready_runtime",
+      "core_required": 2,
+      "core_canonical": 2,
+      "core_available_any_state": 2,
+      "missing_core": [],
+      "sources": [
+        {
+          "id": "consumer-act",
+          "label": "Consumer Protection Act, 2019",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "The Consumer Protection Act, 2019",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        },
+        {
+          "id": "ecommerce-rules",
+          "label": "Consumer Protection (E-Commerce) Rules, 2020",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "Consumer Protection (E-Commerce) Rules, 2020",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        }
+      ]
+    },
+    {
+      "id": "contracts-remedies",
+      "priority": "P1",
+      "domain": "civil_and_commercial",
+      "workflow": "Contract formation, breach, damages, and specific relief",
+      "jurisdiction": "India - Central",
+      "personas": [
+        "citizen",
+        "advocate"
+      ],
+      "question_families": [
+        "valid contract",
+        "breach",
+        "damages",
+        "injunction",
+        "specific performance"
+      ],
+      "status": "ready_runtime",
+      "core_required": 2,
+      "core_canonical": 2,
+      "core_available_any_state": 2,
+      "missing_core": [],
+      "sources": [
+        {
+          "id": "contract-act",
+          "label": "Indian Contract Act, 1872",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "The Indian Contract Act, 1872",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        },
+        {
+          "id": "specific-relief",
+          "label": "Specific Relief Act, 1963",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "The Specific Relief Act, 1963",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        }
+      ]
+    },
+    {
+      "id": "workplace-harassment",
+      "priority": "P1",
+      "domain": "employment_and_women",
+      "workflow": "Workplace sexual-harassment complaint and inquiry",
+      "jurisdiction": "India - Central",
+      "personas": [
+        "citizen",
+        "advocate"
+      ],
+      "question_families": [
+        "internal committee",
+        "complaint limitation",
+        "local committee",
+        "inquiry procedure"
+      ],
+      "status": "ready_runtime",
+      "core_required": 2,
+      "core_canonical": 2,
+      "core_available_any_state": 2,
+      "missing_core": [],
+      "sources": [
+        {
+          "id": "posh-act",
+          "label": "POSH Act, 2013",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "The Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        },
+        {
+          "id": "posh-rules",
+          "label": "POSH Rules, 2013",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "The Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Rules, 2013",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        }
+      ]
+    },
+    {
+      "id": "motor-accident",
+      "priority": "P1",
+      "domain": "motor_vehicle_law",
+      "workflow": "Road offences, accident reporting, insurance, and compensation",
+      "jurisdiction": "India - Central",
+      "personas": [
+        "citizen",
+        "police",
+        "advocate"
+      ],
+      "question_families": [
+        "accident reporting",
+        "driving offence",
+        "insurance duty",
+        "claims tribunal"
+      ],
+      "status": "awaiting_promotion",
+      "core_required": 2,
+      "core_canonical": 1,
+      "core_available_any_state": 2,
+      "missing_core": [],
+      "sources": [
+        {
+          "id": "mv-act",
+          "label": "Motor Vehicles Act, 1988",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "Motor Vehicles Act, 1988",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        },
+        {
+          "id": "cmv-rules",
+          "label": "Central Motor Vehicles Rules, 1989",
+          "required": true,
+          "state": "candidate_downloaded",
+          "matched_title": "The Central Motor Vehicles Rules, 1989 (historical consolidation; amendment reconciliation required)",
+          "inventory_source": "data/source_materials/motor_vehicle_rules_sources_2026-10-08.json",
+          "filename": "central__indiacode__rules__central-motor-vehicles-rules-1989__en.pdf"
+        }
+      ]
+    },
+    {
+      "id": "legal-aid-victim-compensation",
+      "priority": "P1",
+      "domain": "access_to_justice",
+      "workflow": "Free legal aid and victim compensation",
+      "jurisdiction": "India - Central plus State implementation",
+      "personas": [
+        "citizen",
+        "police",
+        "advocate"
+      ],
+      "question_families": [
+        "legal aid eligibility",
+        "DLSA application",
+        "victim compensation",
+        "support services"
+      ],
+      "status": "ready_runtime",
+      "core_required": 2,
+      "core_canonical": 2,
+      "core_available_any_state": 2,
+      "missing_core": [],
+      "sources": [
+        {
+          "id": "lsa-act",
+          "label": "Legal Services Authorities Act, 1987",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "The Legal Services Authorities Act, 1987",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        },
+        {
+          "id": "victim-comp",
+          "label": "Official victim-compensation guidance",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "Guidelines of Central Victim Compensation Fund Scheme",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        }
+      ]
+    },
+    {
+      "id": "environment-noise",
+      "priority": "P1",
+      "domain": "environment",
+      "workflow": "Noise and environmental nuisance complaints",
+      "jurisdiction": "India - Central plus State enforcement",
+      "personas": [
+        "citizen",
+        "police",
+        "advocate"
+      ],
+      "question_families": [
+        "night noise",
+        "loudspeaker",
+        "industrial nuisance",
+        "complaint authority"
+      ],
+      "status": "ready_runtime",
+      "core_required": 2,
+      "core_canonical": 2,
+      "core_available_any_state": 2,
+      "missing_core": [],
+      "sources": [
+        {
+          "id": "epa",
+          "label": "Environment (Protection) Act, 1986",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "Environment (Protection) Act, 1986 (as amended in 1991)",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        },
+        {
+          "id": "noise-rules",
+          "label": "Noise Pollution Rules, 2000",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "The Noise Pollution (Regulation and Control) Rules, 2000",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        }
+      ]
+    },
+    {
+      "id": "right-to-information",
+      "priority": "P1",
+      "domain": "public_law",
+      "workflow": "RTI request, appeal, exemptions, and complaint",
+      "jurisdiction": "India - Central",
+      "personas": [
+        "citizen",
+        "advocate"
+      ],
+      "question_families": [
+        "RTI application",
+        "first appeal",
+        "second appeal",
+        "exemption"
+      ],
+      "status": "ready_runtime",
+      "core_required": 2,
+      "core_canonical": 2,
+      "core_available_any_state": 2,
+      "missing_core": [],
+      "sources": [
+        {
+          "id": "rti-act",
+          "label": "Right to Information Act, 2005",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "The Right to Information Act, 2005",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        },
+        {
+          "id": "rti-rules",
+          "label": "Right to Information Rules, 2012",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "The Right to Information Rules, 2012",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        }
+      ]
+    },
+    {
+      "id": "ap-tenancy",
+      "priority": "P1",
+      "domain": "property_and_tenancy",
+      "workflow": "Andhra Pradesh tenancy, eviction, deposits, and lease rights",
+      "jurisdiction": "Andhra Pradesh",
+      "personas": [
+        "citizen",
+        "advocate"
+      ],
+      "question_families": [
+        "security deposit",
+        "eviction",
+        "rent control",
+        "lease termination"
+      ],
+      "status": "awaiting_promotion",
+      "core_required": 2,
+      "core_canonical": 1,
+      "core_available_any_state": 2,
+      "missing_core": [],
+      "sources": [
+        {
+          "id": "tpa",
+          "label": "Transfer of Property Act, 1882",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "Transfer of Property Act, 1882",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        },
+        {
+          "id": "ap-rent",
+          "label": "Applicable Andhra Pradesh rent-control/tenancy Act",
+          "required": true,
+          "state": "candidate_downloaded",
+          "matched_title": "The Andhra Pradesh Residential and Non-Residential Premises Tenancy Act, 2017",
+          "inventory_source": "data/source_materials/ap_tenancy_sources_2026-10-08.json",
+          "filename": "ap__indiacode__act__andhra-pradesh-residential-and-non-residential-premises-tenancy-act-2017__en.pdf"
+        }
+      ]
+    },
+    {
+      "id": "income-tax",
+      "priority": "P1",
+      "domain": "taxation",
+      "workflow": "Current income-tax liability, procedure, and transition questions",
+      "jurisdiction": "India - Central",
+      "personas": [
+        "citizen",
+        "advocate"
+      ],
+      "question_families": [
+        "current provision",
+        "return procedure",
+        "assessment",
+        "1961-to-2025 transition"
+      ],
+      "status": "awaiting_promotion",
+      "core_required": 2,
+      "core_canonical": 0,
+      "core_available_any_state": 2,
+      "missing_core": [],
+      "sources": [
+        {
+          "id": "it-act-2025",
+          "label": "Income-tax Act, 2025 as amended",
+          "required": true,
+          "state": "candidate_downloaded",
+          "matched_title": "The Income-tax Act, 2025 (as amended by the Finance Act, 2026)",
+          "inventory_source": "data/source_materials/tax_parent_sources_2026-10-08.json",
+          "filename": "central__incometax__act__income-tax-act-2025__en.pdf"
+        },
+        {
+          "id": "it-rules-2026",
+          "label": "Income-tax Rules, 2026",
+          "required": true,
+          "state": "candidate_downloaded",
+          "matched_title": "The Income-tax Rules, 2026",
+          "inventory_source": "data/source_materials/tax_parent_sources_2026-10-08.json",
+          "filename": "central__incometax__rules__income-tax-rules-2026__en.pdf"
+        }
+      ]
+    },
+    {
+      "id": "banking-deposits",
+      "priority": "P1",
+      "domain": "banking_finance",
+      "workflow": "Bank regulation, depositor protection, and deposit insurance",
+      "jurisdiction": "India - Central",
+      "personas": [
+        "citizen",
+        "advocate"
+      ],
+      "question_families": [
+        "bank duties",
+        "deposit insurance",
+        "failed bank",
+        "RBI authority"
+      ],
+      "status": "awaiting_promotion",
+      "core_required": 3,
+      "core_canonical": 2,
+      "core_available_any_state": 3,
+      "missing_core": [],
+      "sources": [
+        {
+          "id": "rbi-act",
+          "label": "Reserve Bank of India Act, 1934",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "The Reserve Bank of India Act, 1934",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        },
+        {
+          "id": "banking-act",
+          "label": "Banking Regulation Act, 1949",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "The Banking Regulation Act, 1949",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        },
+        {
+          "id": "dicgc-act",
+          "label": "DICGC Act and Regulations",
+          "required": true,
+          "state": "candidate_downloaded",
+          "matched_title": "The Deposit Insurance and Credit Guarantee Corporation Act, 1961",
+          "inventory_source": "data/source_materials/indiacode_central_acts.json",
+          "filename": "cen__indiacode__act__deposit-insurance-and-credit-guarantee-corporation-act-1961__en.pdf"
+        }
+      ]
+    },
+    {
+      "id": "companies-insolvency",
+      "priority": "P2",
+      "domain": "corporate_commercial",
+      "workflow": "Company governance and insolvency procedure",
+      "jurisdiction": "India - Central",
+      "personas": [
+        "advocate"
+      ],
+      "question_families": [
+        "director duty",
+        "corporate filing",
+        "insolvency commencement",
+        "resolution process"
+      ],
+      "status": "ready_runtime",
+      "core_required": 2,
+      "core_canonical": 2,
+      "core_available_any_state": 2,
+      "missing_core": [],
+      "sources": [
+        {
+          "id": "companies-act",
+          "label": "Companies Act, 2013",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "The Companies Act, 2013",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        },
+        {
+          "id": "ibc",
+          "label": "Insolvency and Bankruptcy Code, 2016",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "The Insolvency and Bankruptcy Code, 2016 (consolidated up to 12 August 2021)",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        }
+      ]
+    },
+    {
+      "id": "civil-property-procedure",
+      "priority": "P2",
+      "domain": "civil_law",
+      "workflow": "Property transfer, registration, and limitation",
+      "jurisdiction": "India - Central plus State procedure",
+      "personas": [
+        "citizen",
+        "advocate"
+      ],
+      "question_families": [
+        "sale and mortgage",
+        "registration",
+        "limitation",
+        "lease"
+      ],
+      "status": "awaiting_promotion",
+      "core_required": 3,
+      "core_canonical": 2,
+      "core_available_any_state": 3,
+      "missing_core": [],
+      "sources": [
+        {
+          "id": "tpa",
+          "label": "Transfer of Property Act, 1882",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "Transfer of Property Act, 1882",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        },
+        {
+          "id": "registration",
+          "label": "Registration Act, 1908",
+          "required": true,
+          "state": "candidate_downloaded",
+          "matched_title": "The Registration Act, 1908",
+          "inventory_source": "data/source_materials/indiacode_central_acts.json",
+          "filename": "cen__indiacode__act__registration-act-1908__en.pdf"
+        },
+        {
+          "id": "limitation",
+          "label": "Limitation Act, 1963",
+          "required": true,
+          "state": "canonical",
+          "matched_title": "Limitation Act, 1963 official record",
+          "inventory_source": "data/legal_kb/metadata/canonical_documents.jsonl",
+          "filename": null
+        }
+      ]
+    }
+  ]
+}

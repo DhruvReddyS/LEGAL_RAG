@@ -71,7 +71,11 @@ through the NCRB concordance recovers it (§5.7 of the PRD).
    eight passages carry "harassment" and "workplace" honestly. Right topic,
    wrong sub-topic is not a lexical problem and the sufficiency gate does not
    claim to solve it.
-5. **Civil law is absent, not thin** -- see [CORPUS_GAPS.md](CORPUS_GAPS.md).
+5. **Civil coverage is now present but uneven.** Contract and consumer
+   instruments are canonical; tenancy still requires commencement/currency
+   review. See the current workflow audit in
+   [COVERAGE_AUDIT.md](evidence/corpus/COVERAGE_AUDIT.md). The historical gap
+   analysis remains in [CORPUS_GAPS.md](CORPUS_GAPS.md).
 6. **The advocate evaluation slice is 7 items**, too few to tune against.
 
 ## What would be worth doing next

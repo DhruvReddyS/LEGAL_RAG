@@ -1,8 +1,12 @@
 # Corpus gaps — for your decision
 
 Phase 1.7 began as the gap analysis below. On 10 September 2026, five clean
-official documents were published to the extended tier. The historical
-analysis is retained because it explains why the additions were chosen.
+official documents were published to the extended tier. It is now historical:
+the 8 October workflow audit reports contract and consumer law runtime-ready,
+with tenancy acquired for review. The analysis is retained because it explains
+why the additions were chosen; its counts must not be read as current corpus
+status. See [COVERAGE_AUDIT.md](evidence/corpus/COVERAGE_AUDIT.md) for the
+current source-state matrix.
 
 ## Live expansion status — 10 September 2026
 
@@ -73,8 +77,9 @@ category:
 | 5 | legacy IPC / CrPC / Evidence Act |
 | 1 | the Constitution |
 
-Civil law is not thin — it is **absent**. Searching the manifest for the
-five gap areas returns zero Acts for four of them:
+At the time of this original analysis, civil law was not thin — it was
+**absent**. The table below is a September 2026 snapshot, not the current
+corpus:
 
 | area | Acts in corpus | anything at all |
 |---|---:|---|

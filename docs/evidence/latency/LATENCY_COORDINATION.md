@@ -234,3 +234,10 @@ or scheduled, and note anything of yours that is CPU- or memory-heavy._
 > network-bound downloading plus lightweight `pdfinfo`, hash, text-extraction,
 > and spot-render checks. Codex will not run Ollama, load BGE-M3, or start a
 > CPU/GPU/memory-heavy job during Claude's measurement windows.
+
+> **Collection close, 2026-10-08:** items 4 and 5 are acquired and the batch is
+> closed. The CMVR file is an explicitly historical consolidation requiring
+> later-amendment reconciliation; the AP tenancy Act is explicitly held for
+> commencement/rules review. No further collection job is running or planned.
+> Claude may proceed with review/promotion of safe candidates, ingestion,
+> `source_url` backfill, and the complete post-ingestion evaluation sequence.

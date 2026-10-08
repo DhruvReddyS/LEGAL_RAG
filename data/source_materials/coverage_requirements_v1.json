@@ -1,0 +1,291 @@
+{
+  "version": "workflow-coverage-v1-2026-10-08",
+  "purpose": "Minimum authoritative source bundles for high-value citizen, police, and advocate workflows. This is a coverage baseline, not a document-count target.",
+  "workflows": [
+    {
+      "id": "constitutional-rights",
+      "priority": "P0",
+      "domain": "constitutional_law",
+      "workflow": "Fundamental rights and constitutional remedies",
+      "jurisdiction": "India - Central",
+      "personas": ["citizen", "police", "advocate"],
+      "question_families": ["equality", "life and liberty", "free speech", "writ remedies"],
+      "minimum_sources": [
+        {"id": "constitution", "label": "Current English Constitution of India", "match_any": ["^The Constitution of India(?!.*Amendment)"]}
+      ]
+    },
+    {
+      "id": "fir-arrest-search",
+      "priority": "P0",
+      "domain": "criminal_procedure",
+      "workflow": "FIR, arrest, notice, search, seizure, and investigation",
+      "jurisdiction": "India - Central",
+      "personas": ["citizen", "police", "advocate"],
+      "question_families": ["zero FIR", "arrest without warrant", "woman arrest safeguards", "search procedure"],
+      "minimum_sources": [
+        {"id": "bnss", "label": "Bharatiya Nagarik Suraksha Sanhita, 2023", "match_any": ["^THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023$"]}
+      ]
+    },
+    {
+      "id": "criminal-offences",
+      "priority": "P0",
+      "domain": "criminal_law",
+      "workflow": "Offence ingredients, exceptions, and punishment",
+      "jurisdiction": "India - Central",
+      "personas": ["citizen", "police", "advocate"],
+      "question_families": ["offence classification", "ingredients", "general exceptions", "punishment"],
+      "minimum_sources": [
+        {"id": "bns", "label": "Bharatiya Nyaya Sanhita, 2023", "match_any": ["^THE BHARATIYA NYAYA SANHITA, 2023$"]}
+      ]
+    },
+    {
+      "id": "criminal-evidence",
+      "priority": "P0",
+      "domain": "evidence",
+      "workflow": "Admissibility, proof, and electronic evidence",
+      "jurisdiction": "India - Central",
+      "personas": ["police", "advocate"],
+      "question_families": ["electronic records", "burden of proof", "confessions", "document proof"],
+      "minimum_sources": [
+        {"id": "bsa", "label": "Bharatiya Sakshya Adhiniyam, 2023", "match_any": ["^THE BHARATIYA SAKSHYA ADHINIYAM, 2023$"]}
+      ]
+    },
+    {
+      "id": "bail-undertrial",
+      "priority": "P0",
+      "domain": "criminal_procedure",
+      "workflow": "Regular bail, anticipatory bail, default bail, and undertrial release",
+      "jurisdiction": "India - Central",
+      "personas": ["citizen", "police", "advocate"],
+      "question_families": ["bailable offence", "anticipatory bail", "default bail", "BNSS section 479"],
+      "minimum_sources": [
+        {"id": "bnss", "label": "Bharatiya Nagarik Suraksha Sanhita, 2023", "match_any": ["^THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023$"]},
+        {"id": "undertrial-guidance", "label": "Official BNSS section 479 implementation guidance", "required": false, "match_any": ["implementation of the provisions of Section 479.*Bharatiya Nagarik Suraksha Sanhita"]}
+      ]
+    },
+    {
+      "id": "pocso-child-protection",
+      "priority": "P0",
+      "domain": "child_protection",
+      "workflow": "POCSO reporting, offences, investigation, and child safeguards",
+      "jurisdiction": "India - Central",
+      "personas": ["citizen", "police", "advocate"],
+      "question_families": ["mandatory reporting", "child-friendly procedure", "special court", "support person"],
+      "minimum_sources": [
+        {"id": "pocso-act", "label": "Protection of Children from Sexual Offences Act, 2012", "match_any": ["^The Protection of Children from Sexual Offences Act, 2012$"]},
+        {"id": "pocso-rules", "label": "POCSO Rules, 2020", "match_any": ["Protection of Children from Sexual Offences.*Rules, 2020"]}
+      ]
+    },
+    {
+      "id": "domestic-violence-dowry",
+      "priority": "P0",
+      "domain": "family_and_women",
+      "workflow": "Domestic violence protection and dowry complaints",
+      "jurisdiction": "India - Central",
+      "personas": ["citizen", "police", "advocate"],
+      "question_families": ["protection order", "residence order", "protection officer", "dowry complaint"],
+      "minimum_sources": [
+        {"id": "dv-act", "label": "Protection of Women from Domestic Violence Act, 2005", "match_any": ["Protection of Women from Domestic Violence Act,? 2005"]},
+        {"id": "dv-rules", "label": "Protection of Women from Domestic Violence Rules, 2006", "match_any": ["Protection of Women from Domestic Violence Rules,? 2006"]},
+        {"id": "dowry-act", "label": "Dowry Prohibition Act, 1961", "match_any": ["Dowry Prohibition Act, 1961"]}
+      ]
+    },
+    {
+      "id": "scst-atrocities",
+      "priority": "P0",
+      "domain": "social_justice",
+      "workflow": "SC/ST atrocities reporting, investigation, relief, and trial",
+      "jurisdiction": "India - Central",
+      "personas": ["citizen", "police", "advocate"],
+      "question_families": ["scheduled offence", "FIR and investigation", "special court", "victim relief"],
+      "minimum_sources": [
+        {"id": "scst-act", "label": "SC/ST (Prevention of Atrocities) Act, 1989", "match_any": ["Scheduled Castes and (the )?Scheduled Tribes.*Prevention of Atrocities.*Act,? ?1989"]},
+        {"id": "scst-rules", "label": "SC/ST (Prevention of Atrocities) Rules, 1995", "match_any": ["Scheduled Castes and (the )?Scheduled Tribes.*Prevention of Atrocities.*Rules,? ?1995"]}
+      ]
+    },
+    {
+      "id": "juvenile-justice",
+      "priority": "P0",
+      "domain": "child_protection",
+      "workflow": "Children in conflict with law and children needing care",
+      "jurisdiction": "India - Central",
+      "personas": ["citizen", "police", "advocate"],
+      "question_families": ["apprehension of child", "Juvenile Justice Board", "care and protection", "bail for child"],
+      "minimum_sources": [
+        {"id": "jj-act", "label": "Juvenile Justice Act, 2015", "match_any": ["Juvenile Justice.*Act,? 2015"]},
+        {"id": "jj-rules", "label": "Juvenile Justice Model Rules, 2016", "match_any": ["Juvenile Justice.*Model Rules,? 2016"]}
+      ]
+    },
+    {
+      "id": "cybercrime-digital-evidence",
+      "priority": "P0",
+      "domain": "technology_and_cybercrime",
+      "workflow": "Cybercrime complaints, intermediary duties, and digital evidence",
+      "jurisdiction": "India - Central",
+      "personas": ["citizen", "police", "advocate"],
+      "question_families": ["online fraud", "identity theft", "intermediary request", "electronic evidence"],
+      "minimum_sources": [
+        {"id": "it-act", "label": "Information Technology Act, 2000", "match_any": ["^09 Jun The Information Technology Act, 2000.*ACT2000$", "^The Information Technology Act, 2000$"]},
+        {"id": "it-rules", "label": "Current IT Rules/notifications compendium", "match_any": ["Notifications and Rules made under the Information Technology Act, 2000", "Intermediary Guidelines and Digital Media Ethics Code.*Rules, 2021"]}
+      ]
+    },
+    {
+      "id": "consumer-disputes",
+      "priority": "P1",
+      "domain": "consumer_law",
+      "workflow": "Defective goods, deficient services, refunds, and e-commerce complaints",
+      "jurisdiction": "India - Central",
+      "personas": ["citizen", "advocate"],
+      "question_families": ["defective product", "refund refusal", "commission jurisdiction", "online marketplace"],
+      "minimum_sources": [
+        {"id": "consumer-act", "label": "Consumer Protection Act, 2019", "match_any": ["^The? ?Consumer Protection Act, 2019$"]},
+        {"id": "ecommerce-rules", "label": "Consumer Protection (E-Commerce) Rules, 2020", "match_any": ["^Consumer Protection \\(E-Commerce\\) Rules, 2020$"]}
+      ]
+    },
+    {
+      "id": "contracts-remedies",
+      "priority": "P1",
+      "domain": "civil_and_commercial",
+      "workflow": "Contract formation, breach, damages, and specific relief",
+      "jurisdiction": "India - Central",
+      "personas": ["citizen", "advocate"],
+      "question_families": ["valid contract", "breach", "damages", "injunction", "specific performance"],
+      "minimum_sources": [
+        {"id": "contract-act", "label": "Indian Contract Act, 1872", "match_any": ["Indian Contract Act, 1872"]},
+        {"id": "specific-relief", "label": "Specific Relief Act, 1963", "match_any": ["Specific Relief Act, 1963"]}
+      ]
+    },
+    {
+      "id": "workplace-harassment",
+      "priority": "P1",
+      "domain": "employment_and_women",
+      "workflow": "Workplace sexual-harassment complaint and inquiry",
+      "jurisdiction": "India - Central",
+      "personas": ["citizen", "advocate"],
+      "question_families": ["internal committee", "complaint limitation", "local committee", "inquiry procedure"],
+      "minimum_sources": [
+        {"id": "posh-act", "label": "POSH Act, 2013", "match_any": ["Sexual Harassment of Women at Workplace.*Act, 2013"]},
+        {"id": "posh-rules", "label": "POSH Rules, 2013", "match_any": ["Sexual Harassment of Women at Workplace.*Rules, 2013"]}
+      ]
+    },
+    {
+      "id": "motor-accident",
+      "priority": "P1",
+      "domain": "motor_vehicle_law",
+      "workflow": "Road offences, accident reporting, insurance, and compensation",
+      "jurisdiction": "India - Central",
+      "personas": ["citizen", "police", "advocate"],
+      "question_families": ["accident reporting", "driving offence", "insurance duty", "claims tribunal"],
+      "minimum_sources": [
+        {"id": "mv-act", "label": "Motor Vehicles Act, 1988", "match_any": ["^Motor Vehicles Act, 1988$"]},
+        {"id": "cmv-rules", "label": "Central Motor Vehicles Rules, 1989", "match_any": ["Central Motor Vehicles Rules,? 1989"]}
+      ]
+    },
+    {
+      "id": "legal-aid-victim-compensation",
+      "priority": "P1",
+      "domain": "access_to_justice",
+      "workflow": "Free legal aid and victim compensation",
+      "jurisdiction": "India - Central plus State implementation",
+      "personas": ["citizen", "police", "advocate"],
+      "question_families": ["legal aid eligibility", "DLSA application", "victim compensation", "support services"],
+      "minimum_sources": [
+        {"id": "lsa-act", "label": "Legal Services Authorities Act, 1987", "match_any": ["Legal Services Authorities Act, 1987"]},
+        {"id": "victim-comp", "label": "Official victim-compensation guidance", "match_any": ["Victim Compensation Fund Scheme", "victim Compensation Scheme"]}
+      ]
+    },
+    {
+      "id": "environment-noise",
+      "priority": "P1",
+      "domain": "environment",
+      "workflow": "Noise and environmental nuisance complaints",
+      "jurisdiction": "India - Central plus State enforcement",
+      "personas": ["citizen", "police", "advocate"],
+      "question_families": ["night noise", "loudspeaker", "industrial nuisance", "complaint authority"],
+      "minimum_sources": [
+        {"id": "epa", "label": "Environment (Protection) Act, 1986", "match_any": ["Environment \\(Protection\\) Act, 1986"]},
+        {"id": "noise-rules", "label": "Noise Pollution Rules, 2000", "match_any": ["Noise Pollution \\(Regulation and Control\\) Rules, 2000"]}
+      ]
+    },
+    {
+      "id": "right-to-information",
+      "priority": "P1",
+      "domain": "public_law",
+      "workflow": "RTI request, appeal, exemptions, and complaint",
+      "jurisdiction": "India - Central",
+      "personas": ["citizen", "advocate"],
+      "question_families": ["RTI application", "first appeal", "second appeal", "exemption"],
+      "minimum_sources": [
+        {"id": "rti-act", "label": "Right to Information Act, 2005", "match_any": ["^The Right to Information Act, 2005$"]},
+        {"id": "rti-rules", "label": "Right to Information Rules, 2012", "match_any": ["^The Right to Information Rules, 2012$"]}
+      ]
+    },
+    {
+      "id": "ap-tenancy",
+      "priority": "P1",
+      "domain": "property_and_tenancy",
+      "workflow": "Andhra Pradesh tenancy, eviction, deposits, and lease rights",
+      "jurisdiction": "Andhra Pradesh",
+      "personas": ["citizen", "advocate"],
+      "question_families": ["security deposit", "eviction", "rent control", "lease termination"],
+      "minimum_sources": [
+        {"id": "tpa", "label": "Transfer of Property Act, 1882", "match_any": ["^Transfer of Property Act, 1882$"]},
+        {"id": "ap-rent", "label": "Applicable Andhra Pradesh rent-control/tenancy Act", "match_any": ["Andhra Pradesh.*Buildings.*Lease, Rent and Eviction.*Control Act", "Andhra Pradesh Residential and Non-Residential Premises Tenancy Act, 2017"]}
+      ]
+    },
+    {
+      "id": "income-tax",
+      "priority": "P1",
+      "domain": "taxation",
+      "workflow": "Current income-tax liability, procedure, and transition questions",
+      "jurisdiction": "India - Central",
+      "personas": ["citizen", "advocate"],
+      "question_families": ["current provision", "return procedure", "assessment", "1961-to-2025 transition"],
+      "minimum_sources": [
+        {"id": "it-act-2025", "label": "Income-tax Act, 2025 as amended", "match_any": ["Income-tax Act, 2025.*Finance Act, 2026"]},
+        {"id": "it-rules-2026", "label": "Income-tax Rules, 2026", "match_any": ["^The Income-tax Rules, 2026$"]}
+      ]
+    },
+    {
+      "id": "banking-deposits",
+      "priority": "P1",
+      "domain": "banking_finance",
+      "workflow": "Bank regulation, depositor protection, and deposit insurance",
+      "jurisdiction": "India - Central",
+      "personas": ["citizen", "advocate"],
+      "question_families": ["bank duties", "deposit insurance", "failed bank", "RBI authority"],
+      "minimum_sources": [
+        {"id": "rbi-act", "label": "Reserve Bank of India Act, 1934", "match_any": ["Reserve Bank of India Act, 1934"]},
+        {"id": "banking-act", "label": "Banking Regulation Act, 1949", "match_any": ["Banking Regulation Act, 1949"]},
+        {"id": "dicgc-act", "label": "DICGC Act and Regulations", "match_any": ["Deposit Insurance and Credit Guarantee Corporation Act, 1961"]}
+      ]
+    },
+    {
+      "id": "companies-insolvency",
+      "priority": "P2",
+      "domain": "corporate_commercial",
+      "workflow": "Company governance and insolvency procedure",
+      "jurisdiction": "India - Central",
+      "personas": ["advocate"],
+      "question_families": ["director duty", "corporate filing", "insolvency commencement", "resolution process"],
+      "minimum_sources": [
+        {"id": "companies-act", "label": "Companies Act, 2013", "match_any": ["^The Companies Act, 2013$"]},
+        {"id": "ibc", "label": "Insolvency and Bankruptcy Code, 2016", "match_any": ["Insolvency and Bankruptcy Code, 2016 \\(consolidated"]}
+      ]
+    },
+    {
+      "id": "civil-property-procedure",
+      "priority": "P2",
+      "domain": "civil_law",
+      "workflow": "Property transfer, registration, and limitation",
+      "jurisdiction": "India - Central plus State procedure",
+      "personas": ["citizen", "advocate"],
+      "question_families": ["sale and mortgage", "registration", "limitation", "lease"],
+      "minimum_sources": [
+        {"id": "tpa", "label": "Transfer of Property Act, 1882", "match_any": ["^Transfer of Property Act, 1882$"]},
+        {"id": "registration", "label": "Registration Act, 1908", "match_any": ["Registration Act, 1908"]},
+        {"id": "limitation", "label": "Limitation Act, 1963", "match_any": ["Limitation Act, 1963"]}
+      ]
+    }
+  ]
+}

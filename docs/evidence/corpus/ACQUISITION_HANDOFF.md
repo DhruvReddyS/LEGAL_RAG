@@ -21,6 +21,32 @@ Last updated: 2026-10-08, after 1,036 canonical documents.
   Claude should treat the tax, DICGC, and Registration Act bundles as review
   candidates after the active latency window closes.
 
+## 2026-10-08 collection close and release to Claude
+
+**The current collection batch is closed. Claude may open the promotion and
+ingestion window.** Codex has no ingestion, rebuild, re-embedding, promotion,
+Qdrant mutation, or full-corpus pass running or scheduled.
+
+The two remaining source families are now downloaded, hashed, text-checked,
+and visually spot-checked:
+
+- Andhra Pradesh Residential and Non-Residential Premises Tenancy Act, 2017:
+  review candidate with `COMMENCEMENT_REVIEW_REQUIRED`. Section 1(3) requires
+  a separate Gazette commencement notification, which this pass did not
+  locate. Do not present the Act as fully operative until that evidence is
+  attached.
+- Central Motor Vehicles Rules, 1989: official India Code base text, but the
+  file is an old consolidation. MoRTH has later final amendments, including
+  G.S.R. 48(E) dated 20 January 2026. Promote only as historical/base text with
+  the warning intact, or hold it until the later amendment chain is assembled.
+
+This moves the 22-workflow audit to 17 `ready_runtime` and five
+`awaiting_promotion`, with no metadata-level source gaps. It does not claim
+that the five candidates are release-ready. Claude owns acceptance and may
+hold either of the two warned candidates while safely promoting the other
+reviewed sources, ingesting accepted records, backfilling `source_url`, and
+rerunning the retrieval, answer, currency, citation, and latency gates.
+
 - The current snapshot is 1,036 canonical documents and 625 unique staged,
   non-canonical candidates. Against the 2,500 planning target, the gross gap
   is 1,464; the optimistic external gap is 839 if every staged candidate were
@@ -136,11 +162,11 @@ into a swapping one.
 
 ## The target changed
 
-The goal is now ~2,500 documents, but weighted to the instruments that matter.
-A gap check against 132 major Indian statutes found **only 64 held**. Volume is
-not the problem; the missing parent Acts are. The corpus holds 40 Reserve Bank
-master directions and no Banking Regulation Act, 40 insurance circulars and no
-Insurance Act. Fix that imbalance before adding more subordinate material.
+The earlier ~2,500-document planning figure is retired. Volume is inventory,
+not the success criterion. The active target is workflow coverage plus measured
+retrieval, citation, currency, abstention, and latency gates. Missing parent
+Acts still outrank extra subordinate material, but collection happens only for
+a demonstrated workflow or evaluation gap.
 
 ## Open assignments
 
@@ -202,18 +228,15 @@ administrative tribunals, remaining criminal statutes.
    document list entirely: on legislative.gov.in it turned 0 visible documents
    into 114.
 
-## India Code is gone, and that is the single biggest constraint
+## India Code access changed
 
-`indiacode.nic.in` is the only complete library of central Act texts, and it is
-unreachable from this network. Confirmed three ways: curl times out at 60
-seconds on every `/handle/` and `/bitstream/` path over both HTTP/2 and
-HTTP/1.1; only the bare root returns anything; and the browser gets an Akamai
-edge error, `errors.edgesuite.net`, rather than a page. It is blocked or broken
-at the CDN, not refusing our client.
-
-The Legislative Department's own pages link to it for every Act text, so that
-route closes too. Bare central Acts therefore have to come one ministry at a
-time from the body that administers them.
+The legacy `indiacode.nic.in` frontend and old bitstream paths were unreliable,
+but the replacement DSpace 7 API at `https://indiacode.gov.in/server/api` is
+reachable. It supplies item metadata, ORIGINAL bundles, PDF bitstreams, Act
+numbers, years, administering ministries, and repeal flags. Use that API first;
+retain ministry-hosted copies where they provide a newer consolidation or
+amendment chain. India Code's `repealed=false` flag is useful evidence, not
+proof that a PDF incorporates the latest amendment.
 
 Reachable and confirmed to serve titled documents: `ibbi.gov.in`
 (legal-framework/act, a dated table), `ncpcr.gov.in` (per-Act pages),

@@ -46,3 +46,29 @@ Do not infer identity from filenames. In particular, the candidate named
 `Code of Criminal Procedure, 1973.pdf` is byte-identical to Gold's two-page 2010
 CrPC amendment PDF, not a complete CrPC bare Act. It must be renamed only after
 metadata review and must not be promoted as the full Code.
+
+## Coverage-driven acquisition
+
+Collection is not managed against a target PDF count. The minimum source
+bundles for supported citizen, police, and advocate workflows live in
+`coverage_requirements_v1.json`. Regenerate the evidence report with:
+
+```bash
+python3 scripts/coverage_gap_audit.py
+```
+
+The audit reports a workflow as runtime-ready only when every required source
+is canonical. Staged and downloaded candidates remain review work; they do not
+count as usable production coverage. Add a source requirement when a supported
+workflow needs an authority, and add a document only when the audit or an
+evaluation failure demonstrates that source gap.
+
+Generate exact canonical PDF, page, and byte totals by segment with:
+
+```bash
+python3 scripts/corpus_segment_inventory.py
+```
+
+The generated inventory deliberately separates the canonical manifest from
+physical raw and candidate workspaces so duplicates and rejected files are not
+misreported as production coverage.

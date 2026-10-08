@@ -1,0 +1,25 @@
+[
+  {
+    "id": "central-motor-vehicles-rules-1989-historical-consolidation",
+    "title": "The Central Motor Vehicles Rules, 1989 (historical consolidation; amendment reconciliation required)",
+    "domain": "motor_vehicle_law",
+    "document_type": "rules",
+    "authority": "Government of India",
+    "jurisdiction": "India - Central",
+    "language": "English",
+    "legal_status": "HISTORICAL_CONSOLIDATION_CURRENT_REVIEW_REQUIRED",
+    "current_as_of": "2026-10-08",
+    "format": "pdf",
+    "filename": "central__indiacode__rules__central-motor-vehicles-rules-1989__en.pdf",
+    "url": "https://indiacode.gov.in/server/api/core/bitstreams/90ce536c-87fa-4987-8840-d0e6c7a19513/content",
+    "landing_url": "https://upload.indiacode.nic.in/showfile?actid=AC_CG_61_1084_00001_00001_1554966634246&filename=the_central_motor_vehicles_rules%2C_1989.pdf&type=rule",
+    "india_code_item_uuid": "06381a35-d433-4523-a9f6-22b55e52c93e",
+    "principal_notification": "G.S.R. 590(E), 1989-06-02",
+    "effective_date": "1989-07-01",
+    "page_count": 174,
+    "file_size_bytes": 1518393,
+    "sha256": "5270b2079980c1c2e91bfb100d9fc86afc3909315122547f958cfae8cabb14b5",
+    "currency_note": "This official India Code copy is an old consolidation: its PDF metadata dates from 2008 and it does not include later amendments. MoRTH published at least the Central Motor Vehicles (Third Amendment) Rules, 2026, G.S.R. 48(E), dated 2026-01-20. The principal text is useful for source-family coverage but must not be labelled current or used alone for time-sensitive advice until all later final amendments are reconciled.",
+    "validation_note": "Official India Code PDF. The 174-page file is structurally valid, text-extractable, and passed first-page visual inspection. Promotion must retain the historical-consolidation warning or wait for a current amendment pack."
+  }
+]
