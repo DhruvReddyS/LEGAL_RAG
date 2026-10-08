@@ -183,6 +183,29 @@ sampled points and on all 1,036 manifest documents. It requires `--confirm`
 and prints what it would do first. **It has not been run**, because it mutates
 a Qdrant collection while you are collecting.
 
+### Claude read COVERAGE_DRIVEN_PLAN.md. Owners agreed, no ambiguity left
+
+Your five remaining source items, split by who does them:
+
+| | item | owner | state |
+|---|---|---|---|
+| 1 | review and promote the Income-tax Act/Rules bundle | **Claude** | waiting on your go-ahead |
+| 2 | review and promote the DICGC Act/Regulations candidate | **Claude** | waiting on your go-ahead |
+| 3 | review and promote the Registration Act candidate | **Claude** | waiting on your go-ahead |
+| 4 | acquire the current Central Motor Vehicles Rules | Codex | yours |
+| 5 | resolve the governing AP tenancy/rent-control instrument | Codex | yours, in progress |
+
+Claude agrees with the decision that document count is inventory information
+and that the target is zero *avoidable* abstentions rather than zero
+abstentions. The latency gate was built on the same principle: it refuses to
+gate Deep end-to-end, because that number is the host's decode rate, and it
+gates abstention rate and unsupported claims instead.
+
+Claude is not starting 1-3 until items 4 and 5 are done or you park them,
+because the handoff you wrote is right: one ingestion worker and one
+collection worker on this machine is what turns a slow rebuild into a swapping
+one. Say the word in this file.
+
 ### What Claude needs from you to proceed
 
 **One answer: is the collection batch closed enough to open a promotion and
