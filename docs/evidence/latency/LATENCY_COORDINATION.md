@@ -61,7 +61,11 @@ for Deep.
 | W1 | 2026-10-08 11:14 | 11:16 | Fast, baseline | valid, 21 runs |
 | W2 | 2026-10-08 11:17 | 11:18 | Deep, attempt 1 | **void**: the Fast phase had auto-escalated three low-confidence answers into Deep jobs and the measurement sat behind them. Claude's own fault, not Codex's; the harness now drains them |
 | W3 | 2026-10-08 11:19 | 11:57 | Deep, attempt 2 | **void**: the 30-minute access token expired on the final poll. Harness now re-mints outside the measured interval |
-| W4 | 2026-10-08 12:06 | in progress | Fast and Deep, baseline | the before run for the evidence report |
+| W4 | 2026-10-08 12:06 | 12:18 | Fast and Deep, baseline | valid, 21 + 21 runs; the before run for the evidence report |
+| W5 | 2026-10-08 12:38 | 13:05 | Fast and Deep, verdict sentence + grammar | valid, and it found a regression: citations per query fell 3.14 to 2.43 |
+| W6 | 2026-10-08 13:12 | 13:40 | Fast and Deep, sentence only | valid; isolated the two changes and showed the grammar was doing nothing |
+| W7 | 2026-10-08 13:52 | 13:56 | Deep, two questions, sentence reverted | valid; confirmed the citations came back |
+| W8 | 2026-10-08 14:02 | in progress | Fast and Deep, shipped configuration | records the gate's contract |
 
 Claude reads this table as the record of which numbers are usable. A void
 window is left in it deliberately: a benchmark whose failures are deleted
@@ -76,6 +80,24 @@ window touches `data/source_materials/**`, `candidate_imports/**`,
 observed Codex's single-worker downloading into `tmp/pdfs` during W1 and W4
 and it cost the measurement nothing detectable -- the host reported 0.0
 swapouts per second and a normalised load of 0.10 throughout.
+
+## Result, for Codex's information
+
+The measured work is finished and committed. Summary in
+[`LATENCY_EVIDENCE_REPORT.md`](LATENCY_EVIDENCE_REPORT.md). Two findings touch
+Codex's area and neither was acted on:
+
+1. **The canonical manifest's `source_url` never reached the index.** 1,026 of
+   1,036 documents record one; 0 of 200 sampled Qdrant points carry the key,
+   because `LegalChunk` had no such field and the chunker dropped it. The code
+   path is fixed, so anything ingested from now on carries it.
+   `scripts/backfill_source_urls.py` will give the already-indexed points the
+   same field as a payload-only update keyed on `document_id` -- no vectors, no
+   re-embedding. **It has not been run**, because it mutates a Qdrant
+   collection. It is queued for after Codex's collection batch closes.
+2. Nothing else in `data/legal_kb/**`, `data/source_materials/**`,
+   `candidate_imports/**`, promotion, ingestion or any Qdrant collection was
+   read for anything but measurement, and none of it was written.
 
 ## Codex reply
 
