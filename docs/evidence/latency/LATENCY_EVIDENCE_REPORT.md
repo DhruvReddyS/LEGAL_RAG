@@ -398,6 +398,59 @@ finalisation phase.
 
 ---
 
+## 6a. The one valid before/after comparison
+
+Every earlier pass ran on a host whose decode rate differed from the
+baseline's, so none of them could attribute a latency delta. The final pass
+decoded at **14.5 tokens/second against the baseline's 14.4** -- the same
+machine, in the same state -- so this is the comparison that counts.
+
+| | baseline | final | attributable |
+|---|---:|---:|---|
+| Fast p50 | 0.09 s | **0.03 s** | yes -- the embedder warm-up |
+| Fast p95 | 0.18 s | **0.14 s** | yes |
+| Fast citations per query | 3.29 | 3.29 | unchanged |
+| Deep time to first useful output, p50 | 64.66 s | **0.56 s** | yes -- sources publish at retrieval |
+| Deep p50 | 64.95 s | 72.16 s | **no** -- see below |
+| Deep p95 | 142.47 s | 140.25 s | unchanged |
+| Deep citations per query | 3.14 | **3.19** | held |
+| Deep abstentions | 5 / 21 | **3 / 21** | improved |
+| Deep answers graded strong | 3 | 4 | improved |
+| Deep retries | 3 / 21 | 3 / 21 | unchanged |
+| Deep output tokens, p50 | 675 | 675 | unchanged |
+
+Four of the seven questions returned **byte-identical** answers at
+near-identical timings. q02 improved: two of its three repeats had abstained
+in the baseline and none did here, and one produced a 350-word answer graded
+strong where the baseline's best was 312 words graded moderate.
+
+The Deep p50 moving from 65.0 s to 72.2 s is **not** a code regression, and the
+per-stage accounting says so. It is q05 (+21 s) and q03 (+4 s), and in both
+cases the work is identical:
+
+| | baseline | final |
+|---|---|---|
+| q05 output tokens / model calls / decode rate | 745 / 3 / 14.2 | 745 / 3 / 14.1 |
+| q05 reasoning, verification | 48.1 s, 6.1 s | 57.9 s, 13.7 s |
+| q03 output tokens / decode rate | 716 / 13.8 | 722 / 14.1 |
+
+The same token count at the same tokens-per-second took longer inside the
+stage. That is this host's thermal behaviour within a 25-minute pass -- the
+same effect that took q01 from 50.7 s to 73.0 s across three repeats of one
+question in a single baseline run. It is the reason the gate does not gate
+Deep end-to-end.
+
+### The gate, verified in both directions
+
+The contract is recorded from this run. Run against itself it passes. Run
+against the baseline it fails, on exactly the two properties the work
+defended:
+
+```
+deep_non_model_overhead_p95_ms is 979 ms against a limit of 488 ms
+deep_first_useful_output_p95_ms is 142,458 ms against a limit of 15,341 ms
+```
+
 ## 7. Remaining bottlenecks
 
 | | |

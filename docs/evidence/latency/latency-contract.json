@@ -1,0 +1,31 @@
+{
+  "git_commit": "36309d6e61f9845a1610d5c9f49388eecede5f3f",
+  "label": "final",
+  "measured": {
+    "context_deep_decode_tokens_per_second_p50": 14.51,
+    "context_deep_end_to_end_p50_ms": 72159.72,
+    "context_deep_end_to_end_p95_ms": 140246.26,
+    "deep_abstention_rate": 0.1429,
+    "deep_citations_per_query": 3.1905,
+    "deep_first_useful_output_p95_ms": 10227.31,
+    "deep_non_model_overhead_p95_ms": 237.63,
+    "deep_runs": 21,
+    "deep_unsupported_claims_per_query": 5.4286,
+    "fast_abstention_rate": 0.0,
+    "fast_citations_per_query": 3.2857,
+    "fast_p95_ms": 141.36,
+    "fast_runs": 21,
+    "query_set_version": "latency-v1"
+  },
+  "qdrant_collection": "global_legal_corpus_v4",
+  "qdrant_points": 49684,
+  "query_set_version": "latency-v1",
+  "recorded_at": "2026-10-08T08:20:41.588871+00:00",
+  "source_report": "docs/evidence/latency/both-final.json",
+  "tolerances": {
+    "abstention_absolute_slack": 0.05,
+    "evidence": 0.9,
+    "latency": 1.5,
+    "unsupported_claims": 1.15
+  }
+}

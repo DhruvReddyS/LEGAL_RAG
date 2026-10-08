@@ -224,7 +224,14 @@ def main() -> int:
             json.dumps(
                 {
                     "recorded_at": datetime.now(timezone.utc).isoformat(),
-                    "source_report": str(args.result.relative_to(ROOT)),
+                    # Relative when it sits in the repository, absolute
+                    # otherwise. A relative path passed on the command line is
+                    # not under ROOT as written, and relative_to raised.
+                    "source_report": str(
+                        args.result.resolve().relative_to(ROOT)
+                        if args.result.resolve().is_relative_to(ROOT)
+                        else args.result.resolve()
+                    ),
                     "label": report.get("label"),
                     "query_set_version": measured.get("query_set_version"),
                     "git_commit": report.get("environment", {}).get("git_commit"),
