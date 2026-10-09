@@ -53,6 +53,67 @@ _AMENDMENT_NOTE = re.compile(
 )
 _AMENDMENT_MARKERS = re.compile(r"\bibid\b|\bw\.e\.f\.|\bsupra\b", re.IGNORECASE)
 
+# An editorial note that names the instrument it was made by. This is the
+# second signal the rule above wants, for the notes that carry neither "ibid"
+# nor "w.e.f." -- which is most of them.
+#
+# Measured against 8,000 indexed chunks of global_legal_corpus_v5: 44 chunks
+# are an amendment footnote and nothing else, every one indexed and every one
+# carrying a section number taken from its own leading digit. "4. Subs. by Act
+# 24 of 1995, s. 2." is indexed as section 4 of the Act it annotates, so a
+# section-filtered query for s.4 can return it and a citation can say
+# "section 4" while showing an editorial note.
+#
+# "by Act 24 of 1995", "by G.S.R. 1567, dated...", "by the A.O. 1950" -- no
+# provision opens this way. Paired with the anchored marker above and the
+# absence of operative language, that is three signals, which is the standard
+# the rule already sets for itself.
+_AMENDMENT_INSTRUMENT = re.compile(
+    r"\bby\s+(?:the\s+)?(?:act\b|acts\b|a\.\s*o\.|g\.?\s*s\.?\s*r\.?|"
+    r"s\.?\s*o\.?\b|ordinance\b|regulation\b|notification\b)",
+    re.IGNORECASE,
+)
+
+# Furniture that is the whole chunk, each anchored on the chunk's own leading
+# number so a provision that merely mentions one of these words is untouched.
+# An earlier unanchored version of this measurement counted 779 "furniture"
+# chunks, almost all of them 700-word provisions containing the word
+# "Address" or "Shri" somewhere; anchored, the real count is 87 in 8,000.
+#
+# Every one of the classes below was read out of the live index, not imagined:
+#
+#   32  "35. Mr, V.N. Rai, (1.P.S.), DIG Rules, Panchkula."   a distribution
+#       or committee list, indexed as section 35
+#    7  "4. Address Telephone Mobile No. E-mail"              a form field,
+#       indexed as section 4
+#    3  "2. (1980) 1 SCC 81."                                 a footnote
+#       citation, indexed as section 2
+#    1  "7. Ibid."
+_NUMBERED_PERSON = re.compile(
+    r"^\s*\d+\.\s*(?:mr|mrs|ms|shri|smt|dr|justice|hon)\b[.,]?\s",
+    re.IGNORECASE,
+)
+_NUMBERED_FORM_FIELD = re.compile(
+    r"^\s*\d+\.\s*(?:address|telephone|mobile\s*no|e-?mail|fax|"
+    r"place\s+of\s+birth|date\s+of\s+birth|signature|nativity)\b",
+    re.IGNORECASE,
+)
+_NUMBERED_CASE_CITATION = re.compile(
+    r"^\s*\d+\.\s*\(?(?:19|20)\d{2}\)?\s*\d*\s*"
+    r"(?:scc|air|scr|cri\.?\s*l\.?\s*j|crlj)\b",
+    re.IGNORECASE,
+)
+_NUMBERED_FOOTNOTE_REF = re.compile(
+    r"^\s*\d+\.\s*(?:ibid|supra|id)\.?\s*$", re.IGNORECASE
+)
+
+# Above this, a chunk is long enough that it probably runs on from the
+# furniture into the provision it sits beside, and the project's standing
+# trade applies: keeping a footnote costs a little precision, deleting a
+# provision costs a citizen their answer. Every one of the 87 measured chunks
+# is 11 words or fewer.
+_MAXIMUM_FURNITURE_WORDS = 12
+
 # "No.V-17013/9/2006-PR", "F.No. 11012/1/2019", "S.O. 3097(E)"
 _REFERENCE_NUMBER = re.compile(
     r"^\s*(?:no\.?|f\.\s*no\.?|s\.\s*o\.?|g\.\s*s\.\s*r\.?)\s*[\w()./-]+\s*$",
@@ -124,7 +185,16 @@ def classify_quality(
         return ChunkQuality("noise", "table_of_contents")
     if (
         _AMENDMENT_NOTE.match(stripped)
-        and _AMENDMENT_MARKERS.search(stripped)
+        and (
+            _AMENDMENT_MARKERS.search(stripped)
+            # Or it names the instrument it was made by, which is the same
+            # quality of evidence and far more common. See
+            # _AMENDMENT_INSTRUMENT.
+            or (
+                _AMENDMENT_INSTRUMENT.search(stripped)
+                and len(words) <= _MAXIMUM_FURNITURE_WORDS
+            )
+        )
         and not _OPERATIVE_LANGUAGE.search(stripped)
     ):
         # Three signals required. "Omitted" alone appears in real provisions
@@ -141,6 +211,19 @@ def classify_quality(
         return ChunkQuality("noise", "amendment_footnote")
     if _BARE_HEADING.match(stripped) and len(words) <= 8:
         return ChunkQuality("noise", "bare_heading")
+    if len(words) <= _MAXIMUM_FURNITURE_WORDS and not _OPERATIVE_LANGUAGE.search(stripped):
+        # Each of these is anchored on the chunk's own leading number, so a
+        # provision that mentions an address or a judge's name is untouched;
+        # only a chunk that *is* the list entry matches. The length bound and
+        # the absence of operative language are the other two signals.
+        if _NUMBERED_FOOTNOTE_REF.match(stripped):
+            return ChunkQuality("noise", "footnote_reference")
+        if _NUMBERED_CASE_CITATION.match(stripped):
+            return ChunkQuality("noise", "case_citation_footnote")
+        if _NUMBERED_PERSON.match(stripped):
+            return ChunkQuality("noise", "numbered_person_list")
+        if _NUMBERED_FORM_FIELD.match(stripped):
+            return ChunkQuality("noise", "numbered_form_field")
     if (
         _GAZETTE_TRANSLITERATION.search(stripped)
         and _GAZETTE_MASTHEAD.search(stripped)
