@@ -1,8 +1,8 @@
 """How a citation's currency is described to the reader.
 
-Three call sites built this expression independently -- Deep, Fast and defence
-strategy -- so a fourth state had to be added in three places or it would show
-in one lane and not another.
+Citation builders once assembled this expression independently, which let a
+new state appear in one lane and disappear in another. Fast, Deep, located
+sources and defence strategy now share this module.
 """
 
 from __future__ import annotations
@@ -17,8 +17,8 @@ CurrentStatus = str
 def citation_labels(payload: dict[str, Any]) -> dict[str, Any]:
     """Everything a citation needs to say about currency, in one place.
 
-    Returns the fields an AgentCitation carries, so the three lanes cannot
-    render different subsets of the same facts.
+    Returns the fields an AgentCitation carries, so every lane renders the
+    same subset of the same facts.
     """
     from app.services.repeal_labels import RepealLabel, repeal_notice
 

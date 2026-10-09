@@ -4,7 +4,6 @@ import re
 
 from app.agents.verification_agent import VerificationBatch
 from app.ingestion.init_qdrant import ADVOCATE_CASE_DATA, GLOBAL_LEGAL_CORPUS
-from app.services.currency import resolve_currency
 from app.services.citation_status import citation_labels
 from app.schemas.agents import AgentCitation
 from app.schemas.strategy import (
@@ -63,10 +62,10 @@ def _citation_labels_for(payload: dict) -> dict:
     """The currency labels every lane must render, including this one.
 
     `citation_labels` exists so the lanes cannot show different subsets of the
-    same facts, and its own docstring says "the three lanes". There are four
-    citation builders, and this was the fourth: it set `current_status` from
-    its own helper and never set `repeal_label`, `replaced_by`, `repealed_on`
-    or `section_mappings` at all, so they took their schema defaults.
+    same facts. There are four citation builders, and this was the fourth: it
+    set `current_status` from its own helper and never set `repeal_label`,
+    `replaced_by`, `repealed_on` or `section_mappings` at all, so they took
+    their schema defaults.
 
     `repeal_label` defaults to "none". The effect was that an advocate
     building a defence strategy could be shown an Indian Penal Code provision
