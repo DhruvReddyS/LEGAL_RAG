@@ -400,27 +400,43 @@ async def read_job(
 ) -> JobResponse:
     job = await _owned_job(session, job_id, user)
     response = JobResponse.model_validate(job)
-    latest = await session.scalar(
-        select(JobEvent)
-        .where(JobEvent.job_id == job_id, JobEvent.event_type == "stage")
-        .order_by(JobEvent.id.desc())
-        .limit(1)
+    # The browser polls this endpoint once a second for every running Deep
+    # job. Stage and located-source progress used to require two independent
+    # round trips on every poll even though both live in the same indexed
+    # event stream. Read that stream once, newest first, and stop interpreting
+    # a type after its latest event has been found. A Deep run emits only a
+    # small bounded set of stage events (and at most three attempts), so this
+    # transfers a handful of rows and removes one hot-path database round trip.
+    progress_events = list(
+        (
+            await session.scalars(
+                select(JobEvent)
+                .where(
+                    JobEvent.job_id == job_id,
+                    JobEvent.event_type.in_(["stage", "located_sources"]),
+                )
+                .order_by(JobEvent.id.desc())
+            )
+        ).all()
     )
-    if latest is not None:
-        response.stage = latest.stage
-        response.stage_label = latest.data.get("label")
+    latest_stage: JobEvent | None = None
+    latest_sources: JobEvent | None = None
+    for event in progress_events:
+        if event.event_type == "stage" and latest_stage is None:
+            latest_stage = event
+        elif event.event_type == "located_sources" and latest_sources is None:
+            latest_sources = event
+        if latest_stage is not None and latest_sources is not None:
+            break
+    if latest_stage is not None:
+        response.stage = latest_stage.stage
+        response.stage_label = latest_stage.data.get("label")
     # Read from the event log rather than stored on the job row: the events
     # are already durable, already indexed by (job_id, id), and already the
     # record a reconnecting stream replays from. A column would be a second
     # copy of the same fact.
-    sources_event = await session.scalar(
-        select(JobEvent)
-        .where(JobEvent.job_id == job_id, JobEvent.event_type == "located_sources")
-        .order_by(JobEvent.id.desc())
-        .limit(1)
-    )
-    if sources_event is not None:
-        response.located_sources = list(sources_event.data.get("sources") or [])
+    if latest_sources is not None:
+        response.located_sources = list(latest_sources.data.get("sources") or [])
     if job.status is JobStatus.QUEUED:
         # Everything claimable before this job, plus whatever is already
         # running. Generation is one slot and the worker is FIFO, so the count

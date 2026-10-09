@@ -22,7 +22,7 @@ import pytest
 from sqlalchemy import delete, func, select
 
 from app.core.database import AsyncSessionLocal
-from app.models import Job
+from app.models import Job, JobEvent
 from app.models.enums import JobStatus, JobType
 from app.routers.jobs import DEEP_JOB_TYPICAL_SECONDS
 from tests.helpers import provision_test_user
@@ -121,6 +121,57 @@ async def test_a_job_that_is_not_queued_reports_no_position() -> None:
             response = await read_job(running[0], user=user, session=session)
     assert response.queue_position is None
     assert response.estimated_wait_seconds is None
+
+
+@pytest.mark.asyncio
+async def test_one_progress_read_keeps_the_latest_event_of_each_type() -> None:
+    """Stage and early sources share one query without mixing their history."""
+    from app.models import User
+    from app.routers.jobs import read_job
+
+    user_id = await _user_id()
+    async with queued_jobs(user_id, 1) as jobs:
+        job_id = jobs[0]
+        async with AsyncSessionLocal() as session:
+            session.add_all(
+                [
+                    JobEvent(
+                        job_id=job_id,
+                        event_type="stage",
+                        stage="retrieval",
+                        progress=14,
+                        data={"label": "Searching"},
+                    ),
+                    JobEvent(
+                        job_id=job_id,
+                        event_type="located_sources",
+                        stage="retrieval",
+                        progress=14,
+                        data={"sources": [{"chunk_id": "old"}]},
+                    ),
+                    JobEvent(
+                        job_id=job_id,
+                        event_type="stage",
+                        stage="verification",
+                        progress=69,
+                        data={"label": "Checking every statement"},
+                    ),
+                    JobEvent(
+                        job_id=job_id,
+                        event_type="located_sources",
+                        stage="retrieval",
+                        progress=69,
+                        data={"sources": [{"chunk_id": "new"}]},
+                    ),
+                ]
+            )
+            await session.commit()
+            user = await session.get(User, user_id)
+            response = await read_job(job_id, user=user, session=session)
+
+        assert response.stage == "verification"
+        assert response.stage_label == "Checking every statement"
+        assert response.located_sources == [{"chunk_id": "new"}]
 
 
 @pytest.mark.asyncio
