@@ -25,7 +25,8 @@ import inspect
 
 import pytest
 
-from app.agents.defence_strategy_agent import _citation_labels_for, _citations
+from app.agents.defence_strategy_agent import _citations
+from app.services.citation_status import citation_labels_for
 from app.services.citation_status import citation_labels
 from app.services.retrieval import RetrievalHit
 
@@ -57,7 +58,7 @@ def _hit(payload: dict) -> RetrievalHit:
 
 
 def test_the_advocate_lane_now_reports_what_the_shared_primitive_reports() -> None:
-    assert _citation_labels_for(REPEALED_IPC) == citation_labels(REPEALED_IPC)
+    assert citation_labels_for(REPEALED_IPC) == citation_labels(REPEALED_IPC)
 
 
 def test_a_repealed_provision_carries_its_repeal_label_in_the_advocate_lane() -> None:
@@ -88,7 +89,7 @@ def test_private_case_evidence_is_not_given_a_currency_verdict() -> None:
         "page_end": 1,
         "corpus_scope": "private_case",
     }
-    labels = _citation_labels_for(statement)
+    labels = citation_labels_for(statement)
     assert labels["current_status"] == "not_applicable"
     assert labels["repeal_label"] == "none"
     assert labels["replaced_by"] is None
@@ -126,6 +127,37 @@ def test_every_citation_builder_reaches_the_shared_primitive() -> None:
             f"{name} builds a citation without the shared currency primitive; "
             "it will render a different subset of the same facts"
         )
+
+
+def test_the_two_lanes_that_can_cite_case_evidence_use_the_private_case_aware_call() -> None:
+    """`citation_labels` grades an authority. `citation_labels_for` grades a citation.
+
+    They differ only for private case evidence, and only these two lanes can
+    cite it. Deep called the first unconditionally and gave witness statements
+    a currency verdict while excluding them from its own currency prose -- the
+    same fact answered two ways inside one answer.
+    """
+    import inspect
+
+    from app.agents import defence_strategy_agent, response_generation
+
+    for module in (response_generation, defence_strategy_agent):
+        source = inspect.getsource(module)
+        assert "citation_labels_for(" in source, (
+            f"{module.__name__} can cite case evidence and must use the "
+            "private-case-aware call"
+        )
+
+
+def test_the_primitive_lives_in_the_shared_module() -> None:
+    """Not in one of the lanes that uses it.
+
+    It started in the advocate agent. Having Deep import a currency primitive
+    from the advocate agent would be the next divergence waiting to happen.
+    """
+    from app.services import citation_status
+
+    assert hasattr(citation_status, "citation_labels_for")
 
 
 def test_the_shared_primitive_supplies_every_currency_field_a_citation_has() -> None:

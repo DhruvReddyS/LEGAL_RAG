@@ -5,7 +5,7 @@ from time import perf_counter_ns
 
 from app.agents.publication import publication_decision
 from app.schemas.agents import AgentCitation, AgentTraceEvent
-from app.services.citation_status import citation_labels
+from app.services.citation_status import citation_labels_for
 from app.services.currency import CurrencyStatus, resolve_currency
 from app.services.repeal_labels import repeal_notice
 from app.services.section_confidence import section_confidence
@@ -181,7 +181,11 @@ def response_generation_node(state: dict) -> dict:
         if hit is None:
             continue
         payload = hit.payload
-        labels = citation_labels(payload)
+        # Not `citation_labels`: a cited witness statement is not legislation,
+        # and this lane already excludes private case evidence from the
+        # "Source currency" prose below. Grading it here and not there was the
+        # same fact answered two ways in one answer.
+        labels = citation_labels_for(payload)
         number = len(citations) + 1
         number_by_id[chunk_id] = number
         citations.append(

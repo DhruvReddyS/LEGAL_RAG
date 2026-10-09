@@ -54,6 +54,42 @@ def citation_labels(payload: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+# A witness statement has no commencement date and cannot be repealed, so the
+# currency vocabulary does not apply to it. Suppressed explicitly rather than
+# left to default, because "repeal_label: none" on case evidence has to mean
+# "not applicable here" and not "checked and in force".
+_PRIVATE_CASE_LABELS: dict[str, Any] = {
+    "current_status": "not_applicable",
+    "repeal_label": "none",
+    "replaced_by": None,
+    "repealed_on": None,
+    "section_mappings": [],
+    "unmapped_repealed_provisions": [],
+    "mapping_review_status": None,
+}
+
+
+def citation_labels_for(payload: dict[str, Any]) -> dict[str, Any]:
+    """The currency labels for one citation, whatever lane is building it.
+
+    `citation_labels` answers "what is this authority's currency". This
+    answers the question a lane actually has, which is "what should this
+    citation say", and the two differ for private case evidence: a witness
+    statement is not legislation, so grading its commencement is a category
+    error either way it comes out.
+
+    Lives here because three lanes need the same answer and the last two
+    currency divergences in this codebase were both a lane deciding for
+    itself. The advocate lane omitted `citation_labels` entirely and showed
+    repealed provisions with no repeal label; Deep's response generation
+    called it unconditionally and gave witness statements a currency verdict.
+    Both are now this one call.
+    """
+    if payload.get("corpus_scope") == "private_case":
+        return dict(_PRIVATE_CASE_LABELS)
+    return citation_labels(payload)
+
+
 def citation_currency(payload: dict[str, Any]) -> tuple[CurrentStatus, str | None, str | None]:
     """The status to show, and the successor Act when one exists.
 
