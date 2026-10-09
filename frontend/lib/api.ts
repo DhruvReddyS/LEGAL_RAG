@@ -5,6 +5,7 @@ import type {
   DefenceAnalysisResponse,
   FIRDraftResponse,
   IngestionProgress,
+  IngestionStatus,
   LegalCase,
   RetrievalResponse,
   ScopedRetrievalResponse,
@@ -244,6 +245,10 @@ export async function cancelDeepReviewJob(jobId: string): Promise<DeepReviewJob>
 
 export async function getIngestionProgress(): Promise<IngestionProgress> {
   return request<IngestionProgress>("/ingestion/progress");
+}
+
+export async function getIngestionStatus(): Promise<IngestionStatus> {
+  return request<IngestionStatus>("/ingestion/status");
 }
 
 export async function healthCheck(): Promise<{ status: string }> {
