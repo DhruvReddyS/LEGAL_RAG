@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import APIRouter
@@ -86,4 +87,49 @@ async def ingestion_progress() -> dict:
         "qdrant_points": qdrant_points,
         "extended_points": extended_points,
         "global_points": qdrant_points + extended_points,
+    }
+
+
+@router.get("/status")
+async def ingestion_status() -> dict:
+    """Lightweight ingestion status.
+
+    `/progress` counts Qdrant points exactly and walks every chunk file, which
+    is too slow to poll. This answers the only question a caller polling for
+    "is it done yet?" has, from the manifest and the checkpoint alone.
+    """
+    kb_root = Path(settings.legal_kb_root)
+    manifest_path = kb_root / "metadata" / "canonical_documents.jsonl"
+    checkpoint_path = checkpoint_path_for(kb_root)
+
+    total_documents = 0
+    if manifest_path.exists():
+        total_documents = sum(1 for _ in iter_canonical_documents(load_manifest(manifest_path)))
+
+    completed_documents = 0
+    updated_at = None
+    if checkpoint_path.exists():
+        checkpoint = json.loads(checkpoint_path.read_text(encoding="utf-8"))
+        completed_documents = len(checkpoint.get("completed", {}))
+        updated_at = datetime.fromtimestamp(
+            checkpoint_path.stat().st_mtime,
+            tz=timezone.utc,
+        ).isoformat()
+
+    if total_documents == 0:
+        status = "not_started"
+    elif completed_documents >= total_documents:
+        status = "complete"
+    elif completed_documents == 0:
+        status = "not_started"
+    else:
+        status = "in_progress"
+
+    return {
+        "status": status,
+        "total_documents": total_documents,
+        "completed_documents": completed_documents,
+        "remaining_documents": max(total_documents - completed_documents, 0),
+        "percent": round(completed_documents / total_documents * 100, 1) if total_documents else 0.0,
+        "updated_at": updated_at,
     }
