@@ -159,6 +159,9 @@ async def run_smoke_tests(*, corpus_root: Path | None = None) -> Path:
                 filters=RetrievalFilters(corpus_tiers=["gold"]),
                 candidate_limit=20,
                 result_limit=5,
+                # This report prints a dense and a sparse column, so it needs
+                # the single-lane queries the serving path no longer makes.
+                with_lane_scores=True,
             )
             query_issues = validate_smoke_hits(query, hits)
             validation_failures.extend(f"{query}: {issue}" for issue in query_issues)

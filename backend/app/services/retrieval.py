@@ -622,6 +622,7 @@ class HybridRetrievalService:
         candidate_limit: int = 20,
         result_limit: int = 5,
         rerank: bool = True,
+        with_lane_scores: bool = False,
     ) -> list[RetrievalHit]:
         hits, _ = await self.search_with_timings(
             query,
@@ -629,6 +630,7 @@ class HybridRetrievalService:
             candidate_limit=candidate_limit,
             result_limit=result_limit,
             rerank=rerank,
+            with_lane_scores=with_lane_scores,
         )
         return hits
 
@@ -642,6 +644,7 @@ class HybridRetrievalService:
         rerank: bool = True,
         reference_sections: set[str] | None = None,
         exclude_candidate_ids: set[tuple[str, str]] | None = None,
+        with_lane_scores: bool = False,
     ) -> tuple[list[RetrievalHit], RetrievalTimings]:
         if self._closed:
             raise RuntimeError("retrieval service is closed")
@@ -665,6 +668,7 @@ class HybridRetrievalService:
             rerank=rerank,
             reference_sections=reference_sections,
             exclude_candidate_ids=exclude_candidate_ids,
+            with_lane_scores=with_lane_scores,
         )
 
 
@@ -675,7 +679,26 @@ class HybridRetrievalService:
         dense_query: list[float],
         sparse_query: models.SparseVector,
         candidate_limit: int,
+        with_lane_scores: bool = False,
     ) -> tuple[list[Any], dict[str, float], dict[str, float]]:
+        """Fused candidates, and optionally each lane's own score for them.
+
+        The fused query carries its own dense and sparse prefetch, so it needs
+        neither of the single-lane queries to produce its results. Those two
+        exist only to report what each lane thought of a candidate, and
+        `dense_score` and `sparse_score` are read by exactly two places: the
+        `/retrieval` diagnostic endpoints and `retrieval_smoke`. Nothing in
+        ranking, fusion, reranking, the relevance gates, verification or
+        citation construction reads them.
+
+        So on the serving path they were three Qdrant queries per target where
+        one answers the question. They run concurrently, so the wall-clock cost
+        is small -- Fast measured 24 ms at p50 for the whole Qdrant stage -- but
+        the work is real and it is per request: Deep with a case-scoped target
+        issued six. That is the number that matters when more than one person
+        is asking at once, which is the constraint this deployment actually
+        has.
+        """
         query_filter = target.filters.to_qdrant()
         prefetch = [
             models.Prefetch(
@@ -691,23 +714,30 @@ class HybridRetrievalService:
                 limit=candidate_limit,
             ),
         ]
-        dense_response, sparse_response, fused_response = await asyncio.gather(
-            self.client.query_points(
-                collection_name=target.collection_name,
-                query=dense_query,
-                using=settings.qdrant_dense_vector_name,
-                query_filter=query_filter,
-                limit=candidate_limit,
-                with_payload=False,
-            ),
-            self.client.query_points(
-                collection_name=target.collection_name,
-                query=sparse_query,
-                using=settings.qdrant_sparse_vector_name,
-                query_filter=query_filter,
-                limit=candidate_limit,
-                with_payload=False,
-            ),
+        lane_queries = (
+            [
+                self.client.query_points(
+                    collection_name=target.collection_name,
+                    query=dense_query,
+                    using=settings.qdrant_dense_vector_name,
+                    query_filter=query_filter,
+                    limit=candidate_limit,
+                    with_payload=False,
+                ),
+                self.client.query_points(
+                    collection_name=target.collection_name,
+                    query=sparse_query,
+                    using=settings.qdrant_sparse_vector_name,
+                    query_filter=query_filter,
+                    limit=candidate_limit,
+                    with_payload=False,
+                ),
+            ]
+            if with_lane_scores
+            else []
+        )
+        *lane_responses, fused_response = await asyncio.gather(
+            *lane_queries,
             self.client.query_points(
                 collection_name=target.collection_name,
                 prefetch=prefetch,
@@ -721,8 +751,17 @@ class HybridRetrievalService:
                 with_payload=True,
             ),
         )
-        dense_scores = {str(point.id): float(point.score) for point in dense_response.points}
-        sparse_scores = {str(point.id): float(point.score) for point in sparse_response.points}
+        if lane_responses:
+            dense_response, sparse_response = lane_responses
+            dense_scores = {str(point.id): float(point.score) for point in dense_response.points}
+            sparse_scores = {str(point.id): float(point.score) for point in sparse_response.points}
+        else:
+            # `RetrievalHit.dense_score` and `.sparse_score` are already
+            # `float | None`, and a candidate that one lane did not return has
+            # always had None there, so absent is an existing state rather than
+            # a new one.
+            dense_scores = {}
+            sparse_scores = {}
         for point in fused_response.points:
             point.payload = dict(point.payload or {})
             point.payload["collection_name"] = target.collection_name
@@ -988,6 +1027,11 @@ class HybridRetrievalService:
         rerank: bool = True,
         reference_sections: set[str] | None = None,
         exclude_candidate_ids: set[tuple[str, str]] | None = None,
+        # Off by default: the two readers of these scores are the `/retrieval`
+        # diagnostic endpoints and `retrieval_smoke`, and the serving lanes
+        # were paying two extra Qdrant queries per target to populate a field
+        # they never read. See `_query_target`.
+        with_lane_scores: bool = False,
     ) -> tuple[list[RetrievalHit], RetrievalTimings]:
         if self._closed:
             raise RuntimeError("retrieval service is closed")
@@ -1044,6 +1088,7 @@ class HybridRetrievalService:
                     dense_query=query_embedding.dense,
                     sparse_query=to_sparse_vector(query_embedding.sparse),
                     candidate_limit=raw_candidate_limit,
+                    with_lane_scores=with_lane_scores,
                 )
                 for target in targets
             )

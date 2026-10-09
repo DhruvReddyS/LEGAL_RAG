@@ -45,6 +45,9 @@ async def hybrid_search(
         filters=RetrievalFilters(**request.filters.model_dump()),
         candidate_limit=request.candidate_limit,
         result_limit=request.result_limit,
+        # A diagnostic surface: it reports each lane's own score, so the
+        # single-lane queries are worth their cost here and nowhere else.
+        with_lane_scores=True,
     )
     return RetrievalResponse(
         query=request.query,
@@ -81,6 +84,9 @@ async def scoped_hybrid_search(
         targets=targets,
         candidate_limit=request.candidate_limit,
         result_limit=request.result_limit,
+        # A diagnostic surface: it reports each lane's own score, so the
+        # single-lane queries are worth their cost here and nowhere else.
+        with_lane_scores=True,
     )
     return ScopedRetrievalResponse(
         query=request.query,

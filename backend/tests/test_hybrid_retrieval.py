@@ -160,6 +160,12 @@ async def test_hybrid_search_preserves_channel_scores_and_uses_reranker_order(re
         filters=filters,
         candidate_limit=7,
         result_limit=2,
+        # This test is about the per-lane scores, which are now opt-in: the
+        # fused query carries its own dense and sparse prefetch, so the two
+        # single-lane queries produce nothing the results need and the serving
+        # path no longer makes them. The `/retrieval` endpoints and
+        # `retrieval_smoke` are the only readers, and they ask for them.
+        with_lane_scores=True,
     )
 
     assert embedder.calls == [(["criminal intent"], 1)]
@@ -176,6 +182,7 @@ async def test_hybrid_search_preserves_channel_scores_and_uses_reranker_order(re
     assert hits[1].fused_score == pytest.approx(0.60)
     assert hits[1].reranker_score == pytest.approx(0.50)
 
+    # Three only because this call asked for lane scores. The default is one.
     assert len(client.calls) == 3
     assert all(call["collection_name"] == GLOBAL_LEGAL_CORPUS for call in client.calls)
     dense_call = next(
@@ -210,7 +217,10 @@ async def test_hybrid_search_returns_empty_results_without_loading_reranker(rera
 
     assert hits == []
     assert reranker.calls == [("no matching authority", [])]
-    assert len(client.calls) == 3
+    # One query, not three. The fused query answers the question on its own;
+    # the two single-lane queries existed only to report each lane's score and
+    # nothing on the serving path reads them.
+    assert len(client.calls) == 1
 
 
 @pytest.mark.asyncio
@@ -373,7 +383,11 @@ async def test_scoped_search_embeds_once_and_reranks_global_and_private_together
     )
 
     assert embedder.calls == [(["missing dog complaint"], 1)]
-    assert len(client.calls) == 6
+    # Two targets, two queries. This was six: each target issued a dense-only
+    # and a sparse-only query alongside its fused one, purely to report what
+    # each lane thought of a candidate. Deep with a case-scoped target is the
+    # shape that paid it, and nothing on the serving path reads those scores.
+    assert len(client.calls) == 2
     assert [hit.payload["collection_name"] for hit in hits] == [
         POLICE_CASE_DATA,
         GLOBAL_LEGAL_CORPUS,
@@ -381,8 +395,20 @@ async def test_scoped_search_embeds_once_and_reranks_global_and_private_together
     private_calls = [
         call for call in client.calls if call["collection_name"] == POLICE_CASE_DATA
     ]
-    private_filter = private_calls[0]["query_filter"]
-    assert conditions_by_key(private_filter)["case_id"].match.any == ["case-a"]
+    assert len(private_calls) == 1
+    # Asserted on the prefetches, which is where the filter has to be.
+    #
+    # This previously read `query_filter` off the dense-only query -- a query
+    # whose results were never used for anything but reporting a lane score.
+    # The candidates come from the fused query, and the fused query carries no
+    # top-level filter: each of its prefetches carries one, and RRF fuses only
+    # prefetch results. So the isolation claim is about the prefetches, and
+    # checking the diagnostic query was checking the wrong call.
+    prefetches = private_calls[0]["prefetch"]
+    assert len(prefetches) == 2, "a dense and a sparse prefetch"
+    for prefetch in prefetches:
+        assert prefetch.filter is not None, "an unfiltered prefetch reads every matter"
+        assert conditions_by_key(prefetch.filter)["case_id"].match.any == ["case-a"]
 
 
 @pytest.mark.asyncio
