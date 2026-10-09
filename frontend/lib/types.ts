@@ -469,6 +469,17 @@ export interface IngestionProgress {
   global_points: number;
 }
 
+// The polling-friendly counterpart to IngestionProgress: derived from the
+// manifest and the ingestion checkpoint alone, so it carries no index counts.
+export interface IngestionStatus {
+  status: "not_started" | "in_progress" | "complete";
+  total_documents: number;
+  completed_documents: number;
+  remaining_documents: number;
+  percent: number;
+  updated_at: string | null;
+}
+
 export interface ChatMessage {
   documents?: CitizenDocument[];
   stopped?: boolean;
