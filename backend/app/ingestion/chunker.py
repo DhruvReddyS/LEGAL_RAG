@@ -32,6 +32,12 @@ class LegalChunk(BaseModel):
     # citation surface already reads `payload.get("source_url")`, so each one
     # was rendering a citation a citizen cannot open or check.
     source_url: str | None = None
+    # True when this passage came from a document whose text extraction was
+    # never verified. A citation quoting unverified OCR looks exactly like a
+    # citation quoting the Act, and `classify_quality` cannot tell them apart:
+    # garbled extraction routinely clears six words and the operative-language
+    # test. The reader has to be told which it is.
+    ocr_required: bool | None = None
     # The acquirer's reason for doubting this document's currency. 1,164 of
     # 1,566 canonical documents record one and not one of them reached a
     # reader, because the chunk had no field for it -- the same hop that lost
@@ -176,6 +182,7 @@ def chunk_structural_units(
                     source_type=document.resolved_type().value,
                     source_url=document.source_url,
                     currency_note=document.currency_note,
+                    ocr_required=document.ocr_required,
                     court=document.court,
                     jurisdiction=document.jurisdiction,
                     act_name=document.act_name,

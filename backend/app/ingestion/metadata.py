@@ -39,6 +39,17 @@ class CanonicalDocument(BaseModel):
     superseded_by: str | None = None
     language: str = "English"
     source_url: str | None = None
+    # Whether this document's text was extracted or still needs OCR. 101 of
+    # 1,566 canonical documents carry it, covering 11,630 pages -- 21% of the
+    # corpus -- and the post-promotion audit says of them: "Must not be
+    # treated as searchable until OCR/extraction is verified."
+    #
+    # It was arriving as a pydantic `extra`, so it parsed, survived promotion,
+    # and was read by nothing in `backend/app`. That is the third manifest
+    # field lost at this boundary after `source_url` and `currency_note`, each
+    # one declared nowhere and dropped before the chunk. Declared here so a
+    # chunk can carry it and the query path can see it.
+    ocr_required: bool | None = None
     # Why this document's currency is in doubt, in the acquirer's own words.
     # It was arriving as an `extra` -- the model allows them -- so it parsed,
     # survived promotion, and was then invisible to every reader. Declared, so

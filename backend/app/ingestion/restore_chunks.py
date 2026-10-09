@@ -75,6 +75,7 @@ def _chunk_from_payload(
         # add a field the indexed point never had.
         source_url=document.source_url,
         currency_note=document.currency_note,
+        ocr_required=document.ocr_required,
         court=document.court,
         jurisdiction=document.jurisdiction,
         act_name=document.act_name,

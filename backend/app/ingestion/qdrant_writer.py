@@ -30,6 +30,12 @@ def legal_chunk_payload(
         # way to open the official text behind it. Empty string rather than
         # None so the key exists on every point and a filter on it is possible.
         "source_url": chunk.source_url or "",
+        # Whether this passage's text was extracted or still awaits OCR. The
+        # audit's rule is that such a document "must not be treated as
+        # searchable until OCR/extraction is verified"; carrying the flag is
+        # what makes that rule expressible at query time instead of being a
+        # sentence in a report.
+        "ocr_required": bool(chunk.ocr_required),
         # Named, specific doubt about this document's currency, to be shown
         # beside the citation rather than aggregated into a generic notice.
         # Both lanes already warn when a source is unverified; neither could
