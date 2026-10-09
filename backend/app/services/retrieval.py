@@ -812,6 +812,13 @@ class HybridRetrievalService:
         the concordance records as repealed without replacement yields
         nothing rather than a nearest-numbered guess.
         """
+        # The same boundary the search path refuses to hold by convention.
+        # This method takes a target, applies its filters and scrolls the
+        # collection, so an empty `case_ids` on a private target means "every
+        # case" here exactly as it does there -- and `_assert_case_scoped` was
+        # never called on this path. Both current callers pass the global
+        # corpus, which is the condition that guard exists to stop relying on.
+        _assert_case_scoped([target])
         # A narrow query-to-statute bridge is stronger than generic citation
         # forwarding. Put it first so a provision discovered by both paths is
         # promoted as the implementation the question asks for, rather than
@@ -931,6 +938,12 @@ class HybridRetrievalService:
         Frequencies come from the collection being searched, so the notion of
         "rare" follows the corpus rather than a hardcoded list.
         """
+        # Counts are weaker than documents and still disclose: how many chunks
+        # across *every* matter contain a term is not this matter's business,
+        # and an unscoped count would also make "rare" mean rare across the
+        # whole collection rather than within the case, which is the number
+        # the gate downstream is reading.
+        _assert_case_scoped([target])
         cleaned = {term.casefold().strip() for term in terms if term.strip()}
         cleaned = {term for term in cleaned if len(term) > 1}
         if not cleaned:
