@@ -1,12 +1,14 @@
 {
-  "generated_on": "2026-10-08",
+  "generated_on": "2026-10-09",
   "basis": "canonical manifest; physical workspaces reported separately",
   "canonical": {
     "totals": {
-      "documents": 1036,
-      "pages": 42182,
-      "bytes": 1958191901
+      "documents": 1563,
+      "pages": 55321,
+      "bytes": 2528902167
     },
+    "manifest_file_records": 1566,
+    "duplicate_file_records": 3,
     "top_level_segments": [
       {
         "segment": "government_handbooks",
@@ -28,15 +30,15 @@
       },
       {
         "segment": "official_guidance",
-        "documents": 219,
-        "pages": 4824,
-        "bytes": 601788219
+        "documents": 221,
+        "pages": 4861,
+        "bytes": 601906432
       },
       {
         "segment": "primary_law",
-        "documents": 616,
-        "pages": 24224,
-        "bytes": 1077921632
+        "documents": 1141,
+        "pages": 37326,
+        "bytes": 1648513685
       },
       {
         "segment": "rules_amendments_notifications",
@@ -120,9 +122,9 @@
       },
       {
         "segment": "official_guidance/police_courts",
-        "documents": 7,
-        "pages": 275,
-        "bytes": 24522730
+        "documents": 9,
+        "pages": 312,
+        "bytes": 24640943
       },
       {
         "segment": "official_guidance/police_investigation",
@@ -144,9 +146,9 @@
       },
       {
         "segment": "primary_law/banking_finance",
-        "documents": 45,
-        "pages": 2545,
-        "bytes": 29632070
+        "documents": 50,
+        "pages": 2674,
+        "bytes": 31908774
       },
       {
         "segment": "primary_law/bns",
@@ -168,15 +170,15 @@
       },
       {
         "segment": "primary_law/citizenship_elections",
-        "documents": 3,
-        "pages": 101,
-        "bytes": 1687052
+        "documents": 4,
+        "pages": 117,
+        "bytes": 2092608
       },
       {
         "segment": "primary_law/civil_procedure",
-        "documents": 22,
-        "pages": 566,
-        "bytes": 70954610
+        "documents": 34,
+        "pages": 780,
+        "bytes": 73363333
       },
       {
         "segment": "primary_law/constitution",
@@ -186,15 +188,21 @@
       },
       {
         "segment": "primary_law/consumer_protection",
-        "documents": 14,
-        "pages": 169,
-        "bytes": 10399930
+        "documents": 15,
+        "pages": 187,
+        "bytes": 10797809
       },
       {
         "segment": "primary_law/corporate_commercial",
+        "documents": 7,
+        "pages": 514,
+        "bytes": 7194499
+      },
+      {
+        "segment": "primary_law/defence_services",
         "documents": 3,
-        "pages": 423,
-        "bytes": 5891593
+        "pages": 112,
+        "bytes": 1579785
       },
       {
         "segment": "primary_law/disability_welfare",
@@ -204,27 +212,27 @@
       },
       {
         "segment": "primary_law/education",
-        "documents": 8,
-        "pages": 120,
-        "bytes": 27796746
+        "documents": 9,
+        "pages": 131,
+        "bytes": 28048216
       },
       {
         "segment": "primary_law/environment",
-        "documents": 27,
-        "pages": 481,
-        "bytes": 33124814
+        "documents": 35,
+        "pages": 651,
+        "bytes": 40122118
       },
       {
         "segment": "primary_law/family_personal_law",
-        "documents": 23,
-        "pages": 497,
-        "bytes": 20117719
+        "documents": 31,
+        "pages": 699,
+        "bytes": 23647543
       },
       {
         "segment": "primary_law/health_medical",
-        "documents": 33,
-        "pages": 2331,
-        "bytes": 248758660
+        "documents": 36,
+        "pages": 2419,
+        "bytes": 252191627
       },
       {
         "segment": "primary_law/health_reproductive",
@@ -234,9 +242,9 @@
       },
       {
         "segment": "primary_law/infrastructure_utilities",
-        "documents": 2,
-        "pages": 123,
-        "bytes": 1645089
+        "documents": 5,
+        "pages": 181,
+        "bytes": 2722768
       },
       {
         "segment": "primary_law/insolvency",
@@ -246,15 +254,21 @@
       },
       {
         "segment": "primary_law/insurance",
-        "documents": 41,
-        "pages": 2645,
-        "bytes": 119859208
+        "documents": 42,
+        "pages": 2697,
+        "bytes": 120452129
+      },
+      {
+        "segment": "primary_law/intellectual_property",
+        "documents": 4,
+        "pages": 170,
+        "bytes": 2385632
       },
       {
         "segment": "primary_law/labour_welfare",
-        "documents": 8,
-        "pages": 962,
-        "bytes": 11711049
+        "documents": 10,
+        "pages": 1091,
+        "bytes": 13082539
       },
       {
         "segment": "primary_law/legacy_ipc_crpc_evidence",
@@ -264,45 +278,45 @@
       },
       {
         "segment": "primary_law/other_relevant_laws",
-        "documents": 52,
-        "pages": 2683,
-        "bytes": 152539904
+        "documents": 453,
+        "pages": 10010,
+        "bytes": 297439806
       },
       {
         "segment": "primary_law/property_land",
-        "documents": 12,
-        "pages": 627,
-        "bytes": 6764092
+        "documents": 46,
+        "pages": 1748,
+        "bytes": 21139694
       },
       {
         "segment": "primary_law/public_administration",
-        "documents": 2,
-        "pages": 26,
-        "bytes": 650397
+        "documents": 4,
+        "pages": 50,
+        "bytes": 1220896
       },
       {
         "segment": "primary_law/securities_markets",
-        "documents": 41,
-        "pages": 4506,
-        "bytes": 64645029
+        "documents": 42,
+        "pages": 4543,
+        "bytes": 65361962
       },
       {
         "segment": "primary_law/social_justice",
-        "documents": 12,
-        "pages": 505,
-        "bytes": 11065229
+        "documents": 17,
+        "pages": 552,
+        "bytes": 11476827
       },
       {
         "segment": "primary_law/special_criminal_laws",
-        "documents": 26,
-        "pages": 322,
-        "bytes": 20640672
+        "documents": 27,
+        "pages": 325,
+        "bytes": 21032617
       },
       {
         "segment": "primary_law/taxation",
-        "documents": 41,
-        "pages": 241,
-        "bytes": 29931645
+        "documents": 45,
+        "pages": 2565,
+        "bytes": 400774911
       },
       {
         "segment": "primary_law/technology_privacy",
@@ -317,10 +331,16 @@
         "bytes": 78647590
       },
       {
+        "segment": "primary_law/transport",
+        "documents": 6,
+        "pages": 413,
+        "bytes": 5259671
+      },
+      {
         "segment": "primary_law/women_children",
-        "documents": 25,
-        "pages": 464,
-        "bytes": 31060525
+        "documents": 40,
+        "pages": 810,
+        "bytes": 36172322
       },
       {
         "segment": "rules_amendments_notifications",
@@ -330,109 +350,165 @@
       }
     ]
   },
-  "staged": {
+  "promotion_batch": {
     "totals": {
-      "documents": 33,
-      "pages": 1688,
-      "bytes": 36153049
+      "documents": 530,
+      "pages": 13200,
+      "bytes": 571303619
     },
+    "now_canonical": 530,
+    "awaiting_promotion": 0,
     "categories": [
       {
-        "segment": "official_guidance/mha",
-        "documents": 1,
-        "pages": 2,
-        "bytes": 56357
+        "segment": "official_guidance/police_courts",
+        "documents": 2,
+        "pages": 37,
+        "bytes": 118213
       },
       {
         "segment": "primary_law/banking_finance",
         "documents": 5,
-        "pages": 281,
-        "bytes": 4847077
+        "pages": 129,
+        "bytes": 2276704
       },
       {
         "segment": "primary_law/citizenship_elections",
-        "documents": 3,
-        "pages": 101,
-        "bytes": 1687052
+        "documents": 1,
+        "pages": 16,
+        "bytes": 405556
       },
       {
         "segment": "primary_law/civil_procedure",
-        "documents": 2,
-        "pages": 36,
-        "bytes": 865405
+        "documents": 12,
+        "pages": 214,
+        "bytes": 2408723
+      },
+      {
+        "segment": "primary_law/consumer_protection",
+        "documents": 1,
+        "pages": 18,
+        "bytes": 397879
       },
       {
         "segment": "primary_law/corporate_commercial",
+        "documents": 4,
+        "pages": 91,
+        "bytes": 1302906
+      },
+      {
+        "segment": "primary_law/defence_services",
         "documents": 3,
-        "pages": 423,
-        "bytes": 5891593
+        "pages": 112,
+        "bytes": 1579785
+      },
+      {
+        "segment": "primary_law/education",
+        "documents": 1,
+        "pages": 11,
+        "bytes": 251470
       },
       {
         "segment": "primary_law/environment",
-        "documents": 2,
-        "pages": 56,
-        "bytes": 916499
+        "documents": 8,
+        "pages": 170,
+        "bytes": 6997304
+      },
+      {
+        "segment": "primary_law/family_personal_law",
+        "documents": 8,
+        "pages": 202,
+        "bytes": 3529824
       },
       {
         "segment": "primary_law/health_medical",
-        "documents": 4,
-        "pages": 75,
-        "bytes": 8695602
+        "documents": 3,
+        "pages": 88,
+        "bytes": 3432967
       },
       {
         "segment": "primary_law/infrastructure_utilities",
-        "documents": 2,
-        "pages": 123,
-        "bytes": 1645089
+        "documents": 3,
+        "pages": 58,
+        "bytes": 1077679
       },
       {
         "segment": "primary_law/insurance",
         "documents": 1,
-        "pages": 105,
-        "bytes": 1151749
+        "pages": 52,
+        "bytes": 592921
+      },
+      {
+        "segment": "primary_law/intellectual_property",
+        "documents": 4,
+        "pages": 170,
+        "bytes": 2385632
+      },
+      {
+        "segment": "primary_law/labour_welfare",
+        "documents": 2,
+        "pages": 129,
+        "bytes": 1371490
       },
       {
         "segment": "primary_law/other_relevant_laws",
-        "documents": 2,
-        "pages": 227,
-        "bytes": 5831597
+        "documents": 404,
+        "pages": 7388,
+        "bytes": 145493255
       },
       {
         "segment": "primary_law/property_land",
-        "documents": 2,
-        "pages": 47,
-        "bytes": 892491
+        "documents": 34,
+        "pages": 1121,
+        "bytes": 14375602
       },
       {
         "segment": "primary_law/public_administration",
         "documents": 2,
-        "pages": 26,
-        "bytes": 650397
+        "pages": 24,
+        "bytes": 570499
       },
       {
         "segment": "primary_law/securities_markets",
         "documents": 1,
         "pages": 37,
-        "bytes": 758700
+        "bytes": 716933
+      },
+      {
+        "segment": "primary_law/social_justice",
+        "documents": 5,
+        "pages": 47,
+        "bytes": 411598
       },
       {
         "segment": "primary_law/special_criminal_laws",
-        "documents": 2,
-        "pages": 20,
-        "bytes": 327161
+        "documents": 1,
+        "pages": 3,
+        "bytes": 391945
       },
       {
         "segment": "primary_law/taxation",
-        "documents": 1,
-        "pages": 129,
-        "bytes": 1936280
+        "documents": 4,
+        "pages": 2324,
+        "bytes": 370843266
+      },
+      {
+        "segment": "primary_law/transport",
+        "documents": 6,
+        "pages": 413,
+        "bytes": 5259671
+      },
+      {
+        "segment": "primary_law/women_children",
+        "documents": 15,
+        "pages": 346,
+        "bytes": 5111797
       }
     ]
   },
   "physical_workspaces": {
     "data/legal_kb/raw": {
-      "files": 1662,
-      "bytes": 3093834860
+      "files": 2192,
+      "bytes": 3665138479
     },
     "data/source_materials/candidate_imports": {
       "files": 1344,
@@ -442,21 +518,20 @@
   "coverage": {
     "workflows": 22,
     "by_status": {
-      "awaiting_promotion": 5,
-      "ready_runtime": 17
+      "canonical_complete": 22
     },
     "by_priority": {
       "P0": {
         "total": 10,
-        "ready_runtime": 10
+        "canonical_complete": 10
       },
       "P1": {
         "total": 10,
-        "ready_runtime": 6
+        "canonical_complete": 10
       },
       "P2": {
         "total": 2,
-        "ready_runtime": 1
+        "canonical_complete": 2
       }
     }
   }
