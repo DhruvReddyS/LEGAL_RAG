@@ -13,6 +13,10 @@ worker is alive. Review the complete candidate list before confirming:
       --collection global_legal_corpus_v5 --sample-limit 10000
     python scripts/prune_reclassified_noise.py \
       --collection global_legal_corpus_v5 --confirm
+
+Deleting from the configured live collection additionally requires
+``--allow-live``. That escape hatch is for deliberate maintenance, not a
+release-candidate promotion.
 """
 
 from __future__ import annotations
@@ -63,15 +67,25 @@ def reclassified_reason(payload: dict[str, Any]) -> str | None:
     return decision.reason if not decision.indexed else None
 
 
-async def run(*, collection: str, confirm: bool, sample_limit: int) -> int:
+async def run(
+    *, collection: str, confirm: bool, sample_limit: int, allow_live: bool = False
+) -> int:
     from qdrant_client import models
 
+    from app.core.config import settings
     from app.core.qdrant import create_qdrant_client
 
     if confirm and corpus_build_running():
         print(
             "refusing to delete while a corpus rebuild worker or supervisor is "
             "alive; run this after the rebuild completes",
+            file=sys.stderr,
+        )
+        return 2
+    if confirm and collection == settings.qdrant_global_collection and not allow_live:
+        print(
+            f"refusing to delete from the configured live collection {collection!r}; "
+            "use --allow-live only for deliberate live maintenance",
             file=sys.stderr,
         )
         return 2
@@ -171,6 +185,11 @@ def main() -> int:
     )
     parser.add_argument("--collection", required=True)
     parser.add_argument("--confirm", action="store_true")
+    parser.add_argument(
+        "--allow-live",
+        action="store_true",
+        help="permit a confirmed deletion from the configured serving collection",
+    )
     parser.add_argument("--sample-limit", type=int, default=50)
     arguments = parser.parse_args()
     if arguments.sample_limit < 0:
@@ -180,6 +199,7 @@ def main() -> int:
             collection=arguments.collection,
             confirm=arguments.confirm,
             sample_limit=arguments.sample_limit,
+            allow_live=arguments.allow_live,
         )
     )
 

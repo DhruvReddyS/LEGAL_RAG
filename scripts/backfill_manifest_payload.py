@@ -21,6 +21,10 @@ ingestion worker is alive so the comparison cannot race the rebuild.
 Usage:
     python scripts/backfill_manifest_payload.py --collection global_legal_corpus_v5
     python scripts/backfill_manifest_payload.py --collection global_legal_corpus_v5 --confirm
+
+Writing to the configured live collection additionally requires
+``--allow-live``. That escape hatch is for deliberate maintenance, not a
+release-candidate promotion.
 """
 
 from __future__ import annotations
@@ -91,13 +95,21 @@ def payload_difference(
     }
 
 
-async def run(*, collection: str, confirm: bool) -> int:
+async def run(*, collection: str, confirm: bool, allow_live: bool = False) -> int:
+    from app.core.config import settings
     from app.core.qdrant import create_qdrant_client
 
     if confirm and corpus_build_running():
         print(
             "refusing to write while a corpus rebuild worker or supervisor is "
             "alive; run this after the rebuild completes",
+            file=sys.stderr,
+        )
+        return 2
+    if confirm and collection == settings.qdrant_global_collection and not allow_live:
+        print(
+            f"refusing to write to the configured live collection {collection!r}; "
+            "use --allow-live only for deliberate live maintenance",
             file=sys.stderr,
         )
         return 2
@@ -184,11 +196,22 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--collection", required=True)
     parser.add_argument("--confirm", action="store_true")
+    parser.add_argument(
+        "--allow-live",
+        action="store_true",
+        help="permit a confirmed write to the configured serving collection",
+    )
     arguments = parser.parse_args()
     if not MANIFEST.is_file():
         print(f"manifest not found: {MANIFEST}", file=sys.stderr)
         return 2
-    return asyncio.run(run(collection=arguments.collection, confirm=arguments.confirm))
+    return asyncio.run(
+        run(
+            collection=arguments.collection,
+            confirm=arguments.confirm,
+            allow_live=arguments.allow_live,
+        )
+    )
 
 
 if __name__ == "__main__":

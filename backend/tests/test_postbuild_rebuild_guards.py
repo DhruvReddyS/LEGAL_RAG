@@ -9,6 +9,8 @@ run can begin while the keeper is about to resume ingestion.
 from __future__ import annotations
 
 import importlib.util
+import subprocess
+import sys
 from pathlib import Path
 from types import ModuleType
 
@@ -74,3 +76,40 @@ def test_gate_orchestrator_checks_the_same_three_process_phases() -> None:
     assert 'pgrep -f "app.ingestion.pipeline"' in source
     assert 'pgrep -f "rebuild_until_done.sh __loop"' in source
     assert 'pgrep -f "scripts/run_rebuild.sh"' in source
+
+
+@pytest.mark.parametrize(
+    "script_name", ["backfill_manifest_payload.py", "prune_reclassified_noise.py"]
+)
+@pytest.mark.asyncio
+async def test_confirm_refuses_the_configured_live_collection(
+    monkeypatch: pytest.MonkeyPatch, script_name: str
+) -> None:
+    """The refusal happens before a Qdrant connection or mutation."""
+    from app.core.config import settings
+
+    module = _load(script_name.removesuffix(".py"))
+    monkeypatch.setattr(module, "corpus_build_running", lambda: False)
+    arguments = {
+        "collection": settings.qdrant_global_collection,
+        "confirm": True,
+        "allow_live": False,
+    }
+    if script_name == "prune_reclassified_noise.py":
+        arguments["sample_limit"] = 0
+    assert await module.run(**arguments) == 2
+
+
+@pytest.mark.parametrize(
+    "script_name", ["backfill_manifest_payload.py", "prune_reclassified_noise.py"]
+)
+def test_live_override_is_explicit_in_the_command_line_contract(script_name: str) -> None:
+    result = subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / script_name), "--help"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0
+    assert "--allow-live" in result.stdout
