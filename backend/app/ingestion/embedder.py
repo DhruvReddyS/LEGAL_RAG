@@ -42,6 +42,21 @@ def resolve_embedding_device() -> str:
 # cannot fit the encoder stops paying to rediscover that per document.
 LATCH_AFTER_CONSECUTIVE_CPU_FALLBACKS = 3
 
+# How many documents to run on the CPU before trying the accelerator again.
+#
+# The latch was permanent for the life of the process, which is wrong for a
+# job that runs for hours. Measured on the v5 build: it latched while the 14B
+# reasoning model still held 11.7 GB, that model was unloaded twenty minutes
+# later, and the rebuild then spent the next several hours on the CPU with
+# zero out-of-memory events because it had stopped asking. The shortage the
+# latch was protecting against had gone and nothing noticed.
+#
+# One probe costs a model load and, if it fails, a batch backoff -- a few
+# seconds. Paying that once every 50 documents to recover a path measured
+# 10-20x faster is worth it, and if the shortage is still there the latch
+# simply closes again.
+REPROBE_ACCELERATOR_EVERY_DOCUMENTS = 50
+
 
 # How many batches must succeed before the encoder tries a larger one again.
 # Large enough that recovery is not triggered by the lull between two long
@@ -76,8 +91,12 @@ class BGEM3Embedder:
         # backoff and two model loads to discover the same thing again.
         self._consecutive_cpu_fallbacks = 0
         self._cpu_latched = False
+        # Documents embedded since the latch closed, so it can be reopened to
+        # test whether the shortage is still there.
+        self._documents_since_latch = 0
 
     LATCH_AFTER_CONSECUTIVE_CPU_FALLBACKS = LATCH_AFTER_CONSECUTIVE_CPU_FALLBACKS
+    REPROBE_ACCELERATOR_EVERY_DOCUMENTS = REPROBE_ACCELERATOR_EVERY_DOCUMENTS
 
     def _clear_device_cache(self) -> None:
         try:
@@ -174,6 +193,24 @@ class BGEM3Embedder:
             return []
         if batch_size < 1:
             raise ValueError("batch_size must be greater than zero")
+        if self._cpu_latched:
+            self._documents_since_latch += 1
+            if self._documents_since_latch >= self.REPROBE_ACCELERATOR_EVERY_DOCUMENTS:
+                # Reopen the latch and release the CPU model so `_load_model`
+                # resolves the device again. If the accelerator is still short
+                # the usual backoff re-latches within three documents.
+                self._cpu_latched = False
+                self._documents_since_latch = 0
+                self._consecutive_cpu_fallbacks = 0
+                self._release_model()
+                print(
+                    json.dumps({
+                        "event": "accelerator_reprobe",
+                        "after_documents": self.REPROBE_ACCELERATOR_EVERY_DOCUMENTS,
+                    }),
+                    file=sys.stderr,
+                    flush=True,
+                )
         embedded: list[EmbeddedText] = []
         # Keep model calls bounded on every device. Besides preventing MPS from
         # retaining an entire long document, this provides a durable callback
@@ -195,7 +232,11 @@ class BGEM3Embedder:
                 if "out of memory" not in str(exc):
                     raise
                 # MPS OOM: release model, halve batch, rebuild, retry.
-                import sys
+                #
+                # `sys` is imported at module level. A function-level import
+                # here made the name local to the whole of embed_texts, so an
+                # earlier use of sys.stderr in the same function raised
+                # UnboundLocalError.
                 print(
                     json.dumps({
                         "event": "mps_oom_recovery",
@@ -263,6 +304,7 @@ class BGEM3Embedder:
             if self._consecutive_cpu_fallbacks >= self.LATCH_AFTER_CONSECUTIVE_CPU_FALLBACKS:
                 if not self._cpu_latched:
                     self._cpu_latched = True
+                    self._documents_since_latch = 0
                     print(
                         json.dumps({
                             "event": "cpu_latched",

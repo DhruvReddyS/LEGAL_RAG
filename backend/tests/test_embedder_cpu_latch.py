@@ -88,3 +88,58 @@ def test_embedding_an_empty_list_touches_nothing() -> None:
     embedder = BGEM3Embedder()
     assert embedder.embed_texts([]) == []
     assert embedder._model is None
+
+
+def test_the_latch_reopens_after_enough_documents(monkeypatch) -> None:
+    """A latch that never reopens is wrong for a job that runs for hours.
+
+    Measured on the v5 build: it latched while the 14B reasoning model still
+    held 11.7 GB of a 24 GB host, that model was unloaded twenty minutes
+    later, and the rebuild then spent several hours on the CPU with zero
+    out-of-memory events -- because it had stopped asking. The shortage it was
+    protecting against had gone and nothing noticed.
+    """
+    embedder = BGEM3Embedder()
+    embedder._cpu_latched = True
+    embedder._documents_since_latch = BGEM3Embedder.REPROBE_ACCELERATOR_EVERY_DOCUMENTS - 1
+
+    released: list[bool] = []
+    monkeypatch.setattr(embedder, "_release_model", lambda: released.append(True))
+    monkeypatch.setattr(
+        embedder, "_encode_batch", lambda batch, options: {"dense_vecs": [], "lexical_weights": []}
+    )
+    monkeypatch.setattr(embedder, "_parse_output", lambda output, expected: [])
+
+    embedder.embed_texts(["a provision"], batch_size=1)
+
+    assert embedder._cpu_latched is False, "the latch did not reopen"
+    assert released, "the CPU model must be released so the device is resolved again"
+    assert embedder._documents_since_latch == 0
+
+
+def test_the_latch_holds_until_the_reprobe_interval(monkeypatch) -> None:
+    """Reopening on every document would reinstate the thrash it prevents."""
+    embedder = BGEM3Embedder()
+    embedder._cpu_latched = True
+    embedder._documents_since_latch = 0
+    monkeypatch.setattr(embedder, "_release_model", lambda: None)
+    monkeypatch.setattr(
+        embedder, "_encode_batch", lambda batch, options: {"dense_vecs": [], "lexical_weights": []}
+    )
+    monkeypatch.setattr(embedder, "_parse_output", lambda output, expected: [])
+
+    embedder.embed_texts(["a provision"], batch_size=1)
+    assert embedder._cpu_latched is True
+    assert embedder._documents_since_latch == 1
+
+
+def test_the_reprobe_interval_is_worth_what_it_costs() -> None:
+    """One probe is a model load plus, on failure, a batch backoff.
+
+    Too frequent and it is the per-document thrash the latch exists to stop;
+    too rare and a recovered host stays on the slow path for hours. The
+    accelerator path measured 10-20x faster on this host, so the probe pays
+    for itself quickly.
+    """
+    assert BGEM3Embedder.REPROBE_ACCELERATOR_EVERY_DOCUMENTS >= 10
+    assert BGEM3Embedder.REPROBE_ACCELERATOR_EVERY_DOCUMENTS <= 200
