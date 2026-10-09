@@ -7,8 +7,8 @@
 # whole supervisor exits before the ledger is complete.
 #
 #   ./scripts/rebuild_until_done.sh start [collection]
-#   ./scripts/rebuild_until_done.sh status
-#   ./scripts/rebuild_until_done.sh stop
+#   ./scripts/rebuild_until_done.sh status [collection]
+#   ./scripts/rebuild_until_done.sh stop [collection]
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -43,6 +43,21 @@ except Exception:
 
 running() {
   [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null
+}
+
+worker_pids_for_collection() {
+  # The pipeline command line does not include its collection. run_rebuild.sh
+  # supplies it through QDRANT_GLOBAL_COLLECTION, which macOS exposes in
+  # `ps eww`. Match that complete environment token: `pkill -f` on the bare
+  # pipeline name used to let `stop v4` kill a perfectly healthy v5 build.
+  local pid command
+  pgrep -f "app.ingestion.pipeline" 2>/dev/null | while IFS= read -r pid; do
+    command="$(ps eww -p "$pid" -o command= 2>/dev/null)"
+    if printf '%s\n' "$command" | tr ' ' '\n' | grep -Fxq \
+      "QDRANT_GLOBAL_COLLECTION=$COLLECTION"; then
+      printf '%s\n' "$pid"
+    fi
+  done
 }
 
 loop() {
@@ -145,7 +160,12 @@ with open(sys.argv[2], 'ab', buffering=0) as log:
       fi
     fi
     echo "documents: $(done_count)/$(total)"
-    pgrep -f "app.ingestion.pipeline" >/dev/null && echo "worker: embedding" || echo "worker: idle"
+    workers="$(worker_pids_for_collection | tr '\n' ' ' | sed 's/ $//')"
+    if [ -n "$workers" ]; then
+      echo "worker: embedding (pid $workers)"
+    else
+      echo "worker: idle"
+    fi
     [ -f "$LOG" ] && tail -3 "$LOG"
     ;;
   stop)
@@ -156,7 +176,10 @@ with open(sys.argv[2], 'ab', buffering=0) as log:
     pkill -f "rebuild_until_done.sh __loop $COLLECTION" 2>/dev/null
     rm -f "$PIDFILE"
     pkill -f "run_rebuild.sh $COLLECTION" 2>/dev/null
-    pkill -f "app.ingestion.pipeline" 2>/dev/null
+    workers="$(worker_pids_for_collection | tr '\n' ' ' | sed 's/ $//')"
+    if [ -n "$workers" ]; then
+      kill $workers 2>/dev/null
+    fi
     echo "stopped; the ledger keeps its place, so starting again resumes"
     ;;
   *) echo "usage: $0 {start|status|stop} [collection]"; exit 2 ;;
