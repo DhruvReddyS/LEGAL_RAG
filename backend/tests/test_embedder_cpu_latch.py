@@ -18,6 +18,7 @@ from __future__ import annotations
 
 from app.ingestion.embedder import (
     LATCH_AFTER_CONSECUTIVE_CPU_FALLBACKS,
+    REPROBE_ACCELERATOR_EVERY_DOCUMENTS,
     BGEM3Embedder,
 )
 
@@ -27,6 +28,28 @@ def test_a_single_fallback_does_not_surrender_the_accelerator() -> None:
     embedder = BGEM3Embedder()
     embedder._consecutive_cpu_fallbacks = 1
     assert embedder._cpu_latched is False
+
+
+def test_the_reprobe_interval_is_short_enough_to_notice_pressure_lifting() -> None:
+    """The cost of asking was measured on this host with the machine idle: a
+    2 s model load, and 2.93 GB peak driver memory for eight of the largest
+    real chunks against a 17.76 GB working set. The encoder is not what
+    exhausts this machine, so an OOM here is pressure from something else and
+    it passes.
+
+    At roughly a minute per document, probing every ten is under one percent
+    of throughput. Fifty left the v5 build on the CPU for hours after the
+    shortage had gone, because it had stopped asking often enough to notice.
+    """
+    assert REPROBE_ACCELERATOR_EVERY_DOCUMENTS >= 5, (
+        "probing more often than every five documents spends more on model "
+        "loads than a transient shortage costs"
+    )
+    assert REPROBE_ACCELERATOR_EVERY_DOCUMENTS <= 15, (
+        "a longer interval is how a build stays on the CPU for hours after "
+        "the memory pressure that caused the latch has gone"
+    )
+    assert BGEM3Embedder.REPROBE_ACCELERATOR_EVERY_DOCUMENTS == REPROBE_ACCELERATOR_EVERY_DOCUMENTS
 
 
 def test_the_threshold_leaves_room_for_a_transient_shortage() -> None:

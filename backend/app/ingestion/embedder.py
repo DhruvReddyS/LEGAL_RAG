@@ -51,11 +51,25 @@ LATCH_AFTER_CONSECUTIVE_CPU_FALLBACKS = 3
 # zero out-of-memory events because it had stopped asking. The shortage the
 # latch was protecting against had gone and nothing noticed.
 #
-# One probe costs a model load and, if it fails, a batch backoff -- a few
-# seconds. Paying that once every 50 documents to recover a path measured
-# 10-20x faster is worth it, and if the shortage is still there the latch
-# simply closes again.
-REPROBE_ACCELERATOR_EVERY_DOCUMENTS = 50
+# One probe costs a model load and, if it fails, a batch backoff. Fifty was a
+# guess at what that costs; it has since been measured on this host, with the
+# machine idle:
+#
+#   model load on MPS                 2 s
+#   largest real chunk, batch of 1    0.7 s, 2.21 GB peak driver memory
+#   eight of the largest chunks       1.5 s, 2.93 GB
+#
+# against a 17.76 GB recommended working set. The encoder is not what
+# exhausts this machine -- it needs under 3 GB -- so an out-of-memory failure
+# here is whole-machine pressure from something else, and that passes.
+#
+# A probe therefore costs about two seconds, against roughly a minute per
+# document at the rate this build sustains. Probing every ten documents is
+# well under one percent of throughput, and recovers a path measured 10-20x
+# faster within ten minutes of the pressure lifting instead of fifty. The v5
+# build spent hours on the CPU after the pressure had gone, because it had
+# stopped asking often enough to notice.
+REPROBE_ACCELERATOR_EVERY_DOCUMENTS = 10
 
 
 # How many batches must succeed before the encoder tries a larger one again.
