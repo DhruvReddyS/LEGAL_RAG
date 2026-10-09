@@ -46,13 +46,15 @@ payload, retrieval, answer, citation, currency, and latency gates pass.
 
 The remaining source-quality work is narrow:
 
-1. OCR and validate the seven promoted documents flagged `ocr_required`,
-   including the tax material.
+1. OCR and validate the 101 unique canonical documents flagged
+   `ocr_required`, prioritising the current tax material and the largest
+   high-value instruments. This is a measured processing queue, not a request
+   to collect 101 replacement PDFs.
 2. Assemble later final amendments to the official Central Motor Vehicles
    Rules historical consolidation before calling it current.
 3. Attach authoritative commencement/rules evidence for the Andhra Pradesh
    tenancy Act before treating its provisions as operative.
-4. Reclassify the 404 promoted documents that currently sit in the broad
+4. Reclassify the 453 unique canonical documents that currently sit in the broad
    `primary_law/other_relevant_laws` bucket where narrower routing is justified.
 5. Expand the scenario bank and let measured failures—not PDF count—drive the
    next acquisition batch.

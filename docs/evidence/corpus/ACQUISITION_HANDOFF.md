@@ -4,7 +4,26 @@ Two agents acquire documents into this corpus in parallel. This file is how
 they stay out of each other's way. Read it before starting a batch; the agent
 that finishes a batch updates it in the same commit.
 
-Last updated: 2026-10-08, after 1,036 canonical documents.
+Last updated: 2026-10-09, during the `global_legal_corpus_v5` rebuild.
+
+## Current state — 9 October 2026
+
+- The canonical runtime target is **1,563 unique PDFs**, 55,321 pages and
+  2,528,902,167 bytes (2.355 GiB). The manifest has 1,566 physical records;
+  three are byte-identical alternate copies and are deduplicated by ingestion.
+- All 22 defined workflows are canonical-complete. There are no known
+  metadata-level minimum-source gaps and no document-count target to chase.
+- The active v5 build must finish and pass payload, retrieval, answer,
+  citation, currency, provision-reach and latency gates before replacing live
+  v4. Do not start another ingestion, embedding, Qdrant or Ollama-heavy job.
+- The measured cleanup queues are 101 `ocr_required` documents and 453
+  documents in the broad `primary_law/other_relevant_laws` category.
+- The Andhra Pradesh tenancy commencement warning and the historical Central
+  Motor Vehicles Rules warning remain mandatory until authoritative evidence
+  resolves them.
+
+The dated sections below preserve the decisions and evidence trail. Where a
+later section conflicts with this current-state block, this block governs.
 
 ## 2026-10-08 coordination update
 
