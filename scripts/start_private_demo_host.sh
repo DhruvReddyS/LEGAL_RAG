@@ -7,7 +7,7 @@ ENV_FILE="$PROJECT_ROOT/.env"
 MODEL_NAME="${OLLAMA_MODEL:-qwen3:14b}"
 
 fail() {
-  printf 'Aegis host setup: %s\n' "$1" >&2
+  printf 'Corpusil host setup: %s\n' "$1" >&2
   exit 1
 }
 
@@ -33,7 +33,7 @@ test "$tailscale_state" = "Running" \
 dns_name="$(tailscale status --json | jq -r '.Self.DNSName // empty' | sed 's/\.$//')"
 test -n "$dns_name" || fail "Tailscale did not report a MagicDNS name."
 
-printf 'Starting the private Aegis backend...\n'
+printf 'Starting the private Corpusil backend...\n'
 APP_ENV=production \
 COOKIE_SECURE=true \
 COOKIE_SAMESITE=none \
@@ -57,8 +57,8 @@ private_url="https://${dns_name}"
 curl --fail --silent --max-time 10 "${private_url}/health/ready" >/dev/null \
   || fail "Tailscale Serve was configured, but ${private_url}/health/ready is not reachable."
 
-printf '\nAegis private backend is ready.\n'
+printf '\nCorpusil private backend is ready.\n'
 printf 'Desktop backend URL: %s\n' "$private_url"
 printf 'Health check: %s/health/ready\n' "$private_url"
 printf 'Model: %s (runs only on this host)\n' "$MODEL_NAME"
-printf '\nKeep this computer, Docker Desktop, Ollama, and Tailscale running while friends use Aegis.\n'
+printf '\nKeep this computer, Docker Desktop, Ollama, and Tailscale running while friends use Corpusil.\n'

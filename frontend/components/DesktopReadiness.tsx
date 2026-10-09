@@ -40,7 +40,7 @@ import {
   validateBackendBaseUrl,
 } from "@/lib/runtime-backend";
 
-const SEEN_KEY = "aegis.desktop.readiness.seen.v1";
+const SEEN_KEY = "corpusil.desktop.readiness.seen.v1";
 const DEFAULT_MODEL = "qwen3-14b-16k:latest";
 const START_COMMAND = "docker compose --env-file .env -f docker/docker-compose.yml up -d";
 
@@ -295,7 +295,7 @@ export default function DesktopReadiness() {
               {connectionEditorOpen && (
                 <div className="mt-5 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_8px_24px_rgba(16,24,40,.04)]">
                   <div className="flex items-start justify-between gap-4"><div><p className="flex items-center gap-2 text-sm font-semibold text-[var(--state-ok-bg)]"><Globe2 size={16} className="text-[var(--accent)]" />Private backend connection</p><p className="mt-1.5 max-w-2xl text-xs leading-5 text-[var(--ink-soft)]">Use localhost on the backend machine or enter its private HTTPS address on another device. Only the server address is stored; passwords and tokens remain in secure HTTP-only cookies.</p></div><span className="shrink-0 rounded-full bg-[var(--hover)] px-2.5 py-1 text-[9px] font-semibold text-[var(--accent)]">Runtime setting</span></div>
-                  <label className="mt-4 block text-xs font-medium text-[var(--ink)]">Backend base URL<input value={backendDraft} onChange={(event) => { setBackendDraft(event.target.value); setTestedBackendUrl(null); }} placeholder="https://aegis-device.example.ts.net" spellCheck={false} className="field mt-2 h-11 font-mono text-xs" /></label>
+                  <label className="mt-4 block text-xs font-medium text-[var(--ink)]">Backend base URL<input value={backendDraft} onChange={(event) => { setBackendDraft(event.target.value); setTestedBackendUrl(null); }} placeholder="https://corpusil-device.example.ts.net" spellCheck={false} className="field mt-2 h-11 font-mono text-xs" /></label>
                   <div className="mt-3 flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><p className="text-[10px] leading-4 text-[var(--ink-soft)]">Remote addresses require HTTPS and must expose a healthy <code>/health</code> endpoint to this device.</p><div className="flex shrink-0 flex-wrap gap-2"><button onClick={testBackend} disabled={connectionTesting} className="button-secondary h-10 text-xs">{connectionTesting ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}Test connection</button><button onClick={saveBackend} disabled={!backendProbe?.reachable || testedBackendUrl !== normalizedBackendDraft} className="button-primary h-10 text-xs"><Check size={14} />Save & reconnect</button></div></div>
                   {backendProbe?.reachable && testedBackendUrl === normalizedBackendDraft && <div role="status" className="mt-3 flex items-center gap-2 rounded-xl border border-[var(--state-ok-line)] bg-[var(--state-ok-bg)] px-3 py-2.5 text-xs text-[var(--state-ok-text)]"><CheckCircle2 size={14} />Health check passed in {backendProbe.latencyMs} ms. Save to reconnect authentication and API calls.</div>}
                   {hasRuntimeBackendOverride() && <button onClick={resetBackend} className="mt-4 text-[11px] font-semibold text-[var(--ink-soft)] underline decoration-[var(--border)] underline-offset-4 hover:text-[var(--ink)]">Reset to {DEFAULT_BACKEND_URL}</button>}

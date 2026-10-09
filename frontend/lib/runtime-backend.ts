@@ -1,6 +1,21 @@
 import { isTauriDesktop } from "@/lib/desktop";
 
-const STORAGE_KEY = "aegis.desktop.backend-base-url.v1";
+const STORAGE_KEY = "corpusil.desktop.backend-base-url.v1";
+/** The key this setting lived under before the product was named Corpusil.
+ *  Read once and carried over: a rename must not silently log a desktop user
+ *  out of the backend they configured, leaving the app pointed at localhost
+ *  with no explanation. */
+const LEGACY_STORAGE_KEY = "aegis.desktop.backend-base-url.v1";
+
+function readStoredBackendUrl(): string | null {
+  const current = window.localStorage.getItem(STORAGE_KEY);
+  if (current !== null) return current;
+  const legacy = window.localStorage.getItem(LEGACY_STORAGE_KEY);
+  if (legacy === null) return null;
+  window.localStorage.setItem(STORAGE_KEY, legacy);
+  window.localStorage.removeItem(LEGACY_STORAGE_KEY);
+  return legacy;
+}
 export const DEFAULT_BACKEND_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -18,7 +33,7 @@ export function validateBackendBaseUrl(value: string): string {
   try {
     parsed = new URL(trimmed);
   } catch {
-    throw new Error("Enter a complete backend URL, for example https://aegis-device.example.ts.net");
+    throw new Error("Enter a complete backend URL, for example https://corpusil-device.example.ts.net");
   }
 
   if (parsed.username || parsed.password) {
@@ -50,7 +65,7 @@ export function isLocalBackendUrl(value: string): boolean {
 
 export function getRuntimeBackendUrl(): string {
   if (typeof window === "undefined" || !isTauriDesktop()) return DEFAULT_BACKEND_URL;
-  const stored = window.localStorage.getItem(STORAGE_KEY);
+  const stored = readStoredBackendUrl();
   if (!stored) return DEFAULT_BACKEND_URL;
   try {
     return validateBackendBaseUrl(stored);
@@ -68,10 +83,15 @@ export function saveRuntimeBackendUrl(value: string): string {
 
 export function resetRuntimeBackendUrl(): void {
   window.localStorage.removeItem(STORAGE_KEY);
+  window.localStorage.removeItem(LEGACY_STORAGE_KEY);
 }
 
 export function hasRuntimeBackendOverride(): boolean {
-  return typeof window !== "undefined" && window.localStorage.getItem(STORAGE_KEY) !== null;
+  if (typeof window === "undefined") return false;
+  return (
+    window.localStorage.getItem(STORAGE_KEY) !== null ||
+    window.localStorage.getItem(LEGACY_STORAGE_KEY) !== null
+  );
 }
 
 export async function probeBackendConnection(

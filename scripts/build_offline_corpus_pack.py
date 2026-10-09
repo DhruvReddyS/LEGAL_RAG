@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the public, read-only Aegis corpus pack for offline installations.
+"""Build the public, read-only Corpusil corpus pack for offline installations.
 
 The pack deliberately excludes PostgreSQL, private Qdrant collections, MinIO
 objects, authentication secrets, and Ollama models. Those stay per-device.
@@ -109,12 +109,12 @@ def main() -> None:
         canonical_rows.setdefault(str(row["canonical_document_id"]), row)
     page_count = sum(int(row.get("page_count") or 0) for row in canonical_rows.values())
     suffix = "metadata" if args.metadata_only else "complete"
-    pack_name = f"aegis-global-corpus-{version_slug}-{suffix}.tar"
+    pack_name = f"corpusil-global-corpus-{version_slug}-{suffix}.tar"
     args.output_dir.mkdir(parents=True, exist_ok=True)
     pack_path = args.output_dir.resolve() / pack_name
 
-    with tempfile.TemporaryDirectory(prefix="aegis-corpus-pack-") as temp_name:
-        staging = Path(temp_name) / "aegis-global-corpus"
+    with tempfile.TemporaryDirectory(prefix="corpusil-corpus-pack-") as temp_name:
+        staging = Path(temp_name) / "corpusil-global-corpus"
         (staging / "qdrant").mkdir(parents=True)
         snapshot_path = staging / "qdrant" / f"{collection_name}.snapshot"
         download(

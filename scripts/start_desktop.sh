@@ -49,5 +49,5 @@ if [[ ! -d "${APP_PATH}" ]]; then
   (cd "${PROJECT_DIR}/frontend" && npm run desktop:build)
 fi
 
-echo "Opening Aegis Legal Intelligence..."
+echo "Opening Corpusil..."
 open -n "${APP_PATH}"

@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any
 
 
-USER_AGENT = "Aegis-Legal-Corpus-Acquisition/1.0 (+research; official sources only)"
+USER_AGENT = "Corpusil-Legal-Corpus-Acquisition/1.0 (+research; official sources only)"
 PDF_MAGIC = b"%PDF-"
 HTML_MARKERS = (b"<!doctype html", b"<html")
 

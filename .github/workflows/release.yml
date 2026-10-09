@@ -185,11 +185,11 @@ jobs:
           projectPath: frontend
           tauriScript: npm run tauri
           tagName: ${{ env.RELEASE_TAG }}
-          releaseName: Aegis Legal Intelligence ${{ env.RELEASE_TAG }}
+          releaseName: Corpusil ${{ env.RELEASE_TAG }}
           releaseBody: |
             Scalable four-user capstone preview for macOS arm64, macOS x64, and Windows x64.
 
-            The desktop can select and test a private Aegis backend at runtime. Friends do not install the corpus, databases, embedding models, Docker, or Ollama when using the shared-host deployment.
+            The desktop can select and test a private Corpusil backend at runtime. Friends do not install the corpus, databases, embedding models, Docker, or Ollama when using the shared-host deployment.
 
             This preview is not Apple-notarized or Windows Authenticode-signed. Confirm the asset and checksum before using the operating system's explicit Open Anyway / Run Anyway flow. Tauri updater artifacts are cryptographically signed.
 

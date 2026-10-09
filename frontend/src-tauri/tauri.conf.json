@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Aegis Legal Intelligence",
+  "productName": "Corpusil",
   "version": "0.3.0",
   "identifier": "in.ac.legalrag.desktop",
   "build": {
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Aegis Legal Intelligence",
+        "title": "Corpusil",
         "width": 1440,
         "height": 920,
         "minWidth": 1024,
@@ -33,7 +33,7 @@
     "targets": ["app", "dmg"],
     "category": "Business",
     "shortDescription": "Role-based legal decision support",
-    "longDescription": "Aegis Legal Intelligence provides verified legal research and role-isolated citizen, police, advocate and administrator workflows.",
+    "longDescription": "Corpusil provides verified legal research and role-isolated citizen, police, advocate and administrator workflows.",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

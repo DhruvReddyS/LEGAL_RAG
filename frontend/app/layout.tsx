@@ -12,9 +12,12 @@ export const metadata: Metadata = {
   },
   description: "Evidence-led legal research and decision support for India.",
   icons: {
-    icon: "/brand/corpusil-logo.png",
-    shortcut: "/brand/corpusil-logo.png",
-    apple: "/brand/corpusil-logo.png",
+    // The square mark, not the wordmark. corpusil-logo.png is 1774x887 and
+    // 1.3 MB: as a favicon it was squashed to a smear and downloaded in full
+    // on every page load.
+    icon: "/brand/corpusil-mark.png",
+    shortcut: "/brand/corpusil-mark.png",
+    apple: "/brand/corpusil-mark-180.png",
   },
 };
 
