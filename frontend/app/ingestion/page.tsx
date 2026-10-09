@@ -50,6 +50,7 @@ export default function IngestionStatusPage() {
 
   const rows: [string, string][] = status
     ? [
+        ["Collection", status.collection],
         ["Documents indexed", `${status.completed_documents} of ${status.total_documents}`],
         ["Remaining", String(status.remaining_documents)],
         ["Checkpoint written", formatUpdated(status.updated_at)],

@@ -472,6 +472,7 @@ export interface IngestionProgress {
 // The polling-friendly counterpart to IngestionProgress: derived from the
 // manifest and the ingestion checkpoint alone, so it carries no index counts.
 export interface IngestionStatus {
+  collection: string;
   status: "not_started" | "in_progress" | "complete";
   total_documents: number;
   completed_documents: number;

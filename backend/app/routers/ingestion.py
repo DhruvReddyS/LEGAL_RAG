@@ -16,6 +16,26 @@ from app.ingestion.metadata import iter_canonical_documents, load_manifest
 router = APIRouter(prefix="/ingestion", tags=["ingestion"])
 
 
+def _current_checkpoint(kb_root: Path) -> tuple[Path, str]:
+    """Return the checkpoint for the most recently active corpus build.
+
+    The collection used for serving can intentionally remain on the last
+    complete index while a newer collection is built beside it.  A monitoring
+    endpoint must therefore follow the checkpoint that is actually changing,
+    rather than the collection configured for retrieval.
+    """
+    configured = checkpoint_path_for(kb_root)
+    candidates = list((kb_root / "logs").glob("ingestion_checkpoint*.json"))
+    checkpoint = max(candidates, key=lambda path: path.stat().st_mtime) if candidates else configured
+
+    prefix = "ingestion_checkpoint."
+    if checkpoint.name.startswith(prefix) and checkpoint.name.endswith(".json"):
+        collection = checkpoint.name[len(prefix) : -len(".json")]
+    else:
+        collection = settings.qdrant_global_collection
+    return checkpoint, collection
+
+
 @router.get("/progress")
 async def ingestion_progress() -> dict:
     """Return corpus embedding progress from the ingestion checkpoint."""
@@ -100,7 +120,7 @@ async def ingestion_status() -> dict:
     """
     kb_root = Path(settings.legal_kb_root)
     manifest_path = kb_root / "metadata" / "canonical_documents.jsonl"
-    checkpoint_path = checkpoint_path_for(kb_root)
+    checkpoint_path, collection = _current_checkpoint(kb_root)
 
     total_documents = 0
     if manifest_path.exists():
@@ -126,6 +146,7 @@ async def ingestion_status() -> dict:
         status = "in_progress"
 
     return {
+        "collection": collection,
         "status": status,
         "total_documents": total_documents,
         "completed_documents": completed_documents,

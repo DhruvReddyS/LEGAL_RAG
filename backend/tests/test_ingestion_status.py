@@ -8,6 +8,7 @@ which only holds while it stays off Qdrant and off the chunk files.
 from __future__ import annotations
 
 import json
+import os
 
 import pytest
 
@@ -102,3 +103,23 @@ async def test_status_does_not_touch_qdrant(kb_root, monkeypatch):
 
     assert payload["status"] == "in_progress"
     assert payload["updated_at"] is not None
+
+
+@pytest.mark.asyncio
+async def test_status_follows_the_most_recent_build_checkpoint(kb_root):
+    """A v5 build can run while retrieval deliberately stays on v4."""
+    _write_corpus(kb_root, 4, 1)
+    configured = checkpoint_path_for(kb_root)
+    active = kb_root / "logs" / "ingestion_checkpoint.global_legal_corpus_v5.json"
+    active.write_text(
+        json.dumps({"completed": {f"doc-{index}": {"chunk_count": 1} for index in range(3)}}),
+        encoding="utf-8",
+    )
+    configured_time = configured.stat().st_mtime
+    os.utime(active, (configured_time + 10, configured_time + 10))
+
+    payload = await ingestion_status()
+
+    assert payload["collection"] == "global_legal_corpus_v5"
+    assert payload["completed_documents"] == 3
+    assert payload["percent"] == 75.0
