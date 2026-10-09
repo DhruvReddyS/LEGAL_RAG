@@ -156,7 +156,47 @@ _GAZETTE_MASTHEAD = re.compile(
     re.IGNORECASE,
 )
 
+# A PDF with two text layers emits every word twice: "JananiJanani
+# ShishuShishu SurakshaSuraksha KaryakramKaryakram". Measured across the 300
+# longest chunks of global_legal_corpus_v5, 19 are like this and the worst is
+# 91% doubled.
+#
+# The damage is not cosmetic. "JananiJanani" cannot match a query for "Janani",
+# so the passage is in the index and unreachable -- a coverage hole that the
+# workflow audit still counts as canonical_complete, because the document is
+# in the manifest. These are also the longest chunks in the corpus, so they
+# are what pushes a single-item batch past the accelerator's memory and forces
+# the whole document onto the CPU.
+#
+# Rejected rather than repaired. De-duplicating the words would recover the
+# content and would also be a silent rewrite of stored legal text on a
+# heuristic, which is not a trade to make inside a quality classifier. The
+# rejection is logged with the document so the extraction can be redone, which
+# is the fix that actually recovers the content.
+_DOUBLED_WORD_MINIMUM_RATIO = 0.30
+# Below this there is nothing to measure a ratio against: one doubled word in
+# three is noise, not a pattern.
+_DOUBLED_WORD_MINIMUM_SAMPLE = 8
+_LONG_ALPHA_WORD = re.compile(r"[A-Za-z]{6,}")
+
 _MINIMUM_INDEXED_WORDS = 6
+
+
+def doubled_word_ratio(text: str) -> float:
+    """Fraction of long alphabetic words that are one string repeated twice.
+
+    Six characters minimum, so "thatthat" counts and ordinary reduplication in
+    Indian English place names does not dominate the sample.
+    """
+    words = _LONG_ALPHA_WORD.findall(text)
+    if len(words) < _DOUBLED_WORD_MINIMUM_SAMPLE:
+        return 0.0
+    doubled = sum(
+        1
+        for word in words
+        if len(word) % 2 == 0 and word[: len(word) // 2].lower() == word[len(word) // 2 :].lower()
+    )
+    return doubled / len(words)
 
 
 def classify_quality(
@@ -224,6 +264,8 @@ def classify_quality(
             return ChunkQuality("noise", "numbered_person_list")
         if _NUMBERED_FORM_FIELD.match(stripped):
             return ChunkQuality("noise", "numbered_form_field")
+    if doubled_word_ratio(stripped) >= _DOUBLED_WORD_MINIMUM_RATIO:
+        return ChunkQuality("noise", "doubled_text_layer")
     if (
         _GAZETTE_TRANSLITERATION.search(stripped)
         and _GAZETTE_MASTHEAD.search(stripped)
