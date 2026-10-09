@@ -23,7 +23,9 @@ A named police or advocate case query searches the global corpus and that role's
 ### Global corpus
 
 - Canonical source PDFs, manifests, and rebuild inputs: host filesystem at `data/legal_kb`, bind-mounted into the backend.
-- Retrieval chunks and embeddings: Qdrant global collection (`global_legal_corpus_v3` in the current Compose configuration).
+- Retrieval chunks and embeddings: Qdrant global collection. The validated
+  live fallback is `global_legal_corpus_v4`; `global_legal_corpus_v5` remains
+  a release candidate until every corpus gate passes.
 - Administrator-staged corpus objects: versioned MinIO corpus bucket.
 - The global corpus is rebuildable from the validated source files and manifests and must never be bundled into a public desktop release.
 

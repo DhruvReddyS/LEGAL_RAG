@@ -57,8 +57,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--qdrant-url", default="http://127.0.0.1:6333")
     parser.add_argument(
         "--collection",
-        default=os.getenv("QDRANT_GLOBAL_COLLECTION", "global_legal_corpus_v3"),
-        help="Qdrant collection to package (defaults to the live v3 collection).",
+        default=os.getenv("QDRANT_GLOBAL_COLLECTION", "global_legal_corpus_v4"),
+        help="Qdrant collection to package (defaults to the validated live v4 collection).",
     )
     parser.add_argument("--legal-kb-root", type=Path, default=Path("data/legal_kb"))
     parser.add_argument("--output-dir", type=Path, default=Path("dist/offline"))

@@ -25,7 +25,7 @@ deduplication, and quality validation.
 - What the system is and how every part works: [`docs/PRD.md`](docs/PRD.md)
 - Running, releasing, sharing and backing it up: [`docs/OPERATIONS.md`](docs/OPERATIONS.md)
 - Milestone plan from the current system to the target product: [`docs/PRODUCT_ROADMAP.md`](docs/PRODUCT_ROADMAP.md)
-- What is pending and what each problem needs: [`docs/NEXT_STEPS.md`](docs/NEXT_STEPS.md)
+- Current corpus-quality plan and release gates: [`docs/evidence/corpus/COVERAGE_DRIVEN_PLAN.md`](docs/evidence/corpus/COVERAGE_DRIVEN_PLAN.md)
 - Measurements, with the configuration each was taken under: [`docs/evidence/`](docs/evidence/)
 
 Do not commit `.env`, start overlapping ingestion workers, or use
@@ -34,16 +34,16 @@ intentionally being deleted.
 
 ## Current status
 
-Every planned module is built. Citizen, police, advocate and admin are
-feature-complete; the advocate debate room is the one deliberate omission,
-and [`docs/PRD.md`](docs/PRD.md) §15 explains what it would cost.
+Citizen, police, advocate and admin workflows are implemented. The remaining
+work is release quality: finish the v5 index, repair its payload-only metadata,
+run the complete gate suite, and cut over only if it beats the live fallback.
 
 | | |
 |---|---|
-| Corpus | `global_legal_corpus_v3`, 25,323 points (419 curated + 5 extended sources) |
-| Backend tests | 956 |
-| Cross-tenant red team | 36, passing |
-| Frontend tests | 38 |
+| Live corpus | `global_legal_corpus_v4`, 49,684 points |
+| v5 candidate | 1,563 unique PDFs, 55,321 pages, 2.355 GiB; rebuild in progress |
+| Minimum-source coverage | 22/22 defined workflows canonical-complete |
+| Canonical provenance | 1,563/1,563 official source URLs verified |
 | Section coverage | BNSS 100%, BSA 99%, BNS 96% |
 | Section concordance | 2,596 pairs from the official NCRB tables |
 
@@ -55,8 +55,8 @@ because its predicates match any passage containing a phrase, and a judgment
 quoting BNSS s.173 satisfies the FIR item while the section itself is absent
 from the top hundred.
 
-The measured limitations are in [`docs/NEXT_STEPS.md`](docs/NEXT_STEPS.md),
-each with the diagnosis rather than the symptom. The shortest summary: the
-system knows what it does not know, refuses when the corpus cannot answer,
-and never publishes a claim whose evidence was not retrieved -- that last one
-measured at zero across every question in the evaluation set.
+The measured limitations and release thresholds are in
+[`docs/evidence/corpus/COVERAGE_DRIVEN_PLAN.md`](docs/evidence/corpus/COVERAGE_DRIVEN_PLAN.md).
+The target is zero unsupported legal claims, claim-level citations, explicit
+currency warnings, and precise abstention when governing evidence is absent or
+uncertain—not a raw PDF count.
