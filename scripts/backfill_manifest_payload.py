@@ -42,14 +42,28 @@ FIELDS = ("source_url", "currency_note", "verified_official", "source_type")
 BATCH = 256
 
 
-def ingestion_running() -> bool:
-    result = subprocess.run(
-        ["pgrep", "-f", "app.ingestion.pipeline"],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-        check=False,
-    )
-    return result.returncode == 0
+def corpus_build_running() -> bool:
+    """Return true for both a worker and a supervisor able to restart it.
+
+    The keeper intentionally has short intervals with no Python worker while
+    it decides whether to resume. Treating that interval as idle lets this
+    script race a newly launched worker even though its original guard looked
+    green. A manually invoked ``run_rebuild.sh`` has the same startup window.
+    """
+    for pattern in (
+        "app.ingestion.pipeline",
+        "rebuild_until_done.sh __loop",
+        "scripts/run_rebuild.sh",
+    ):
+        result = subprocess.run(
+            ["pgrep", "-f", pattern],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+        if result.returncode == 0:
+            return True
+    return False
 
 
 def manifest_payloads() -> dict[str, dict[str, Any]]:
@@ -80,10 +94,10 @@ def payload_difference(
 async def run(*, collection: str, confirm: bool) -> int:
     from app.core.qdrant import create_qdrant_client
 
-    if confirm and ingestion_running():
+    if confirm and corpus_build_running():
         print(
-            "refusing to write while an ingestion worker is alive; run this after "
-            "the rebuild completes",
+            "refusing to write while a corpus rebuild worker or supervisor is "
+            "alive; run this after the rebuild completes",
             file=sys.stderr,
         )
         return 2

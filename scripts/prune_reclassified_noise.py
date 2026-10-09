@@ -32,14 +32,22 @@ sys.path.insert(0, str(ROOT / "backend"))
 BATCH = 256
 
 
-def ingestion_running() -> bool:
-    result = subprocess.run(
-        ["pgrep", "-f", "app.ingestion.pipeline"],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-        check=False,
-    )
-    return result.returncode == 0
+def corpus_build_running() -> bool:
+    """Return true for both a worker and a supervisor able to restart it."""
+    for pattern in (
+        "app.ingestion.pipeline",
+        "rebuild_until_done.sh __loop",
+        "scripts/run_rebuild.sh",
+    ):
+        result = subprocess.run(
+            ["pgrep", "-f", pattern],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+        if result.returncode == 0:
+            return True
+    return False
 
 
 def reclassified_reason(payload: dict[str, Any]) -> str | None:
@@ -60,10 +68,10 @@ async def run(*, collection: str, confirm: bool, sample_limit: int) -> int:
 
     from app.core.qdrant import create_qdrant_client
 
-    if confirm and ingestion_running():
+    if confirm and corpus_build_running():
         print(
-            "refusing to delete while an ingestion worker is alive; run this "
-            "after the rebuild completes",
+            "refusing to delete while a corpus rebuild worker or supervisor is "
+            "alive; run this after the rebuild completes",
             file=sys.stderr,
         )
         return 2

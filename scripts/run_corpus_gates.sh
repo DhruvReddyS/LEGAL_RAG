@@ -54,8 +54,10 @@ if [ -z "$COLLECTION" ] || [ -z "$LABEL" ]; then
   exit 2
 fi
 
-if pgrep -f "app.ingestion.pipeline" >/dev/null; then
-  echo "refusing to run: an ingestion worker is alive." >&2
+if pgrep -f "app.ingestion.pipeline" >/dev/null \
+  || pgrep -f "rebuild_until_done.sh __loop" >/dev/null \
+  || pgrep -f "scripts/run_rebuild.sh" >/dev/null; then
+  echo "refusing to run: a corpus rebuild worker or supervisor is alive." >&2
   echo "every gate here is a measurement, and one taken while the embedder and" >&2
   echo "Qdrant are busy is not comparable to one taken idle." >&2
   echo "  ./scripts/rebuild_until_done.sh status $COLLECTION" >&2
