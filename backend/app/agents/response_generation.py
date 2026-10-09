@@ -216,6 +216,27 @@ def response_generation_node(state: dict) -> dict:
         # the weakest of the three things this could say, on the one source
         # where the reader most needs the strongest.
         replaced: dict[str, str] = {}
+        # Superseded, still grounding a claim, and the successor is not
+        # recorded. `may_ground_a_published_claim` returns `saves_prior_conduct`
+        # for a superseded source, so a repealed Act that still governs prior
+        # conduct may ground a published claim -- and `CurrencyDecision` says
+        # of exactly that case: "The label is not optional in the second and
+        # third cases, which is why callers take the whole decision rather
+        # than this flag on its own."
+        #
+        # This caller took the whole decision and then dropped the label
+        # whenever the successor was unknown, because the only record was
+        # `replaced[name] = decision.superseded_by` guarded by
+        # `if decision.superseded_by`. A superseded source skips the
+        # `unverified` branch as well, so the answer said nothing at all.
+        #
+        # Not reachable from today's tables: all four saving entries in
+        # currency_status.json and all four repeal-table entries name a
+        # successor. It is one hand-edit away -- the table is curated and
+        # carries a `reviewed_on` date -- and the Fast lane already warns on
+        # this source while Deep stayed silent, which is the third currency
+        # divergence between the lanes found in this audit.
+        superseded_without_successor: set[str] = set()
         renumbered: dict[str, str] = {}
         not_re_enacted: set[str] = set()
         unverified = False
@@ -228,6 +249,8 @@ def response_generation_node(state: dict) -> dict:
                 name = hit.payload.get("act_name") or hit.payload.get("title") or "A cited Act"
                 if decision.superseded_by:
                     replaced[str(name)] = decision.superseded_by
+                else:
+                    superseded_without_successor.add(str(name))
             elif decision.status is CurrencyStatus.UNVERIFIED:
                 unverified = True
 
@@ -250,7 +273,13 @@ def response_generation_node(state: dict) -> dict:
             for reference in notice.not_re_enacted:
                 not_re_enacted.add(reference)
 
-        if replaced or renumbered or not_re_enacted or unverified:
+        if (
+            replaced
+            or superseded_without_successor
+            or renumbered
+            or not_re_enacted
+            or unverified
+        ):
             answer += "\n\n## Source currency\n\n"
         if replaced:
             lines = "\n".join(
@@ -258,6 +287,20 @@ def response_generation_node(state: dict) -> dict:
                 "before that date, so it may be the right authority for an older matter, "
                 "but not for anything happening now."
                 for name, successor in sorted(replaced.items())
+            )
+            answer += (
+                "One or more sources above is no longer in force:\n\n" + lines + "\n\n"
+            )
+        if superseded_without_successor:
+            # Named, and the gap named with it. "No longer in force" is the
+            # fact the reader needs; "we do not know what replaced it" is the
+            # reason they cannot simply follow a pointer, and saying nothing
+            # would leave them reading a repealed Act as current law.
+            lines = "\n".join(
+                f"- **{name}** is no longer in force. This corpus does not record "
+                "what replaced it, so the successor has to be checked against the "
+                "official text before relying on anything here for a current matter."
+                for name in sorted(superseded_without_successor)
             )
             answer += (
                 "One or more sources above is no longer in force:\n\n" + lines + "\n\n"
