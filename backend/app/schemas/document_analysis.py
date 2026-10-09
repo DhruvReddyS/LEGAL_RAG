@@ -23,7 +23,23 @@ class SourceEvidence(BaseModel):
     excerpt: str
     relevance_score: float | None = None
     verification_status: Literal["verified", "partial", "unverified"]
-    current_status: Literal["current", "superseded", "status_unverified", "not_applicable"]
+    # The same five values `AgentCitation.current_status` allows. This set was
+    # missing "repealed", so the shared currency primitive -- which returns it
+    # -- could not be represented here, and the lane went on computing a
+    # narrower answer of its own. Two schemas describing one fact in two
+    # vocabularies is how a lane ends up deciding for itself.
+    current_status: Literal[
+        "current", "superseded", "repealed", "status_unverified", "not_applicable"
+    ]
+    # Which provision replaced this one, and when. Analysis reported
+    # "superseded" and never said what by, so a reader was told their document
+    # relies on dead law and given nothing to look up. 21% of this corpus is
+    # the IPC, CrPC and Evidence Act.
+    repeal_label: Literal[
+        "none", "no_longer_in_force", "concerns_repealed_provision"
+    ] = "none"
+    replaced_by: str | None = None
+    repealed_on: str | None = None
     scope: Literal["global", "private_case"]
 
 

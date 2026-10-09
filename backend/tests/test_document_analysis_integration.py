@@ -173,12 +173,27 @@ async def test_document_analysis_is_owned_grounded_and_audited() -> None:
             assert set(("summary", "key_clauses", "risks", "applicable_sections")) <= body.keys()
             assert len(body["applicable_sections"]) == 1
             assert body["applicable_sections"][0]["label"] == "Section 154 CrPC"
-            # Section 154 CrPC. This asserted "status_unverified", which is what
-            # the code did and was wrong: `_current_status` read `is_current` and
-            # `is_superseded` directly, and both are effectively never true in this
-            # corpus, so a repealed Act and a circular nobody has checked returned
-            # the same answer. Resolved, the CrPC is superseded by the BNSS.
-            assert body["applicable_sections"][0]["evidence"]["current_status"] == "superseded"
+            # Section 154 CrPC. This asserted "status_unverified" once, which is
+            # what the code did and was wrong: `_current_status` read
+            # `is_current` and `is_superseded` directly, and both are
+            # effectively never true in this corpus, so a repealed Act and a
+            # circular nobody has checked returned the same answer.
+            #
+            # It then asserted "superseded", which was closer and still wrong.
+            # `citation_currency` keeps the two words distinct on purpose:
+            # "superseded" means the instrument governs nothing, which is true
+            # of a manual replaced by a later edition; "repealed" means the
+            # repeal saves prior conduct, so it still governs a period and is
+            # cited with the repeal stated. The CrPC is the second case -- it
+            # governs conduct from before 1 July 2024 -- and `_current_status`
+            # collapsed every supersession into the first, telling a reader an
+            # Act governs nothing when it does.
+            assert body["applicable_sections"][0]["evidence"]["current_status"] == "repealed"
+            # And now names what replaced it, which the local helper never did.
+            assert (
+                body["applicable_sections"][0]["evidence"]["replaced_by"]
+                == "The Bharatiya Nagarik Suraksha Sanhita, 2023"
+            )
             assert body["rejected_section_count"] == 1
             assert body["key_clauses"][0]["evidence"][0]["chunk_id"] == "case-chunk-demo"
             latest = await client.get(

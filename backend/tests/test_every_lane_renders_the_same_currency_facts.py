@@ -176,3 +176,52 @@ def test_the_shared_primitive_supplies_every_currency_field_a_citation_has() -> 
         "unmapped_repealed_provisions",
         "mapping_review_status",
     }
+
+
+def test_document_analysis_names_the_successor_not_just_the_status() -> None:
+    """The sixth lane, and the last retrieval-derived one.
+
+    It computed `current_status` with a local helper that answered only "is it
+    current", so analysis could tell a reader their document relies on a
+    superseded Act and never say what replaced it. The reader is told the law
+    is dead and given nothing to look up.
+    """
+    from app.services.document_analysis import _currency_fields
+
+    fields = _currency_fields(
+        {"act_name": "The Indian Penal Code, 1860", "title": "The Indian Penal Code, 1860"},
+        private=False,
+    )
+    assert fields["current_status"] == "repealed"
+    assert fields["repeal_label"] == "no_longer_in_force"
+    assert fields["replaced_by"] == "The Bharatiya Nyaya Sanhita, 2023"
+    assert fields["repealed_on"] == "2024-07-01"
+
+
+def test_document_analysis_leaves_case_evidence_out_of_the_currency_vocabulary() -> None:
+    from app.services.document_analysis import _currency_fields
+
+    fields = _currency_fields({"title": "Witness statement"}, private=True)
+    assert fields["current_status"] == "not_applicable"
+    assert fields["repeal_label"] == "none"
+    assert fields["replaced_by"] is None
+
+
+def test_the_two_citation_schemas_share_one_currency_vocabulary() -> None:
+    """They did not, which is how a lane ended up computing its own.
+
+    `SourceEvidence.current_status` omitted "repealed", so the shared
+    primitive's answer could not be represented there and the lane went on
+    using a narrower local helper. Two schemas describing one fact in two
+    vocabularies is the structural version of the same defect.
+    """
+    import typing
+
+    from app.schemas.agents import AgentCitation
+    from app.schemas.document_analysis import SourceEvidence
+
+    def allowed(model, field: str) -> set[str]:
+        return set(typing.get_args(model.model_fields[field].annotation))
+
+    assert allowed(SourceEvidence, "current_status") == allowed(AgentCitation, "current_status")
+    assert allowed(SourceEvidence, "repeal_label") == allowed(AgentCitation, "repeal_label")

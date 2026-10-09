@@ -22,7 +22,8 @@ from app.schemas.document_analysis import (
     DocumentAnalysisResponse,
     SourceInspectorResponse,
 )
-from app.services.document_analysis import _current_status, DISCLAIMER, DocumentAnalysisService
+from app.services.citation_status import citation_labels_for
+from app.services.document_analysis import DISCLAIMER, DocumentAnalysisService
 from app.services.llm import OllamaClient
 from app.services.retrieval import HybridRetrievalService
 
@@ -190,9 +191,12 @@ def _status(payload: dict[str, Any], *, private: bool) -> tuple[str, str]:
         and payload.get("quality_status") not in {"rejected", "failed"}
         else "unverified"
     )
-    # The same decision as the service, taken through the same resolver rather
-    # than duplicated from the raw fields.
-    current = _current_status(payload, private=False)
+    # Through the shared primitive, which keeps "repealed" and "superseded"
+    # distinct. `_current_status` mapped every supersession to "superseded",
+    # which tells a reader an Act governs nothing -- true of a manual replaced
+    # by a later edition, false of the CrPC, which still governs conduct from
+    # before 1 July 2024.
+    current = citation_labels_for(payload)["current_status"]
     return verification, current
 
 

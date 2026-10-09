@@ -22,6 +22,7 @@ from app.schemas.document_analysis import (
 )
 from app.services.llm import OllamaClient
 from app.services.retrieval import HybridRetrievalService, RetrievalFilters
+from app.services.citation_status import citation_labels_for
 from app.services.currency import CurrencyStatus, resolve_currency
 
 
@@ -41,25 +42,6 @@ class DocumentPoint:
     payload: dict[str, Any]
 
 
-def _current_status(payload: dict[str, Any], *, private: bool) -> str:
-    """Resolved, not read.
-
-    Both fields this used to test are effectively never true in the corpus:
-    `is_current` is false for every document by design, and `is_superseded`
-    was written by nothing until the currency migration. So this returned
-    "status_unverified" for a repealed Act as readily as for a circular
-    nobody has checked.
-    """
-    if private:
-        return "not_applicable"
-    status = resolve_currency(payload).status
-    if status is CurrencyStatus.IN_FORCE:
-        return "current"
-    if status is CurrencyStatus.SUPERSEDED:
-        return "superseded"
-    return "status_unverified"
-
-
 def _evidence(point: DocumentPoint, *, private: bool, score: float | None = None) -> SourceEvidence:
     payload = point.payload
     text = str(payload.get("text") or "").strip()
@@ -74,9 +56,29 @@ def _evidence(point: DocumentPoint, *, private: bool, score: float | None = None
         excerpt=text[:1200],
         relevance_score=score,
         verification_status="verified",
-        current_status=_current_status(payload, private=private),
+        # Through the shared primitive, which is the same call Fast, Deep, the
+        # advocate lane and drafting make. `_current_status` answered only
+        # "is it current", so analysis could tell a reader their document
+        # relies on a superseded Act without naming the successor.
+        **_currency_fields(payload, private=private),
         scope="private_case" if private else "global",
     )
+
+
+def _currency_fields(payload: dict[str, Any], *, private: bool) -> dict[str, Any]:
+    """What this evidence line says about currency.
+
+    Private case evidence keeps "not_applicable": a witness statement has no
+    commencement date and cannot be repealed, so grading it is a category
+    error whichever way it comes out.
+    """
+    labels = citation_labels_for({**payload, **({"corpus_scope": "private_case"} if private else {})})
+    return {
+        "current_status": labels["current_status"],
+        "repeal_label": labels["repeal_label"],
+        "replaced_by": labels["replaced_by"],
+        "repealed_on": labels["repealed_on"],
+    }
 
 
 def _select_points(points: list[DocumentPoint]) -> list[DocumentPoint]:
