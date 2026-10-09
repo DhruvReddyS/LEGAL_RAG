@@ -5,7 +5,7 @@ import re
 from app.agents.verification_agent import VerificationBatch
 from app.ingestion.init_qdrant import ADVOCATE_CASE_DATA, GLOBAL_LEGAL_CORPUS
 from app.services.currency import resolve_currency
-from app.services.document_analysis import _current_status
+from app.services.citation_status import citation_labels
 from app.schemas.agents import AgentCitation
 from app.schemas.strategy import (
     DefenceAnalysisDraft,
@@ -44,6 +44,42 @@ def _evidence_text(hits: list[RetrievalHit]) -> str:
     )
 
 
+# A witness statement has no commencement date and cannot be repealed, so the
+# currency vocabulary does not apply to it. Suppressed explicitly rather than
+# left to default, because "repeal_label: none" on case evidence means "not
+# applicable here" and not "checked and in force".
+_PRIVATE_CASE_LABELS = {
+    "current_status": "not_applicable",
+    "repeal_label": "none",
+    "replaced_by": None,
+    "repealed_on": None,
+    "section_mappings": [],
+    "unmapped_repealed_provisions": [],
+    "mapping_review_status": None,
+}
+
+
+def _citation_labels_for(payload: dict) -> dict:
+    """The currency labels every lane must render, including this one.
+
+    `citation_labels` exists so the lanes cannot show different subsets of the
+    same facts, and its own docstring says "the three lanes". There are four
+    citation builders, and this was the fourth: it set `current_status` from
+    its own helper and never set `repeal_label`, `replaced_by`, `repealed_on`
+    or `section_mappings` at all, so they took their schema defaults.
+
+    `repeal_label` defaults to "none". The effect was that an advocate
+    building a defence strategy could be shown an Indian Penal Code provision
+    with no indication it was replaced on 1 July 2024, while a citizen asking
+    the same question in Fast or Deep got "[no longer in force from
+    2024-07-01; replaced by ...]" inline in the answer. 21% of this corpus is
+    the IPC, CrPC and Evidence Act.
+    """
+    if payload.get("corpus_scope") == "private_case":
+        return dict(_PRIVATE_CASE_LABELS)
+    return citation_labels(payload)
+
+
 def _citations(hits: list[RetrievalHit], used_ids: set[str]) -> list[AgentCitation]:
     citations: list[AgentCitation] = []
     for hit in hits:
@@ -51,6 +87,7 @@ def _citations(hits: list[RetrievalHit], used_ids: set[str]) -> list[AgentCitati
         chunk_id = str(payload.get("chunk_id") or "")
         if chunk_id not in used_ids:
             continue
+        labels = _citation_labels_for(payload)
         citations.append(
             AgentCitation(
                 number=len(citations) + 1,
@@ -66,7 +103,7 @@ def _citations(hits: list[RetrievalHit], used_ids: set[str]) -> list[AgentCitati
                 excerpt=str(payload.get("text") or "")[:1200],
                 retrieval_score=hit.reranker_score,
                 verification_status="verified",
-                current_status=_current_status(payload, private=payload.get("corpus_scope") == "private_case"),
+                **labels,
             )
         )
     return citations
