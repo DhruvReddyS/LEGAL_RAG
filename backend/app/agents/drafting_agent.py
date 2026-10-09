@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import Case, GeneratedDocument
 from app.schemas.documents import DraftAuthority, FIRFacts
 from app.services.llm import OllamaClient
+from app.services.citation_status import citation_labels_for
 from app.services.retrieval import HybridRetrievalService, RetrievalFilters
 
 
@@ -60,6 +61,52 @@ def recover_explicit_missing_item(facts: FIRFacts, description: str) -> FIRFacts
     return facts.model_copy(update=updates) if updates else facts
 
 
+def _draft_authority(hit) -> DraftAuthority:
+    """One proposed authority, carrying whether it is still in force.
+
+    Through `citation_labels_for`, which is the same call the three other
+    lanes make. Reading the payload here instead is what left this lane
+    silent about a repeal every other lane reports.
+    """
+    payload = hit.payload
+    labels = citation_labels_for(payload)
+    return DraftAuthority(
+        chunk_id=str(payload.get("chunk_id")),
+        title=str(payload.get("title") or "Unknown authority"),
+        section=str(payload.get("section") or "") or None,
+        page_start=int(payload.get("page_start") or 1),
+        page_end=int(payload.get("page_end") or payload.get("page_start") or 1),
+        excerpt=str(payload.get("text") or "")[:1200],
+        reranker_score=float(hit.reranker_score),
+        current_status=labels.get("current_status"),
+        repeal_label=labels.get("repeal_label"),
+        replaced_by=labels.get("replaced_by"),
+        repealed_on=labels.get("repealed_on"),
+    )
+
+
+def authority_currency_note(item: DraftAuthority) -> str:
+    """What to say about this authority on the line that proposes it.
+
+    Inline rather than in a footer, because the reader of a draft takes the
+    authority line to a police station. The two labels say different things
+    and must not share a sentence: marking an operative circular "repealed"
+    because it cites a moved section would be false in the direction a police
+    reader would catch immediately.
+    """
+    if item.repeal_label == "no_longer_in_force":
+        replaced = f"; replaced by {item.replaced_by}" if item.replaced_by else (
+            "; this corpus does not record what replaced it"
+        )
+        since = f" from {item.repealed_on}" if item.repealed_on else ""
+        return f" — NO LONGER IN FORCE{since}{replaced}. Do not cite without confirming the successor provision."
+    if item.repeal_label == "concerns_repealed_provision":
+        return " — in force, but it cites provisions renumbered by the 2023 Sanhitas; confirm the current numbering."
+    if item.current_status == "status_unverified":
+        return " — current-law status not verified in this corpus; confirm it is in force before filing."
+    return ""
+
+
 def render_fir(facts: FIRFacts, authorities: list[DraftAuthority]) -> str:
     def value(item: str | None) -> str:
         return item.strip() if item and item.strip() else "[INFORMATION REQUIRED]"
@@ -70,6 +117,7 @@ def render_fir(facts: FIRFacts, authorities: list[DraftAuthority]) -> str:
         "\n".join(
             f"- {item.title}, section {item.section or 'not identified'}, "
             f"pages {item.page_start}-{item.page_end} [SRC:{item.chunk_id}]"
+            f"{authority_currency_note(item)}"
             for item in authorities
         )
         or "- No sufficiently relevant corpus authority was retrieved; do not insert a section without review."
@@ -166,15 +214,7 @@ USER DESCRIPTION:
             result_limit=5,
         )
         authorities = [
-            DraftAuthority(
-                chunk_id=str(hit.payload.get("chunk_id")),
-                title=str(hit.payload.get("title") or "Unknown authority"),
-                section=str(hit.payload.get("section") or "") or None,
-                page_start=int(hit.payload.get("page_start") or 1),
-                page_end=int(hit.payload.get("page_end") or hit.payload.get("page_start") or 1),
-                excerpt=str(hit.payload.get("text") or "")[:1200],
-                reranker_score=float(hit.reranker_score),
-            )
+            _draft_authority(hit)
             for hit in hits
             if hit.payload.get("chunk_id") and hit.payload.get("text")
         ]

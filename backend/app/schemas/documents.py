@@ -38,6 +38,25 @@ class DraftAuthority(BaseModel):
     page_end: int
     excerpt: str
     reranker_score: float
+    # Whether the provision being proposed for a filing is still in force.
+    #
+    # Drafting retrieves with `current_only=False` on purpose, and the comment
+    # at that call says it keeps "the mandatory professional currency warning
+    # in the draft". There was no such warning: the disclaimer tells the
+    # reader to verify "every fact, date, identity, jurisdiction and proposed
+    # legal provision", which is an instruction to check, not a statement that
+    # a named provision was replaced on 1 July 2024 and by what.
+    #
+    # The Fast lane prints that inline per citation, Deep prints a Source
+    # currency section, and the advocate lane carries the labels. This lane
+    # knew the same fact and did not say it, while producing the one output
+    # that gets taken to a police station.
+    #
+    # Optional with defaults, so drafts already persisted still load.
+    current_status: str | None = None
+    repeal_label: str | None = None
+    replaced_by: str | None = None
+    repealed_on: str | None = None
 
 
 class DocumentDraftRequest(BaseModel):
