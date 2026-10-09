@@ -25,6 +25,12 @@
 #               output, and the evidence floors beside them.
 #   currency    the two individually flagged instruments cannot read as
 #               settled current law.
+#   provisions  the 66 statutory citations hardcoded in the source -- the
+#               police compliance checklist's 44 BNSS provisions among them --
+#               still resolve against the corpus. A renumbering amendment
+#               would otherwise leave the checklist asserting a duty under a
+#               provision that no longer says so, and every unit test
+#               asserting the stale number would pass.
 #
 # Refuses to run while an ingestion worker is alive. Every one of these is a
 # measurement, and a measurement taken while the embedder and Qdrant are busy
@@ -46,6 +52,10 @@ RECORD=0
 [ "${3:-}" = "--record" ] && RECORD=1
 
 PY="$ROOT/.venv-ingest/bin/python"
+# The version the haystack analysis compares against. Not a gate input: it
+# only decides which corpus the "did this item get easier" column is read
+# relative to.
+BASELINE_COLLECTION="${BASELINE_COLLECTION:-global_legal_corpus_v4}"
 OUT="$ROOT/docs/evidence/gates/$LABEL"
 SUMMARY="$OUT/SUMMARY.md"
 
@@ -87,14 +97,14 @@ record_result() {
 }
 
 # ---------------------------------------------------------------- payload
-note "1/6 payload: manifest fields that must reach the index"
+note "1/7 payload: manifest fields that must reach the index"
 "$PY" "$ROOT/scripts/check_currency_payload_gate.py" \
   --collection "$COLLECTION" --require-complete \
   2>&1 | tee "$OUT/payload.txt"
 record_result payload "${PIPESTATUS[0]}"
 
 # ------------------------------------------------------------- retrieval
-note "2/6 retrieval: recall@5 and citation accuracy@5"
+note "2/7 retrieval: recall@5 and citation accuracy@5"
 "$PY" "$ROOT/scripts/evaluate_retrieval.py" --collection "$COLLECTION" \
   --out "$OUT/retrieval-eval.json" > "$OUT/retrieval-eval.log" 2>&1
 retrieval_eval=$?
@@ -113,7 +123,7 @@ else
 fi
 
 # --------------------------------------------------------------- answers
-note "3/6 answers: ground coverage, citations, unsupported claims"
+note "3/7 answers: ground coverage, citations, unsupported claims"
 QDRANT_GLOBAL_COLLECTION="$COLLECTION" "$PY" "$ROOT/scripts/evaluate_answers.py" \
   --label "$LABEL" 2>&1 | tee "$OUT/answer-eval.log" >/dev/null
 answer_eval="${PIPESTATUS[0]}"
@@ -133,7 +143,7 @@ else
 fi
 
 # ------------------------------------------------------------- provision
-note "4/6 provision reach: can the governing provision be reached at all"
+note "4/7 provision reach: can the governing provision be reached at all"
 if [ "$RECORD" -eq 1 ]; then
   QDRANT_GLOBAL_COLLECTION="$COLLECTION" "$PY" "$ROOT/scripts/check_provision_reach.py" --record \
     2>&1 | tee "$OUT/provision.txt"
@@ -144,7 +154,7 @@ fi
 record_result provision "${PIPESTATUS[0]}"
 
 # ------------------------------------------------------- retrieval health
-note "5/6 retrieval health: index and configuration"
+note "5/7 retrieval health: index and configuration"
 QDRANT_GLOBAL_COLLECTION="$COLLECTION" "$PY" "$ROOT/scripts/verify_retrieval_health.py" \
   --json "$OUT/retrieval-health.json" 2>&1 | tee "$OUT/health.txt"
 record_result health "${PIPESTATUS[0]}"
@@ -154,7 +164,7 @@ record_result health "${PIPESTATUS[0]}"
 # collection. Started here rather than assumed, and stopped afterwards, so the
 # gate cannot silently measure whatever was already running on port 8000 --
 # which on this host is a container built from the CPU torch wheel.
-note "6/6 latency: Fast p95, Deep overhead, time to first useful output"
+note "6/7 latency: Fast p95, Deep overhead, time to first useful output"
 if lsof -nP -iTCP:8000 -sTCP:LISTEN >/dev/null 2>&1; then
   echo "something already holds port 8000; stop it so this gate measures the" | tee "$OUT/latency-gate.txt"
   echo "collection under test rather than whatever is there." | tee -a "$OUT/latency-gate.txt"
@@ -198,6 +208,28 @@ else
     kill "$(cat "$OUT/backend.pid")" 2>/dev/null
     rm -f "$OUT/backend.pid"
   fi
+fi
+
+# ------------------------------------------------------------ provisions
+note "7/7 provisions: hardcoded statutory citations still resolve"
+QDRANT_GLOBAL_COLLECTION="$COLLECTION" "$PY" "$ROOT/scripts/check_provision_drift.py" \
+  --collection "$COLLECTION" --out "$OUT/provision-drift.json" \
+  2>&1 | tee "$OUT/provision-drift.txt"
+record_result provisions "${PIPESTATUS[0]}"
+
+# ----------------------------------------------------- volume vs ranking
+# Not a gate: it has no pass or fail. v5 holds roughly twice v4's points, so
+# every recall and citation number above moves on volume alone. This records
+# which golden-set items got an easier haystack, so a reader of the gate
+# results can tell a corpus effect from a retrieval one instead of reading a
+# single delta and guessing. Never fails the run.
+note "analysis: corpus growth against retrieval change"
+if [ -d "$ROOT/data/legal_kb/processed/chunks.$BASELINE_COLLECTION" ]; then
+  "$PY" "$ROOT/scripts/golden_set_haystack_report.py" \
+    --before "$BASELINE_COLLECTION" --after "$COLLECTION" \
+    --out "$OUT/haystack.json" 2>&1 | tee "$OUT/haystack.txt" || true
+else
+  echo "no baseline chunk store for $BASELINE_COLLECTION; skipping" | tee "$OUT/haystack.txt"
 fi
 
 # ---------------------------------------------------------------- summary
