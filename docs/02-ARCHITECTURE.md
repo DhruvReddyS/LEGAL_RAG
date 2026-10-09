@@ -1,64 +1,14 @@
-# Corpusil — Product and Architecture Reference
+# 02 — Architecture
 
-> Current to 6 September 2026, against `global_legal_corpus_v3` (25,323 points: 24,810 gold, 513 extended).
-> Every number in §13 and §15 is measured and reproducible from
-> `docs/evidence/`; nothing here is estimated unless it says so.
+*How Corpusil works, component by component. Numbers in §2 measured
+9 October 2026; the rest describes behaviour and is version-independent unless
+it says otherwise.*
 
-A multi-agent retrieval-augmented system for Indian law, serving four roles from
-one grounded corpus: citizens, police, advocates and administrators.
-
-This is the single reference for what the system is, how it is built, and how
-each part actually works. It replaces the scattered acceptance notes and
-progress logs that preceded it. Measurements live in `docs/evidence/`; current
-pending work lives in `docs/NEXT_STEPS.md`.
+Everything is local. The only network calls are to `localhost`.
 
 ---
 
-## Contents
-
-1. [What it is, and what it refuses to be](#1-what-it-is-and-what-it-refuses-to-be)
-2. [System shape](#2-system-shape)
-3. [The corpus](#3-the-corpus)
-4. [Ingestion, in detail](#4-ingestion-in-detail)
-5. [Retrieval, in detail](#5-retrieval-in-detail)
-6. [The two lanes](#6-the-two-lanes)
-7. [The agent graph](#7-the-agent-graph)
-8. [Verification](#8-verification)
-9. [Currency and repeal](#9-currency-and-repeal)
-10. [Safety screening](#10-safety-screening)
-11. [Security model](#11-security-model)
-12. [Features by role](#12-features-by-role)
-13. [Evaluation](#13-evaluation)
-14. [Operations](#14-operations)
-15. [Known limitations](#15-known-limitations)
-16. [Module map](#16-module-map)
-
----
-
-## 1. What it is, and what it refuses to be
-
-Corpusil answers legal questions from a corpus of Indian primary and secondary
-material, and cites the passage it answered from. It runs entirely on local
-infrastructure: no legal text and no user question leaves the machine.
-
-Three refusals shape every design decision below.
-
-**It does not answer without a source.** A question the corpus cannot support
-produces an abstention, not a plausible paragraph. Measured abstention accuracy
-is 0.83 — five of six known corpus gaps are correctly declined.
-
-**It does not publish a claim whose sources were not retrieved.** Response
-generation drops any claim whose chunk IDs are absent from the retrieved set.
-This is enforced in code, not asked for in a prompt.
-
-**It does not present law as current when it cannot establish that.** 21% of the
-corpus is the IPC, CrPC and Indian Evidence Act, repealed on 1 July 2024. Those
-passages are still retrievable — an offence committed before that date is tried
-under them — but never without saying so.
-
----
-
-## 2. System shape
+## 1. System shape
 
 ```
   Citizen / Police / Advocate / Admin
@@ -83,7 +33,7 @@ under them — but never without saying so.
 | Vector store | Qdrant v1.18.2 (pinned — RRF is computed server-side) |
 | Object store | MinIO (S3-compatible; corpus, case documents, generated files) |
 | Embeddings | BAAI/bge-m3, 1024-d dense + learned sparse, one forward pass |
-| Reranker | BAAI/bge-reranker-v2-m3 cross-encoder (**off by default**, §5.6) |
+| Reranker | BAAI/bge-reranker-v2-m3 cross-encoder (**off by default**, §4.6) |
 | Generation | Ollama, `qwen3-14b-16k` (Q4_K_M, 16,384 context) |
 | Agent graph | LangGraph |
 | Interface | Next.js 14 static export; Tauri desktop shell |
@@ -92,15 +42,31 @@ Everything is local. The only network calls are to `localhost`.
 
 ---
 
-## 3. The corpus
+---
+
+## 2. The corpus
 
 | Property | Value |
 |---|---|
-| Physical documents | 419 |
-| Canonical documents (after de-duplication) | 381 |
-| Indexed chunks | 25,323 |
-| Median chunk | 109 words |
-| Collection | `global_legal_corpus` (name is configurable, §14.2) |
+| Manifest rows | 1,566 |
+| Canonical documents (after de-duplication) | **1,563** |
+| Pages | 55,382 |
+| Indexed chunks | 49,684 serving (v4) · ~51,300 at v5's current progress |
+| Collection | `global_legal_corpus_v4` serving, `_v5` building (name configurable, [04-OPERATIONS](04-OPERATIONS.md) §1.2) |
+
+| | Documents |
+|---|---|
+| Acts | 802 |
+| Rules | 361 |
+| Official guidance, advisories, SOPs, manuals | 268 |
+| **Judgments** | **93** (79 Supreme Court, 14 AP High Court) |
+| Law Commission reports | 24 |
+
+| Jurisdiction | Documents |
+|---|---|
+| India — Central | 1,260 |
+| India — Andhra Pradesh | 288 |
+| India — Telangana | 18 |
 
 Material spans the Constitution, the 2023 Sanhitas and the codes they replaced,
 Arms, Juvenile Justice, POCSO, IT and SC/ST legislation, Supreme Court and High
@@ -110,24 +76,44 @@ Court judgments, ministry advisories, SOPs and model manuals.
 `data/legal_kb/metadata/canonical_documents.jsonl` with its origin URL, SHA-256
 checksum, page count and a resolved type. Ingestion verifies the checksum before
 touching the file, so a silently changed source fails rather than being indexed.
+As of this writing every row carries a source URL, every row is marked verified
+official, and no OCR work is outstanding.
 
-### 3.1 De-duplication
+### 2.1 De-duplication
 
-419 physical files reduce to 381 canonical documents. The same Act arrives as
-multiple scans, volumes and mirrors. `dedup.py` groups them by content and
-elects one canonical member; the rest are recorded as its duplicates and are not
-embedded. Without this, retrieval returns the same provision three times and
-crowds out the rest of the answer.
+Physical files reduce to canonical documents: the same Act arrives as multiple
+scans, volumes and mirrors. `dedup.py` groups them by content and elects one
+canonical member; the rest are recorded as its duplicates and are not embedded.
+Without this, retrieval returns the same provision three times and crowds out
+the rest of the answer.
+
+### 2.2 What the corpus cannot yet support
+
+Two gaps that decide which features are possible at all, carried here from the
+retired `CORPUS_GAPS.md` because they belong beside the numbers above.
+
+**93 judgments.** That is enough to answer a question *about* a well-known
+case. It is not enough for precedent research, a citator, case comparison, or
+checking an opponent's authorities — all of which need thousands. Four advocate
+features are marked blocked in [01-PRODUCT](01-PRODUCT.md) §3 for this reason.
+
+**Two states.** Central law plus Andhra Pradesh, with a little Telangana. A
+citizen in any other state gets nothing state-specific on tenancy, land, police
+rules or welfare, and the system correctly abstains rather than answering from
+central law alone.
+
+Closing either is acquisition work, not engineering — see CORP-01 and CORP-02
+in [01-PRODUCT](01-PRODUCT.md) §3, and [06-PLAN](06-PLAN.md) Phase 2.
 
 ---
 
-## 4. Ingestion, in detail
+## 3. Ingestion, in detail
 
 One pass, `backend/app/ingestion/pipeline.py`. Each document moves through
 extraction → structure → chunking → enrichment → embedding → write, and every
 stage writes to disk so the next run can resume.
 
-### 4.1 Extraction (`extract.py`, `ocr.py`)
+### 3.1 Extraction (`extract.py`, `ocr.py`)
 
 PDF text is pulled page by page. A page yielding fewer than **40 characters** is
 treated as a scan rather than as an empty page, rendered at **300 DPI** and put
@@ -141,7 +127,7 @@ Extracted text is cached at `processed/extracted_text/<canonical_id>.json`. This
 cache is what makes re-chunking cheap — the `--rechunk` mode re-runs every later
 stage without re-OCRing 381 documents.
 
-### 4.2 Structure parsing (`structure.py`)
+### 3.2 Structure parsing (`structure.py`)
 
 Flat page text is parsed into **structural units** — the natural divisions of the
 document, not fixed-size blocks:
@@ -154,7 +140,7 @@ document, not fixed-size blocks:
 The judgment roles are what let an advocate ask for a *ratio* rather than a
 paragraph that happens to mention the point.
 
-### 4.3 Chunking (`chunker.py`)
+### 3.3 Chunking (`chunker.py`)
 
 Chunks are **700-token windows with 80-token overlap, taken within a structural
 unit** — never across one. A window never spans two sections, so a chunk cannot
@@ -167,12 +153,12 @@ Each chunk carries:
 | `chunk_id` | Content-addressed; changes when the text changes |
 | `unit_id`, `unit_ordinal`, `unit_count` | Position within the parent unit — the hook for small-to-big retrieval |
 | `structural_role` | provision / proviso / explanation / illustration / definition / schedule, or a judgment role |
-| `embed_text` | What is actually embedded (§4.4) |
-| `quality`, `quality_reason` | Whether it is indexed at all (§4.5) |
-| `cited_provisions`, `cited_cases` | Deterministic cross-references (§4.6) |
+| `embed_text` | What is actually embedded (§3.4) |
+| `quality`, `quality_reason` | Whether it is indexed at all (§3.5) |
+| `cited_provisions`, `cited_cases` | Deterministic cross-references (§3.6) |
 | `act_name`, `section`, `page_start`, `page_end`, `heading_path` | Citation material |
 
-### 4.4 `embed_text`: what gets embedded is not what gets quoted
+### 3.4 `embed_text`: what gets embedded is not what gets quoted
 
 The motivating failure: Article 14 of the Constitution is *"14. Equality before
 law."* — four words. Nothing in that string tells an embedding model it is
@@ -193,7 +179,7 @@ Two rules keep this honest:
    makes every chunk of one Act look alike to the model, which destroys
    within-Act ranking — the opposite of the problem it was added to solve.
 
-### 4.5 Quality classification (`enrichment.py`)
+### 3.5 Quality classification (`enrichment.py`)
 
 Roughly a fifth of raw chunks are furniture: page numbers, tables of contents,
 registration numbers, bare headings, amendment footnotes. They are rejected at
@@ -218,7 +204,7 @@ the band it would have deleted contained 436 provisions, including Articles 7
 and 11 of the Constitution, which score low because the scan spaces its
 em-dashes.
 
-### 4.6 Citation extraction (`citations.py`)
+### 3.6 Citation extraction (`citations.py`)
 
 Deterministic regex over each chunk, producing `act_key:number` references such
 as `crpc:154` and normalised case citations. Roughly 28,000 edges across the
@@ -230,7 +216,7 @@ the containing document's own Act, or stays unresolved.** Inside the CrPC,
 out of the graph rather than guessed at — a wrong edge is worse than a missing
 one.
 
-### 4.7 Embedding (`embedder.py`, `sparse.py`)
+### 3.7 Embedding (`embedder.py`, `sparse.py`)
 
 BGE-M3 produces the dense vector (1024-d, cosine) **and** the learned sparse
 weights in **one forward pass** over the same text. Two passes would allow the
@@ -245,14 +231,14 @@ hybrid-search bug.
 Vectors are cached per document, so an interrupted run resumes without
 re-embedding what it already did.
 
-### 4.8 Writing and indexing (`qdrant_writer.py`, `init_qdrant.py`)
+### 3.8 Writing and indexing (`qdrant_writer.py`, `init_qdrant.py`)
 
 Points carry named vectors `dense` and `sparse`, plus a payload of everything
 retrieval or citation needs. **Every field that any filter uses is indexed** —
 verified by a check in `scripts/verify_retrieval_health.py`, because an
 unindexed filter field turns a filtered query into a full scan.
 
-### 4.9 Resumability
+### 3.9 Resumability
 
 A 25,000-chunk build takes hours and will be interrupted. It has been, three
 times — once by a sandbox permission error, twice by Docker stopping underneath
@@ -268,11 +254,13 @@ it.
 
 ---
 
-## 5. Retrieval, in detail
+---
+
+## 4. Retrieval, in detail
 
 `backend/app/services/retrieval.py`.
 
-### 5.1 Hybrid search with server-side fusion
+### 4.1 Hybrid search with server-side fusion
 
 One query embedding produces both a dense and a sparse vector. Both are sent to
 Qdrant in a single `query_points` call with two prefetch branches, and **Qdrant
@@ -285,7 +273,7 @@ code. The Qdrant version is pinned for exactly that reason.
 Query embeddings are cached, keyed by **model name and dimension as well as the
 query text** — otherwise a model change silently serves vectors from the old one.
 
-### 5.2 The distinctive-term gate (abstention)
+### 4.2 The distinctive-term gate (abstention)
 
 The mechanism that lets the system decline. For each query, term document
 frequencies are counted across the corpus; the **rarest band** is required to
@@ -310,7 +298,7 @@ Two corrections were needed before this worked on real phrasing:
 Measured effect: abstention accuracy 0.33 → 0.67 → **0.83**, with false
 abstention driven from 0.28 to 0.00 at the time of that change.
 
-### 5.3 Preferring the law in force
+### 4.3 Preferring the law in force
 
 The corpus holds 5,387 chunks of repealed codes against 1,026 of their
 replacements. Retrieval is volume-sensitive, so the repealed provision wins on
@@ -326,7 +314,7 @@ keeps its place, because the old codes still govern conduct from before July
 
 Measured: R@1 0.39 → 0.44, R@5 0.67 → 0.72, with abstention unchanged.
 
-### 5.4 Case scoping
+### 4.4 Case scoping
 
 Private collections (`police_case_data`, `advocate_case_data`) hold one matter's
 evidence. `case_ids` is applied only when non-empty — correct for the public
@@ -336,14 +324,14 @@ A private-corpus query with no case scope therefore **fails at the shared search
 entry point** rather than returning someone else's evidence. This is structural,
 not conventional, because the police and advocate modules will add call sites.
 
-### 5.5 Supersession filtering
+### 4.5 Supersession filtering
 
 `exclude_superseded` excludes points where `is_superseded` is **explicitly
 true** (`must_not`), not points where it is false (`must`). The field is
 tri-state in practice — true, false, or absent on an index built before it
 existed — and a positive match on `false` excluded the entire corpus.
 
-### 5.6 Reranking is off, and why
+### 4.6 Reranking is off, and why
 
 A `bge-reranker-v2-m3` cross-encoder is wired in and **disabled by default**.
 
@@ -369,7 +357,7 @@ of that rule now applies only when there is a cross-encoder score to judge.
 
 ---
 
-### 5.7 Following citations to the law in force
+### 4.7 Following citations to the law in force
 
 The deepest retrieval defect in this project, and the one the other symptoms
 sat on top of.
@@ -388,7 +376,7 @@ provision came back".
 
 What does rank for those questions is judgments, and they cite the repealed
 codes -- CrPC s.154 for the FIR, s.438 for anticipatory bail -- because they
-predate the Sanhitas. The concordance (§9.4) says where those provisions
+predate the Sanhitas. The concordance (§8.4) says where those provisions
 went. So `citation_following.py` reads what the retrieved passages rely on,
 follows it forward, and fetches the result. It is how a lawyer works: read
 the commentary, follow it to the statute.
@@ -416,13 +404,15 @@ what the question needs.
 
 ---
 
-## 6. The two lanes
+---
+
+## 5. The two lanes
 
 The router (`adaptive_routing.py`) picks a lane per question. Any signal of
 complexity — a case-scoped matter, multiple issues, a request for analysis —
 goes Deep. No signal goes Fast.
 
-### 6.1 Fast — an evidence brief
+### 5.1 Fast — an evidence brief
 
 `fast_research.py`. Retrieval and citation only: **no LLM call**. Returns in
 **~90–230 ms**.
@@ -439,14 +429,16 @@ With warm models and the reranker input capped it is now ~91 ms, and the
 relevance difference was not marginal: asked to explain Article 14, the lexical
 lane returned the Model Prison Manual.
 
-### 6.2 Deep — the agent graph
+### 5.2 Deep — the agent graph
 
 Full LangGraph pipeline with claim-level verification, **53.0 s p50** measured over 61 questions. Long-running
-requests become durable jobs (§14.4) with progress reporting.
+requests become durable jobs ([04-OPERATIONS](04-OPERATIONS.md) §1.4) with progress reporting.
 
 ---
 
-## 7. The agent graph
+---
+
+## 6. The agent graph
 
 `backend/app/agents/orchestrator.py`. Five real nodes.
 
@@ -456,7 +448,7 @@ requests become durable jobs (§14.4) with progress reporting.
 | `query_understanding` | Structured JSON: intent, entities, statutory references, filters |
 | `retrieval` | Hybrid search across the public corpus and, if authorised, one case |
 | `reasoning` | Emits **structured claims**, each naming the chunk IDs supporting it |
-| `verification` | Grades every claim against its own sources (§8) |
+| `verification` | Grades every claim against its own sources (§7) |
 | `response_generation` | Publishes only verified claims, with citations |
 
 A failed verification can route back to retrieval, **at most twice**. The retry
@@ -472,7 +464,9 @@ agent cannot ship unversioned — a test walks `app/` and asserts it.
 
 ---
 
-## 8. Verification
+---
+
+## 7. Verification
 
 The core safety property, and the thing that distinguishes this from a
 summariser.
@@ -484,7 +478,7 @@ summariser.
 4. A claim citing a chunk ID absent from the retrieved set is dropped, in code.
 5. `publication.py` decides whether what survived is worth publishing at all.
 
-### 8.1 The publication gate
+### 7.1 The publication gate
 
 Abstention was decided on `verification.score < 0.5`. That score is a *ratio* --
 verified claims over all claims attempted -- so the gate punished thoroughness:
@@ -507,7 +501,7 @@ The gate is now on absolute sufficiency:
 | otherwise | publish |
 
 The floor is a fabrication guard, not a quality bar. Quality is carried by
-per-section confidence (§8.2). The retry branch applies the same test, so the
+per-section confidence (§7.2). The retry branch applies the same test, so the
 graph cannot retry a result it would have published.
 
 This is not a relaxation of verification. Each claim is still judged against its
@@ -515,7 +509,7 @@ own chunk and only `yes` claims are published; what changed is that rejected
 siblings no longer suppress the survivors, which they were never evidence
 against.
 
-### 8.2 Per-section confidence (`section_confidence.py`)
+### 7.2 Per-section confidence (`section_confidence.py`)
 
 One number for a whole answer hides the case that matters: an answer can state
 the governing provision from the Sanhita and then draw its practical steps from
@@ -545,9 +539,11 @@ one. Fixing it moved the score to 0.923.
 
 ---
 
-## 9. Currency and repeal
+---
 
-### 9.1 The resolver (`currency.py`)
+## 8. Currency and repeal
+
+### 8.1 The resolver (`currency.py`)
 
 Deterministic. Returns one of three answers for any cited authority:
 
@@ -565,7 +561,7 @@ field was written by ingestion but added after the index was built, so all
 25,517 points of that earlier build held `None` and every one of those guards evaluated false forever
 while reading as protective.
 
-### 9.2 Failing closed, in three cases not two
+### 8.2 Failing closed, in three cases not two
 
 | Case | May ground a published claim |
 |---|---|
@@ -578,7 +574,7 @@ Collapsing the first two produces a wrong answer rather than no answer.
 Curated coverage: 18 authorities, 9,770 chunks. After migration: 6,131 in force,
 3,821 superseded, 15,181 unverified.
 
-### 9.3 Two labels (`repeal_labels.py`)
+### 8.3 Two labels (`repeal_labels.py`)
 
 | Label | Applies to |
 |---|---|
@@ -591,7 +587,7 @@ already existed: `source_type` distinguishes the authority (ACT, RULE,
 NOTIFICATION, ORDER) from material about it, and the citation extractor supplies
 the references.
 
-### 9.4 Section mapper (`section_mapping.py`)
+### 8.4 Section mapper (`section_mapping.py`)
 
 Bidirectional lookup over IPC/BNS, CrPC/BNSS and IEA/BSA. **2,596 pairs, built
 from the National Crime Records Bureau's published correspondence tables** by
@@ -625,7 +621,7 @@ Three properties the official data forced into the code:
 
 > **Status: `official_source`.** Every consumer surfaces it.
 
-### 9.5 Authority check (`authority_check.py`)
+### 8.5 Authority check (`authority_check.py`)
 
 The advocate-facing use of the concordance: paste a draft, and every provision
 it cites is checked against the codes in force. Deterministic — citations come
@@ -641,7 +637,9 @@ reads as "checked and fine".
 
 ---
 
-## 10. Safety screening
+---
+
+## 9. Safety screening
 
 `citizen_safety.py`, before retrieval.
 
@@ -668,9 +666,11 @@ would be weakening a safety check.
 
 ---
 
-## 11. Security model
+---
 
-### 11.1 Authentication and authorisation
+## 10. Security model
+
+### 10.1 Authentication and authorisation
 
 JWT access and refresh tokens; refresh tokens are single-use with reuse
 detection and a `jti` denylist. Permissions are database-driven
@@ -683,7 +683,7 @@ detection and a `jti` denylist. Permissions are database-driven
 | advocate | yes | yes | yes |
 | admin | yes | yes | yes |
 
-### 11.2 Case isolation
+### 10.2 Case isolation
 
 The boundary the police and advocate modules are built on.
 
@@ -697,7 +697,7 @@ The boundary the police and advocate modules are built on.
 - Evidence is stamped with `case_id`, `document_id`, `uploaded_by` and
   `corpus_scope` at index time.
 
-### 11.3 The red-team suite
+### 10.3 The red-team suite
 
 36 tests over `{citizen, police, police_two, advocate, advocate_two, admin}` ×
 `{general, named matter}` × `{own, sibling in the same collection, other role,
@@ -714,7 +714,7 @@ police and advocate cases lived in different collections and the collection
 boundary was doing the tenant filter's job. Adding same-role siblings took it
 from 1 detector to 10.
 
-### 11.4 Privacy
+### 10.4 Privacy
 
 A citizen's question is often the most sensitive thing they will type. It travels
 in a request body, never a URL. The access log records request id, method, path,
@@ -724,286 +724,9 @@ properties are asserted by tests.
 
 ---
 
-## 12. Features by role
-
-### Citizen — built
-Plain-language answers with citations · Fast and Deep lanes · emergency and
-refusal screening · abstention on corpus gaps · repeal and currency labelling ·
-per-section grounding shown under each answer · source inspector · document
-upload and analysis · feedback · session history · follow-up questions routed to
-the lane that can resolve them.
-
-### Citizen — not built
-Rights explainer (C-04) · forum router (C-05) · drafting beyond FIR facts (C-06)
-· multilingual (C-07) · upload redaction (C-02).
-
-### Police — built
-Case creation and evidence upload · private case corpus with proven isolation ·
-FIR fact extraction and drafting · role profile and specialist prompts ·
-**statutory investigation timeline** (nine BNSS deadlines, persisted) ·
-**BNSS compliance record** across four actions (arrest, search and seizure, case
-diary, final report — 24 requirements plus four conditional) · **citation
-currency check**.
-
-The investigation workflow is complete. What is not built is anything beyond
-the BNSS: no state police manual coverage, no court-stage tracking.
-
-### Advocate — built
-Case corpus · defence strategy agent producing two-sided analysis with adverse
-arguments · authority mapping · **citation currency check** · four specialist
-personas selected deterministically by keyword (defence strategy, authority
-mapper, evidence challenge, precedent comparator), which are prompt profiles on
-the shared graph rather than separate surfaces.
-
-### Advocate — not built
-The debate room. §15 explains what it will cost, and it is deliberately parked.
-
-### Admin — built
-User management · corpus statistics · ingestion progress · audit log.
-Deliberately **cannot** reach private case material through a general search.
-
-### Per-role answer shape
-
-The same five verified categories are named for what each role reads for. An
-officer reading "Practical next steps" reads advice; the BNSS imposes
-obligations, so the police heading is "Required procedural steps". An advocate
-needs the contrary case flagged as such, not filed under "uncertainties".
-
-| category | citizen | police | advocate |
-|---|---|---|---|
-| legal_basis | Why this is the legal position | Governing provision and legal basis | Authority and legal basis |
-| application | How this applies to you | Application to this matter | Application to these facts |
-| next_step | What you can do now | Required procedural steps | Steps available |
-| limit | Important limits | Safeguards, limits and uncertainties | Contrary considerations, limits and gaps |
-
-These headings are an interface, not decoration:
-`frontend/lib/answer-presentation.ts` sorts an answer into basis, limits, footer
-and body by matching them. Both sides pin the same fifteen strings, and a rename
-fails on both.
-
 ---
 
-## 13. Evaluation
-
-Two separate questions, measured separately, because the answer to the first
-tells you nothing about the second: **does retrieval find the right law**, and
-**is the answer any good**.
-
-### 13.1 Golden set
-
-`data/legal_kb/evaluation/golden_set_v3.json` — 61 items: 29 citizen, 25 police,
-7 advocate; 55 answerable and 6 expected abstentions.
-
-Design constraints:
-
-- **Relevance never pins to a chunk ID.** Chunk IDs are content-addressed and
-  change on every re-chunk, which is exactly when the set is needed. Items name
-  an Act, a section, or a distinctive phrase.
-- **Drawn from classes the heuristics were never tuned against**, because
-  scoring the cases a heuristic was written for measures the heuristic.
-- **Every answerable item was verified against the corpus first**, so a miss is a
-  retrieval failure and not an unwinnable item.
-- **False abstention is scored**, because tightening the gate looks free
-  otherwise.
-- **45 ground expectations across 10 answering items**, each authored by reading
-  the Act out of this corpus — BNSS ss.35, 43, 47, 187, 482; BSA s.26; BNS
-  s.303 — and each recording `grounds_source`. Authoring expectations from what
-  the system already says is how an evaluation certifies its own subject.
-
-### 13.2 Retrieval metrics
-
-Recall@1/5/20 · MRR · nDCG@10 · **citation accuracy@5** · abstention accuracy ·
-false abstention rate · latency — each reported **per role as well as pooled**,
-because a pooled average lets one audience rot behind another.
-
-Citation accuracy is separate from recall on purpose: recall asks whether the
-governing authority came back anywhere, citation accuracy asks what fraction of
-what the reader is *shown* is correct.
-
-> **What recall does not measure, and this took months to notice.** Relevance
-> predicates match any passage *containing* a phrase, so a judgment quoting
-> BNSS s.173 satisfies the FIR item while the section itself is absent from the
-> top 100. Recall@5 read 0.927 while the governing provision could not be
-> reached for four of six core questions (§5.7). A recall metric over
-> phrase-matching predicates measures topical coverage, not authority. The
-> per-question provision check in §5.7 is the instrument that found it, and
-> nothing in the golden set replaces it.
-
-### 13.3 Answer metrics (`app/evaluation/answer_quality.py`)
-
-Retrieval finding the law is necessary and not sufficient. A change can leave
-retrieval untouched and still take ground coverage from 0.67 to 0.50 by altering
-a prompt — which happened here, with the retrieval gate green throughout.
-
-| metric | asks |
-|---|---|
-| unsupported claim rate | did any published claim cite evidence that was never retrieved |
-| abstention correctness | did it refuse exactly when it should have |
-| ground coverage | what fraction of the statutory grounds did it name |
-| currency correctness | did it disclose what the resolver says it must |
-| reading grade | can the intended reader read it |
-
-They are deliberately **not averaged into one score**. An answer that reads well
-and cites a repealed section is not "70% good"; it is wrong in one specific way,
-and a composite hides which.
-
-Three properties of the aggregation, each because the alternative moves the
-number for a reason that is not an improvement: an item with no authored grounds
-is excluded rather than scored 1.0 or 0.0; unsupported claims are summed, never
-averaged, because a rule admits no rate; and currency is scored only on items
-that owed a disclosure.
-
-### 13.4 Recorded baselines and the CI gates
-
-| baseline | value |
-|---|---|
-| recall@5 | 0.927 |
-| citation accuracy@5 | 0.638 |
-| abstention correctness | 0.836 |
-| ground coverage | 0.474 (7 scored items) |
-| currency correctness | 0.632 |
-| unsupported claims | **0** |
-| latency p50 | 53.0 s |
-
-`check_quality_gate.py` guards retrieval at ±0.02. `check_answer_gate.py` guards
-the answer metrics at ±0.05 — wider, because generation is sampled — and treats
-unsupported claims as **a rule, not a metric**: no tolerance reaches it, and it
-cannot be recorded into a baseline, because a baseline containing a violation
-makes the next one show as no change.
-
-Every result records the collection, golden set, embedding and generation
-models, sampling settings and all six prompt fingerprints. Temperature is 0.0
-and no seed is set; the record says `seeded: false` and `decoding: greedy`
-rather than leaving the field null, because "no seed was set" and "the field was
-not read" must not look the same.
-
-### 13.5 Three CI groups
-
-| Group | Asks |
-|---|---|
-| **Correctness** | Does the code do what it was told? (956 tests) |
-| **Security** | Can a caller reach another tenant's evidence? (36 tests, plus a structural check that every `{case_id}` route enforces ownership) |
-| **Quality** | Does retrieval find the right law, and is the answer any good? (61 golden items, both gates) |
-
----
-
-## 14. Operations
-
-### 14.1 Running it
-
-```bash
-docker compose --env-file .env -f docker/docker-compose.yml up -d --wait postgres qdrant minio
-cd backend && python -m alembic upgrade head
-python -m app.ingestion.init_qdrant && python -m app.ingestion.init_storage
-python -m uvicorn main:app --host 127.0.0.1 --port 8000
-cd ../frontend && npm run dev
-```
-
-### 14.2 Configuration that matters
-
-| Setting | Default | Note |
-|---|---|---|
-| `QDRANT_GLOBAL_COLLECTION` | `global_legal_corpus` | **The cutover switch.** Building a new index in parallel and switching is one env var, so rollback is a restart |
-| `CROSS_ENCODER_RERANKING_ENABLED` | `false` | §5.6 |
-| `REPEALED_RANK_PENALTY` | `3` | Rank places, not score |
-| `OLLAMA_MODEL` | `qwen3-14b-16k` | A model advertising fewer than 8B parameters **refuses to boot** (§14.3) |
-| `EXPECT_ACCELERATED_INFERENCE` | `false` | Set true to fail startup on CPU inference |
-
-`.env` describes the **host's** view so a natively-run backend works; the compose
-file pins the container-internal addresses itself. Configuration is anchored to
-the repository, not the working directory — a relative `.env` meant the same
-command loaded different config from different folders, and fell back to
-development credentials without saying so.
-
-### 14.3 The model-tier boot assertion
-
-One model performs reasoning, verification and response generation. A weaker
-model there does not fail visibly — it **approves claims it should refuse**,
-which raises the verification score while making answers less trustworthy. The
-application refuses to start if `OLLAMA_MODEL` advertises fewer than 8B
-parameters, unless `ALLOW_SMALL_REASONING_MODEL=1` is set deliberately.
-
-### 14.4 Durable jobs
-
-Deep requests exceeding the sync budget become jobs in PostgreSQL. A worker
-claims them with `FOR UPDATE SKIP LOCKED`, so several workers are safe. Progress
-is polled; an SSE stream exists and is tested but unused by the client.
-
-### 14.5 Hardware
-
-Measured on Apple M5 Pro, 24 GB unified memory:
-
-| Component | Resident |
-|---|---:|
-| `qwen3-14b-16k` (100% GPU, 16,384 ctx) | 11.66 GB |
-| BGE-M3 (MPS, fp16) | 1.14 GB |
-| Cross-encoder (MPS, fp16) | 1.13 GB |
-| Containers + Docker VM | ~2.13 GB |
-
-**Serving alone fits at ~20–21 GB. Serving plus ingestion does not** — that
-combination produced 30.6 GB of swap and 0.16 GB free. Model weights are *wired*
-and cannot page out.
-
-A two-tier model strategy does not resolve this: 11.66 + 2.50 GB means both
-tiers cannot be resident, so "two-tier" here means swapping models with a reload
-each time.
-
----
-
-## 15. Known limitations
-
-Each is measured, and each has a stated direction rather than a shrug. Measured
-6 September 2026 against `global_legal_corpus_v3`.
-
-1. **Ground coverage is 0.474.** Answers that do publish name under half the
-   statutory grounds. On `arrest-current-law` the answer names six of the ten
-   grounds in BNSS s.35(1) and misses *proclaimed offender* and *stolen
-   property* — **both of which were retrieved**. So this is reasoning dropping
-   evidence, not retrieval failing to find it, and it is the next thing to fix.
-2. **Latency p50 is 102.6 s**, against a 90 s target. The publication gate change
-   should reduce it — a broad question no longer retries twice before being
-   discarded — but that is a prediction, not a measurement.
-3. **Statutory vocabulary still limits retrieval, though less.** Following
-   citations (§5.7) recovers the governing provision for the FIR,
-   anticipatory-bail and dying-declaration questions, which retrieval could
-   not reach at all. Two known misses remain: default bail, where the
-   passages cite CrPC ss.437 and 437A and so lead to the BNSS bail sections
-   rather than to s.187, and theft, where the retrieved judgments happen not
-   to cite IPC ss.378 or 379. Both are the same shape -- following citations
-   reaches what the sources rely on, which is not always what the question
-   needs -- and neither is fixed by ranking.
-4. **Reading grade is 14.4** across all roles, 14.1 for citizens. That is
-   undergraduate level for an audience that includes people with no legal
-   training. Statutory prose is polysyllabic by nature, so the figure runs high
-   for any correct answer, but it is not where a citizen surface should sit.
-5. **One corpus gap is still answered.** `noise-pollution` produces an answer
-   where the corpus has nothing — the only failure in the dangerous direction,
-   and worth more than the eight in the safe one.
-6. **60% of chunks have unverified currency.** Honestly labelled, not assumed.
-   Most of the uncovered mass is judgments and Law Commission reports, for which
-   "unverified" is the correct answer; there are **zero** uncurated statutory
-   instruments.
-7. **`is_current` is false corpus-wide** by design: every manifest row's status
-   ends in "verify", and an unverified status must not be asserted as current.
-8. **Civil law is absent, not thin.** The corpus is 63% criminal law and holds
-   zero Acts for contract, tenancy, consumer protection or environmental
-   nuisance. The system abstains correctly on all of them; see
-   [CORPUS_GAPS.md](CORPUS_GAPS.md) for what closing them would cost and why
-   three of the four hosts are currently unreachable.
-9. **The advocate evaluation slice is 7 items** — too few to tune against, and
-   its abstention correctness of 0.71 rests on two failures.
-10. **There is no v2 answer-quality run**, so the answer baseline is a baseline
-    and not a comparison: none of it can be attributed to v3 rather than to the
-    pipeline.
-11. **The debate room would take 12–16 minutes** at roughly 25 sequential model
-    calls. Deliberately parked.
-12. **Sub-provision structural roles never populate**: chunks containing a
-    proviso are not labelled one, because the patterns anchor at chunk start and
-    a 700-token chunk holds many.
-
----
-
-## 16. Module map
+## 11. Module map
 
 **Ingestion** — `backend/app/ingestion/`
 

@@ -1,12 +1,82 @@
-# Corpusil — Operations
+# 04 — Operations
 
-Running it, releasing it, and sharing one instance with a small group. The
-architecture behind these procedures is in [PRD.md](PRD.md); current pending
-work is in [NEXT_STEPS.md](NEXT_STEPS.md).
+*How to run it, build the corpus, and cut a release. Commands are meant to be
+copied.*
 
 ---
 
-## 1. Local development
+## 1. The system in operation
+
+### 1.1 Running it
+
+```bash
+docker compose --env-file .env -f docker/docker-compose.yml up -d --wait postgres qdrant minio
+cd backend && python -m alembic upgrade head
+python -m app.ingestion.init_qdrant && python -m app.ingestion.init_storage
+python -m uvicorn main:app --host 127.0.0.1 --port 8000
+cd ../frontend && npm run dev
+```
+
+### 1.2 Configuration that matters
+
+| Setting | Default | Note |
+|---|---|---|
+| `QDRANT_GLOBAL_COLLECTION` | `global_legal_corpus` | **The cutover switch.** Building a new index in parallel and switching is one env var, so rollback is a restart |
+| `CROSS_ENCODER_RERANKING_ENABLED` | `false` | §5.6 |
+| `REPEALED_RANK_PENALTY` | `3` | Rank places, not score |
+| `OLLAMA_MODEL` | `qwen3-14b-16k` | A model advertising fewer than 8B parameters **refuses to boot** (§14.3) |
+| `EXPECT_ACCELERATED_INFERENCE` | `false` | Set true to fail startup on CPU inference |
+
+`.env` describes the **host's** view so a natively-run backend works; the compose
+file pins the container-internal addresses itself. Configuration is anchored to
+the repository, not the working directory — a relative `.env` meant the same
+command loaded different config from different folders, and fell back to
+development credentials without saying so.
+
+### 1.3 The model-tier boot assertion
+
+One model performs reasoning, verification and response generation. A weaker
+model there does not fail visibly — it **approves claims it should refuse**,
+which raises the verification score while making answers less trustworthy. The
+application refuses to start if `OLLAMA_MODEL` advertises fewer than 8B
+parameters, unless `ALLOW_SMALL_REASONING_MODEL=1` is set deliberately.
+
+### 1.4 Durable jobs
+
+Deep requests exceeding the sync budget become jobs in PostgreSQL. A worker
+claims them with `FOR UPDATE SKIP LOCKED`, so several workers are safe. Progress
+is polled; an SSE stream exists and is tested but unused by the client.
+
+### 1.5 Hardware
+
+Measured on Apple M5 Pro, 24 GB unified memory:
+
+| Component | Resident |
+|---|---:|
+| `qwen3-14b-16k` (100% GPU, 16,384 ctx) | 11.66 GB |
+| BGE-M3 (MPS, fp16) | 1.14 GB |
+| Cross-encoder (MPS, fp16) | 1.13 GB |
+| Containers + Docker VM | ~2.13 GB |
+
+**Serving alone fits at ~20–21 GB. Serving plus ingestion does not** — that
+combination produced 30.6 GB of swap and 0.16 GB free. Model weights are *wired*
+and cannot page out.
+
+A two-tier model strategy does not resolve this: 11.66 + 2.50 GB means both
+tiers cannot be resident, so "two-tier" here means swapping models with a reload
+each time.
+
+---
+
+---
+
+Running it, releasing it, and sharing one instance with a small group. The
+architecture behind these procedures is in [02-ARCHITECTURE](02-ARCHITECTURE.md); current pending
+work is in [06-PLAN](06-PLAN.md).
+
+---
+
+## 2. Local development
 
 Every service is loopback-only. Nothing but Tailscale (§4) ever exposes a port.
 
@@ -124,14 +194,14 @@ dependency must be reportable, not fatal to the report.
 
 ---
 
-## 2. Corpus ingestion
+## 3. Corpus ingestion
 
 ```bash
 # Full build
 cd backend && python -m app.ingestion.pipeline --resume
 
 # Re-chunk only: re-runs parsing, chunking and embedding from cached
-# extracted text, without re-OCRing 381 documents
+# extracted text, without re-OCRing every document
 python -m app.ingestion.pipeline --rechunk --resume
 
 # Supervised: brings the stack up, resumes, repeats until complete
@@ -158,7 +228,7 @@ rollback a restart rather than another re-index.
 
 ---
 
-## 3. Desktop release
+## 4. Desktop release
 
 Distributed as a signed Tauri client for macOS and Windows, published through
 GitHub Releases with the built-in updater.
@@ -175,7 +245,7 @@ the host rather than bundling a model.
 
 ---
 
-## 4. Sharing one instance with a small group
+## 5. Sharing one instance with a small group
 
 The chosen shape for a pilot: **one backend on the strongest machine, thin
 clients over a private Tailscale network.** The alternative — a complete stack
@@ -209,7 +279,7 @@ not more API workers.
 
 ---
 
-## 5. Demo walkthrough
+## 6. Demo walkthrough
 
 Sign in as each role to show what changes. The corpus is identical; the role
 changes the objective, the response contract and the safety boundary.
@@ -237,7 +307,7 @@ matter does, and is auditable.
 
 ---
 
-## 6. Backups
+## 7. Backups
 
 State lives in three Docker volumes — PostgreSQL, Qdrant and MinIO — plus
 `data/legal_kb/` on disk. `docker compose down -v` **deletes all three volumes**.

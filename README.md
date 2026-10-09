@@ -10,7 +10,7 @@ backend/                 FastAPI application, migrations, ingestion, retrieval, 
 frontend/                Next.js 14 static-export UI and Tauri v2 desktop scaffold
 docker/                  Compose stack and backend image
 scripts/                 Operational and corpus-management utilities
-docs/                    Architecture reference, operations, pending work, evidence
+docs/                    The six project documents, plus evidence and academic material
 data/legal_kb/           Versioned active Gold corpus and generated artifacts
 data/source_materials/   Inactive legacy sources and candidate imports
 ```
@@ -22,10 +22,15 @@ deduplication, and quality validation.
 
 ## Start here
 
-- What the system is and how every part works: [`docs/PRD.md`](docs/PRD.md)
-- Running, releasing, sharing and backing it up: [`docs/OPERATIONS.md`](docs/OPERATIONS.md)
-- Milestone plan from the current system to the target product: [`docs/PRODUCT_ROADMAP.md`](docs/PRODUCT_ROADMAP.md)
-- Current corpus-quality plan and release gates: [`docs/evidence/corpus/COVERAGE_DRIVEN_PLAN.md`](docs/evidence/corpus/COVERAGE_DRIVEN_PLAN.md)
+Six documents, indexed at [`docs/README.md`](docs/README.md). These are the
+documents we follow.
+
+- What Corpusil is, and every feature with its state: [`docs/01-PRODUCT.md`](docs/01-PRODUCT.md)
+- How it works, component by component: [`docs/02-ARCHITECTURE.md`](docs/02-ARCHITECTURE.md)
+- How it is measured, and what is still wrong: [`docs/03-EVIDENCE.md`](docs/03-EVIDENCE.md)
+- Running it, building the corpus, cutting a release: [`docs/04-OPERATIONS.md`](docs/04-OPERATIONS.md)
+- Where data lives and how it ships: [`docs/05-RELEASE.md`](docs/05-RELEASE.md)
+- What we build next, in what order: [`docs/06-PLAN.md`](docs/06-PLAN.md)
 - Measurements, with the configuration each was taken under: [`docs/evidence/`](docs/evidence/)
 
 Do not commit `.env`, start overlapping ingestion workers, or use

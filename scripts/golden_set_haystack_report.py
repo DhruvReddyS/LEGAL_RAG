@@ -9,7 +9,7 @@ gate exists to detect.
 
 The golden set cannot answer it either. Its predicates are phrases --
 `{"contains": "reasonable restrictions"}` -- not document identities, which is
-the weakness NEXT_STEPS.md already records: "the golden set's predicates match
+the weakness docs/03-EVIDENCE.md already records: "the golden set's predicates match
 any passage containing a phrase, so a judgment quoting the section satisfies
 the item". Recall@5 once read 0.927 while the governing provision was absent
 from the top 100.

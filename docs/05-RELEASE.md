@@ -1,6 +1,20 @@
-# Release, Deployment, and Data-Flow Plan
+# 05 — Release and deployment
 
-## Release model
+*Where data lives, how the product ships, and the stages between a private
+pilot and general availability.*
+
+The build phases in [06-PLAN](06-PLAN.md) say **what** gets built. The stages
+in §5 here say **how far it is exposed**, and the two advance independently:
+Stage C (website release) needs WEB-01…05 from Phase 3, and Stage D needs
+PLAT-05.
+
+The interactive, source-linked diagram is
+`architecture/release-deployment-architecture.html`.
+
+---
+
+
+## 1. Release model
 
 The GitHub Release is a client distribution channel, not a complete hosted service. The release workflow builds signed Tauri installers and updater metadata for macOS and Windows, creates a draft GitHub Release, verifies its artifacts, and intentionally leaves publication as a manual decision.
 
@@ -8,7 +22,7 @@ The desktop installer contains the statically exported Next.js interface. It doe
 
 The website uses the same Next.js static export. It can be hosted on any HTTPS static host, but this repository does not yet contain a website deployment workflow or hosting infrastructure. Its configured API URL must point to a separately deployed FastAPI backend.
 
-## User experience by role
+## 2. User experience by role
 
 | Role | Onboarding | Shared corpus | Private case material |
 |---|---|---|---|
@@ -18,7 +32,7 @@ The website uses the same Next.js static export. It can be hosted on any HTTPS s
 
 A named police or advocate case query searches the global corpus and that role's private vector collection together. Private retrieval fails closed unless a valid `case_id` filter is present, and ownership checks return not-found for another user's case.
 
-## Where data lives
+## 3. Where data lives
 
 ### Global corpus
 
@@ -39,7 +53,7 @@ A named police or advocate case query searches the global corpus and that role's
 
 PostgreSQL, MinIO, Qdrant, Ollama, and their ports belong on the private data plane. Only the HTTPS API should be reachable by clients.
 
-## Communication path
+## 4. Communication path
 
 1. A browser or Tauri client calls the configured FastAPI HTTPS endpoint and sends the HttpOnly session cookie.
 2. FastAPI authenticates the user, checks role permissions, and enforces case ownership.
@@ -49,16 +63,16 @@ PostgreSQL, MinIO, Qdrant, Ollama, and their ports belong on the private data pl
 6. The answer, citations, confidence data, and chat history are stored in PostgreSQL and returned to the client.
 7. Large files are transferred through the backend or short-lived presigned URLs; storage credentials are never given to the client.
 
-## Deployment plan
+## 5. Deployment stages
 
-### Phase 0 — release readiness
+### Stage A — release readiness
 
 - Keep `main` green in backend, frontend, correctness, and security CI.
 - Set release version, release notes, signing identity, and Tauri updater keys.
 - Tag `v*`; let the workflow produce and verify the draft GitHub Release.
 - Manually inspect installers, signatures, updater manifest, and release notes before publishing the draft.
 
-### Phase 1 — private pilot
+### Stage B — private pilot
 
 - Use one strong private host for Docker services and Ollama.
 - Persist and back up PostgreSQL, MinIO, Qdrant, Ollama models, and `data/legal_kb`.
@@ -67,7 +81,7 @@ PostgreSQL, MinIO, Qdrant, Ollama, and their ports belong on the private data pl
 - Create police and advocate accounts administratively; allow citizens to self-register only if the pilot requires them.
 - Run restore drills for case files and PostgreSQL before accepting real matters.
 
-### Phase 2 — website release
+### Stage C — website release
 
 - Add a deployment workflow for the static `frontend/out` artifact.
 - Host the UI behind HTTPS and set its API base URL to the hardened backend.
@@ -75,7 +89,7 @@ PostgreSQL, MinIO, Qdrant, Ollama, and their ports belong on the private data pl
 - Validate cross-origin cookie behavior, `SameSite`, CORS, trusted hosts, CSRF protections, and logout/refresh flows on the production domains.
 - Keep databases and model endpoints private; a public website does not imply a public data plane.
 
-### Phase 3 — production hardening and scale
+### Stage D — production hardening and scale
 
 - Move PostgreSQL, object storage, and vector storage to managed or independently backed-up services.
 - Separate API, ingestion/job workers, and model workers so long OCR or deep-review jobs cannot starve interactive traffic.
@@ -83,7 +97,7 @@ PostgreSQL, MinIO, Qdrant, Ollama, and their ports belong on the private data pl
 - Add tenant-level authorization tests, malware scanning for uploads, data-retention/deletion controls, privacy notices, incident response, and legal review.
 - Load-test retrieval, uploads, concurrent model inference, and updater rollout before general availability.
 
-## Recommended launch decision
+## 6. Recommended launch decision
 
 Use the current architecture for a controlled, private pilot. Do not expose the current single-host Compose stack directly to the public internet. A public website is safe only after the backend ingress, secrets, storage isolation, backup/restore, monitoring, abuse controls, and privacy operations in Phases 2 and 3 are in place.
 
