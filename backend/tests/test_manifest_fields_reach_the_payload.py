@@ -36,6 +36,7 @@ import pytest
 from app.ingestion.chunker import LegalChunk
 from app.ingestion.metadata import CanonicalDocument
 from app.ingestion.qdrant_writer import legal_chunk_payload
+from scripts.backfill_manifest_payload import FIELDS as BACKFILLED_FIELDS
 
 
 MANIFEST = Path(__file__).parents[2] / "data/legal_kb/metadata/canonical_documents.jsonl"
@@ -196,3 +197,13 @@ def test_the_allowlist_does_not_hide_a_field_that_is_in_fact_carried() -> None:
             f"{field} is declared on the document model but listed as "
             "acquisition-only; the list is now misleading"
         )
+
+
+def test_every_reader_facing_field_can_reach_the_already_running_v5_build() -> None:
+    """v5 loaded the manifest before the newest chunk field existed.
+
+    The post-build repair is therefore part of the field's delivery path for
+    this release. Omitting it here would make the new model correct only for a
+    hypothetical v6 while v5 still exposed no OCR-verification state.
+    """
+    assert set(CARRIED_FIELDS) <= set(BACKFILLED_FIELDS)

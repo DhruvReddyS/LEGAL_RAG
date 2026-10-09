@@ -14,6 +14,7 @@ repair only the payload fields that do not affect embeddings:
 * ``currency_note``
 * ``verified_official``
 * ``source_type``
+* ``ocr_required``
 
 It is a dry run unless ``--confirm`` is present. A write is refused while an
 ingestion worker is alive so the comparison cannot race the rebuild.
@@ -42,7 +43,13 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
 
 MANIFEST = ROOT / "data" / "legal_kb" / "metadata" / "canonical_documents.jsonl"
-FIELDS = ("source_url", "currency_note", "verified_official", "source_type")
+FIELDS = (
+    "source_url",
+    "currency_note",
+    "verified_official",
+    "source_type",
+    "ocr_required",
+)
 BATCH = 256
 
 
@@ -80,6 +87,10 @@ def manifest_payloads() -> dict[str, dict[str, Any]]:
             "currency_note": document.currency_note or "",
             "verified_official": document.verified_official,
             "source_type": document.resolved_type().value,
+            # The running v5 worker started before this manifest field was
+            # declared on CanonicalDocument/LegalChunk. Backfilling it is a
+            # payload-only repair: no text or vector changes are needed.
+            "ocr_required": bool(document.ocr_required),
         }
         for document in documents
     }
