@@ -88,6 +88,7 @@ async def indexed_payloads(collection: str) -> dict[str, dict[str, Any]]:
                 offset=offset,
                 with_payload=[
                     "document_id",
+                    "canonical_document_id",
                     "title",
                     "source_url",
                     "currency_note",
@@ -195,11 +196,35 @@ def check(
                 )
             summary.setdefault("warned_verified", []).append(title)
 
-    if require_complete and len(indexed) < len(documents):
-        failures.append(
-            f"only {len(indexed)} of {len(documents)} manifest documents are indexed; "
-            "the build is incomplete"
-        )
+    if require_complete:
+        # Completeness is counted in canonical documents, not manifest rows.
+        #
+        # De-duplication elects one member of each duplicate group and does
+        # not embed the rest -- the same Act arriving as two scans is one
+        # document to retrieval, with one set of vectors. Counting rows made
+        # this gate fail a complete v5 build: 1,566 rows, 1,563 canonical
+        # documents, all 1,563 indexed, reported as "3 documents missing".
+        # Since de-duplication is a permanent feature, the row count can never
+        # be reached and the old check could never pass.
+        expected = {
+            str(row.get("canonical_document_id") or "")
+            for row in documents.values()
+            if row.get("canonical_document_id")
+        }
+        present = {
+            str(payload.get("canonical_document_id") or "")
+            for payload in payloads.values()
+            if payload.get("canonical_document_id")
+        }
+        summary["canonical_documents_expected"] = len(expected)
+        summary["canonical_documents_indexed"] = len(present & expected)
+        unbuilt = expected - present
+        if unbuilt:
+            names = ", ".join(sorted(unbuilt)[:3])
+            failures.append(
+                f"{len(unbuilt)} of {len(expected)} canonical documents are not "
+                f"indexed; the build is incomplete. Including: {names}"
+            )
     return failures, summary
 
 
