@@ -5,6 +5,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, Field
 
+from app.ingestion.enrichment import doubled_word_ratio
 from app.ingestion.ocr import ocr_png
 
 
@@ -15,6 +16,10 @@ class ExtractedPage(BaseModel):
     extraction_method: str
     ocr_used: bool
     warnings: list[str] = Field(default_factory=list)
+    # Set when the native layer was rejected as doubled rather than as empty.
+    # It changes how an OCR result is judged, so it has to survive the gap
+    # between queuing the page and the future returning.
+    doubled_native_text: bool = False
 
 
 class ExtractedDocument(BaseModel):
@@ -175,6 +180,12 @@ def unwoven_page_text(words: list, page_width: float) -> str | None:
     return "\n".join(out)
 
 
+# A page whose long words are this proportion doubled is a broken text layer
+# rather than prose. Matches the chunk-level detector in enrichment.py, which
+# is what catches any that still reach the index.
+_DOUBLED_TEXT_LAYER_RATIO = 0.30
+
+
 def extract_pdf(
     path: Path,
     *,
@@ -208,9 +219,21 @@ def extract_pdf(
                         warnings=warnings,
                     )
                 )
-                if len(native_text.strip()) < minimum_page_characters:
+                too_short = len(native_text.strip()) < minimum_page_characters
+                # A doubled text layer is a broken text layer. Some PDFs carry
+                # every word twice -- "shall shall be be provided provided" --
+                # which extracts cleanly, passes a length check comfortably,
+                # and is unsearchable: no query matches it and any citation
+                # quoting it is gibberish. It has to reach OCR the same way an
+                # empty page does, because the native layer is worse than
+                # nothing.
+                doubled = doubled_word_ratio(native_text) >= _DOUBLED_TEXT_LAYER_RATIO
+                if too_short or doubled:
+                    pages[-1].doubled_native_text = doubled
                     pages[-1].warnings.append(
                         f"Native extraction yielded fewer than {minimum_page_characters} characters"
+                        if too_short
+                        else "Native text layer is doubled; re-reading the page with OCR"
                     )
                     try:
                         scale = ocr_dpi / 72
@@ -235,7 +258,22 @@ def extract_pdf(
             page_result = pages[page_index]
             try:
                 ocr_text = future.result()
-                if len(ocr_text.strip()) > len(page_result.original_page_text.strip()):
+                # Length is the right test for an empty page and exactly the
+                # wrong one for a doubled page: the native layer is about
+                # twice the real length, so a clean OCR is always shorter and
+                # would be thrown away. There, the test is whether the
+                # doubling is gone.
+                if page_result.doubled_native_text:
+                    improved = (
+                        doubled_word_ratio(ocr_text)
+                        < doubled_word_ratio(page_result.original_page_text)
+                        and bool(ocr_text.strip())
+                    )
+                else:
+                    improved = len(ocr_text.strip()) > len(
+                        page_result.original_page_text.strip()
+                    )
+                if improved:
                     page_result.text = ocr_text
                     page_result.extraction_method = "tesseract"
                     page_result.ocr_used = True
