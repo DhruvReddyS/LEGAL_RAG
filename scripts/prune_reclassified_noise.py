@@ -68,7 +68,7 @@ def reclassified_reason(payload: dict[str, Any]) -> str | None:
 
 
 async def run(
-    *, collection: str, confirm: bool, sample_limit: int, allow_live: bool = False
+    *, collection: str, confirm: bool, sample_limit: int, skip_reasons: frozenset[str] = frozenset(), allow_live: bool = False
 ) -> int:
     from qdrant_client import models
 
@@ -97,6 +97,7 @@ async def run(
 
         point_ids: list[Any] = []
         reasons: Counter[str] = Counter()
+        held: Counter[str] = Counter()
         affected_documents: set[str] = set()
         samples: list[dict[str, Any]] = []
         scanned = 0
@@ -121,6 +122,13 @@ async def run(
                 payload = dict(point.payload or {})
                 reason = reclassified_reason(payload)
                 if reason is None:
+                    continue
+                if skip_reasons and reason in skip_reasons:
+                    # Counted and reported, never deleted. Some reasons are
+                    # pure furniture; others sit on top of real law that a
+                    # bad text layer has mangled, and deleting those removes
+                    # the only copy of a provision the corpus has.
+                    held[reason] += 1
                     continue
                 point_ids.append(point.id)
                 reasons[reason] += 1
@@ -151,6 +159,7 @@ async def run(
                     "reclassified_noise_points": len(point_ids),
                     "affected_documents": len(affected_documents),
                     "by_reason": dict(sorted(reasons.items())),
+                    "held_back_by_reason": dict(sorted(held.items())),
                     "samples": samples,
                     "sample_limit": sample_limit,
                 },
@@ -191,6 +200,18 @@ def main() -> int:
         help="permit a confirmed deletion from the configured serving collection",
     )
     parser.add_argument("--sample-limit", type=int, default=50)
+    parser.add_argument(
+        "--hold-reason",
+        action="append",
+        default=[],
+        metavar="REASON",
+        help=(
+            "Report points with this rejection reason but never delete them. "
+            "For reasons that sit on top of real law -- doubled_text_layer is "
+            "mangled text, not furniture, and deleting it removes the only "
+            "copy of the provision the corpus has."
+        ),
+    )
     arguments = parser.parse_args()
     if arguments.sample_limit < 0:
         parser.error("--sample-limit must be zero or greater")
@@ -199,6 +220,7 @@ def main() -> int:
             collection=arguments.collection,
             confirm=arguments.confirm,
             sample_limit=arguments.sample_limit,
+            skip_reasons=frozenset(arguments.hold_reason),
             allow_live=arguments.allow_live,
         )
     )
