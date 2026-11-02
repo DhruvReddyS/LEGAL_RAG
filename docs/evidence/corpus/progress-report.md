@@ -1,6 +1,6 @@
 # Corpus expansion progress
 
-Generated 2026-10-03.
+Generated 2026-10-08.
 
 1036 canonical documents, 42,182 pages. 94 need OCR and are read
 with the English trained data, which is the only one installed.

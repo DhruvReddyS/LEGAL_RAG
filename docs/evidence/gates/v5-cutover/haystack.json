@@ -1,0 +1,963 @@
+{
+  "after": "v5",
+  "before": "v4",
+  "corpus": {
+    "after": {
+      "chunks": 134172,
+      "documents": 1563
+    },
+    "before": {
+      "chunks": 49745,
+      "documents": 737
+    },
+    "chunk_growth": 2.697
+  },
+  "golden_set": "golden_set_v3.json",
+  "growth_threshold": 2.0,
+  "items": 51,
+  "phrases_after": {
+    "age of consent": 4,
+    "anticipatory bail": 28,
+    "arms licence": 11,
+    "arrest memo": 9,
+    "atrocities": 49,
+    "bail": 274,
+    "cancellation of bail": 12,
+    "case diary": 31,
+    "chain of custody": 11,
+    "charge sheet": 65,
+    "child friendly": 21,
+    "child in need of care": 20,
+    "community service": 31,
+    "compensation scheme": 23,
+    "compensation to victims": 7,
+    "confession": 63,
+    "confession to a police officer": 1,
+    "crime scene": 12,
+    "custodial death": 8,
+    "default bail": 4,
+    "dying declaration": 16,
+    "electronic device": 28,
+    "electronic record": 84,
+    "expert opinion": 18,
+    "final report": 42,
+    "forensic": 86,
+    "freedom of speech and expression": 20,
+    "grounds for such arrest": 25,
+    "handcuff": 19,
+    "hash value": 7,
+    "hostile witness": 7,
+    "human rights commission": 36,
+    "identification parade": 18,
+    "inquest": 30,
+    "judicial custody": 31,
+    "legal aid": 138,
+    "licensing authority": 37,
+    "medical examination of the accused": 2,
+    "panch witness": 3,
+    "police custody": 38,
+    "preventive detention": 38,
+    "protection against arrest and detention": 5,
+    "reasonable restrictions": 27,
+    "remission": 84,
+    "right to privacy": 35,
+    "rights of prisoners": 11,
+    "search warrant": 27,
+    "seizure memo": 4,
+    "solitary confinement": 16,
+    "special court": 109,
+    "untouchability": 23,
+    "videography": 15,
+    "woman police officer": 23,
+    "woman shall be arrested": 3
+  },
+  "phrases_before": {
+    "age of consent": 3,
+    "anticipatory bail": 27,
+    "arms licence": 11,
+    "arrest memo": 9,
+    "atrocities": 35,
+    "bail": 203,
+    "cancellation of bail": 12,
+    "case diary": 29,
+    "chain of custody": 9,
+    "charge sheet": 54,
+    "child friendly": 11,
+    "child in need of care": 10,
+    "community service": 23,
+    "compensation scheme": 21,
+    "compensation to victims": 7,
+    "confession": 54,
+    "confession to a police officer": 1,
+    "crime scene": 11,
+    "custodial death": 8,
+    "default bail": 4,
+    "dying declaration": 16,
+    "electronic device": 16,
+    "electronic record": 51,
+    "expert opinion": 13,
+    "final report": 27,
+    "forensic": 60,
+    "freedom of speech and expression": 18,
+    "grounds for such arrest": 16,
+    "handcuff": 18,
+    "hash value": 4,
+    "hostile witness": 7,
+    "human rights commission": 19,
+    "identification parade": 16,
+    "inquest": 25,
+    "judicial custody": 31,
+    "legal aid": 111,
+    "licensing authority": 21,
+    "medical examination of the accused": 2,
+    "panch witness": 3,
+    "police custody": 37,
+    "preventive detention": 30,
+    "protection against arrest and detention": 5,
+    "reasonable restrictions": 20,
+    "remission": 56,
+    "right to privacy": 22,
+    "rights of prisoners": 11,
+    "search warrant": 10,
+    "seizure memo": 3,
+    "solitary confinement": 15,
+    "special court": 68,
+    "untouchability": 14,
+    "videography": 14,
+    "woman police officer": 19,
+    "woman shall be arrested": 3
+  },
+  "rows": [
+    {
+      "chunks_after": 50,
+      "chunks_before": 20,
+      "documents_after": 27,
+      "documents_before": 10,
+      "grew_faster_than_the_corpus": true,
+      "growth": 2.7,
+      "id": "search-warrant",
+      "newly_findable": false,
+      "phrases": [
+        "search warrant"
+      ],
+      "question": "When is a warrant required before a search?",
+      "recall_change_attributable_to_retrieval": false,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 84,
+      "chunks_before": 56,
+      "documents_after": 20,
+      "documents_before": 10,
+      "grew_faster_than_the_corpus": false,
+      "growth": 2.0,
+      "id": "child-needing-care",
+      "newly_findable": false,
+      "phrases": [
+        "child in need of care"
+      ],
+      "question": "What happens to a child who needs care and protection?",
+      "recall_change_attributable_to_retrieval": false,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 57,
+      "chunks_before": 32,
+      "documents_after": 21,
+      "documents_before": 11,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.91,
+      "id": "child-friendly-procedure",
+      "newly_findable": false,
+      "phrases": [
+        "child friendly"
+      ],
+      "question": "What child-friendly procedure applies when a child is a witness?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 124,
+      "chunks_before": 93,
+      "documents_after": 39,
+      "documents_before": 22,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.77,
+      "id": "custodial-death",
+      "newly_findable": false,
+      "phrases": [
+        "custodial death",
+        "human rights commission"
+      ],
+      "question": "What must happen after a death in police custody?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 68,
+      "chunks_before": 43,
+      "documents_after": 33,
+      "documents_before": 19,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.74,
+      "id": "electronic-device-seizure",
+      "newly_findable": false,
+      "phrases": [
+        "electronic device",
+        "hash value"
+      ],
+      "question": "How should an electronic device be seized and preserved?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 497,
+      "chunks_before": 415,
+      "documents_after": 84,
+      "documents_before": 51,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.65,
+      "id": "electronic-evidence",
+      "newly_findable": false,
+      "phrases": [
+        "electronic record"
+      ],
+      "question": "How is evidence held on a phone or computer proved in court?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 497,
+      "chunks_before": 415,
+      "documents_after": 84,
+      "documents_before": 51,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.65,
+      "id": "electronic-certificate-mandatory",
+      "newly_findable": false,
+      "phrases": [
+        "electronic record"
+      ],
+      "question": "Is a certificate mandatory to prove an electronic record?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 105,
+      "chunks_before": 56,
+      "documents_after": 23,
+      "documents_before": 14,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.64,
+      "id": "untouchability",
+      "newly_findable": false,
+      "phrases": [
+        "untouchability"
+      ],
+      "question": "Is untouchability prohibited by law?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 447,
+      "chunks_before": 330,
+      "documents_after": 41,
+      "documents_before": 25,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.64,
+      "id": "arms-licence",
+      "newly_findable": false,
+      "phrases": [
+        "arms licence",
+        "licensing authority"
+      ],
+      "question": "How is a licence for a firearm obtained?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 453,
+      "chunks_before": 196,
+      "documents_after": 109,
+      "documents_before": 68,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.6,
+      "id": "special-court-atrocities",
+      "newly_findable": false,
+      "phrases": [
+        "special court"
+      ],
+      "question": "Which court tries offences under the atrocities law?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 253,
+      "chunks_before": 230,
+      "documents_after": 35,
+      "documents_before": 22,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.59,
+      "id": "right-to-privacy",
+      "newly_findable": false,
+      "phrases": [
+        "right to privacy"
+      ],
+      "question": "Does a person in India have a right to privacy?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 33,
+      "chunks_before": 23,
+      "documents_after": 25,
+      "documents_before": 16,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.56,
+      "id": "grounds-of-arrest",
+      "newly_findable": false,
+      "phrases": [
+        "grounds for such arrest"
+      ],
+      "question": "Must the grounds of arrest be communicated to the arrested person?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 265,
+      "chunks_before": 238,
+      "documents_after": 42,
+      "documents_before": 27,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.56,
+      "id": "final-report",
+      "newly_findable": false,
+      "phrases": [
+        "final report"
+      ],
+      "question": "What does a final report to the magistrate contain?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 440,
+      "chunks_before": 343,
+      "documents_after": 84,
+      "documents_before": 56,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.5,
+      "id": "remission-life-sentence",
+      "newly_findable": false,
+      "phrases": [
+        "remission"
+      ],
+      "question": "Can a life sentence be reduced by remission?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 440,
+      "chunks_before": 343,
+      "documents_after": 84,
+      "documents_before": 56,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.5,
+      "id": "remission-policy-basis",
+      "newly_findable": false,
+      "phrases": [
+        "remission"
+      ],
+      "question": "On what basis may a remission policy be applied?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 221,
+      "chunks_before": 177,
+      "documents_after": 86,
+      "documents_before": 60,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.43,
+      "id": "forensic-referral",
+      "newly_findable": false,
+      "phrases": [
+        "forensic"
+      ],
+      "question": "When must material be referred for forensic examination?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 145,
+      "chunks_before": 113,
+      "documents_after": 49,
+      "documents_before": 35,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.4,
+      "id": "sc-st-atrocities",
+      "newly_findable": false,
+      "phrases": [
+        "atrocities"
+      ],
+      "question": "What protection does the law give Scheduled Castes against atrocities?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 29,
+      "chunks_before": 23,
+      "documents_after": 18,
+      "documents_before": 13,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.38,
+      "id": "expert-opinion",
+      "newly_findable": false,
+      "phrases": [
+        "expert opinion"
+      ],
+      "question": "When may a court rely on an expert's opinion?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 116,
+      "chunks_before": 101,
+      "documents_after": 34,
+      "documents_before": 25,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.36,
+      "id": "art19-free-speech",
+      "newly_findable": false,
+      "phrases": [
+        "freedom of speech and expression",
+        "reasonable restrictions"
+      ],
+      "question": "What limits can the government place on freedom of speech?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 73,
+      "chunks_before": 56,
+      "documents_after": 31,
+      "documents_before": 23,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.35,
+      "id": "community-service",
+      "newly_findable": false,
+      "phrases": [
+        "community service"
+      ],
+      "question": "Is community service available as a punishment under the new criminal law?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 60,
+      "chunks_before": 47,
+      "documents_after": 27,
+      "documents_before": 20,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.35,
+      "id": "reasonable-restriction-test",
+      "newly_findable": false,
+      "phrases": [
+        "reasonable restrictions"
+      ],
+      "question": "What test governs a reasonable restriction on a fundamental right?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 1654,
+      "chunks_before": 1436,
+      "documents_after": 274,
+      "documents_before": 203,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.35,
+      "id": "bail-conditions",
+      "newly_findable": false,
+      "phrases": [
+        "bail"
+      ],
+      "question": "What conditions may a court impose when granting bail?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 42,
+      "chunks_before": 36,
+      "documents_after": 4,
+      "documents_before": 3,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.33,
+      "id": "age-of-consent",
+      "newly_findable": false,
+      "phrases": [
+        "age of consent"
+      ],
+      "question": "What is the age of consent under the law protecting children?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 11,
+      "chunks_before": 10,
+      "documents_after": 4,
+      "documents_before": 3,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.33,
+      "id": "seizure-memo",
+      "newly_findable": false,
+      "phrases": [
+        "seizure memo"
+      ],
+      "question": "What must be recorded in a seizure memo?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 102,
+      "chunks_before": 89,
+      "documents_after": 38,
+      "documents_before": 30,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.27,
+      "id": "art22-detention",
+      "newly_findable": false,
+      "phrases": [
+        "protection against arrest and detention",
+        "preventive detention"
+      ],
+      "question": "What protection does a person have if they are detained without trial?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 97,
+      "chunks_before": 84,
+      "documents_after": 38,
+      "documents_before": 30,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.27,
+      "id": "preventive-detention",
+      "newly_findable": false,
+      "phrases": [
+        "preventive detention"
+      ],
+      "question": "What is preventive detention and when may it be used?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 539,
+      "chunks_before": 482,
+      "documents_after": 138,
+      "documents_before": 111,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.24,
+      "id": "free-legal-aid",
+      "newly_findable": false,
+      "phrases": [
+        "legal aid"
+      ],
+      "question": "Can a person who cannot afford a lawyer get one free?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 31,
+      "chunks_before": 26,
+      "documents_after": 11,
+      "documents_before": 9,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.22,
+      "id": "chain-of-custody",
+      "newly_findable": false,
+      "phrases": [
+        "chain of custody"
+      ],
+      "question": "How must chain of custody be maintained for seized material?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 36,
+      "chunks_before": 30,
+      "documents_after": 23,
+      "documents_before": 19,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.21,
+      "id": "woman-police-officer",
+      "newly_findable": false,
+      "phrases": [
+        "woman police officer"
+      ],
+      "question": "When must a woman police officer be involved?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 49,
+      "chunks_before": 43,
+      "documents_after": 30,
+      "documents_before": 25,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.2,
+      "id": "inquest-procedure",
+      "newly_findable": false,
+      "phrases": [
+        "inquest"
+      ],
+      "question": "What is the procedure for an inquest into an unnatural death?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 136,
+      "chunks_before": 114,
+      "documents_after": 65,
+      "documents_before": 54,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.2,
+      "id": "charge-sheet",
+      "newly_findable": false,
+      "phrases": [
+        "charge sheet"
+      ],
+      "question": "What must be included when filing a charge sheet?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 375,
+      "chunks_before": 357,
+      "documents_after": 63,
+      "documents_before": 54,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.17,
+      "id": "confession-to-police",
+      "newly_findable": false,
+      "phrases": [
+        "confession to a police officer",
+        "confession"
+      ],
+      "question": "Is a confession made to a police officer admissible?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 36,
+      "chunks_before": 34,
+      "documents_after": 18,
+      "documents_before": 16,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.12,
+      "id": "identification-parade",
+      "newly_findable": false,
+      "phrases": [
+        "identification parade"
+      ],
+      "question": "How should a test identification parade be conducted?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 66,
+      "chunks_before": 64,
+      "documents_after": 20,
+      "documents_before": 18,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.11,
+      "id": "speech-attributable-to-state",
+      "newly_findable": false,
+      "phrases": [
+        "freedom of speech and expression"
+      ],
+      "question": "Can a minister's statement be attributed to the State?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 77,
+      "chunks_before": 71,
+      "documents_after": 23,
+      "documents_before": 21,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.1,
+      "id": "victim-compensation-scheme",
+      "newly_findable": false,
+      "phrases": [
+        "compensation scheme"
+      ],
+      "question": "What compensation scheme exists for victims of crime?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 36,
+      "chunks_before": 33,
+      "documents_after": 14,
+      "documents_before": 13,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.08,
+      "id": "panch-witness",
+      "newly_findable": false,
+      "phrases": [
+        "panch witness",
+        "crime scene"
+      ],
+      "question": "What is the role of an independent witness during a search?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 43,
+      "chunks_before": 39,
+      "documents_after": 16,
+      "documents_before": 15,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.07,
+      "id": "solitary-confinement",
+      "newly_findable": false,
+      "phrases": [
+        "solitary confinement"
+      ],
+      "question": "Is solitary confinement permitted?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 208,
+      "chunks_before": 205,
+      "documents_after": 31,
+      "documents_before": 29,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.07,
+      "id": "case-diary",
+      "newly_findable": false,
+      "phrases": [
+        "case diary"
+      ],
+      "question": "How must a case diary be maintained during an investigation?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 60,
+      "chunks_before": 50,
+      "documents_after": 15,
+      "documents_before": 14,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.07,
+      "id": "scene-videography",
+      "newly_findable": false,
+      "phrases": [
+        "videography"
+      ],
+      "question": "When must a search or seizure be videographed?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 52,
+      "chunks_before": 51,
+      "documents_after": 19,
+      "documents_before": 18,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.06,
+      "id": "handcuffing",
+      "newly_findable": false,
+      "phrases": [
+        "handcuff"
+      ],
+      "question": "Are the police allowed to handcuff a person?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 173,
+      "chunks_before": 169,
+      "documents_after": 28,
+      "documents_before": 27,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.04,
+      "id": "anticipatory-bail",
+      "newly_findable": false,
+      "phrases": [
+        "anticipatory bail"
+      ],
+      "question": "On what grounds may anticipatory bail be granted?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 170,
+      "chunks_before": 169,
+      "documents_after": 61,
+      "documents_before": 60,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.02,
+      "id": "police-vs-judicial-custody",
+      "newly_findable": false,
+      "phrases": [
+        "police custody",
+        "judicial custody"
+      ],
+      "question": "What is the difference between police custody and judicial custody?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 36,
+      "chunks_before": 36,
+      "documents_after": 11,
+      "documents_before": 11,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.0,
+      "id": "prisoner-rights",
+      "newly_findable": false,
+      "phrases": [
+        "rights of prisoners"
+      ],
+      "question": "What rights does a person in prison keep?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 12,
+      "chunks_before": 12,
+      "documents_after": 7,
+      "documents_before": 7,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.0,
+      "id": "victim-compensation",
+      "newly_findable": false,
+      "phrases": [
+        "compensation to victims"
+      ],
+      "question": "Can a victim of crime receive compensation?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 46,
+      "chunks_before": 46,
+      "documents_after": 16,
+      "documents_before": 16,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.0,
+      "id": "dying-declaration",
+      "newly_findable": false,
+      "phrases": [
+        "dying declaration"
+      ],
+      "question": "Is a statement made by a dying person accepted as evidence?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 9,
+      "chunks_before": 9,
+      "documents_after": 4,
+      "documents_before": 4,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.0,
+      "id": "default-bail",
+      "newly_findable": false,
+      "phrases": [
+        "default bail"
+      ],
+      "question": "What is default bail?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 48,
+      "chunks_before": 48,
+      "documents_after": 12,
+      "documents_before": 12,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.0,
+      "id": "bail-cancellation",
+      "newly_findable": false,
+      "phrases": [
+        "cancellation of bail"
+      ],
+      "question": "Can bail once granted be cancelled?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 4,
+      "chunks_before": 4,
+      "documents_after": 2,
+      "documents_before": 2,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.0,
+      "id": "medical-exam-accused",
+      "newly_findable": false,
+      "phrases": [
+        "medical examination of the accused"
+      ],
+      "question": "When may an accused person be medically examined?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 17,
+      "chunks_before": 17,
+      "documents_after": 7,
+      "documents_before": 7,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.0,
+      "id": "hostile-witness",
+      "newly_findable": false,
+      "phrases": [
+        "hostile witness"
+      ],
+      "question": "What happens when a witness turns hostile during trial?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 4,
+      "chunks_before": 4,
+      "documents_after": 3,
+      "documents_before": 3,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.0,
+      "id": "arrest-of-woman",
+      "newly_findable": false,
+      "phrases": [
+        "woman shall be arrested"
+      ],
+      "question": "What safeguards apply when a woman is arrested?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 20,
+      "chunks_before": 20,
+      "documents_after": 9,
+      "documents_before": 9,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.0,
+      "id": "arrest-memo",
+      "newly_findable": false,
+      "phrases": [
+        "arrest memo"
+      ],
+      "question": "What must be recorded in an arrest memo?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    }
+  ],
+  "summary": {
+    "items_newly_findable": 0,
+    "items_still_absent": 0,
+    "items_where_recall_change_is_attributable": 49,
+    "items_whose_haystack_grew": 2,
+    "items_with_no_before_baseline": 0
+  }
+}

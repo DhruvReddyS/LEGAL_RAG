@@ -1,6 +1,6 @@
 # Source verification report
 
-Generated 2026-10-03 from the canonical manifest.
+Generated 2026-10-08 from the canonical manifest.
 
 1026 of 1036 documents are marked as verified official.
 10 are not, and each of those needs its source confirmed before

@@ -1,0 +1,11 @@
+quality gate: hybrid against quality-baseline.json
+  recall_at_5              0.927 -> 0.909  (-0.018)  ok
+  citation_accuracy_at_5   0.638 -> 0.602  (-0.036)  REGRESSION
+    advocate  R@5 0.714 -> 0.714 (+0.000)
+    citizen   R@5 0.957 -> 0.957 (+0.000)
+    police    R@5 0.960 -> 0.920 (-0.040)  <-- watch
+
+quality gate FAILED:
+  citation_accuracy_at_5: 0.638 -> 0.602 (-0.036)
+
+If this drop is intended, re-record the baseline with --record and say in the commit message why the new number is the right one.

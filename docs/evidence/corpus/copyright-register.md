@@ -1,6 +1,6 @@
 # Copyright and licensing register
 
-Generated 2026-10-03 from the canonical manifest.
+Generated 2026-10-08 from the canonical manifest.
 1036 documents, 48 publishers.
 
 Every document in this corpus is a work of the Government of India, a State

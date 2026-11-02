@@ -1,0 +1,17 @@
+{
+  "canonical_documents_expected": 1563,
+  "canonical_documents_indexed": 1563,
+  "collection_documents_indexed": 1563,
+  "documents_with_a_recorded_note": 1171,
+  "documents_with_a_recorded_url": 1563,
+  "manifest_documents": 1566,
+  "notes_missing_from_the_index": 0,
+  "payloads_without_the_currency_note_key": 0,
+  "urls_missing_from_the_index": 0,
+  "warned_verified": [
+    "The Andhra Pradesh Residential and Non-Residential Premi",
+    "The Central Motor Vehicles Rules, 1989 (historical conso"
+  ]
+}
+
+Currency payload gate passed.

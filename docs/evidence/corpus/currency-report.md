@@ -1,6 +1,6 @@
 # Currency and amendment report
 
-Generated 2026-10-03 from the canonical manifest.
+Generated 2026-10-08 from the canonical manifest.
 
 A retrieval system that cannot tell a reader which instrument is in force is
 worse than no system, so this is the report to read before trusting an answer.
