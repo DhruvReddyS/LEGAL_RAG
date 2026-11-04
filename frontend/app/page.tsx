@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDown, BookOpenText, BriefcaseBusiness, Check, FilePenLine, Fingerprint, HelpCircle, History, LogOut, Menu, MessageSquare, MoreHorizontal, Pencil, Pin, PinOff, Plus, Scale, ScanSearch, Settings, ShieldCheck, Trash2, Undo2, X, Zap } from "lucide-react";
+import { ArrowDown, BookOpenText, ChevronRight, Search, BriefcaseBusiness, Check, FilePenLine, Fingerprint, HelpCircle, History, LogOut, Menu, MessageSquare, MoreHorizontal, Pencil, Pin, PinOff, Plus, Scale, ScanSearch, Settings, ShieldCheck, Trash2, Undo2, X, Zap } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import AuthModal from "@/components/AuthModal";
 import BrandLogo from "@/components/BrandLogo";
@@ -12,9 +12,16 @@ import { legalCategory } from "@/lib/answer-presentation";
 import ProfessionalWorkspace from "@/components/ProfessionalWorkspace";
 import { useDialogFocus } from "@/components/useDialogFocus";
 import AdminWorkspace from "@/components/AdminWorkspace";
-import DesktopReadiness from "@/components/DesktopReadiness";
+import AccountDialog from "@/components/platform/AccountDialog";
+import AccountGate from "@/components/platform/AccountGate";
+import HistoryPanel from "@/components/platform/HistoryPanel";
+import { listHistorySessions, setSessionPinned } from "@/lib/api-platform";
+import { mergeById } from "@/lib/history-view";
+import { DEFAULT_LIMITS, followJob, forgetActiveJob, readActiveJob, rememberActiveJob } from "@/lib/job-stream";
+import { bandwidthPlan, readPreferences, PREFERENCES_EVENT } from "@/lib/preferences";
+import type { HistorySession } from "@/lib/types-platform";
 import { HelplineNotice } from "@/components/HelplineNotice";
-import { ApiError, cancelDeepReviewJob, chatWithCorpus, checkForHelplines, deleteChatSession, getChatSession, renameChatSession, getDeepReviewJob, getIngestionProgress, getMe, listChatSessions, logout, refreshSession, listCases } from "@/lib/api";
+import { ApiError, apiUrl, cancelDeepReviewJob, chatWithCorpus, checkForHelplines, deleteChatSession, getChatSession, renameChatSession, getDeepReviewJob, getIngestionProgress, getMe, logout, refreshSession, listCases } from "@/lib/api";
 import type { ChatMessage, CitizenDocument, IngestionProgress, RequestedResponseMode, User, LegalCase } from "@/lib/types";
 
 const ROLE_EXPERIENCES = {
@@ -85,6 +92,41 @@ const ROLE_EXPERIENCES = {
   },
 } as const;
 
+/** How this page follows a Deep review. The logic and its tests are in lib/job-stream. */
+function jobFollower() {
+  return {
+    ...DEFAULT_LIMITS,
+    pollIntervalMs: bandwidthPlan(readPreferences().lowBandwidth).pollIntervalMs,
+    openStream: (jobId: string, lastEventId: number, signal?: AbortSignal) => fetch(`${apiUrl()}/jobs/${encodeURIComponent(jobId)}/events`, {
+      credentials: "include",
+      signal,
+      headers: { Accept: "text/event-stream", ...(lastEventId ? { "Last-Event-ID": String(lastEventId) } : {}) },
+    }),
+    getJob: getDeepReviewJob,
+    sleep: (ms: number, signal?: AbortSignal) => new Promise<void>((resolve) => {
+      const timer = window.setTimeout(resolve, ms);
+      signal?.addEventListener("abort", () => { window.clearTimeout(timer); resolve(); }, { once: true });
+    }),
+  };
+}
+
+function savedChatFrom(item: HistorySession): SavedChat {
+  return {
+    id: item.id,
+    title: item.title,
+    // Bodies load on demand; a sidebar must not fetch every message of every
+    // conversation, which for a case session includes evidence.
+    messages: [],
+    sessionId: item.id,
+    updatedAt: Date.parse(item.updated_at),
+    preview: item.last_message_preview ?? undefined,
+    messageCount: item.message_count,
+    caseId: item.case_id,
+    pinned: item.pinned,
+    matter: item.matter,
+  };
+}
+
 function newMessage(role: ChatMessage["role"], content: string): ChatMessage {
   return { id: crypto.randomUUID(), role, content, timestamp: Date.now() };
 }
@@ -102,6 +144,8 @@ type SavedChat = {
   messageCount?: number;
   /** The matter this conversation may also read. Null is public law only. */
   caseId?: string | null;
+  /** A name the person gave to group conversations. Unrelated to a case. */
+  matter?: string | null;
 };
 
 export default function HomePage() {
@@ -132,6 +176,11 @@ export default function HomePage() {
   const [renamingChatId, setRenamingChatId] = useState<string | null>(null);
   const [renameDraft, setRenameDraft] = useState("");
   const [historyNotice, setHistoryNotice] = useState("");
+  const [historyCursor, setHistoryCursor] = useState<string | null>(null);
+  const [historyVersion, setHistoryVersion] = useState(0);
+  const [historyPanelOpen, setHistoryPanelOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const [erasedReceipt, setErasedReceipt] = useState<string | null>(null);
   const closeSettings = () => setSettingsOpen(false);
   const closeGuide = () => setGuideOpen(false);
   const settingsRef = useDialogFocus(settingsOpen, closeSettings);
@@ -169,8 +218,12 @@ export default function HomePage() {
       finally { if (mounted) setAuthChecked(true); }
     };
     const poll = async () => { try { const next = await getIngestionProgress(); if (mounted) setProgress(next); } catch { if (mounted) setProgress(null); } };
-    restoreAuth(); poll(); const interval = setInterval(poll, 30_000);
-    return () => { mounted = false; clearInterval(interval); };
+    // Low-bandwidth mode drops this background check. Re-read on each tick, so the
+    // setting takes effect without a reload.
+    const pollIfWanted = () => { if (bandwidthPlan(readPreferences().lowBandwidth).pollCorpusStatus) void poll(); };
+    restoreAuth(); pollIfWanted(); const interval = setInterval(pollIfWanted, 30_000);
+    window.addEventListener(PREFERENCES_EVENT, pollIfWanted);
+    return () => { mounted = false; clearInterval(interval); window.removeEventListener(PREFERENCES_EVENT, pollIfWanted); };
   }, []);
 
   useEffect(() => {
@@ -201,20 +254,13 @@ export default function HomePage() {
     let cancelled = false;
     void (async () => {
       try {
-        const stored = await listChatSessions(30);
+        const pageSize = bandwidthPlan(readPreferences().lowBandwidth).historyPageSize;
+        // Pins separately: one pinned long ago must not wait for a person to page
+        // back to it before it reappears.
+        const [stored, pinned] = await Promise.all([listHistorySessions({ limit: pageSize }), listHistorySessions({ limit: 5, pinned: true })]);
         if (cancelled) return;
-        setHistory(stored.items.map(item => ({
-          id: item.id,
-          title: item.title,
-          // Bodies load on demand; a sidebar must not fetch every message of
-          // every conversation, which for a case session includes evidence.
-          messages: [],
-          sessionId: item.id,
-          updatedAt: Date.parse(item.updated_at),
-          preview: item.last_message_preview ?? undefined,
-          messageCount: item.message_count,
-          caseId: item.case_id,
-        })));
+        setHistory(mergeById(pinned.items.map(savedChatFrom), stored.items.map(savedChatFrom)));
+        setHistoryCursor(stored.next_cursor);
       } catch {
         // An offline or unauthenticated read must not blank the console.
         if (!cancelled) setHistory([]);
@@ -223,7 +269,7 @@ export default function HomePage() {
       }
     })();
     return () => { cancelled = true; };
-  }, [user]);
+  }, [user, historyVersion]);
 
   useEffect(() => {
     if (!user || !historyReady || loading || !activeChatId || !messages.length) return;
@@ -233,18 +279,22 @@ export default function HomePage() {
       const existing = current.find(item => item.id === activeChatId || item.sessionId === sessionId);
       const savedChat: SavedChat = {
         id: existing?.id ?? activeChatId,
-        title: existing?.customTitle ? existing.title : messages.find(message => message.role === "user")?.content.slice(0, 90) || "Untitled chat",
+        // The server holds the title, including any rename, so only a brand new
+        // conversation takes its title from the question.
+        title: existing?.customTitle || existing?.sessionId ? existing.title : messages.find(message => message.role === "user")?.content.slice(0, 90) || "Untitled chat",
         messages,
         sessionId,
-        updatedAt: Date.now(),
+        // Opening a conversation is not activity, so only new messages move it up.
+        updatedAt: existing && existing.messageCount === messages.length ? existing.updatedAt : Date.now(),
         pinned: existing?.pinned,
+        matter: existing?.matter,
         customTitle: existing?.customTitle,
         messageCount: messages.length,
         // A session's scope is fixed at creation: the server rejects a
         // case_id that disagrees with the one the session was opened with.
         caseId: existing?.caseId ?? chatCaseId,
       };
-      return [savedChat, ...current.filter(item => item !== existing)].slice(0, 30);
+      return [savedChat, ...current.filter(item => item !== existing)];
     });
   }, [messages, sessionId, loading, user, historyReady, activeChatId, chatCaseId]);
 
@@ -263,6 +313,7 @@ export default function HomePage() {
     active.controller.abort(); activeRequest.current = null;
     setLoading(false);
     setMessages(current => current.map(message => message.id === active.assistantId ? { ...message, loading: false, stopped: true, content: "Response stopped." } : message));
+    if (user) { try { forgetActiveJob(window.sessionStorage, user.id); } catch { /* Storage disabled. */ } }
     if (active.jobId) void cancelDeepReviewJob(active.jobId).catch(() => {
       setMessages(current => current.map(message => message.id === active.assistantId ? { ...message, content: "Stopped here. The server could not confirm cancellation and may finish the queued review." } : message));
     });
@@ -308,47 +359,44 @@ export default function HomePage() {
           stageLabel: null,
           jobProgress: 0,
         } : message));
-        while (true) {
-          await new Promise((resolve) => window.setTimeout(resolve, 1000));
-          if (operation.controller.signal.aborted) return;
-          const job = await getDeepReviewJob(response.job_id, operation.controller.signal);
-          if (operation.controller.signal.aborted) return;
-          setMessages((current) => current.map((message) => message.id === assistantId ? {
+        try { rememberActiveJob(window.sessionStorage, user.id, { jobId: response.job_id, sessionId: response.session_id, startedAt: Date.now() }); } catch { /* Storage disabled. */ }
+        const job = await followJob(response.job_id, jobFollower(), {
+          signal: operation.controller.signal,
+          onUpdate: (view) => setMessages((current) => current.map((message) => message.id === assistantId ? {
             ...message,
             loading: true,
-            stageLabel: job.stage_label ?? null,
-            jobProgress: job.progress,
+            stageLabel: view.stageLabel ?? (view.queuePosition ? `Waiting in line, position ${view.queuePosition}` : null),
+            jobProgress: view.progress,
+          } : message)),
+        });
+        try { forgetActiveJob(window.sessionStorage, user.id); } catch { /* Storage disabled. */ }
+        if (operation.controller.signal.aborted) return;
+        if (job.status === "succeeded" && job.result) {
+          const result = job.result;
+          setMessages((current) => current.map((message) => message.id === assistantId ? {
+            ...message,
+            messageId: result.message_id,
+            content: result.answer,
+            loading: false,
+            citations: result.citations,
+            confidenceScore: result.confidence_score,
+            evidenceStrength: result.evidence_strength,
+            responseMode: "deep",
+            requestedMode: response.requested_mode,
+            routingReason: response.routing_reason,
+            routingSignals: response.routing_signals,
+            timingsMs: result.timings_ms,
+            pipelineMetrics: result.pipeline_metrics,
+            latencyTargetMs: response.latency_target_ms,
+            targetMet: null,
+            provisional: false,
+            stageLabel: null,
+            jobProgress: null,
+            clientElapsedMs: Math.round(performance.now() - requestStarted),
           } : message));
-          if (job.status === "succeeded" && job.result) {
-            const result = job.result;
-            setMessages((current) => current.map((message) => message.id === assistantId ? {
-              ...message,
-              messageId: result.message_id,
-              content: result.answer,
-              loading: false,
-              citations: result.citations,
-              confidenceScore: result.confidence_score,
-              evidenceStrength: result.evidence_strength,
-              responseMode: "deep",
-              requestedMode: response.requested_mode,
-              routingReason: response.routing_reason,
-              routingSignals: response.routing_signals,
-              timingsMs: result.timings_ms,
-              pipelineMetrics: result.pipeline_metrics,
-              latencyTargetMs: response.latency_target_ms,
-              targetMet: null,
-              provisional: false,
-              stageLabel: null,
-              jobProgress: null,
-              clientElapsedMs: Math.round(performance.now() - requestStarted),
-            } : message));
-            break;
-          }
-          if (job.status === "failed" || job.status === "cancelled") {
-            throw new ApiError(job.error_message || `Deep Review ${job.status}.`, 500);
-          }
+          return;
         }
-        return;
+        throw new ApiError(job.error_message || `Deep Review ${job.status}.`, 500);
       }
       setMessages((current) => current.map((message) => message.id === assistantId ? { ...message, messageId: response.message_id ?? undefined, content: response.answer, loading: false, citations: response.citations, confidenceScore: response.confidence_score, evidenceStrength: response.evidence_strength, sectionConfidence: response.section_confidence, responseMode: response.response_mode, requestedMode: response.requested_mode, routingReason: response.routing_reason, routingSignals: response.routing_signals, timingsMs: response.timings_ms, pipelineMetrics: response.pipeline_metrics, latencyTargetMs: response.latency_target_ms, targetMet: response.target_met, clientElapsedMs: Math.round(performance.now() - requestStarted) } : message));
     } catch (error) {
@@ -406,15 +454,31 @@ export default function HomePage() {
       }
     })();
   };
-  const togglePinned = (item: SavedChat) => {
-    if (!item.pinned && history.filter(chat => chat.pinned).length >= 5) {
-      setHistoryNotice("You can pin up to 5 chats. Unpin one to add another.");
-      setChatMenuId(null);
-      return;
-    }
-    setHistory(current => current.map(chat => chat.id === item.id ? { ...chat, pinned: !chat.pinned } : chat));
-    setHistoryNotice(item.pinned ? "Chat moved back to recent." : "Chat pinned for quick access.");
+  const togglePinned = async (item: SavedChat) => {
     setChatMenuId(null);
+    if (!item.sessionId) return;
+    // Saved on the server, so it is there on the next device and after a reload.
+    try {
+      await setSessionPinned(item.sessionId, !item.pinned);
+      setHistory(current => current.map(chat => chat.id === item.id ? { ...chat, pinned: !chat.pinned } : chat));
+      setHistoryNotice(item.pinned ? "Chat moved back to recent." : "Chat pinned for quick access.");
+    } catch (error) {
+      setHistoryNotice(error instanceof ApiError ? error.message : "That could not be saved.");
+    }
+  };
+  const loadOlderChats = async () => {
+    if (!historyCursor) return;
+    try {
+      const page = await listHistorySessions({ limit: bandwidthPlan(readPreferences().lowBandwidth).historyPageSize, cursor: historyCursor });
+      setHistory(current => mergeById(current, page.items.map(savedChatFrom)));
+      setHistoryCursor(page.next_cursor);
+    } catch {
+      setHistoryNotice("Older conversations could not be loaded.");
+    }
+  };
+  const openFromPanel = (item: HistorySession) => {
+    setHistoryPanelOpen(false);
+    openSavedChat(history.find(chat => chat.id === item.id) ?? savedChatFrom(item));
   };
   const saveChatTitle = (item: SavedChat) => {
     const title = renameDraft.trim().slice(0, 90);
@@ -450,7 +514,51 @@ export default function HomePage() {
     return () => window.removeEventListener("keydown", handleEscape);
   }, []);
 
+  // A Deep review keeps running on the server through a reload. Pick it back up,
+  // rather than leaving the person to think it was lost and pay for another.
+  const resumedFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (!user || !historyReady || resumedFor.current === user.id) return;
+    resumedFor.current = user.id;
+    let stored: ReturnType<typeof readActiveJob> = null;
+    try { stored = readActiveJob(window.sessionStorage, user.id); } catch { /* Storage disabled. */ }
+    if (!stored || activeRequest.current) return;
+    const resume = stored;
+    const assistantId = crypto.randomUUID();
+    const operation = { controller: new AbortController(), assistantId, jobId: resume.jobId };
+    activeRequest.current = operation;
+    setLoading(true);
+    setSessionId(resume.sessionId);
+    setActiveChatId(resume.sessionId);
+    void (async () => {
+      try {
+        const conversation = await getChatSession(resume.sessionId);
+        setChatCaseId(conversation.case_id ?? null);
+        const shown: ChatMessage[] = conversation.messages.map(message => ({ id: message.id, messageId: message.id, role: message.role === "user" ? "user" : "assistant", content: message.content, citations: message.citations, confidenceScore: message.confidence_score ?? undefined, evidenceStrength: message.confidence_score === 0 ? "insufficient" : undefined, timestamp: Date.parse(message.created_at) }));
+        setMessages([...shown, { id: assistantId, role: "assistant", content: "", timestamp: resume.startedAt, loading: true, requestedMode: "deep", responseMode: "deep", stageLabel: null, jobProgress: 0 }]);
+        const job = await followJob(resume.jobId, jobFollower(), {
+          signal: operation.controller.signal,
+          onUpdate: (view) => setMessages(current => current.map(message => message.id === assistantId ? { ...message, loading: true, stageLabel: view.stageLabel ?? (view.queuePosition ? `Waiting in line, position ${view.queuePosition}` : null), jobProgress: view.progress } : message)),
+        });
+        if (operation.controller.signal.aborted) return;
+        if (job.status === "succeeded" && job.result) {
+          const result = job.result;
+          setMessages(current => current.map(message => message.id === assistantId ? { ...message, messageId: result.message_id, content: result.answer, loading: false, citations: result.citations, confidenceScore: result.confidence_score, evidenceStrength: result.evidence_strength, responseMode: "deep", timingsMs: result.timings_ms, pipelineMetrics: result.pipeline_metrics, stageLabel: null, jobProgress: null } : message));
+        } else {
+          setMessages(current => current.map(message => message.id === assistantId ? { ...message, content: "", loading: false, error: job.error_message || `Deep review ${job.status}.` } : message));
+        }
+      } catch (error) {
+        if (operation.controller.signal.aborted) return;
+        setMessages(current => current.map(message => message.id === assistantId ? { ...message, content: "", loading: false, error: error instanceof ApiError ? error.message : "Progress on this review could not be followed. It may still finish: reopen this chat shortly." } : message));
+      } finally {
+        try { forgetActiveJob(window.sessionStorage, user.id); } catch { /* Storage disabled. */ }
+        if (activeRequest.current === operation) { activeRequest.current = null; setLoading(false); }
+      }
+    })();
+  }, [user, historyReady]);
+
   if (!authChecked) return <main className="grid min-h-screen place-items-center"><Scale size={24} className="text-neutral-400" aria-label="Loading workspace" /></main>;
+  if (erasedReceipt) return <main className="erased-screen"><div><h1>Your account has been erased.</h1><p>Your account, conversations, case records and files have been removed from this installation. Backups, if the operator keeps any, leave as they age out.</p><p>Your receipt, should you need to quote it. It does not identify you:</p><code>{erasedReceipt}</code></div></main>;
   if (!user) return <AuthModal onSuccess={setUser} progress={progress} />;
 
   const role = user.role;
@@ -475,22 +583,24 @@ export default function HomePage() {
   const matterChats = hasProfessionalWorkspace ? recentChats.filter(item => item.caseId) : [];
   const chatRow = (item: SavedChat) => <div className={`chat-history-row ${item.id === activeChatId ? "selected" : ""}`} key={item.id}>
     {renamingChatId === item.id ? <form className="chat-rename" onSubmit={event => { event.preventDefault(); saveChatTitle(item); }}><input autoFocus aria-label="Rename chat" value={renameDraft} maxLength={90} onChange={event => setRenameDraft(event.target.value)} onKeyDown={event => { if (event.key === "Escape") setRenamingChatId(null); }}/><button aria-label="Save chat name" disabled={!renameDraft.trim()}><Check size={13}/></button></form> : <button disabled={loading} className="chat-open" aria-current={item.id === activeChatId ? "page" : undefined} title={item.title} onClick={() => openSavedChat(item)}>{item.pinned ? <Pin size={13}/> : <MessageSquare size={14}/>}<span>{item.title}</span></button>}
+    {item.matter && <span className="chat-scope-tag" title={`Matter: ${item.matter}`}>{item.matter}</span>}
     {item.caseId && <span className="chat-scope-tag" title={`Reads the law and the files in ${caseTitle(item.caseId)}`}>{caseTitle(item.caseId)}</span>}
     {renamingChatId !== item.id && <button className="chat-menu-trigger" aria-label={`Chat options for ${item.title}`} aria-expanded={chatMenuId === item.id} onClick={() => setChatMenuId(current => current === item.id ? null : item.id)}><MoreHorizontal size={15}/></button>}
-    {chatMenuId === item.id && <div className="chat-menu" role="menu"><button role="menuitem" onClick={() => togglePinned(item)}>{item.pinned ? <PinOff size={14}/> : <Pin size={14}/>} {item.pinned ? "Unpin" : "Pin chat"}</button><button role="menuitem" onClick={() => { setRenamingChatId(item.id); setRenameDraft(item.title); setChatMenuId(null); }}><Pencil size={14}/>Rename</button><button role="menuitem" className="is-danger" onClick={() => deleteChat(item)}><Trash2 size={14}/>Delete</button></div>}
+    {chatMenuId === item.id && <div className="chat-menu" role="menu"><button role="menuitem" onClick={() => void togglePinned(item)}>{item.pinned ? <PinOff size={14}/> : <Pin size={14}/>} {item.pinned ? "Unpin" : "Pin chat"}</button><button role="menuitem" onClick={() => { setRenamingChatId(item.id); setRenameDraft(item.title); setChatMenuId(null); }}><Pencil size={14}/>Rename</button><button role="menuitem" className="is-danger" onClick={() => deleteChat(item)}><Trash2 size={14}/>Delete</button></div>}
   </div>;
 
   return <main data-role={role} data-motion={animate ? "on" : "off"} className="app-shell">
     <aside aria-label="Main navigation" aria-hidden={compactNavigation && !mobileNav} ref={node => { if(node) node.inert = compactNavigation && !mobileNav; }} className={`app-sidebar ${mobileNav ? "is-open" : ""}`}>
       <div className="sidebar-brand"><BrandLogo /><button className="icon-button lg:hidden" onClick={() => setMobileNav(false)} aria-label="Close navigation"><X size={18} /></button></div>
       <button disabled={loading} className="new-chat-button" onClick={() => { resetResearch(); setMobileNav(false); }}><Plus size={18} />New chat</button>
+      <button className="sidebar-search" onClick={() => { setMobileNav(false); setHistoryPanelOpen(true); }}><Search size={15} aria-hidden="true" />Search chats</button>
       <nav className="feature-nav" aria-label="Features">{tools.map(tool => <button key={tool.title} onClick={() => { if ("guideIndex" in tool) { setCitizenGuideSlide(tool.guideIndex); setMobileNav(false); } else openTool(tool.target); }}><tool.icon size={18} strokeWidth={1.65} /><span>{tool.title}</span></button>)}</nav>
-      <div className="chat-history">{pinnedChats.length > 0 && <><div className="history-heading"><span>Pinned <b>{pinnedChats.length}/5</b></span><Pin size={13}/></div>{pinnedChats.map(chatRow)}</>}<div className="history-heading"><span>{hasProfessionalWorkspace ? "Law-only chats" : "Recent chats"}</span><History size={14}/></div>{publicChats.length ? publicChats.map(chatRow) : !pinnedChats.length && !matterChats.length && <p>Your conversations will appear here.</p>}{hasProfessionalWorkspace && <><div className="history-heading"><span>Case chats</span><BriefcaseBusiness size={13}/></div>{matterChats.length ? matterChats.map(chatRow) : <p>Open a case and ask a question there to start one.</p>}</>}</div>
+      <div className="chat-history">{pinnedChats.length > 0 && <><div className="history-heading"><span>Pinned <b>{pinnedChats.length}/5</b></span><Pin size={13}/></div>{pinnedChats.map(chatRow)}</>}<div className="history-heading"><span>{hasProfessionalWorkspace ? "Law-only chats" : "Recent chats"}</span><History size={14}/></div>{publicChats.length ? publicChats.map(chatRow) : !pinnedChats.length && !matterChats.length && <p>Your conversations will appear here.</p>}{hasProfessionalWorkspace && <><div className="history-heading"><span>Case chats</span><BriefcaseBusiness size={13}/></div>{matterChats.length ? matterChats.map(chatRow) : <p>Open a case and ask a question there to start one.</p>}</>}{historyCursor && <button className="history-load-more" onClick={() => void loadOlderChats()}>Show older chats</button>}</div>
       <div className="sidebar-bottom"><button onClick={() => { setMobileNav(false); role === "citizen" ? setCitizenGuideSlide(0) : setGuideOpen(true); }}><HelpCircle size={17} />Getting started</button><button onClick={() => { setMobileNav(false); setSettingsOpen(true); }}><Settings size={17} />Settings<span className="ml-auto text-[11px] capitalize text-neutral-400">{role}</span></button></div>
     </aside>
     {mobileNav && <button aria-label="Dismiss navigation" className="sidebar-scrim" onClick={() => setMobileNav(false)} />}
     {historyNotice && <div className="history-toast" role="status"><span>{historyNotice}</span><button aria-label="Dismiss notification" onClick={() => setHistoryNotice("")}><X size={13}/></button></div>}
-    <div className="app-content" ref={node => { if(node) node.inert = compactNavigation && mobileNav; }}>
+    <div className="app-content" id="main-content" ref={node => { if(node) node.inert = compactNavigation && mobileNav; }}>
       <header className="workspace-header"><button className="icon-button lg:hidden" aria-label="Open navigation" onClick={() => setMobileNav(true)}><Menu size={20} /></button><span>{view === "workspace" ? role === "police" ? "Investigation workspace" : role === "advocate" ? "Your case workspace" : "Administration" : " "}</span>{view === "workspace" && <button className="text-sm text-neutral-500" onClick={() => setView("research")}><MessageSquare size={16} className="mr-2 inline" />Back to chat</button>}</header>
       {view === "workspace" && hasOperationsWorkspace ? role === "admin" ? <AdminWorkspace /> : <ProfessionalWorkspace
           user={user}
@@ -509,16 +619,20 @@ export default function HomePage() {
           <div className="prompt-shortcuts">{experience.suggestions.map((suggestion,index) => { const Icon = [FilePenLine, ScanSearch, ShieldCheck, BookOpenText][index]; return <button key={suggestion.title} disabled={loading} onClick={() => void submit(suggestion.text)}><Icon size={16} strokeWidth={1.6} />{suggestion.title}</button>; })}</div>
           <button className="guide-invite" onClick={() => role === "citizen" ? setCitizenGuideSlide(0) : setGuideOpen(true)}><HelpCircle size={14} />First time here? Take a quick look</button>
         </div> : <>
-          <div className="conversation">{messages.map((message,index) => <div key={message.id} ref={index === messages.length-1 ? latestMessage : undefined}>{!!message.helplines?.length && <HelplineNotice contacts={message.helplines}/>}<MessageBubble message={message} onEdit={!loading && !message.documents?.some(document => !document.pages.length) ? (text) => void submit(text, message.documents, false, index) : undefined} onForgetDocuments={() => { const ids = new Set(message.documents?.map(document => document.id)); const clear = (items: ChatMessage[]) => items.map(item => ({...item, documents: item.documents?.map(document => ids.has(document.id) ? {...document, pages: []} : document)})); setMessages(clear); setHistory(current => current.map(item => ({...item, messages: clear(item.messages)}))); }} onRegenerate={!loading && message.role === "assistant" && index === messages.length-1 ? () => { const question=messages.slice(0,index).reverse().find(item=>item.role==="user"); if(question) void submit(question.content, question.documents, true); } : undefined} /></div>)}</div>
+          <div className="conversation">{messages.map((message,index) => <div key={message.id} ref={index === messages.length-1 ? latestMessage : undefined}>{!!message.helplines?.length && <HelplineNotice contacts={message.helplines}/>}<MessageBubble message={message} role={role} question={message.role === "assistant" ? messages.slice(0, index).reverse().find(item => item.role === "user")?.content : undefined} onEdit={!loading && !message.documents?.some(document => !document.pages.length) ? (text) => void submit(text, message.documents, false, index) : undefined} onForgetDocuments={() => { const ids = new Set(message.documents?.map(document => document.id)); const clear = (items: ChatMessage[]) => items.map(item => ({...item, documents: item.documents?.map(document => ids.has(document.id) ? {...document, pages: []} : document)})); setMessages(clear); setHistory(current => current.map(item => ({...item, messages: clear(item.messages)}))); }} onRegenerate={!loading && message.role === "assistant" && index === messages.length-1 ? () => { const question=messages.slice(0,index).reverse().find(item=>item.role==="user"); if(question) void submit(question.content, question.documents, true); } : undefined} /></div>)}</div>
           {awayFromLatest && <button className="jump-latest" aria-label="Jump to latest message" onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: animate ? "smooth" : "auto" })}><ArrowDown size={17}/></button>}
           <div className="conversation-composer"><ChatInput key={`${sessionId}:${draftVersion}`} onSend={submit} onStop={stopResearch} loading={loading} mode={responseMode} onModeChange={setResponseMode} cases={chatCases} caseId={chatCaseId} onCaseChange={setChatCaseId} /></div>
         </>}
       </section>}
     </div>
+    {historyPanelOpen && <HistoryPanel onClose={() => setHistoryPanelOpen(false)} onOpen={openFromPanel} onChanged={() => setHistoryVersion(value => value + 1)} />}
+    {accountOpen && <AccountDialog user={user} onClose={() => setAccountOpen(false)} onUserChange={setUser} onSignOut={() => { setAccountOpen(false); void signOut(); }} onErased={(receipt) => { setAccountOpen(false); setUser(null); setErasedReceipt(receipt); }} />}
+    <AccountGate user={user} onCleared={() => setHistoryVersion(value => value + 1)} onSignOut={() => void signOut()} />
     <CitizenGuideDialog open={citizenGuideSlide !== null} initialSlide={citizenGuideSlide ?? 0} onClose={() => setCitizenGuideSlide(null)} onStart={(prompt) => { setCitizenGuideSlide(null); void submit(prompt); }}/>
     {settingsOpen && <div className="modal-backdrop" onMouseDown={() => setSettingsOpen(false)}><div ref={settingsRef} role="dialog" aria-modal="true" aria-label="Settings" className="settings-dialog" onMouseDown={event => event.stopPropagation()}>
       <div className="dialog-heading settings-heading"><div><h2>Settings</h2><p>Make the workspace feel right for you.</p></div><button aria-label="Close settings" className="icon-button" onClick={() => setSettingsOpen(false)}><X size={18} /></button></div>
       <div className="settings-account"><div><strong>{user.name}</strong><span>{user.email}</span></div><b>{role}</b></div>
+      <button className="settings-account-link" onClick={() => { setSettingsOpen(false); setAccountOpen(true); }}><span>Account and privacy<small>Password, two-step sign-in, devices, your data, text size</small></span><ChevronRight size={16} aria-hidden="true" /></button>
       <section className="settings-section"><h3>Experience</h3>
         <div className="setting-block"><div className="setting-copy"><strong>Appearance</strong><small>A calm palette for daytime or low light.</small></div><div className="theme-choice" role="group" aria-label="Appearance"><button aria-pressed={theme === "paper"} onClick={() => setTheme("paper")}><i className="paper-swatch"/>Light</button><button aria-pressed={theme === "ink"} onClick={() => setTheme("ink")}><i className="ink-swatch"/>Dark</button></div></div>
         <div className="setting-block setting-stack"><div className="setting-copy"><strong>Default research depth</strong><small>You can still change this beside any question.</small></div><div className="mode-choice" role="group" aria-label="Default response mode">{(["auto","fast","deep"] as RequestedResponseMode[]).map(mode => <button key={mode} aria-pressed={responseMode === mode} onClick={() => setResponseMode(mode)}>{mode === "auto" ? "Auto" : mode === "fast" ? "Fast" : "Deep review"}</button>)}</div></div>
@@ -530,7 +644,6 @@ export default function HomePage() {
       </section>
       <section className="settings-section"><h3>Corpus connection</h3><div className="corpus-status"><span className={progress?.validation_status === "pass" ? "is-online" : ""}/><div><strong>{progress?.validation_status === "pass" ? "Verified corpus ready" : "Corpus status unavailable"}</strong><small>{progress ? `${progress.canonical_documents.toLocaleString()} sources · ${(progress.global_points ?? progress.qdrant_points).toLocaleString()} searchable passages` : "Reconnect to check source availability."}</small></div></div></section>
       <div className="settings-actions"><button disabled={loading} onClick={() => { setHistory([]); setMessages([]); setSessionId(null); setActiveChatId(crypto.randomUUID()); setDraftVersion(value => value + 1); }}>Clear this tab’s history</button><button disabled={loading} onClick={() => { setSettingsOpen(false); void signOut(); }}><LogOut size={15} />Sign out</button></div>
-      <details className="desktop-details"><summary>Desktop app status</summary><DesktopReadiness /></details>
     </div></div>}
     {guideOpen && <div className="modal-backdrop" onMouseDown={() => setGuideOpen(false)}><div ref={guideRef} role="dialog" aria-modal="true" aria-label="Getting started" className="guide-dialog" onMouseDown={event=>event.stopPropagation()}>
       <div className="dialog-heading"><div><p className="text-xs text-neutral-400">A quick introduction</p><h2>From question to clarity.</h2></div><button className="icon-button" aria-label="Close guide" onClick={() => setGuideOpen(false)}><X size={18} /></button></div>

@@ -30,7 +30,7 @@ import { DEFAULT_BACKEND_URL, getRuntimeBackendUrl } from "./runtime-backend";
 
 const CONFIGURED_API_URL = DEFAULT_BACKEND_URL;
 
-function apiUrl(): string {
+export function apiUrl(): string {
   if (typeof window === "undefined") {
     return CONFIGURED_API_URL;
   }
@@ -70,11 +70,12 @@ export class ApiError extends Error {
 
 // The server treats a second use of a rotated refresh token as theft and ends every
 // session. Several calls can hit 401 together after an idle spell, so they share one
-// refresh rather than each starting their own.
+// refresh rather than each starting their own. A 409 means another tab refreshed a
+// moment ago: the new cookie is already in the jar, so the retry will work.
 let refreshInFlight: Promise<boolean> | null = null;
 function refreshOnce(baseUrl: string): Promise<boolean> {
   refreshInFlight ??= fetch(`${baseUrl}/auth/cookie/refresh`, { method: "POST", credentials: "include" })
-    .then(response => response.ok)
+    .then(response => response.ok || response.status === 409)
     .catch(() => false)
     .finally(() => { refreshInFlight = null; });
   return refreshInFlight;
@@ -133,10 +134,11 @@ export async function request<T>(
 export async function login(
   email: string,
   password: string,
+  secondFactor: { mfa_code?: string; recovery_code?: string } = {},
 ): Promise<User> {
   return request<User>("/auth/cookie/login", {
     method: "POST",
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password, ...secondFactor }),
   }, false);
 }
 
@@ -144,17 +146,30 @@ export async function register(
   name: string,
   email: string,
   password: string,
+  consentNoticeVersion?: string,
 ): Promise<User> {
   return request<User>("/auth/cookie/register", {
     method: "POST",
-    body: JSON.stringify({ name, email, password, role: "citizen" }),
+    body: JSON.stringify({
+      name,
+      email,
+      password,
+      role: "citizen",
+      ...(consentNoticeVersion ? { consent_notice_version: consentNoticeVersion } : {}),
+    }),
   }, false);
 }
 
 export async function refreshSession(): Promise<User> {
-  return request<User>("/auth/cookie/refresh", {
-    method: "POST",
-  }, false);
+  try {
+    return await request<User>("/auth/cookie/refresh", {
+      method: "POST",
+    }, false);
+  } catch (error) {
+    // Another tab rotated the token a moment ago, so the cookie is already fresh.
+    if (error instanceof ApiError && error.status === 409) return getMe();
+    throw error;
+  }
 }
 
 export async function logout(): Promise<void> {

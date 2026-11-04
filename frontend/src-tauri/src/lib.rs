@@ -220,7 +220,14 @@ fn open_ollama_download() -> Result<(), String> {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_process::init())
-        .plugin(tauri_plugin_updater::Builder::new().build())
+        // Only release builds carry an updater key and endpoint. The plugin refuses
+        // to initialise without them, which aborted every locally built app at launch.
+        .setup(|app| {
+            if app.config().plugins.0.contains_key("updater") {
+                app.handle().plugin(tauri_plugin_updater::Builder::new().build())?;
+            }
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             get_system_readiness,
             pull_ollama_model,
