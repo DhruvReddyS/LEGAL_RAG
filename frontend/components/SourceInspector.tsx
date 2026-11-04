@@ -12,7 +12,7 @@ export default function SourceInspector({
   source,
   onClose,
 }: {
-  source: SourceEvidence;
+  source: SourceEvidence & { source_url?: string | null };
   onClose: () => void;
 }) {
   const verified = source.verification_status === "verified";
@@ -136,6 +136,7 @@ export default function SourceInspector({
           <section className="mt-5 rounded-2xl border border-[var(--border)] bg-[var(--hover)] p-5">
             <div className="flex items-center gap-2 text-xs font-semibold text-[var(--ink)]"><FileText size={15} className="text-[var(--accent)]" />Retrieved passage</div>
             <blockquote className="mt-3 whitespace-pre-wrap text-sm leading-6 text-[var(--ink-soft)]">{source.excerpt}</blockquote>
+            {source.source_url && <a className="mt-3 inline-block text-xs font-medium text-[var(--accent)] hover:underline" href={source.source_url} target="_blank" rel="noopener noreferrer">Open the official source</a>}
           </section>
 
           <div className={`mt-5 flex items-start gap-3 rounded-xl border p-4 ${verified ? "border-[var(--state-ok-line)] bg-[var(--state-ok-bg)]" : "border-[var(--state-warn-line)] bg-[var(--state-warn-bg)]"}`}>

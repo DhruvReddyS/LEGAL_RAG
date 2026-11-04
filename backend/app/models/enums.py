@@ -48,6 +48,7 @@ class JobType(StrEnum):
     OCR_INGESTION = "ocr_ingestion"
     DOCUMENT_ANALYSIS = "document_analysis"
     EXPORT = "export"
+    DEBATE_ROOM = "debate_room"
 
 
 class JobStatus(StrEnum):

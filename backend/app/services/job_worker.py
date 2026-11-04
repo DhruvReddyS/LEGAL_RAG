@@ -15,6 +15,8 @@ from app.core.database import AsyncSessionLocal
 from app.models import AuditLog, Case, CaseDocument, ChatMessage, Job, StorageObject, User
 from app.models.enums import ChatMessageRole, JobStatus, JobType
 from app.services.case_documents import CaseDocumentIndexingService
+from app.services.advocate_work import save_work_product
+from app.services.debate_room import DebateStopped, run_debate
 from app.services.document_analysis import DocumentAnalysisService
 from app.services.jobs import (
     append_job_event,
@@ -225,6 +227,7 @@ class DurableJobWorker:
                         JobType.DEEP_REVIEW,
                         JobType.OCR_INGESTION,
                         JobType.DOCUMENT_ANALYSIS,
+                        JobType.DEBATE_ROOM,
                     ),
                 )
                 if job is None or job.status is JobStatus.CANCELLED:
@@ -254,6 +257,8 @@ class DurableJobWorker:
             elif job.type is JobType.DOCUMENT_ANALYSIS:
                 await self._record_progress(job_id, "document_analysis", "started", {})
                 await self._execute_document_analysis(job_id, payload)
+            elif job.type is JobType.DEBATE_ROOM:
+                await self._execute_debate_room(job_id, payload)
             else:
                 raise ValueError("Unsupported durable job type")
         except asyncio.CancelledError:
@@ -525,6 +530,48 @@ class DurableJobWorker:
                     {"case_id": str(case.id), "document_id": str(document.id)},
                 )
 
+    async def _execute_debate_room(
+        self,
+        job_id: uuid.UUID,
+        payload: dict[str, Any],
+    ) -> None:
+        try:
+            content = await self._run_deep_with_cancellation(
+                job_id,
+                run_debate(
+                    job_id,
+                    payload,
+                    retrieval=self.workflow.retrieval,
+                    llm=self.workflow.llm,
+                ),
+            )
+        except DebateStopped as stopped:
+            raise JobCancellationRequested from stopped
+        async with AsyncSessionLocal() as session:
+            async with session.begin():
+                job = await self._running_job_for_update(session, job_id)
+                if job is None:
+                    return
+                if job.cancel_requested:
+                    mark_job_cancelled(job)
+                    return
+                case_id = uuid.UUID(str(payload["case_id"]))
+                product = await save_work_product(
+                    session,
+                    case_id=case_id,
+                    user_id=job.user_id,
+                    kind="debate",
+                    title=f"Debate: {str(payload['proposition'])[:200]}",
+                    status="draft",
+                    content=content,
+                )
+                self._complete_job(
+                    session,
+                    job,
+                    {"work_product_id": str(product.id), "summary": content["summary"]},
+                    {"case_id": str(case_id), "work_product_id": str(product.id)},
+                )
+
     @staticmethod
     async def _running_job_for_update(session: Any, job_id: uuid.UUID) -> Job | None:
         job = await session.scalar(
@@ -630,6 +677,7 @@ class DurableJobWorker:
             JobType.OCR_INGESTION: "OCR ingestion",
             JobType.DOCUMENT_ANALYSIS: "Document analysis",
             JobType.EXPORT: "Export",
+            JobType.DEBATE_ROOM: "Debate room",
         }[job_type]
 
     @staticmethod
