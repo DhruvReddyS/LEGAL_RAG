@@ -128,7 +128,7 @@ function ForcedPasswordDialog({ onChanged, onSignOut }: { onChanged: () => void;
  * knows comes first: consent given under someone else's password is not worth
  * much. `onCleared` lets the page reload what the server refused until now.
  */
-export default function AccountGate({ user, onCleared, onSignOut }: { user: { id: string; name: string }; onCleared: () => void; onSignOut: () => void }) {
+export default function AccountGate({ user, onCleared, onSignOut, onOpenAccount }: { user: { id: string; name: string }; onCleared: () => void; onSignOut: () => void; onOpenAccount?: () => void }) {
   const [status, setStatus] = useState<AccountStatus | null>(null);
 
   const refresh = useCallback(() => {
@@ -144,5 +144,6 @@ export default function AccountGate({ user, onCleared, onSignOut }: { user: { id
   if (!status) return null;
   if (status.must_change_password) return <ForcedPasswordDialog onChanged={cleared} onSignOut={onSignOut} />;
   if (status.consent.required) return <ConsentDialog user={user} onAccepted={cleared} onSignOut={onSignOut} />;
+  if (status.mfa_setup_required) return <aside className="mfa-required-notice" role="alert"><ShieldCheck size={16} aria-hidden="true"/><p>Your administrator requires two-step verification. Set it up to keep using this account.</p>{onOpenAccount && <button type="button" onClick={onOpenAccount}>Set it up</button>}</aside>;
   return null;
 }

@@ -40,7 +40,7 @@ from app.models import (
     UserSecurity,
     UserSession,
 )
-from app.models.enums import CaseRoleType, ChatMessageRole, FeedbackRating, JobStatus, JobType
+from app.models.enums import CaseRoleType, ChatMessageRole, FeedbackRating, JobStatus, JobType, UserRole
 from app.services import privacy
 from app.services.privacy_notice import PRIVACY_NOTICE_VERSION
 from app.services.rate_limit import user_rate_limiter
@@ -609,3 +609,39 @@ async def test_the_retention_setting_is_readable_by_administrators_and_nobody_el
     assert allowed.json()["chat_retention_days"] == 365
     assert public.json()["retention"]["chat_retention_days"] == 365
     assert privacy.retention_policy()["chats_kept_until_deleted"] is False
+
+
+async def test_an_administrators_flags_are_enforced_at_the_gate() -> None:
+    """A flag the console shows as set must actually stop the account."""
+    from fastapi import HTTPException
+
+    from app.models import AccountFlag
+    from app.services.account_gate import (
+        MFA_SETUP_REQUIRED,
+        PASSWORD_CHANGE_REQUIRED,
+        assert_account_may_proceed,
+    )
+
+    async with AsyncSessionLocal() as session:
+        user = User(
+            name="Flagged",
+            email=f"flagged-{uuid.uuid4().hex[:8]}@example.com",
+            hashed_password="x",
+            role=UserRole.CITIZEN,
+        )
+        session.add(user)
+        await session.flush()
+        session.add(AccountFlag(user_id=user.id, force_password_reset=True))
+        await session.flush()
+        with pytest.raises(HTTPException) as reset:
+            await assert_account_may_proceed(session, user)
+        assert reset.value.detail == PASSWORD_CHANGE_REQUIRED
+
+        flags = await session.get(AccountFlag, user.id)
+        flags.force_password_reset = False
+        flags.mfa_required = True
+        await session.flush()
+        with pytest.raises(HTTPException) as mfa:
+            await assert_account_may_proceed(session, user)
+        assert mfa.value.detail == MFA_SETUP_REQUIRED
+        await session.rollback()

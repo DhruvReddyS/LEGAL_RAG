@@ -43,7 +43,20 @@ from app.models import (
     User,
     UserSession,
 )
+from app.models.advocate import AdvocateWorkProduct, MatterCalendarEvent
+from app.models.citizen import CitizenDeadline
 from app.models.enums import UserRole
+from app.models.police import (
+    PoliceComplianceRecord,
+    PoliceCustodyEvent,
+    PoliceDeadlineCompletion,
+    PoliceDiaryEntry,
+    PoliceEvidenceItem,
+    PoliceOffenceAssessment,
+    PoliceRemandPeriod,
+    PoliceSearch,
+    PoliceWitness,
+)
 from app.services.privacy_notice import PRIVACY_NOTICE_VERSION, notice_document
 from app.services.storage import create_s3_client
 
@@ -281,6 +294,23 @@ async def build_export(session: AsyncSession, user: User) -> dict[str, Any]:
         "case_documents": await rows_for_cases(CaseDocument),
         "generated_documents": await rows_for_cases(GeneratedDocument),
         "investigation_facts": await rows_for_cases(InvestigationFacts),
+        "police_searches": await rows_for_cases(PoliceSearch),
+        "police_evidence": await rows_for_cases(PoliceEvidenceItem),
+        "police_custody_events": await rows_for_cases(PoliceCustodyEvent),
+        "police_witnesses": await rows_for_cases(PoliceWitness),
+        "police_deadline_completions": await rows_for_cases(PoliceDeadlineCompletion),
+        "police_compliance_records": await rows_for_cases(PoliceComplianceRecord),
+        "police_offence_assessments": await rows_for_cases(PoliceOffenceAssessment),
+        "police_remand_periods": await rows_for_cases(PoliceRemandPeriod),
+        "police_diary": await rows_for_cases(PoliceDiaryEntry),
+        "advocate_work": await rows_for_cases(AdvocateWorkProduct),
+        "matter_calendar": await rows_for_cases(MatterCalendarEvent),
+        "my_matter_deadlines": [
+            _row_dict(row)
+            for row in (
+                await session.scalars(select(CitizenDeadline).where(CitizenDeadline.user_id == user.id))
+            ).all()
+        ],
         "stored_files": [_row_dict(row) for row in storage],
         "activity": [
             {

@@ -48,10 +48,10 @@ _REAL_SECRETS = {
 @pytest.mark.parametrize(
     "overrides, message",
     [
-        ({}, "published default"),
-        ({"jwt_secret_key": "", "jwt_refresh_secret_key": "b" * 40}, "published default"),
-        ({"jwt_secret_key": "CHANGE_ME", "jwt_refresh_secret_key": "b" * 40}, "published default"),
-        ({"jwt_secret_key": "short", "jwt_refresh_secret_key": "b" * 40}, "at least 32 bytes"),
+        ({}, "public default"),
+        ({"jwt_secret_key": "", "jwt_refresh_secret_key": "b" * 40}, "shorter than 32"),
+        ({"jwt_secret_key": "CHANGE_ME", "jwt_refresh_secret_key": "b" * 40}, "public default"),
+        ({"jwt_secret_key": "short", "jwt_refresh_secret_key": "b" * 40}, "shorter than 32"),
         ({"jwt_secret_key": "c" * 40, "jwt_refresh_secret_key": "c" * 40}, "must differ"),
     ],
 )
@@ -60,8 +60,8 @@ def test_production_refuses_to_start_on_a_signing_key_anyone_can_read(
 ) -> None:
     monkeypatch.delenv("JWT_SECRET_KEY", raising=False)
     monkeypatch.delenv("JWT_REFRESH_SECRET_KEY", raising=False)
-    with pytest.raises(ValidationError, match=message):
-        Settings(_env_file=None, app_env="production", **overrides)
+    problems = Settings(_env_file=None, app_env="production", **overrides).insecure_secrets()
+    assert any(message in problem for problem in problems), problems
 
 
 def test_development_keeps_its_convenient_defaults(monkeypatch) -> None:

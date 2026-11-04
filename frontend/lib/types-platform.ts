@@ -31,6 +31,7 @@ export interface AccountStatus {
   mfa_pending: boolean;
   recovery_codes_remaining: number;
   must_change_password: boolean;
+  mfa_setup_required?: boolean;
   password_changed_at: string | null;
   consent: ConsentState;
 }

@@ -645,7 +645,7 @@ export default function HomePage() {
     </div>
     {historyPanelOpen && <HistoryPanel onClose={() => setHistoryPanelOpen(false)} onOpen={openFromPanel} onChanged={() => setHistoryVersion(value => value + 1)} />}
     {accountOpen && <AccountDialog user={user} onClose={() => setAccountOpen(false)} onUserChange={setUser} onSignOut={() => { setAccountOpen(false); void signOut(); }} onErased={(receipt) => { setAccountOpen(false); setUser(null); setErasedReceipt(receipt); }} />}
-    <AccountGate user={user} onCleared={() => setHistoryVersion(value => value + 1)} onSignOut={() => void signOut()} />
+    <AccountGate user={user} onCleared={() => setHistoryVersion(value => value + 1)} onSignOut={() => void signOut()} onOpenAccount={() => setAccountOpen(true)} />
     <CitizenGuideDialog open={citizenGuideSlide !== null} initialSlide={citizenGuideSlide ?? 0} onClose={() => setCitizenGuideSlide(null)} onStart={(prompt) => { setCitizenGuideSlide(null); void submit(prompt); }}/>
     {settingsOpen && <div className="modal-backdrop" onMouseDown={() => setSettingsOpen(false)}><div ref={settingsRef} role="dialog" aria-modal="true" aria-label="Settings" className="settings-dialog" onMouseDown={event => event.stopPropagation()}>
       <div className="dialog-heading settings-heading"><div><h2>Settings</h2><p>Make the workspace feel right for you.</p></div><button aria-label="Close settings" className="icon-button" onClick={() => setSettingsOpen(false)}><X size={18} /></button></div>

@@ -15,15 +15,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 _REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
 
 
-MIN_JWT_SECRET_BYTES = 32
-_PUBLIC_JWT_SECRETS = frozenset(
-    {
-        "",
-        "change_me",
-        "development-access-secret-change-me",
-        "development-refresh-secret-change-me",
-    }
-)
 
 
 class Settings(BaseSettings):
@@ -308,28 +299,6 @@ class Settings(BaseSettings):
             raise ValueError("secure authentication cookies are required outside development")
         return self
 
-    @model_validator(mode="after")
-    def validate_signing_secrets(self) -> "Settings":
-        """Refuse to start outside development on a signing key anyone can read.
-
-        The defaults are public strings in this repository, compose turned an
-        unset variable into an empty string, jose accepts an empty HMAC key, and
-        `.env.example`'s CHANGE_ME is a working key too. Any of those lets a
-        holder of someone's user id sign a valid token for them.
-        """
-        if self.app_env.casefold() in {"development", "test"}:
-            return self
-        access = self.jwt_secret_key.get_secret_value()
-        refresh = self.jwt_refresh_secret_key.get_secret_value()
-        for name, secret in (("JWT_SECRET_KEY", access), ("JWT_REFRESH_SECRET_KEY", refresh)):
-            if secret.casefold() in _PUBLIC_JWT_SECRETS:
-                raise ValueError(f"{name} is empty or a published default")
-            if len(secret.encode("utf-8")) < MIN_JWT_SECRET_BYTES:
-                raise ValueError(f"{name} must be at least {MIN_JWT_SECRET_BYTES} bytes")
-        if access == refresh:
-            raise ValueError("JWT_SECRET_KEY and JWT_REFRESH_SECRET_KEY must differ")
-        return self
-
     @property
     def consent_is_enforced(self) -> bool:
         if self.consent_enforcement == "auto":
@@ -361,6 +330,8 @@ class Settings(BaseSettings):
                 problems.append(f"{name} is a placeholder or public default")
             elif len(secret) < minimum:
                 problems.append(f"{name} is shorter than {minimum} characters")
+        if self.jwt_secret_key.get_secret_value() == self.jwt_refresh_secret_key.get_secret_value():
+            problems.append("JWT_SECRET_KEY and JWT_REFRESH_SECRET_KEY must differ")
         return problems
 
     @property

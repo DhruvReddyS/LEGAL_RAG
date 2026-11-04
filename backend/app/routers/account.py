@@ -27,7 +27,7 @@ from app.core.security import (
     get_current_user,
     verify_password,
 )
-from app.models import AuditLog, User, UserSecurity
+from app.models import AccountFlag, AuditLog, User, UserSecurity
 from app.schemas.account import (
     AccountStatus,
     AdminErasureRequest,
@@ -153,11 +153,14 @@ async def account_status(
 ) -> AccountStatus:
     row = await session.get(UserSecurity, user.id)
     enabled = bool(row and row.totp_confirmed_at and row.totp_secret_encrypted)
+    flags = await session.get(AccountFlag, user.id)
     return AccountStatus(
         mfa_enabled=enabled,
         mfa_pending=bool(row and row.totp_secret_encrypted and not row.totp_confirmed_at),
         recovery_codes_remaining=await account_security.remaining_recovery_codes(session, user.id),
-        must_change_password=bool(row and row.must_change_password),
+        must_change_password=bool(row and row.must_change_password)
+        or bool(flags and flags.force_password_reset),
+        mfa_setup_required=bool(flags and flags.mfa_required and not enabled),
         password_changed_at=row.password_changed_at if row else None,
         consent=ConsentState(**await privacy.consent_state(session, user)),
     )

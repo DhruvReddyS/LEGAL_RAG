@@ -375,3 +375,5 @@ html[data-low-bandwidth="on"] *,html[data-low-bandwidth="on"] *::before,html[dat
   .cover-actions {display:none;}
   .specimen {box-shadow:none;border:1px solid #999;}
 }
+.mfa-required-notice {position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:10px;max-width:min(560px,calc(100vw - 32px));padding:10px 14px;border:1px solid var(--state-warn-line);border-radius:10px;background:var(--state-warn-bg);color:var(--ink);font-size:13px;line-height:1.45;}
+.mfa-required-notice button {flex:none;min-height:36px;padding:0 12px;border-radius:8px;border:1px solid var(--border);font-weight:600;}

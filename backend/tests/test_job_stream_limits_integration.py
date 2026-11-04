@@ -105,7 +105,7 @@ async def test_someone_elses_stream_takes_no_slot_and_is_refused() -> None:
         refused = await client.get(
             f"/jobs/{job_id}/events", headers={"Authorization": f"Bearer {stranger['access_token']}"}
         )
-    assert refused.status_code == 403
+    assert refused.status_code == 404
     assert job_stream_gate.open_count(stranger["user"]["id"]) == 0
 
 

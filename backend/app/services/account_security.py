@@ -22,6 +22,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.core.security import hash_password, verify_password
 from app.models import (
+    AccountFlag,
     AuditLog,
     PasswordResetCode,
     RecoveryCode,
@@ -273,6 +274,9 @@ async def set_password(
     row = await _security_row(session, user.id)
     row.must_change_password = False
     row.password_changed_at = _utcnow()
+    flags = await session.get(AccountFlag, user.id)
+    if flags is not None:
+        flags.force_password_reset = False
     await revoke_other_sessions(session, user, keep_session)
     # Tokens carrying no session id cannot be revoked one by one. Whole seconds,
     # because JWT `iat` is whole seconds: microseconds here would reject the

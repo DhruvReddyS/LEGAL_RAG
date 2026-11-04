@@ -184,7 +184,7 @@ async def test_a_foreign_case_is_refused_on_every_route(harness: Harness, method
     else:
         body = BODIES.get(suffix, {"case_scenario": FACTS})
         response = await harness.client.request(method, url, json=body, headers=headers)
-    assert response.status_code == 403, f"{method} {path}: {response.status_code} {response.text}"
+    assert response.status_code == 404, f"{method} {path}: {response.status_code} {response.text}"
     assert harness.llm.prompts == []
     assert harness.retrieval.calls == []
 

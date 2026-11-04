@@ -12,22 +12,30 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
-from app.models import ConsentRecord, User, UserSecurity
+from app.models import AccountFlag, ConsentRecord, User, UserSecurity
 from app.services.privacy_notice import PRIVACY_NOTICE_VERSION
 
 CONSENT_REQUIRED = "consent_required"
 PASSWORD_CHANGE_REQUIRED = "password_change_required"
+MFA_SETUP_REQUIRED = "mfa_setup_required"
 
 
 async def assert_account_may_proceed(session: AsyncSession, user: User) -> None:
-    must_change = await session.scalar(
-        select(UserSecurity.must_change_password).where(UserSecurity.user_id == user.id)
-    )
-    if must_change:
+    security = await session.get(UserSecurity, user.id)
+    # Set by an administrator in the console. A flag nobody reads at sign-in would
+    # show "enforced" on screen while enforcing nothing.
+    flags = await session.get(AccountFlag, user.id)
+    if (security is not None and security.must_change_password) or (
+        flags is not None and flags.force_password_reset
+    ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=PASSWORD_CHANGE_REQUIRED,
         )
+    if flags is not None and flags.mfa_required and (
+        security is None or security.totp_confirmed_at is None
+    ):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=MFA_SETUP_REQUIRED)
     if not settings.consent_is_enforced:
         return
     accepted = await session.scalar(

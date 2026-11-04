@@ -87,6 +87,7 @@ class AccountStatus(BaseModel):
     mfa_pending: bool
     recovery_codes_remaining: int
     must_change_password: bool
+    mfa_setup_required: bool = False
     password_changed_at: datetime | None
     consent: ConsentState
 

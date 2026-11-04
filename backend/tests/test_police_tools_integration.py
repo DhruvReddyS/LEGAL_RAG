@@ -108,7 +108,7 @@ async def test_a_stranger_is_refused_on_every_case_route(method: str, path: str)
     async with await _client() as client:
         response = await client.request(method, _fill(path, case_id), json={}, headers=stranger)
 
-    assert response.status_code == 403, f"{method} {path}: {response.status_code} {response.text}"
+    assert response.status_code == 404, f"{method} {path}: {response.status_code} {response.text}"
 
 
 @pytest.mark.asyncio
@@ -824,9 +824,9 @@ class TestSupervision:
             case = await client.get(f"/cases/{case_id}", headers=ctx["supervisor"])
             register = (await client.get(f"/police/deadlines", headers=ctx["supervisor"])).json()
 
-        assert {r.status_code for r in responses} == {403}
-        assert old.status_code == 403
-        assert documents.status_code == 403
+        assert {r.status_code for r in responses} == {404}
+        assert old.status_code == 404
+        assert documents.status_code == 404
         assert case.status_code in (403, 404)
         assert str(case_id) not in str(register)
 
