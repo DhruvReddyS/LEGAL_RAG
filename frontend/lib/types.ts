@@ -549,6 +549,11 @@ export interface InvestigationFacts {
   is_listed_sexual_offence: boolean;
   is_unnatural_death: boolean;
   is_custodial_death: boolean;
+  is_rape_or_attempt: boolean;
+  victim_examined_at: string | null;
+  arrested_under_warrant: boolean | null;
+  police_report_forwarded_at: string | null;
+  special_statute: "none" | "ndps_s36a";
 }
 
 export interface StoredInvestigationFacts extends InvestigationFacts {
@@ -565,6 +570,8 @@ export interface InvestigationDeadline {
   computed_from: string;
   is_earliest_possible: boolean;
   undetermined_because: string;
+  actor?: string;
+  notes?: string[];
   /** null when the deadline could not be computed. Never false in that case:
    *  false is a compliance finding, and none was made. */
   is_breached: boolean | null;
@@ -608,6 +615,8 @@ export interface ComplianceChecklist {
   /** Positively not done. An item nobody confirmed is in not_recorded. */
   outstanding: string[];
   not_recorded: string[];
+  /** What the list was computed with. They are stored, so a reload shows the same rows. */
+  flags: Record<string, boolean>;
 }
 
 export type AuthorityFinding =

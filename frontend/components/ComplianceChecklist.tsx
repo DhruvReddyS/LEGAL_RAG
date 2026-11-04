@@ -3,7 +3,10 @@
 import { CircleCheck, CircleDashed, CircleX, ClipboardCheck, Loader2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
+import { ComplianceRecordForm } from "@/components/police/ComplianceRecordForm";
 import { getComplianceChecklist, recordCompliance } from "@/lib/api";
+import { getComplianceRecords, listEvidence } from "@/lib/api-police";
+import type { ComplianceRecordItem, EvidenceItem } from "@/lib/types-police";
 import type { ComplianceChecklist as Checklist, ComplianceStatus, PoliceAction } from "@/lib/types";
 
 const ACTIONS: { value: PoliceAction; label: string }[] = [
@@ -20,11 +23,12 @@ const FLAGS_FOR: Record<PoliceAction, readonly (readonly [string, string])[]> = 
     ["arrested_person_is_woman", "Arrested person is a woman"],
     ["handcuffs_used", "Handcuffs were used"],
     ["memorandum_attested_by_family", "Memorandum attested by a family member"],
+    ["bailable_arrest_without_warrant", "Arrest without warrant, offence bailable"],
   ],
   search_and_seizure: [],
   case_diary: [],
   final_report: [
-    ["is_listed_sexual_offence", "Offence is listed under s.193(2) — BNS ss.64–71"],
+    ["is_listed_sexual_offence", "Clause (h) offence: BNS ss.64–68, 70 or 71. Not s.69, and not a POCSO offence on its own"],
     ["electronic_device_seized", "An electronic device was seized"],
   ],
 };
@@ -51,46 +55,74 @@ const PRESENTATION: Record<ComplianceStatus, { label: string; Icon: typeof Circl
 
 export function ComplianceChecklist({ caseId }: { caseId: string }) {
   const [action, setAction] = useState<PoliceAction>("arrest");
-  const [flags, setFlags] = useState<Record<string, boolean>>({
-    arrested_person_is_woman: false,
-    handcuffs_used: false,
-    memorandum_attested_by_family: false,
-    is_listed_sexual_offence: false,
-    electronic_device_seized: false,
-  });
   const [checklist, setChecklist] = useState<Checklist | null>(null);
+  const [records, setRecords] = useState<Record<string, ComplianceRecordItem>>({});
+  const [evidence, setEvidence] = useState<EvidenceItem[]>([]);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
+  // The flags are on the record, so a reload lists the same rows. Nothing is sent
+  // until the first read has said what they are: a save from the defaults would
+  // switch them off.
+  const flags = checklist?.flags ?? {};
+
+  const loadRecords = useCallback(async () => {
+    try {
+      const response = await getComplianceRecords(caseId, action);
+      setRecords(Object.fromEntries(response.items.map((item) => [item.key, item])));
+    } catch {
+      setRecords({});
+    }
+  }, [caseId, action]);
 
   const load = useCallback(async () => {
     if (!caseId) return;
     try {
-      setChecklist(await getComplianceChecklist(caseId, action, flags));
+      setChecklist(await getComplianceChecklist(caseId, action));
       setNotice("");
     } catch (error) {
+      // A failed read must not leave the last action's rows showing under this one.
+      setChecklist(null);
       setNotice(error instanceof Error ? error.message : "Could not load the checklist.");
     }
-  }, [caseId, action, flags]);
+    void loadRecords();
+  }, [caseId, action, loadRecords]);
 
   useEffect(() => { void load(); }, [load]);
+  useEffect(() => { if (caseId) listEvidence(caseId).then(setEvidence).catch(() => setEvidence([])); }, [caseId]);
 
-  const cycle = async (key: string) => {
-    if (!checklist) return;
-    const next: Record<string, ComplianceStatus> = {};
-    for (const item of checklist.items) {
-      const status = item.key === key ? CYCLE[item.status] : item.status;
-      // Only confirmed states are sent. Omitting a key is how it returns to
-      // not_recorded, which is how a mistaken tick is withdrawn.
-      if (status !== "not_recorded") next[item.key] = status;
-    }
+  const save = async (next: Record<string, ComplianceStatus>, nextFlags: Record<string, boolean>) => {
     setBusy(true);
     try {
-      setChecklist(await recordCompliance(caseId, action, next, flags));
+      setChecklist(await recordCompliance(caseId, action, next, nextFlags));
+      setNotice("");
+      await loadRecords();
     } catch (error) {
       setNotice(error instanceof Error ? error.message : "Could not record that.");
     } finally {
       setBusy(false);
     }
+  };
+
+  const currentStatus = () => {
+    const out: Record<string, ComplianceStatus> = {};
+    for (const item of checklist?.items ?? []) if (item.status !== "not_recorded") out[item.key] = item.status;
+    return out;
+  };
+
+  const cycle = async (key: string) => {
+    if (!checklist) return;
+    const next = currentStatus();
+    const moved = CYCLE[checklist.items.find((item) => item.key === key)?.status ?? "not_recorded"];
+    // Only confirmed states are sent. Omitting a key is how it returns to
+    // not_recorded, which is how a mistaken tick is withdrawn.
+    if (moved === "not_recorded") delete next[key];
+    else next[key] = moved;
+    await save(next, checklist.flags);
+  };
+
+  const toggleFlag = async (key: string, value: boolean) => {
+    if (!checklist) return;
+    await save(currentStatus(), { ...checklist.flags, [key]: value });
   };
 
   if (!caseId) return <p className="state-hint">Select a case to review its compliance record.</p>;
@@ -120,7 +152,8 @@ export function ComplianceChecklist({ caseId }: { caseId: string }) {
               <input
                 type="checkbox"
                 checked={!!flags[key]}
-                onChange={event => setFlags(current => ({ ...current, [key]: event.target.checked }))}
+                disabled={busy || !checklist}
+                onChange={event => void toggleFlag(key, event.target.checked)}
               />
               {label}
             </label>
@@ -163,6 +196,7 @@ export function ComplianceChecklist({ caseId }: { caseId: string }) {
                         {item.consequence}
                         {item.applies_because && <> Applies because {item.applies_because}.</>}
                       </p>
+                      <ComplianceRecordForm caseId={caseId} action={action} record={records[item.key]} evidence={evidence} onSaved={() => void loadRecords()} />
                     </div>
                     <span className="state-row-status">{shown.label}</span>
                   </div>

@@ -7,6 +7,7 @@ import {
   listCorpusIntakes, publishCorpusIntake, stageCorpusIntake, updateAdminUser,
   validateCorpusIntake,
 } from "@/lib/api";
+import { UnitAdminPanel } from "@/components/police/UnitAdminPanel";
 import type { AdminManagedUser, AdminOverview, AuditEvent, CorpusIntake } from "@/lib/types";
 
 const emptyOverview: AdminOverview = { users_total: 0, police_active: 0, advocates_active: 0, staged_intakes: 0, validated_intakes: 0, published_intakes: 0, audit_events: 0 };
@@ -109,5 +110,6 @@ export default function AdminWorkspace() {
     </div>
 
     <div id="admin-audit" className="admin-section-anchor panel mt-6 overflow-hidden"><div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4"><div><h3 className="text-sm font-semibold">Recent audit activity</h3><p className="mt-1 text-xs text-[var(--ink-soft)]">Append-only operational evidence trail. Use this to confirm who changed what and when.</p></div><Activity size={18} className="text-[var(--accent)]"/></div><div className="divide-y divide-[var(--border)]">{events.length ? events.slice(0, 12).map((event) => <div key={event.id} className="grid gap-1 px-5 py-3 text-xs sm:grid-cols-[1fr_1fr_auto]"><span className="font-medium text-[var(--ink)]">{event.action}</span><span className="text-[var(--ink-soft)]">{event.actor_name ?? "System"} / {event.resource_type}</span><time className="text-[var(--ink-soft)]">{new Date(event.timestamp).toLocaleString()}</time></div>) : <p className="px-5 py-10 text-center text-sm text-[var(--ink-soft)]">No administrative activity has been recorded yet.</p>}</div></div>
+    <UnitAdminPanel />
   </section>;
 }

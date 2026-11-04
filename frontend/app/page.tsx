@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import AuthModal from "@/components/AuthModal";
 import BrandLogo from "@/components/BrandLogo";
 import ChatInput from "@/components/ChatInput";
+import { scopeLockedReason } from "@/lib/police-presentation";
 import MessageBubble from "@/components/MessageBubble";
 import CitizenGuideDialog from "@/components/CitizenGuideDialog";
 import UploadPrivacy from "@/components/UploadPrivacy";
@@ -440,6 +441,9 @@ export default function HomePage() {
   // The nonce matters: clicking the same sidebar link twice must reopen
   // that view, and a bare value would not change on the second click.
   const [workspaceView, setWorkspaceView] = useState<{ view: string; nonce: number } | null>(null);
+  const [workspaceVisited, setWorkspaceVisited] = useState(false);
+  useEffect(() => { if (view === "workspace") setWorkspaceVisited(true); }, [view]);
+  useEffect(() => { setWorkspaceVisited(false); }, [user?.id]);
   const openTool = (target?: string) => {
     setView("workspace"); setMobileNav(false);
     setWorkspaceView(current => ({ view: target || "casefile", nonce: (current?.nonce ?? 0) + 1 }));
@@ -492,26 +496,30 @@ export default function HomePage() {
     {historyNotice && <div className="history-toast" role="status"><span>{historyNotice}</span><button aria-label="Dismiss notification" onClick={() => setHistoryNotice("")}><X size={13}/></button></div>}
     <div className="app-content" ref={node => { if(node) node.inert = compactNavigation && mobileNav; }}>
       <header className="workspace-header"><button className="icon-button lg:hidden" aria-label="Open navigation" onClick={() => setMobileNav(true)}><Menu size={20} /></button><span>{view === "workspace" ? role === "police" ? "Investigation workspace" : role === "advocate" ? "Your case workspace" : "Administration" : " "}</span>{view === "workspace" && <button className="text-sm text-neutral-500" onClick={() => setView("research")}><MessageSquare size={16} className="mr-2 inline" />Back to chat</button>}</header>
-      {view === "workspace" && hasOperationsWorkspace ? role === "admin" ? <AdminWorkspace /> : <ProfessionalWorkspace
+      {/* Stays mounted once opened: going back to chat must not lose an unsaved
+          narrative or the selected case. */}
+      {hasProfessionalWorkspace && workspaceVisited && <div hidden={view !== "workspace"}><ProfessionalWorkspace
+          key={user.id}
           user={user}
           chats={history.filter(item => item.caseId).map(item => ({ id: item.id, sessionId: item.sessionId, title: item.title, caseId: item.caseId ?? null, updatedAt: item.updatedAt ?? 0 }))}
           onCasesChange={setChatCases}
           onNewMatterChat={(caseId) => resetResearch(caseId)}
           onOpenMatterChat={(chatId) => { const saved = history.find(item => item.id === chatId); if (saved) openSavedChat(saved); }}
           requestedView={workspaceView}
-        /> :
+        /></div>}
+      {view === "workspace" && hasOperationsWorkspace ? role === "admin" ? <AdminWorkspace /> : null :
       <section className={`chat-workspace ${messages.length ? "has-conversation" : ""}`}>
         {!messages.length ? <div className="chat-welcome">
           <div className="welcome-symbol"><Scale size={32} strokeWidth={1.3} /></div>
           <h1>{role === "citizen" ? "Let’s make sense of the law." : role === "police" ? "What are you investigating?" : role === "advocate" ? "Where does your argument begin?" : "What would you like to research?"}</h1>
           <p>{role === "citizen" ? "Ask in your own words. We’ll start from there." : role === "police" ? "Explore procedure, preserve evidence, and build your record." : role === "advocate" ? "Find authority. Explore both sides. Refine your position." : "Explore your legal corpus."}</p>
-          <ChatInput key={`${sessionId}:${draftVersion}`} onSend={submit} onStop={stopResearch} loading={loading} mode={responseMode} onModeChange={setResponseMode} cases={chatCases} caseId={chatCaseId} onCaseChange={setChatCaseId} placeholder={experience.placeholder} />
+          <ChatInput key={`${sessionId}:${draftVersion}`} onSend={submit} onStop={stopResearch} loading={loading} mode={responseMode} onModeChange={setResponseMode} cases={chatCases} caseId={chatCaseId} onCaseChange={setChatCaseId} scopeLockedReason={scopeLockedReason(sessionId)} placeholder={experience.placeholder} />
           <div className="prompt-shortcuts">{experience.suggestions.map((suggestion,index) => { const Icon = [FilePenLine, ScanSearch, ShieldCheck, BookOpenText][index]; return <button key={suggestion.title} disabled={loading} onClick={() => void submit(suggestion.text)}><Icon size={16} strokeWidth={1.6} />{suggestion.title}</button>; })}</div>
           <button className="guide-invite" onClick={() => role === "citizen" ? setCitizenGuideSlide(0) : setGuideOpen(true)}><HelpCircle size={14} />First time here? Take a quick look</button>
         </div> : <>
           <div className="conversation">{messages.map((message,index) => <div key={message.id} ref={index === messages.length-1 ? latestMessage : undefined}>{!!message.helplines?.length && <HelplineNotice contacts={message.helplines}/>}<MessageBubble message={message} onEdit={!loading && !message.documents?.some(document => !document.pages.length) ? (text) => void submit(text, message.documents, false, index) : undefined} onForgetDocuments={() => { const ids = new Set(message.documents?.map(document => document.id)); const clear = (items: ChatMessage[]) => items.map(item => ({...item, documents: item.documents?.map(document => ids.has(document.id) ? {...document, pages: []} : document)})); setMessages(clear); setHistory(current => current.map(item => ({...item, messages: clear(item.messages)}))); }} onRegenerate={!loading && message.role === "assistant" && index === messages.length-1 ? () => { const question=messages.slice(0,index).reverse().find(item=>item.role==="user"); if(question) void submit(question.content, question.documents, true); } : undefined} /></div>)}</div>
           {awayFromLatest && <button className="jump-latest" aria-label="Jump to latest message" onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: animate ? "smooth" : "auto" })}><ArrowDown size={17}/></button>}
-          <div className="conversation-composer"><ChatInput key={`${sessionId}:${draftVersion}`} onSend={submit} onStop={stopResearch} loading={loading} mode={responseMode} onModeChange={setResponseMode} cases={chatCases} caseId={chatCaseId} onCaseChange={setChatCaseId} /></div>
+          <div className="conversation-composer"><ChatInput key={`${sessionId}:${draftVersion}`} onSend={submit} onStop={stopResearch} loading={loading} mode={responseMode} onModeChange={setResponseMode} cases={chatCases} caseId={chatCaseId} onCaseChange={setChatCaseId} scopeLockedReason={scopeLockedReason(sessionId)} /></div>
         </>}
       </section>}
     </div>

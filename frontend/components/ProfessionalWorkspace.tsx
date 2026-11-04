@@ -5,6 +5,8 @@ import { useEffect, useMemo, useState } from "react";
 import { AuthorityCheck } from "@/components/AuthorityCheck";
 import { ComplianceChecklist } from "@/components/ComplianceChecklist";
 import { InvestigationTimeline } from "@/components/InvestigationTimeline";
+import { isPoliceView, PoliceToolView, usePoliceTools, type PoliceViewKey } from "@/components/police/PoliceTools";
+import { caseTimelineMessage, type CaseTimelineState } from "@/lib/police-presentation";
 import { ApiError, analyseDefence, createCase, draftFir, getInvestigationTimeline, indexCaseEvidence, listCases, listGeneratedDocuments, listIndexedCaseDocuments, readGeneratedDocument, scopedSearch, updateCase, uploadCaseEvidence } from "@/lib/api";
 import type { CaseDocumentSummary, DefenceAnalysisResponse, FIRDraftResponse, GeneratedDocumentSummary, InvestigationTimeline as InvestigationTimelineData, LegalCase, RetrievalHit, User } from "@/lib/types";
 import DocumentAnalyzerWorkspace from "@/components/DocumentAnalyzerWorkspace";
@@ -82,17 +84,18 @@ export default function ProfessionalWorkspace({
     listGeneratedDocuments(selectedId).then((r) => { if (!cancelled) setDrafts(r.documents); }).catch(() => { if (!cancelled) setDrafts(null); });
     return () => { cancelled = true; };
   }, [selectedId, documentRefresh, draft, analysis]);
-  const [timeline, setTimeline] = useState<InvestigationTimelineData | "none" | null>(null);
+  const [timeline, setTimeline] = useState<CaseTimelineState<InvestigationTimelineData>>({ kind: "loading" });
+  const [timelineRefresh, setTimelineRefresh] = useState(0);
   useEffect(() => {
-    if (!selectedId || !isPolice) { setTimeline(null); return; }
+    if (!selectedId || !isPolice) { setTimeline({ kind: "none" }); return; }
     let cancelled = false;
-    setTimeline(null);
+    setTimeline({ kind: "loading" });
     getInvestigationTimeline(selectedId)
-      .then((r) => { if (!cancelled) setTimeline(r); })
-      .catch((error) => { if (!cancelled) setTimeline(error instanceof ApiError && error.status === 404 ? "none" : null); });
+      .then((r) => { if (!cancelled) setTimeline({ kind: "loaded", timeline: r }); })
+      .catch((error) => { if (!cancelled) setTimeline({ kind: error instanceof ApiError && error.status === 404 ? "none" : "failed" }); });
     return () => { cancelled = true; };
-  }, [selectedId, isPolice, documentRefresh]);
-  const computed = timeline === "none" ? null : timeline;
+  }, [selectedId, isPolice, documentRefresh, timelineRefresh]);
+  const computed = timeline.kind === "loaded" ? timeline.timeline : null;
   const nextDeadline = useMemo(() => {
     const dated = (computed?.deadlines ?? []).filter((item) => item.due_at && !item.is_breached);
     return dated.sort((a, b) => Date.parse(a.due_at!) - Date.parse(b.due_at!))[0] ?? null;
@@ -192,8 +195,9 @@ export default function ProfessionalWorkspace({
   };
 
 
-type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" | "search" | "evidence" | "documents";
+type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" | "search" | "evidence" | "documents" | PoliceViewKey;
 
+  const police = usePoliceTools(isPolice);
   const tools: { key: ViewKey; label: string; icon: typeof Scale; title: string; blurb: string; needsMatter: boolean }[] = [
     {
       key: "casefile",
@@ -220,7 +224,7 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
             label: "Deadlines",
             icon: CalendarClock,
             title: "Investigation deadlines",
-            blurb: "Nine BNSS time limits, computed by date arithmetic rather than generated. A date left blank produces a stated unknown, never a guess.",
+            blurb: "BNSS time limits, computed by date arithmetic rather than generated. A date left blank produces a stated unknown, never a guess.",
             needsMatter: true,
           },
           {
@@ -231,6 +235,7 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
             blurb: "What the Sanhita requires to be recorded for an arrest, a search, the case diary and the final report. Nothing is assumed done.",
             needsMatter: true,
           },
+          ...police.tools,
         ])
       : []),
     {
@@ -454,11 +459,7 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
                       ) : nextDeadline ? (
                         <p className="case-line"><strong>{nextDeadline.obligation}</strong> &mdash; due {new Date(nextDeadline.due_at!).toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })} under {nextDeadline.provision}.</p>
                       ) : (
-                        <p className="case-empty">{
-                          timeline === "none" ? "No dates recorded for this case yet, so no BNSS period can be computed. Record the arrest, remand and information dates to start the clock."
-                          : timeline === null ? "The timeline could not be read."
-                          : `No deadline can be computed yet: ${timeline.undetermined.length} of ${timeline.deadlines.length} depend on dates that are not recorded.`
-                        }</p>
+                        <p className="case-empty">{caseTimelineMessage(timeline)}</p>
                       )}
                     </section>
                   )}
@@ -574,9 +575,13 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
                 </div>
               )}
 
-              {view === "deadlines" && <InvestigationTimeline caseId={selectedId} />}
-              {view === "compliance" && <ComplianceChecklist caseId={selectedId} />}
-              {view === "citations" && <AuthorityCheck caseId={selectedId} />}
+              {/* Keyed by case: nothing typed or fetched for one case may stand under another. */}
+              {view === "deadlines" && <InvestigationTimeline key={selectedId} caseId={selectedId} onSaved={() => setTimelineRefresh((value) => value + 1)} />}
+              {view === "compliance" && <ComplianceChecklist key={selectedId} caseId={selectedId} />}
+              {view === "citations" && <AuthorityCheck key={selectedId} caseId={selectedId} />}
+              {isPolice && isPoliceView(view) && (
+                <PoliceToolView view={view} caseId={selectedId} cases={cases} units={police.units} onOpenCase={(caseId) => { setSelectedId(caseId); setView("deadlines"); }} />
+              )}
 
               {view === "search" && (
                 <div>
@@ -624,7 +629,7 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
                 </div>
               )}
 
-              {view === "documents" && <DocumentAnalyzerWorkspace caseId={selectedId} role={user.role} refreshToken={documentRefresh} />}
+              {view === "documents" && <DocumentAnalyzerWorkspace key={selectedId} caseId={selectedId} role={user.role} refreshToken={documentRefresh} />}
             </>
           )}
         </div>
