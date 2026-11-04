@@ -2,6 +2,7 @@
 import { ArrowLeft, ArrowRight, CalendarPlus, CircleAlert } from "lucide-react";
 import { useEffect, useState } from "react";
 import { computeDeadline, isPast, routeSituation, SITUATIONS, type Answer, type DeadlineRule } from "@/lib/citizen-law/forums";
+import { formatDate } from "@/lib/citizen-i18n";
 import { provision } from "@/lib/citizen-law/law";
 import type { DeadlineDraft } from "@/lib/types-citizen";
 import { Cites, Disclaimer, HumanRoute } from "./shared";
@@ -17,7 +18,7 @@ function RuleCard({ rule, onRecord }: { rule: DeadlineRule; onRecord: (draft: De
     <h4>{rule.label[lang]}</h4>
     <label className="ctz-field" htmlFor={inputId}><span>{rule.fromLabel[lang]}</span><input id={inputId} className="field" type="date" value={from} max="2100-12-31" onChange={event => setFrom(event.target.value)}/></label>
     {due ? <div className={`ctz-due ${isPast(due, today) ? "is-past" : ""}`} role="status">
-      <span>{t("lastDay")}</span><strong>{due}</strong>
+      <span>{t("lastDay")}</span><strong>{formatDate(due, lang)}</strong>
       {isPast(due, today) && <p><CircleAlert size={14} aria-hidden="true"/>{t("datePassed")}</p>}
       <button type="button" className="ctz-link" onClick={() => onRecord({ title: rule.label.en, due_on: due, source: "router", provision_label: provision(rule.cites[rule.cites.length - 1]).label })}><CalendarPlus size={14} aria-hidden="true"/>{t("addToMatter")}</button>
     </div> : <p className="ctz-note">{t("enterDate")}</p>}
@@ -38,7 +39,7 @@ export default function ForumRouter({ initialSituation, onRecord, onLegalAid }: 
     <p className="ctz-lead">{t("routerLead")}</p>
     <h3 className="ctz-section-title">{t("routerPick")}</h3>
     <ul className="ctz-choice-list">
-      {SITUATIONS.map(item => <li key={item.id}><button type="button" onClick={() => { setSituationId(item.id); setPicked(true); setAnswers({}); }}><span><strong>{item.title[lang]}</strong><small lang="en">{item.blurb.en}</small></span><ArrowRight size={16} aria-hidden="true"/></button></li>)}
+      {SITUATIONS.map(item => <li key={item.id}><button type="button" onClick={() => { setSituationId(item.id); setPicked(true); setAnswers({}); }}><span><strong>{item.title[lang]}</strong><small>{item.blurb[lang]}</small></span><ArrowRight size={16} aria-hidden="true"/></button></li>)}
       <li><button type="button" onClick={() => { setSituationId(null); setPicked(true); }}><span><strong>{t("routerOther")}</strong></span><ArrowRight size={16} aria-hidden="true"/></button></li>
     </ul>
     <Disclaimer/>

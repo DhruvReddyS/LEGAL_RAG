@@ -57,6 +57,13 @@ test('a phone inside an address line stays visible as its own detail, and both a
   assert.equal(masked.includes('14 Main Road'), false);
 });
 
+test('a cheque number just after an address is not taken for a PIN, and a real PIN is', () => {
+  const text = 'H.No 4-5 Gandhi Road.\nMy cheque no. 123456 was returned.';
+  assert.deepEqual(detectSensitive(text).map(span => span.value), ['H.No 4-5 Gandhi Road.']);
+  const withPin = 'H.No 4-5 Gandhi Road\n500034';
+  assert.deepEqual(detectSensitive(withPin).map(span => span.value), ['H.No 4-5 Gandhi Road', '500034']);
+});
+
 test('ordinary legal text is left alone', () => {
   assert.deepEqual(kinds('Section 138 of the Act. Dated 12/01/2026. Rs. 45,000/- within 15 days.'), []);
 });

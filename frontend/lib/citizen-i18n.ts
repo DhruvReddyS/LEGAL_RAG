@@ -187,6 +187,7 @@ export const UI = {
   welcomeLead: l("Ask in your own words. We’ll start from there.", "अपने शब्दों में पूछें। हम वहीं से शुरू करेंगे।", "మీ మాటల్లో అడగండి. అక్కడి నుండి మొదలుపెడతాం."),
   openTools: l("Or start from your situation", "या अपनी स्थिति से शुरू करें", "లేదా మీ పరిస్థితి నుండి మొదలుపెట్టండి"),
   beforeRely: l("Before you rely on this", "इस पर भरोसा करने से पहले", "దీనిపై ఆధారపడే ముందు"),
+  backToChat: l("Back to chat", "चैट पर वापस", "చాట్‌కు తిరిగి"),
   newChat: l("New chat", "नई चैट", "కొత్త చాట్"),
   gettingStarted: l("Getting started", "शुरुआत", "ప్రారంభం"),
   settings: l("Settings", "सेटिंग", "సెట్టింగ్‌లు"),
@@ -197,6 +198,13 @@ export type UiKey = keyof typeof UI;
 
 export function t(key: UiKey, lang: Lang): string {
   return UI[key][lang];
+}
+
+/** A calendar date in words, so 03/02/2026 can never be read the wrong way round. */
+export function formatDate(iso: string, lang: Lang): string {
+  const date = new Date(`${iso}T00:00:00Z`);
+  if (Number.isNaN(date.getTime())) return iso;
+  return new Intl.DateTimeFormat(`${lang}-IN`, { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(date);
 }
 
 export const LANG_STORAGE_KEY = "corpusil-language";

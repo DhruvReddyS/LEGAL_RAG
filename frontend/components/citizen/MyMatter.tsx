@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ApiError } from "@/lib/api";
 import { createDeadline, deleteDeadline, listDeadlines, updateDeadline } from "@/lib/api-citizen";
 import { buildIcs, dueLabel } from "@/lib/citizen-matter";
-import { UI } from "@/lib/citizen-i18n";
+import { formatDate, UI } from "@/lib/citizen-i18n";
 import { l, type Lang } from "@/lib/citizen-law/law";
 import type { CitizenDeadline, DeadlineDraft } from "@/lib/types-citizen";
 import { downloadText } from "./shared";
@@ -64,7 +64,7 @@ export default function MyMatter({ draft, onChange }: { draft?: DeadlineDraft | 
       <ul className="ctz-dates">{items.map(item => <li key={item.id} className="ctz-date" data-status={item.status}>
         <div className="ctz-date-main">
           <strong className="ctz-date-title">{item.title}</strong>
-          <span className="ctz-date-when">{item.due_on}</span>
+          <span className="ctz-date-when">{formatDate(item.due_on, lang)}</span>
           <span className="ctz-date-state">{dueLabel(item, { done: t("matterDone"), today: t("matterToday"), overdue: days => DAYS.over(days, lang), left: days => DAYS.left(days, lang) })}</span>
           {item.status === "overdue" && <p className="ctz-note">{STATUS_ORDER[lang]}</p>}
           {item.provision_label && <span className="ctz-note">{t("matterBasis")}: <span lang="en">{item.provision_label}</span></span>}

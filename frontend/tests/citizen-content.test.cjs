@@ -11,7 +11,7 @@ const { JOURNEYS, findStep } = loadTs('lib/citizen-law/journeys.ts');
 const { AID_CATEGORIES, AID_TEXT, checkLegalAid } = loadTs('lib/citizen-law/legal-aid.ts');
 const { DRAFT_TEMPLATES, DRAFT_MARK, renderDraft, repealWarnings } = loadTs('lib/citizen-law/drafts.ts');
 const { buildRightsHtml } = loadTs('lib/citizen-law/rights-export.ts');
-const { UI, parseLang } = loadTs('lib/citizen-i18n.ts');
+const { UI, parseLang, formatDate } = loadTs('lib/citizen-i18n.ts');
 
 const isL = value => value && typeof value === 'object' && 'en' in value && 'hi' in value && 'te' in value;
 
@@ -306,6 +306,12 @@ test('the saved copy is self-contained and carries the law in English in every l
   }
   assert.ok(devanagari.test(buildRightsHtml('hi')));
   assert.ok(telugu.test(buildRightsHtml('te')));
+});
+
+test('a date is written out, so day and month cannot be swapped', () => {
+  assert.match(formatDate('2026-02-03', 'en'), /3 February 2026/);
+  assert.ok(devanagari.test(formatDate('2026-02-03', 'hi')));
+  assert.equal(formatDate('nonsense', 'en'), 'nonsense');
 });
 
 test('an unknown stored language falls back to English', () => {

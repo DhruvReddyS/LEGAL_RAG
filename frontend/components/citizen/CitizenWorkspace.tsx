@@ -2,7 +2,7 @@
 import { ArrowLeft, ArrowRight, BookOpenCheck, CalendarDays, Compass, FilePenLine, FileSearch, HandHeart, Route, type LucideIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { listDeadlines } from "@/lib/api-citizen";
-import { type UiKey } from "@/lib/citizen-i18n";
+import { formatDate, type UiKey } from "@/lib/citizen-i18n";
 import type { ToolLink } from "@/lib/citizen-law/journeys";
 import { needsAttention } from "@/lib/citizen-matter";
 import type { CitizenDeadline, DeadlineDraft } from "@/lib/types-citizen";
@@ -32,7 +32,7 @@ type Open = { tool: CitizenTool | null; arg?: string; draft?: DeadlineDraft | nu
 
 /** The citizen's tools. Mounted from page.tsx, with `/` left as it was. */
 export default function CitizenWorkspace({ requested, onAsk }: { requested: { tool: CitizenTool | null; nonce: number } | null; onAsk: (question: string) => void }) {
-  const { t } = useCitizenLang();
+  const { lang, t } = useCitizenLang();
   const [open, setOpen] = useState<Open>({ tool: requested?.tool ?? null });
   const [attention, setAttention] = useState<CitizenDeadline[]>([]);
   useEffect(() => { if (requested) { setOpen({ tool: requested.tool }); window.scrollTo({ top: 0 }); } }, [requested]);
@@ -62,7 +62,7 @@ export default function CitizenWorkspace({ requested, onAsk }: { requested: { to
       <p className="ctz-lead">{t("toolsIntro")}</p>
       {!!attention.length && <section className="ctz-attention" aria-label={t("attentionTitle")}>
         <h2><CalendarDays size={16} aria-hidden="true"/>{t("attentionTitle")}</h2>
-        <ul>{attention.slice(0, 4).map(item => <li key={item.id} data-status={item.status}><button type="button" onClick={() => go({ tool: "matter" })}><span>{item.title}</span><b>{item.due_on}</b></button></li>)}</ul>
+        <ul>{attention.slice(0, 4).map(item => <li key={item.id} data-status={item.status}><button type="button" onClick={() => go({ tool: "matter" })}><span>{item.title}</span><b>{formatDate(item.due_on, lang)}</b></button></li>)}</ul>
       </section>}
       <ul className="ctz-grid">{CITIZEN_TOOLS.map(tool => <li key={tool.id}><button type="button" onClick={() => go({ tool: tool.id })}><tool.icon size={20} strokeWidth={1.6} aria-hidden="true"/><strong>{t(tool.title)}</strong><span>{t(tool.blurb)}</span><ArrowRight size={15} className="ctz-grid-arrow" aria-hidden="true"/></button></li>)}</ul>
       <p className="ctz-note">{t("chatStaysEnglish")}</p>

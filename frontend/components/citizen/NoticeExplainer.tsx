@@ -3,6 +3,7 @@ import { CalendarPlus, CircleAlert, FileUp, RotateCcw, Sparkles } from "lucide-r
 import { useRef, useState } from "react";
 import { ApiError, extractCitizenDocument } from "@/lib/api";
 import { explainNotice } from "@/lib/api-citizen";
+import { formatDate } from "@/lib/citizen-i18n";
 import { computeDeadline } from "@/lib/citizen-law/forums";
 import type { DeadlineDraft, NoticeExplanation } from "@/lib/types-citizen";
 import RedactionReview from "./RedactionReview";
@@ -90,7 +91,7 @@ export default function NoticeExplainer({ onRecord, onLegalAid }: { onRecord: (d
         <ul className="ctz-quotes">{result.deadlines.map(item => {
           const due = received ? computeDeadline({ add: { days: item.days } }, received) : null;
           return <li key={`${item.days}-${item.quote}`}><blockquote>{item.quote}</blockquote>
-            {due && <div className="ctz-due" role="status"><span>{t("dueIf")}</span><strong>{due}</strong><p className="ctz-note">{t("checkFromDate")}</p>
+            {due && <div className="ctz-due" role="status"><span>{t("dueIf")}</span><strong>{formatDate(due, lang)}</strong><p className="ctz-note">{t("checkFromDate")}</p>
               <button type="button" className="ctz-link" onClick={() => onRecord({ title: result.type_label.en, due_on: due, source: "notice", provision_label: result.provisions[0]?.label ?? null })}><CalendarPlus size={14} aria-hidden="true"/>{t("addToMatter")}</button></div>}
           </li>;
         })}</ul>
@@ -104,7 +105,7 @@ export default function NoticeExplainer({ onRecord, onLegalAid }: { onRecord: (d
 
     {!!result.cited_provisions.length && <section className="ctz-block"><h3>{t("sectionsItCites")}</h3><ul className="ctz-facts">{result.cited_provisions.map(item => <li key={`${item.code}-${item.section}`}>
       <strong lang="en">{item.raw}</strong>
-      {item.status === "replaced" ? <span className="ctz-repealed">{t("replacedLabel")} {item.replaced_on}. {item.successors.length ? <>{t("nowIs")} <b lang="en">{item.successors.join(", ")}</b></> : item.no_successor ? t("noSuccessor") : t("noMappingKnown")}{item.ingredients_changed ? ` · ${t("elementsChanged")}` : ""}</span> : item.status === "not_checked" ? <span>{t("notChecked")}</span> : null}
+      {item.status === "replaced" ? <span className="ctz-repealed">{t("replacedLabel")} {item.replaced_on ? formatDate(item.replaced_on, lang) : ""}.{item.successors.length ? <>{t("nowIs")} <b lang="en">{item.successors.join(", ")}</b></> : item.no_successor ? t("noSuccessor") : t("noMappingKnown")}{item.ingredients_changed ? ` · ${t("elementsChanged")}` : ""}</span> : item.status === "not_checked" ? <span>{t("notChecked")}</span> : null}
     </li>)}</ul></section>}
 
     <section className="ctz-block ctz-plain"><h3><Sparkles size={15} aria-hidden="true"/>{t("plainWords")}</h3>

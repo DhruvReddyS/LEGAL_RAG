@@ -49,6 +49,7 @@ html[lang="hi"] .ctz-workspace h1, html[lang="te"] .ctz-workspace h1, html[lang=
 
 /* Coming up */
 .ctz-attention {margin-bottom:18px;padding:13px 15px;border:1px solid var(--state-warn-line);border-radius:var(--ctz-radius);background:var(--state-warn-bg);}
+.ctz-attention-chat {margin-bottom:26px;}
 .ctz-attention h2 {display:flex;align-items:center;gap:7px;font-family:var(--body);font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px;}
 .ctz-attention ul {margin:0;padding:0;list-style:none;}
 .ctz-attention button {display:flex;justify-content:space-between;gap:14px;width:100%;min-height:32px;padding:4px 0;text-align:left;font-size:13.5px;color:var(--ink);}

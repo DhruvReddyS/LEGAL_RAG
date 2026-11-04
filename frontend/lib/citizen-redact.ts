@@ -101,6 +101,8 @@ export function detectSensitive(text: string): SensitiveSpan[] {
   // A bare six-digit PIN on its own line, only near an address already found.
   for (const pin of collect(PIN_ONLY, text, "address")) {
     if (accepted.some(item => pin.start < item.end && item.start < pin.end)) continue;
+    // "Cheque no. 123456" is a reference the explanation needs, not a PIN.
+    if (/(?:\bno\.?|number|#)\s*$/i.test(text.slice(Math.max(0, pin.start - 10), pin.start))) continue;
     if (accepted.some(item => item.kind === "address" && Math.abs(item.end - pin.start) < 80)) accepted.push(pin);
   }
   return accepted
