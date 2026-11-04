@@ -30,6 +30,7 @@ from app.routers.citizen_intake import router as citizen_intake_router
 from app.routers.feedback import router as feedback_router
 from app.routers.authorities import router as authorities_router
 from app.routers.investigation import router as investigation_router
+from app.services.crisis_similarity import CrisisSimilarity
 from app.services.retrieval import HybridRetrievalService
 from app.services.fast_research import FastLegalResearchService
 from app.services.job_worker import DurableJobWorker
@@ -55,6 +56,7 @@ async def lifespan(app: FastAPI):
     log_runtime_profile(logger)
     retrieval_service = HybridRetrievalService()
     app.state.retrieval_service = retrieval_service
+    app.state.crisis_similarity = CrisisSimilarity(retrieval_service)
     app.state.legal_rag_workflow = LegalRAGWorkflow(retrieval_service)
     app.state.fast_research_service = FastLegalResearchService(retrieval_service)
     app.state.job_worker = DurableJobWorker(

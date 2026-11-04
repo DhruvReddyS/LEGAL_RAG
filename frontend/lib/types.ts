@@ -481,7 +481,13 @@ export interface IngestionStatus {
   updated_at: string | null;
 }
 
+export interface HelplineContact {
+  label: string;
+  number: string;
+}
+
 export interface ChatMessage {
+  helplines?: HelplineContact[];
   documents?: CitizenDocument[];
   stopped?: boolean;
   clientElapsedMs?: number;

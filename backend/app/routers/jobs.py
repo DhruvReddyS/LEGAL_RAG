@@ -38,6 +38,7 @@ from app.schemas.jobs import (
     JobResponse,
     OcrIngestionJobRequest,
 )
+from app.services.citizen_safety import screen_citizen_query
 from app.services.jobs import (
     TERMINAL_JOB_STATUSES,
     append_job_event,
@@ -231,6 +232,14 @@ async def enqueue_deep_review(
     )
     if existing is not None:
         return existing
+    # The same screen /chat/query applies. Without it, this route ran the whole
+    # Deep pipeline on a message describing an emergency.
+    intervention = screen_citizen_query(request.query)
+    if intervention is not None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail={"kind": intervention.kind, "message": intervention.answer},
+        )
     await _admit_job_enqueue(user)
 
     if request.session_id is None:

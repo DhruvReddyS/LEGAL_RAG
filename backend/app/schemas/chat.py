@@ -62,6 +62,20 @@ class ChatQueryRequest(BaseModel):
         return value
 
 
+class SafetyCheckRequest(BaseModel):
+    query: str = Field(min_length=1, max_length=4000)
+
+
+class HelplineContact(BaseModel):
+    label: str
+    number: str
+
+
+class SafetyCheckResponse(BaseModel):
+    show_helplines: bool
+    contacts: list[HelplineContact] = Field(default_factory=list)
+
+
 class ChatQueryResponse(BaseModel):
     session_id: uuid.UUID
     message_id: uuid.UUID | None = None

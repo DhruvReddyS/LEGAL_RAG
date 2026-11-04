@@ -13,7 +13,8 @@ import ProfessionalWorkspace from "@/components/ProfessionalWorkspace";
 import { useDialogFocus } from "@/components/useDialogFocus";
 import AdminWorkspace from "@/components/AdminWorkspace";
 import DesktopReadiness from "@/components/DesktopReadiness";
-import { ApiError, cancelDeepReviewJob, chatWithCorpus, getChatSession, getDeepReviewJob, getIngestionProgress, getMe, listChatSessions, logout, refreshSession, listCases } from "@/lib/api";
+import { HelplineNotice } from "@/components/HelplineNotice";
+import { ApiError, cancelDeepReviewJob, chatWithCorpus, checkForHelplines, getChatSession, getDeepReviewJob, getIngestionProgress, getMe, listChatSessions, logout, refreshSession, listCases } from "@/lib/api";
 import type { ChatMessage, CitizenDocument, IngestionProgress, RequestedResponseMode, User, LegalCase } from "@/lib/types";
 
 const ROLE_EXPERIENCES = {
@@ -285,6 +286,10 @@ export default function HomePage() {
     const availableDocuments = documents.filter(document => document.pages.length > 0);
     setMessages([...baseMessages, { ...newMessage("user", query.trim()), documents: availableDocuments }, { id: assistantId, role: "assistant", content: "", timestamp: Date.now(), loading: true, requestedMode: availableDocuments.length ? "deep" : responseMode, agentLabel, documents: availableDocuments, category: legalCategory(query) }]);
     setLoading(true);
+    // Not awaited: the notice should appear at once, while the answer is still being written.
+    if (user.role === "citizen") void checkForHelplines(query.trim()).then(contacts => {
+      if (contacts.length) setMessages(current => current.map(message => message.id === assistantId ? { ...message, helplines: contacts } : message));
+    });
     try {
       const response = await chatWithCorpus(query.trim(), targetSession, availableDocuments.length ? "deep" : responseMode, availableDocuments, operation.controller.signal, priorMessages, chatCaseId);
       if (operation.controller.signal.aborted) return;
@@ -505,7 +510,7 @@ export default function HomePage() {
           <div className="prompt-shortcuts">{experience.suggestions.map((suggestion,index) => { const Icon = [FilePenLine, ScanSearch, ShieldCheck, BookOpenText][index]; return <button key={suggestion.title} disabled={loading} onClick={() => void submit(suggestion.text)}><Icon size={16} strokeWidth={1.6} />{suggestion.title}</button>; })}</div>
           <button className="guide-invite" onClick={() => role === "citizen" ? setCitizenGuideSlide(0) : setGuideOpen(true)}><HelpCircle size={14} />First time here? Take a quick look</button>
         </div> : <>
-          <div className="conversation">{messages.map((message,index) => <div key={message.id} ref={index === messages.length-1 ? latestMessage : undefined}><MessageBubble message={message} onEdit={!loading && !message.documents?.some(document => !document.pages.length) ? (text) => void submit(text, message.documents, false, index) : undefined} onForgetDocuments={() => { const ids = new Set(message.documents?.map(document => document.id)); const clear = (items: ChatMessage[]) => items.map(item => ({...item, documents: item.documents?.map(document => ids.has(document.id) ? {...document, pages: []} : document)})); setMessages(clear); setHistory(current => current.map(item => ({...item, messages: clear(item.messages)}))); }} onRegenerate={!loading && message.role === "assistant" && index === messages.length-1 ? () => { const question=messages.slice(0,index).reverse().find(item=>item.role==="user"); if(question) void submit(question.content, question.documents, true); } : undefined} /></div>)}</div>
+          <div className="conversation">{messages.map((message,index) => <div key={message.id} ref={index === messages.length-1 ? latestMessage : undefined}>{!!message.helplines?.length && <HelplineNotice contacts={message.helplines}/>}<MessageBubble message={message} onEdit={!loading && !message.documents?.some(document => !document.pages.length) ? (text) => void submit(text, message.documents, false, index) : undefined} onForgetDocuments={() => { const ids = new Set(message.documents?.map(document => document.id)); const clear = (items: ChatMessage[]) => items.map(item => ({...item, documents: item.documents?.map(document => ids.has(document.id) ? {...document, pages: []} : document)})); setMessages(clear); setHistory(current => current.map(item => ({...item, messages: clear(item.messages)}))); }} onRegenerate={!loading && message.role === "assistant" && index === messages.length-1 ? () => { const question=messages.slice(0,index).reverse().find(item=>item.role==="user"); if(question) void submit(question.content, question.documents, true); } : undefined} /></div>)}</div>
           {awayFromLatest && <button className="jump-latest" aria-label="Jump to latest message" onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: animate ? "smooth" : "auto" })}><ArrowDown size={17}/></button>}
           <div className="conversation-composer"><ChatInput key={`${sessionId}:${draftVersion}`} onSend={submit} onStop={stopResearch} loading={loading} mode={responseMode} onModeChange={setResponseMode} cases={chatCases} caseId={chatCaseId} onCaseChange={setChatCaseId} /></div>
         </>}

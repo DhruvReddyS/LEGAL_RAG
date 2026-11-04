@@ -1,5 +1,6 @@
 import type {
   ChatQueryResponse,
+  HelplineContact,
   CaseDocumentIndexResponse,
   CaseListResponse,
   DefenceAnalysisResponse,
@@ -177,6 +178,20 @@ export async function searchCorpus(
       }),
     },
   );
+}
+
+/** Never throws: the notice is an addition to the answer, and must not disturb it. */
+export async function checkForHelplines(query: string, signal?: AbortSignal): Promise<HelplineContact[]> {
+  try {
+    const result = await request<{ show_helplines: boolean; contacts: HelplineContact[] }>("/chat/safety-check", {
+      method: "POST",
+      signal,
+      body: JSON.stringify({ query }),
+    });
+    return result.show_helplines ? result.contacts : [];
+  } catch {
+    return [];
+  }
 }
 
 export async function chatWithCorpus(

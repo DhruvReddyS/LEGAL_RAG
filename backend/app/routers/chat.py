@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import uuid
 import asyncio
 from datetime import datetime
@@ -22,6 +23,9 @@ from app.core.rbac import require_permission
 from app.models import AuditLog, Case, ChatMessage, ChatSession, Job, User
 from app.models.enums import ChatMessageRole, JobStatus, JobType, UserRole
 from app.schemas.chat import (
+    HelplineContact,
+    SafetyCheckRequest,
+    SafetyCheckResponse,
     ChatQueryRequest,
     ChatQueryResponse,
     ChatSessionListResponse,
@@ -30,12 +34,15 @@ from app.schemas.chat import (
 )
 from app.schemas.agents import AgentTraceEvent, QueryIntent
 from app.services.adaptive_routing import route_legal_query
-from app.services.citizen_safety import screen_citizen_query
+from app.services.citizen_safety import EMERGENCY_CONTACTS, screen_citizen_query
 from app.services.rate_limit import RateLimitExceeded, user_rate_limiter
 from app.services.jobs import append_job_event
 
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/chat", tags=["chat"])
+
+SAFETY_CHECK_TIMEOUT_SECONDS = 5
 
 
 def _complete_api_timings(
@@ -100,6 +107,52 @@ async def _validate_case(session: AsyncSession, case_id: uuid.UUID, user: User) 
         raise HTTPException(status_code=403, detail="You do not own this case")
     if user.role in {UserRole.POLICE, UserRole.ADVOCATE} and case.role_type.value != user.role.value:
         raise HTTPException(status_code=403, detail="Case role does not match the current user role")
+
+
+@router.post("/safety-check", response_model=SafetyCheckResponse)
+async def safety_check(
+    request: SafetyCheckRequest,
+    http_request: Request,
+    user: User = Depends(require_permission(CHAT_USE)),
+) -> SafetyCheckResponse:
+    """Whether to show helplines beside the answer that is on its way.
+
+    Separate from /chat/query so the notice appears at once, rather than after a
+    Deep answer that takes a minute. Stores nothing: a distress disclosure must
+    not gain a durable copy here. If the check cannot complete in time the
+    helplines are shown, since that costs a notice and the alternative risks
+    missing someone.
+    """
+    try:
+        await user_rate_limiter.admit(
+            str(user.id), "safety_check", limit=settings.fast_requests_per_minute
+        )
+    except RateLimitExceeded as exc:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Per-user request limit reached",
+            headers={"Retry-After": str(exc.retry_after_seconds)},
+        ) from exc
+    # An explicit match gets the full emergency reply from /chat/query.
+    if screen_citizen_query(request.query) is not None:
+        return SafetyCheckResponse(show_helplines=False)
+    try:
+        show = await asyncio.wait_for(
+            http_request.app.state.crisis_similarity.sounds_like_crisis(request.query),
+            timeout=SAFETY_CHECK_TIMEOUT_SECONDS,
+        )
+    except Exception as exc:
+        logger.warning("safety check failed: %s", type(exc).__name__)
+        show = True
+    return SafetyCheckResponse(
+        show_helplines=show,
+        contacts=[
+            HelplineContact(label=label, number=number)
+            for label, number in EMERGENCY_CONTACTS
+        ]
+        if show
+        else [],
+    )
 
 
 @router.post("/query", response_model=ChatQueryResponse)

@@ -445,3 +445,65 @@ async def test_private_document_jobs_are_idempotent_owner_scoped_and_executable(
             if user_ids:
                 await session.execute(delete(User).where(User.id.in_(user_ids)))
             await session.commit()
+
+
+@pytest.mark.asyncio
+async def test_a_deep_review_is_screened_like_a_chat_query() -> None:
+    """A direct API client must not get a Deep run on a message in crisis."""
+    suffix = uuid.uuid4().hex[:8]
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        user_id, token = await _register(client, suffix, 1)
+        response = await client.post(
+            "/jobs/deep-review",
+            headers={"Authorization": f"Bearer {token}", "Idempotency-Key": f"screened-{suffix}"},
+            json={"query": "i want to commit suicide"},
+        )
+    assert response.status_code == 422
+    assert response.json()["detail"]["kind"] == "emergency"
+    assert "14416" in response.json()["detail"]["message"]
+
+    async with AsyncSessionLocal() as session:
+        queued = await session.scalar(select(func.count(Job.id)).where(Job.user_id == user_id))
+        await session.execute(delete(User).where(User.id == user_id))
+        await session.commit()
+    assert queued == 0
+
+
+@pytest.mark.asyncio
+async def test_the_safety_check_shows_helplines_and_stores_nothing() -> None:
+    class _Flags:
+        async def sounds_like_crisis(self, query: str) -> bool:
+            return "pills" in query
+
+    class _Broken:
+        async def sounds_like_crisis(self, query: str) -> bool:
+            raise RuntimeError("encoder unavailable")
+
+    suffix = uuid.uuid4().hex[:8]
+    previous = getattr(app.state, "crisis_similarity", None)
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        user_id, token = await _register(client, suffix, 1)
+        headers = {"Authorization": f"Bearer {token}"}
+        try:
+            app.state.crisis_similarity = _Flags()
+            flagged = await client.post("/chat/safety-check", headers=headers, json={"query": "I took a lot of pills"})
+            ordinary = await client.post("/chat/safety-check", headers=headers, json={"query": "what is bail"})
+            app.state.crisis_similarity = _Broken()
+            failed = await client.post("/chat/safety-check", headers=headers, json={"query": "what is bail"})
+        finally:
+            app.state.crisis_similarity = previous
+        anonymous = await client.post("/chat/safety-check", json={"query": "what is bail"})
+
+    assert flagged.json()["show_helplines"] is True
+    assert "14416" in [item["number"] for item in flagged.json()["contacts"]]
+    assert ordinary.json() == {"show_helplines": False, "contacts": []}
+    assert failed.json()["show_helplines"] is True, "failing to check must not hide help"
+    assert anonymous.status_code == 401
+
+    async with AsyncSessionLocal() as session:
+        stored = await session.scalar(
+            select(func.count(ChatMessage.id)).join(ChatSession).where(ChatSession.user_id == user_id)
+        )
+        await session.execute(delete(User).where(User.id == user_id))
+        await session.commit()
+    assert stored == 0

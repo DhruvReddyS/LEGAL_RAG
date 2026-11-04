@@ -372,3 +372,6 @@
 .case-status {border:1px solid var(--border);border-radius:8px;padding:4px 8px;background:var(--paper);color:var(--ink);font-size:13px;}
 .draft-action {display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border:1px solid var(--border);border-radius:7px;color:var(--ink-soft);font-size:11px;transition:border-color .15s,color .15s;}
 .draft-action:hover {border-color:var(--accent);color:var(--ink);}
+.helpline-notice {margin:0 0 14px;padding:12px 14px;border:1px solid var(--state-warn-line);border-radius:10px;background:var(--state-warn-bg);color:var(--ink);font-size:13px;line-height:1.55;}
+.helpline-notice ul {display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px;list-style:none;padding:0;}
+.helpline-notice a {display:inline-flex;align-items:center;gap:5px;color:var(--state-warn-text);min-height:32px;}
