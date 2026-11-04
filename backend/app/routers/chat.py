@@ -39,6 +39,7 @@ from app.services.adaptive_routing import route_legal_query
 from app.services.citizen_safety import EMERGENCY_CONTACTS, screen_citizen_query
 from app.services.rate_limit import RateLimitExceeded, user_rate_limiter
 from app.services.jobs import append_job_event
+from app.services.privacy import purge_conversation_traces
 
 
 logger = logging.getLogger(__name__)
@@ -631,6 +632,7 @@ async def delete_chat_session(
     chat_session = await _owned_session(session, session_id, user)
     if chat_session.user_id != user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your conversation")
+    await purge_conversation_traces(session, [session_id])
     await session.delete(chat_session)
     session.add(
         AuditLog(

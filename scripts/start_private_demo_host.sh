@@ -16,7 +16,8 @@ command -v ollama >/dev/null 2>&1 || fail "Install and start Ollama first."
 command -v tailscale >/dev/null 2>&1 || fail "Install Tailscale, sign in, and make its CLI available first."
 command -v curl >/dev/null 2>&1 || fail "curl is required."
 command -v jq >/dev/null 2>&1 || fail "jq is required."
-test -f "$ENV_FILE" || fail "Create .env from .env.example and add strong secrets first."
+test -f "$ENV_FILE" || fail "Run ./scripts/init_local_env.sh first. It creates .env with generated secrets."
+"$PROJECT_ROOT/scripts/check_env_secrets.sh" "$ENV_FILE" || exit 1
 
 docker info >/dev/null 2>&1 || fail "Docker Desktop is installed but its engine is not running."
 curl --fail --silent --max-time 3 http://127.0.0.1:11434/api/version >/dev/null \

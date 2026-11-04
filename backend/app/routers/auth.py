@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import uuid
+from datetime import datetime, timedelta, timezone
+
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -22,6 +25,8 @@ from app.schemas.auth import (
     UserResponse,
 )
 from app.services.auth import authenticate_user, create_user, get_user_by_email
+from app.services import account_security, privacy
+from app.models import UserSession
 from app.services.rate_limit import RateLimitExceeded, user_rate_limiter
 from app.services import token_revocation
 from app.core.config import settings
@@ -31,10 +36,14 @@ router = APIRouter(prefix="/auth", tags=["authentication"])
 
 
 def _set_auth_cookies(response: Response, tokens: TokenPairResponse) -> None:
+    set_auth_cookie_pair(response, tokens.access_token, tokens.refresh_token)
+
+
+def set_auth_cookie_pair(response: Response, access_token: str, refresh_token: str) -> None:
     secure = settings.auth_cookie_secure
     response.set_cookie(
         "legal_rag_access",
-        tokens.access_token,
+        access_token,
         max_age=settings.access_token_expire_minutes * 60,
         httponly=True,
         secure=secure,
@@ -43,7 +52,7 @@ def _set_auth_cookies(response: Response, tokens: TokenPairResponse) -> None:
     )
     response.set_cookie(
         "legal_rag_refresh",
-        tokens.refresh_token,
+        refresh_token,
         max_age=settings.refresh_token_expire_days * 86400,
         httponly=True,
         secure=secure,
@@ -57,10 +66,10 @@ def _clear_auth_cookies(response: Response) -> None:
     response.delete_cookie("legal_rag_refresh", path="/auth/cookie")
 
 
-def build_token_pair(user: User) -> TokenPairResponse:
+def build_token_pair(user: User, sid: uuid.UUID | None = None) -> TokenPairResponse:
     return TokenPairResponse(
-        access_token=create_access_token(user),
-        refresh_token=create_refresh_token(user),
+        access_token=create_access_token(user, sid),
+        refresh_token=create_refresh_token(user, sid),
         expires_in=settings.access_token_expire_minutes * 60,
         user=UserResponse.model_validate(user),
     )
@@ -73,6 +82,7 @@ def build_token_pair(user: User) -> TokenPairResponse:
 )
 async def register(
     registration: RegisterRequest,
+    request: Request,
     session: AsyncSession = Depends(get_db_session),
 ) -> TokenPairResponse:
     if registration.role is not UserRole.CITIZEN:
@@ -97,6 +107,13 @@ async def register(
                 metadata_={"role": user.role.value},
             )
         )
+        if registration.consent_notice_version is not None:
+            await privacy.record_consent(
+                session, user.id, registration.consent_notice_version, source="registration"
+            )
+        sid = await account_security.open_session(
+            session, user, account_security.device_label(request)
+        )
         await session.commit()
         await session.refresh(user)
     except IntegrityError as exc:
@@ -106,7 +123,7 @@ async def register(
             detail="An account with this email already exists",
         ) from exc
 
-    return build_token_pair(user)
+    return build_token_pair(user, sid)
 
 
 async def _admit_login_attempt(request: Request, email: str) -> None:
@@ -152,6 +169,12 @@ async def login(
             detail="Invalid email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    await account_security.check_second_factor(
+        session, user, credentials.mfa_code, credentials.recovery_code
+    )
+    sid = await account_security.open_session(
+        session, user, account_security.device_label(request)
+    )
 
     session.add(
         AuditLog(
@@ -163,13 +186,38 @@ async def login(
         )
     )
     await session.commit()
-    return build_token_pair(user)
+    return build_token_pair(user, sid)
+
+
+async def _end_all_for_reuse(session: AsyncSession, user: User) -> HTTPException:
+    await token_revocation.revoke_all_for_user(
+        session,
+        user_id=user.id,
+        reason=token_revocation.REASON_REUSE_DETECTED,
+    )
+    await session.commit()
+    return HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Session ended. Sign in again.",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
 
 
 @router.post("/refresh", response_model=TokenPairResponse)
 async def refresh_tokens(
     request: RefreshRequest,
     session: AsyncSession = Depends(get_db_session),
+) -> TokenPairResponse:
+    # No grace here. Keeping it out of this signature also keeps it out of the
+    # public route, where a caller could otherwise ask for it as a parameter.
+    return await _rotate_refresh_token(request, session, reuse_grace_seconds=0)
+
+
+async def _rotate_refresh_token(
+    request: RefreshRequest,
+    session: AsyncSession,
+    *,
+    reuse_grace_seconds: int,
 ) -> TokenPairResponse:
     payload = decode_token(request.refresh_token, expected_type="refresh")
     user = await session.get(User, payload.sub)
@@ -184,18 +232,13 @@ async def refresh_tokens(
     # replaced it, so either it was stolen or the holder's copy was. Treat it
     # as compromise and end every session rather than refusing this one call
     # and leaving the thief's newer token working.
+    already_rotated = status.HTTP_409_CONFLICT, "This session was just refreshed"
     if await token_revocation.is_revoked(session, payload.jti):
-        await token_revocation.revoke_all_for_user(
-            session,
-            user_id=user.id,
-            reason=token_revocation.REASON_REUSE_DETECTED,
-        )
-        await session.commit()
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Session ended. Sign in again.",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        if await token_revocation.rotated_within(
+            session, payload.jti, seconds=reuse_grace_seconds
+        ):
+            raise HTTPException(status_code=already_rotated[0], detail=already_rotated[1])
+        raise await _end_all_for_reuse(session, user)
 
     if user.sessions_valid_from is not None and payload.iat < user.sessions_valid_from:
         raise HTTPException(
@@ -204,12 +247,40 @@ async def refresh_tokens(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    await token_revocation.revoke(
+    device: UserSession | None = None
+    if payload.sid is not None:
+        device = await session.get(UserSession, payload.sid)
+        if device is None or device.revoked_at is not None or device.user_id != user.id:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Session ended. Sign in again.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+    first_to_rotate = await token_revocation.revoke(
         session,
         jti=payload.jti,
         user_id=user.id,
         expires_at=payload.exp,
         reason=token_revocation.REASON_ROTATED,
+    )
+    if not first_to_rotate:
+        # Two refreshes raced on one token and the other won. Nothing written
+        # so far needs keeping, and the rollback expires what was loaded.
+        await session.rollback()
+        if await token_revocation.rotated_within(
+            session, payload.jti, seconds=reuse_grace_seconds
+        ):
+            raise HTTPException(status_code=already_rotated[0], detail=already_rotated[1])
+        user = await session.get(User, payload.sub)
+        raise await _end_all_for_reuse(session, user)
+
+    now = datetime.now(timezone.utc)
+    if device is not None:
+        device.last_seen_at = now
+        device.expires_at = now + timedelta(days=settings.refresh_token_expire_days)
+    sid = device.id if device is not None else await account_security.open_session(
+        session, user, "Unknown device"
     )
     session.add(
         AuditLog(
@@ -221,7 +292,7 @@ async def refresh_tokens(
         )
     )
     await session.commit()
-    return build_token_pair(user)
+    return build_token_pair(user, sid)
 
 
 @router.get("/me", response_model=UserResponse)
@@ -234,10 +305,11 @@ async def read_current_user(
 @router.post("/cookie/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def cookie_register(
     registration: RegisterRequest,
+    request: Request,
     response: Response,
     session: AsyncSession = Depends(get_db_session),
 ) -> UserResponse:
-    tokens = await register(registration, session)
+    tokens = await register(registration, request, session)
     _set_auth_cookies(response, tokens)
     return tokens.user
 
@@ -263,7 +335,13 @@ async def cookie_refresh(
     refresh_cookie = request.cookies.get("legal_rag_refresh")
     if not refresh_cookie:
         raise HTTPException(status_code=401, detail="Refresh cookie required")
-    tokens = await refresh_tokens(RefreshRequest(refresh_token=refresh_cookie), session)
+    # Tabs share this cookie, so a second use moments after rotation is a race
+    # between tabs, not a theft. The bearer route has no such window.
+    tokens = await _rotate_refresh_token(
+        RefreshRequest(refresh_token=refresh_cookie),
+        session,
+        reuse_grace_seconds=settings.refresh_reuse_grace_seconds,
+    )
     _set_auth_cookies(response, tokens)
     return tokens.user
 
@@ -296,6 +374,10 @@ async def cookie_logout(
                 expires_at=payload.exp,
                 reason=token_revocation.REASON_LOGOUT,
             )
+            if payload.sid is not None:
+                device = await session.get(UserSession, payload.sid)
+                if device is not None and device.user_id == payload.sub and device.revoked_at is None:
+                    device.revoked_at = datetime.now(timezone.utc)
             session.add(
                 AuditLog(
                     user_id=payload.sub,

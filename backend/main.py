@@ -30,6 +30,8 @@ from app.routers.citizen_intake import router as citizen_intake_router
 from app.routers.feedback import router as feedback_router
 from app.routers.authorities import router as authorities_router
 from app.routers.investigation import router as investigation_router
+from app.routers.account import router as account_router
+from app.routers.history import router as history_router
 from app.services.crisis_similarity import CrisisSimilarity
 from app.services.retrieval import HybridRetrievalService
 from app.services.fast_research import FastLegalResearchService
@@ -194,6 +196,8 @@ app.include_router(jobs_router)
 app.include_router(citizen_intake_router)
 app.include_router(feedback_router)
 app.include_router(investigation_router)
+app.include_router(account_router)
+app.include_router(history_router)
 app.include_router(authorities_router)
 
 

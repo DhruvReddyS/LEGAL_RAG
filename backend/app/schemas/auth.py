@@ -13,6 +13,9 @@ class RegisterRequest(BaseModel):
     email: EmailStr
     password: str = Field(min_length=12, max_length=72)
     role: UserRole = UserRole.CITIZEN
+    # The version of the privacy notice the person accepted when registering.
+    # Absent, the account is created without consent and asked for it on entry.
+    consent_notice_version: str | None = Field(default=None, max_length=32)
 
     @field_validator("name")
     @classmethod
@@ -45,6 +48,10 @@ class RegisterRequest(BaseModel):
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str = Field(min_length=1, max_length=72)
+    # Second factor, when the account has one. A wrong password never reaches
+    # these, so being asked for one confirms only what the caller already proved.
+    mfa_code: str | None = Field(default=None, max_length=16)
+    recovery_code: str | None = Field(default=None, max_length=32)
 
     @field_validator("email")
     @classmethod
@@ -82,5 +89,8 @@ class TokenPayload(BaseModel):
     iat: datetime
     jti: uuid.UUID
     type: str
+    # The device session this token belongs to. Absent on tokens issued before
+    # sessions were tracked, which remain valid until they expire.
+    sid: uuid.UUID | None = None
     iss: str
     aud: str

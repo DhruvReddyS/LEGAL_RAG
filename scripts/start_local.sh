@@ -19,7 +19,8 @@ esac
 command -v docker >/dev/null 2>&1 || fail "Install and open Docker Desktop first."
 command -v npm >/dev/null 2>&1 || fail "Install Node.js and npm first."
 command -v curl >/dev/null 2>&1 || fail "curl is required."
-test -f "$ENV_FILE" || fail "Run: cp .env.example .env, then replace every CHANGE_ME value."
+test -f "$ENV_FILE" || fail "Run ./scripts/init_local_env.sh first. It creates .env with generated secrets."
+"$PROJECT_ROOT/scripts/check_env_secrets.sh" "$ENV_FILE" || exit 1
 docker info >/dev/null 2>&1 || fail "Docker Desktop is installed but not running."
 
 if ! curl --fail --silent --max-time 3 http://127.0.0.1:11434/api/version >/dev/null; then
