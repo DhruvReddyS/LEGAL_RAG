@@ -80,7 +80,7 @@ function refreshOnce(baseUrl: string): Promise<boolean> {
   return refreshInFlight;
 }
 
-async function request<T>(
+export async function request<T>(
   path: string,
   options: RequestInit = {},
   retryAuth = true,
