@@ -732,7 +732,7 @@
 
 .admin-charts {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
   gap: 14px;
 }
 .admin-chart {
@@ -779,7 +779,7 @@
 }
 .admin-chart-axis {
   fill: var(--ink-soft);
-  font-size: 10px;
+  font-size: 11px;
   font-variant-numeric: tabular-nums;
 }
 .admin-chart-line {

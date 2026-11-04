@@ -22,22 +22,43 @@ from app.core.config import settings
 from app.ingestion.metadata import CanonicalDocument, iter_canonical_documents, load_manifest
 from app.models import AuditLog, User
 from app.models.admin_tools import CorpusWorkItem, DocumentQuarantine
+from app.services.currency import CurrencyDecision, CurrencyStatus, resolve_currency
 
 QUEUES = ("ocr", "verification", "currency")
 _VERIFIED_QUALITY = {"verified", "ok", "admin_validated"}
 
 
+def _currency(document: CanonicalDocument) -> CurrencyDecision:
+    """The one resolution every answer lane uses, not a reading of the manifest.
+
+    The manifest says "current/verify" for the IPC, because the repeal table is
+    what knows it was replaced. Reading the manifest alone here reported 13
+    repealed documents in a corpus where a fifth of the text is repealed law.
+    """
+    return resolve_currency(
+        {
+            "act_name": document.act_name,
+            "title": document.title,
+            "superseded_by": document.superseded_by,
+            # Only an explicit True counts, as it does for an indexed point.
+            "is_superseded": True if document.is_superseded else None,
+            "is_current": True if document.is_current else None,
+        }
+    )
+
+
 def currency_flag(document: CanonicalDocument) -> str:
-    """The same reading the answer lanes use: unverified unless it says otherwise.
+    """Unverified unless something says otherwise, and doubt outranks a label.
 
     "current/verify" is not current. Reading it as such here would tell an
     administrator a document has nothing to check when the corpus says it does.
     """
-    if document.is_superseded:
+    status = _currency(document).status
+    if status is CurrencyStatus.SUPERSEDED:
         return "repealed_or_superseded"
     if document.currency_note:
         return "warned"
-    if document.is_current:
+    if status is CurrencyStatus.IN_FORCE:
         return "current"
     return "unverified"
 
@@ -211,7 +232,7 @@ def _document(
         "current_status": document.current_status,
         "currency_flag": row.flag,
         "currency_note": document.currency_note,
-        "superseded_by": document.superseded_by,
+        "superseded_by": _currency(document).superseded_by,
         "verified_official": document.verified_official,
         "quality_status": document.quality_status,
         "ocr_required": bool(document.ocr_required),

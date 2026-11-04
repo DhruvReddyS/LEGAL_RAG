@@ -1,9 +1,9 @@
 "use client";
 
-import { useId, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useId, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { chartGeometry, nearestPoint, type ChartPoint, type PlacedPoint } from "@/lib/admin-presentation";
 
-const BOX = { width: 560, height: 190, left: 46, right: 14, top: 12, bottom: 28 };
+const FRAME = { height: 170, left: 44, right: 12, top: 10, bottom: 26 };
 
 /**
  * One measure on one axis. A second measure gets its own chart, never a second
@@ -16,6 +16,7 @@ export function LineChart({
   data,
   max,
   format,
+  integer,
   emptyLabel = "Nothing measured in this period",
 }: {
   title: string;
@@ -23,11 +24,26 @@ export function LineChart({
   data: ChartPoint[];
   max?: number;
   format: (value: number | null) => string;
+  integer?: boolean;
   emptyLabel?: string;
 }) {
   const titleId = useId();
   const [active, setActive] = useState<PlacedPoint | null>(null);
-  const chart = chartGeometry(data, BOX, { max });
+  // Drawn at its real width rather than scaled, so axis text stays a readable
+  // size from a phone to a wide screen.
+  const plot = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(420);
+  useEffect(() => {
+    const element = plot.current;
+    if (!element || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry.contentRect.width > 0) setWidth(Math.round(entry.contentRect.width));
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+  const BOX = { ...FRAME, width };
+  const chart = chartGeometry(data, BOX, { max, integer, xLabelCount: width < 360 ? 3 : 5 });
   const latest = [...data].reverse().find(item => item.value !== null);
 
   const move = (event: ReactPointerEvent<SVGSVGElement>) => {
@@ -44,7 +60,7 @@ export function LineChart({
         {latest && <b>{format(latest.value)}</b>}
       </figcaption>
       {chart.hasData ? (
-        <div className="admin-chart-plot">
+        <div className="admin-chart-plot" ref={plot}>
           <svg
             viewBox={`0 0 ${BOX.width} ${BOX.height}`}
             role="img"

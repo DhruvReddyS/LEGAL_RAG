@@ -184,7 +184,8 @@ def _console_routes() -> list[APIRoute]:
                 found.extend(walk(nested))
         return found
 
-    return [route for route in walk(app) if route.path.startswith("/admin/console")]
+    # The older /admin routes too: the same rule applies to everything under it.
+    return [route for route in walk(app) if route.path.startswith("/admin/")]
 
 
 def test_the_route_walk_finds_the_console() -> None:

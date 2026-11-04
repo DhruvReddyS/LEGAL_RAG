@@ -67,8 +67,8 @@ CATEGORIES: tuple[Category, ...] = (
     Category(
         "closed_cases",
         "Closed cases",
-        "Closed or archived cases: their documents, indexed passages, drafts and conversations, "
-        "from every store.",
+        "Closed or archived cases opened longer ago than this: their documents, indexed "
+        "passages, drafts and conversations, from every store.",
         365,
     ),
 )

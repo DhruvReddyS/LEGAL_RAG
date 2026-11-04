@@ -111,6 +111,16 @@ function DocumentRow({ document, queue, onChanged, onQuarantine }: { document: C
   const [note, setNote] = useState(document.work_note ?? "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const save = async (status: WorkStatus) => {
+    if (!queue) return;
+    setBusy(true);
+    setError("");
+    try {
+      await setWorkItem({ canonical_document_id: document.canonical_document_id, queue, status, note: note.trim() || null });
+      onChanged();
+    } catch (cause) { setError(messageOf(cause, "That was not saved.")); }
+    finally { setBusy(false); }
+  };
   return (
     <li>
       <div className="admin-doc-head">
@@ -125,6 +135,7 @@ function DocumentRow({ document, queue, onChanged, onQuarantine }: { document: C
       <small className="admin-muted admin-wrap">
         {document.source_type} / {document.category} / {document.page_count} pages / recorded status: {document.current_status}
       </small>
+      {document.superseded_by && <p className="admin-note">Replaced by {document.superseded_by}</p>}
       {document.currency_note && <p className="admin-note">{document.currency_note}</p>}
       <div className="admin-row admin-doc-actions">
         {document.source_url && (
@@ -146,22 +157,20 @@ function DocumentRow({ document, queue, onChanged, onQuarantine }: { document: C
               className="field"
               value={document.work_status}
               disabled={busy}
-              onChange={async event => {
-                setBusy(true);
-                setError("");
-                try {
-                  await setWorkItem({ canonical_document_id: document.canonical_document_id, queue, status: event.target.value as WorkStatus, note: note.trim() || null });
-                  onChanged();
-                } catch (cause) { setError(messageOf(cause, "That was not saved.")); }
-                finally { setBusy(false); }
-              }}
+              onChange={event => save(event.target.value as WorkStatus)}
             >
               {(Object.keys(WORK_LABELS) as WorkStatus[]).map(name => <option key={name} value={name}>{WORK_LABELS[name]}</option>)}
             </select>
           </label>
           <label className="admin-inline-field is-grow">
             <span>Note</span>
-            <input className="field" value={note} maxLength={1000} onChange={event => setNote(event.target.value)} />
+            <input
+              className="field"
+              value={note}
+              maxLength={1000}
+              onChange={event => setNote(event.target.value)}
+              onBlur={() => { if (note.trim() !== (document.work_note ?? "")) void save(document.work_status); }}
+            />
           </label>
           {error && <Notice tone="bad">{error}</Notice>}
         </div>

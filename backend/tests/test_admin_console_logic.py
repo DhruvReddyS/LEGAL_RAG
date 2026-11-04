@@ -264,6 +264,13 @@ def test_a_document_is_never_flagged_current_unless_the_corpus_says_so(overrides
     assert currency_flag(_document(**overrides)) == flag
 
 
+def test_the_repeal_table_decides_not_the_manifest_status() -> None:
+    """The manifest calls the IPC "current/verify". A browser saying so would be false."""
+    ipc = _document(act_name="Indian Penal Code, 1860", title="Indian Penal Code", current_status="current/verify")
+    assert currency_flag(ipc) == "repealed_or_superseded"
+    assert "currency" not in document_queues(ipc)
+
+
 def test_work_lists_come_from_what_the_manifest_records() -> None:
     assert document_queues(_document()) == []
     assert document_queues(_document(ocr_required=True)) == ["ocr"]

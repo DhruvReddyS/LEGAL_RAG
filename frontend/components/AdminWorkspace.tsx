@@ -63,6 +63,11 @@ export default function AdminWorkspace() {
     buttons.current[next]?.focus();
   };
 
+  // On a phone the tab strip scrolls, and the open tab must not sit off screen.
+  useEffect(() => {
+    buttons.current[tab]?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }, [tab]);
+
   const clearPrefill = useCallback(() => setPrefillDocument(null), []);
 
   return (

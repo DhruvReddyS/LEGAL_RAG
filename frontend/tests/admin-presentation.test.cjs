@@ -170,6 +170,23 @@ test('the axis rounds up to a readable number', () => {
   assert.equal(chart.ticks.at(-1).value, 200);
 });
 
+test('a count gets whole-number ticks and the top value fits', () => {
+  const small = p.chartGeometry([{ label: 'a', value: 2 }], BOX, { integer: true });
+  assert.deepEqual([...small.ticks].map(tick => tick.value), [0, 1, 2]);
+  const larger = p.chartGeometry([{ label: 'a', value: 5 }], BOX, { integer: true });
+  assert.deepEqual([...larger.ticks].map(tick => tick.value), [0, 2, 4, 6]);
+  const zero = p.chartGeometry([{ label: 'a', value: 0 }], BOX, { integer: true });
+  assert.deepEqual([...zero.ticks].map(tick => tick.value), [0, 1]);
+});
+
+test('runs on the same day do not repeat the date along the axis', () => {
+  const chart = p.chartGeometry(
+    [{ label: '6 Sept', value: 1 }, { label: '6 Sept', value: 2 }, { label: '7 Sept', value: 3 }],
+    BOX,
+  );
+  assert.deepEqual([...chart.xLabels].map(item => item.label), ['6 Sept', '7 Sept']);
+});
+
 test('the crosshair snaps past a gap', () => {
   const placed = [
     { label: 'a', value: 1, x: 0, y: 5 },

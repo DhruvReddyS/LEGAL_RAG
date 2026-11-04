@@ -284,10 +284,14 @@ function niceCeiling(value: number): number {
 export function chartGeometry(
   data: ChartPoint[],
   box: ChartBox,
-  options: { max?: number; tickCount?: number; xLabelCount?: number } = {},
+  options: { max?: number; tickCount?: number; xLabelCount?: number; integer?: boolean } = {},
 ): ChartGeometry {
   const values = data.map(item => item.value).filter((value): value is number => value !== null);
-  const max = options.max ?? niceCeiling(Math.max(0, ...values));
+  const wanted = options.tickCount ?? 3;
+  // A count has whole-number ticks, or an axis reads 0, 1, 1, 2.
+  const step = options.integer ? Math.max(1, Math.ceil(Math.max(0, ...values) / wanted)) : 0;
+  const tickCount = options.integer ? Math.max(1, Math.ceil(Math.max(0, ...values) / step)) : wanted;
+  const max = options.max ?? (options.integer ? step * tickCount : niceCeiling(Math.max(0, ...values)));
   const plotWidth = box.width - box.left - box.right;
   const plotHeight = box.height - box.top - box.bottom;
   const toY = (value: number) => box.top + plotHeight - (Math.min(value, max) / max) * plotHeight;
@@ -316,7 +320,6 @@ export function chartGeometry(
   }
   flush();
 
-  const tickCount = options.tickCount ?? 3;
   const ticks = Array.from({ length: tickCount + 1 }, (_, index) => {
     const value = (max * index) / tickCount;
     return { value, y: toY(value) };
@@ -329,7 +332,7 @@ export function chartGeometry(
       : Array.from({ length: labelCount }, (_, index) => {
           const point = points[Math.round((index * (points.length - 1)) / (labelCount - 1))];
           return { label: point.label, x: point.x };
-        });
+        }).filter((item, index, all) => index === 0 || item.label !== all[index - 1].label);
 
   return { points, segments, ticks, xLabels, hasData: values.length > 0 };
 }
