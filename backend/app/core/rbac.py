@@ -8,12 +8,43 @@ from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.admin_access import record_admin_access
 from app.core.database import get_db_session
 from app.core.config import settings
 from app.core.security import bearer_scheme, get_optional_current_user
 from app.models import Case, Permission, Role, RolePermission, User
 from app.models.enums import UserRole
 from app.services.account_gate import assert_account_may_proceed
+
+
+_SAFE_METHODS = frozenset({"GET", "HEAD", "OPTIONS"})
+
+
+async def _authorize_admin_on_foreign_case(
+    session: AsyncSession, request: Request, admin: User, case: Case
+) -> None:
+    """Read-only, and on the record.
+
+    The seed gives an administrator every permission, and this bypass used to
+    cover writes: one PUT could replace the custody dates on another officer's
+    matter, moving the deadline that decides whether a person is lawfully held.
+    Reaching a named matter is what the role is for. Changing it is not.
+    """
+    if request.method not in _SAFE_METHODS:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Administrators have read-only access to another user's matter",
+        )
+    await record_admin_access(
+        session,
+        admin,
+        action="admin.case.read",
+        resource_type="case",
+        resource_id=case.id,
+        owner_id=case.owner_id,
+        # The path holds identifiers only; the query string is left out.
+        metadata={"method": request.method, "path": request.url.path},
+    )
 
 
 @dataclass(frozen=True)
@@ -59,7 +90,7 @@ class PermissionChecker:
 
         await assert_account_may_proceed(session, current_user)
 
-        if self.case_id_param is not None and current_user.role is not UserRole.ADMIN:
+        if self.case_id_param is not None:
             raw_case_id = request.path_params.get(self.case_id_param)
             if raw_case_id is None:
                 raw_case_id = request.query_params.get(self.case_id_param)
@@ -71,18 +102,27 @@ class PermissionChecker:
                     detail=f"A valid {self.case_id_param} is required",
                 ) from exc
 
+            # Above the administrator branch: skipping it left handlers that
+            # assume the row exists to fail on None with a 500.
             case = await session.get(Case, case_id)
             if case is None:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail="Case not found",
                 )
-            if case.owner_id != current_user.id:
+            if current_user.role is UserRole.ADMIN:
+                if case.owner_id != current_user.id:
+                    await _authorize_admin_on_foreign_case(
+                        session, request, current_user, case
+                    )
+            elif case.owner_id != current_user.id:
+                # Not 403: that would confirm the matter exists to someone who
+                # has no business knowing.
                 raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="You do not own this case",
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Case not found",
                 )
-            if current_user.role in {UserRole.POLICE, UserRole.ADVOCATE}:
+            elif current_user.role in {UserRole.POLICE, UserRole.ADVOCATE}:
                 if case.role_type.value != current_user.role.value:
                     raise HTTPException(
                         status_code=status.HTTP_403_FORBIDDEN,

@@ -176,9 +176,9 @@ async def test_another_officer_cannot_read_or_write_this_matter() -> None:
             f"/cases/{case_id}/investigation/timeline", headers=other
         )
 
-    assert wrote.status_code == 403
-    assert read.status_code == 403
-    assert timeline.status_code == 403
+    assert wrote.status_code == 404
+    assert read.status_code == 404
+    assert timeline.status_code == 404
 
 
 @pytest.mark.asyncio
@@ -360,8 +360,8 @@ async def test_another_officer_cannot_read_or_tick_this_checklist() -> None:
             headers=other,
         )
 
-    assert read.status_code == 403
-    assert wrote.status_code == 403
+    assert read.status_code == 404
+    assert wrote.status_code == 404
 
 
 @pytest.mark.asyncio

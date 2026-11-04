@@ -4,6 +4,7 @@ import asyncio
 import hashlib
 import re
 import uuid
+from urllib.parse import quote
 from pathlib import Path
 from typing import Any
 
@@ -71,6 +72,37 @@ async def ensure_storage_buckets() -> list[str]:
     return configured_buckets()
 
 
+_MAGIC_BY_TYPE: dict[str, tuple[bytes, ...]] = {
+    "application/pdf": (b"%PDF-",),
+    "image/png": (b"\x89PNG\r\n\x1a\n",),
+    "image/jpeg": (b"\xff\xd8\xff",),
+    "image/webp": (b"RIFF",),
+}
+
+
+def content_matches_declared_type(content: bytes, content_type: str) -> bool:
+    """Whether a file is on the allowlist and its bytes agree with its label."""
+    if content_type == "text/plain":
+        # Text has no signature. NUL bytes mean it is not text, whatever it says.
+        return b"\x00" not in content[:8192]
+    signatures = _MAGIC_BY_TYPE.get(content_type)
+    return signatures is not None and content.startswith(signatures)
+
+
+def attachment_disposition(filename: str) -> str:
+    """An RFC 6266 header that survives any filename.
+
+    Starlette encodes headers as Latin-1, so a Devanagari or Telugu filename
+    uploaded without trouble and then raised UnicodeEncodeError on every
+    download. A quote in the name produced a malformed header.
+    """
+    fallback = "".join(
+        character if character.isascii() and character.isprintable() and character not in '"\\;' else "_"
+        for character in filename
+    ).strip() or "document"
+    return f"attachment; filename=\"{fallback}\"; filename*=UTF-8\'\'{quote(filename, safe='')}"
+
+
 class DocumentStorageService:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
@@ -84,7 +116,7 @@ class DocumentStorageService:
         if user.role == UserRole.ADMIN:
             return case
         if case.owner_id != user.id:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Case access denied")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Case not found")
         if case.role_type.value != user.role.value:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Case role mismatch")
         return case
@@ -110,7 +142,8 @@ class DocumentStorageService:
         bucket, namespace = self._case_location(case)
         safe_filename = sanitize_filename(filename)
         object_key = f"cases/{case.id}/documents/{uuid.uuid4()}/{safe_filename}"
-        digest = hashlib.sha256(content).hexdigest()
+        # Off the event loop: a 25 MiB hash stalls every other request.
+        digest = await asyncio.to_thread(lambda: hashlib.sha256(content).hexdigest())
 
         await asyncio.to_thread(
             self.client.put_object,
@@ -204,7 +237,7 @@ class DocumentStorageService:
         if stored.case_id is not None:
             await self._authorized_case(stored.case_id, user)
         elif user.role != UserRole.ADMIN:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Object access denied")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Object not found")
         return stored
 
     async def download_case_document(self, object_id: uuid.UUID, user: User) -> bytes:

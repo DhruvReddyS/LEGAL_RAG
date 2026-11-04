@@ -17,6 +17,7 @@ from typing import Any
 from qdrant_client import AsyncQdrantClient, models
 
 from app.core.config import settings
+from app.services.quarantine import quarantined_document_ids
 from app.core.qdrant import create_qdrant_client
 from app.ingestion.embedder import BGEM3Embedder, resolve_embedding_device
 from app.ingestion.init_qdrant import (
@@ -103,6 +104,16 @@ class RetrievalFilters:
             must_not.append(
                 models.FieldCondition(
                     key="is_superseded", match=models.MatchValue(value=True)
+                )
+            )
+        # Only on the global corpus: a private target names no corpus tier, and
+        # an administrator's incident must not reach into a case's own documents.
+        withheld = quarantined_document_ids() if self.corpus_tiers else frozenset()
+        if withheld:
+            must_not.append(
+                models.FieldCondition(
+                    key="canonical_document_id",
+                    match=models.MatchAny(any=sorted(withheld)),
                 )
             )
         if not conditions and not must_not:

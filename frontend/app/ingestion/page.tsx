@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getIngestionStatus } from "@/lib/api";
+import { ApiError, getIngestionStatus } from "@/lib/api";
 import type { IngestionStatus } from "@/lib/types";
 
 const POLL_MS = 5000;
@@ -34,7 +34,14 @@ export default function IngestionStatusPage() {
       // Polling exists to watch a run finish. Once it has, stop asking.
       isRunning.current = next.status === "in_progress";
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Could not reach the backend.");
+      // Operator information since this route began requiring an administrator.
+      // Asking again every five seconds will not change the answer.
+      if (cause instanceof ApiError && (cause.status === 401 || cause.status === 403)) {
+        isRunning.current = false;
+        setError("Sign in as an administrator to see ingestion status.");
+      } else {
+        setError(cause instanceof Error ? cause.message : "Could not reach the backend.");
+      }
     } finally {
       setLoading(false);
     }

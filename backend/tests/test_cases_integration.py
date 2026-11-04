@@ -75,7 +75,7 @@ async def test_case_workspace_crud_role_derivation_and_cross_user_isolation() ->
             cross_user_read = await client.get(
                 f"/cases/{case['id']}", headers=advocate_headers
             )
-            assert cross_user_read.status_code == 403
+            assert cross_user_read.status_code == 404
 
             updated = await client.patch(
                 f"/cases/{case['id']}",

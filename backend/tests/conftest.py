@@ -32,6 +32,11 @@ import pytest
 # invented - and in particular COOKIE_SECURE stays unset, since several tests
 # construct Settings directly and assert its environment-derived behaviour.
 os.environ.setdefault("APP_ENV", "development")
+# The suite registers and drafts far faster than a person. The buckets themselves
+# are exercised by tests that lower these explicitly.
+os.environ.setdefault("REGISTER_REQUESTS_PER_MINUTE", "600")
+os.environ.setdefault("LLM_SYNC_REQUESTS_PER_MINUTE", "600")
+os.environ.setdefault("RETRIEVAL_REQUESTS_PER_MINUTE", "600")
 os.environ["TRUSTED_HOSTS"] = "localhost,127.0.0.1,test,testserver"
 os.environ["CORS_ORIGINS"] = (
     "http://test,http://localhost:3000,http://127.0.0.1:3000,"

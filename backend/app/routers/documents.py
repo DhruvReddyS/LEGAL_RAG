@@ -20,8 +20,11 @@ from app.schemas.documents import (
     GeneratedDocumentSummary,
 )
 from app.services.llm import OllamaClient
+from app.services.rate_limit import enforce_llm_sync_limit
 from app.services.retrieval import HybridRetrievalService
 
+
+ANALYSIS_DOC_TYPE_PREFIX = "document_analysis:"
 
 router = APIRouter(prefix="/cases/{case_id}/documents", tags=["legal-documents"])
 
@@ -47,6 +50,7 @@ async def create_document_draft(
     runtime: DraftingRuntime = Depends(get_drafting_runtime),
     session: AsyncSession = Depends(get_db_session),
 ) -> DocumentDraftResponse:
+    await enforce_llm_sync_limit(current_user.id)
     case = await session.get(Case, case_id)
     generated, facts, missing, authorities, rendered = await LegalDraftingAgent(
         session=session,
@@ -144,7 +148,11 @@ async def read_generated_document(
     same on every later visit, so this returns the recorded content.
     """
     document = await session.get(GeneratedDocument, document_id)
-    if document is None or document.case_id != case_id:
+    if (
+        document is None
+        or document.case_id != case_id
+        or document.doc_type.startswith(ANALYSIS_DOC_TYPE_PREFIX)
+    ):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
     content = document.content or {}
     return DocumentDraftResponse(

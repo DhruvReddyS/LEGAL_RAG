@@ -39,13 +39,51 @@ def test_malformed_or_unsafe_cors_origins_are_rejected(origin: str) -> None:
         Settings(_env_file=None, cors_origins=origin)
 
 
+_REAL_SECRETS = {
+    "jwt_secret_key": "a" * 32 + "-access",
+    "jwt_refresh_secret_key": "b" * 32 + "-refresh",
+}
+
+
+@pytest.mark.parametrize(
+    "overrides, message",
+    [
+        ({}, "published default"),
+        ({"jwt_secret_key": "", "jwt_refresh_secret_key": "b" * 40}, "published default"),
+        ({"jwt_secret_key": "CHANGE_ME", "jwt_refresh_secret_key": "b" * 40}, "published default"),
+        ({"jwt_secret_key": "short", "jwt_refresh_secret_key": "b" * 40}, "at least 32 bytes"),
+        ({"jwt_secret_key": "c" * 40, "jwt_refresh_secret_key": "c" * 40}, "must differ"),
+    ],
+)
+def test_production_refuses_to_start_on_a_signing_key_anyone_can_read(
+    monkeypatch, overrides, message
+) -> None:
+    monkeypatch.delenv("JWT_SECRET_KEY", raising=False)
+    monkeypatch.delenv("JWT_REFRESH_SECRET_KEY", raising=False)
+    with pytest.raises(ValidationError, match=message):
+        Settings(_env_file=None, app_env="production", **overrides)
+
+
+def test_development_keeps_its_convenient_defaults(monkeypatch) -> None:
+    monkeypatch.delenv("JWT_SECRET_KEY", raising=False)
+    assert Settings(_env_file=None, app_env="development").jwt_secret_key.get_secret_value()
+
+
+def test_compose_will_not_substitute_an_empty_signing_key() -> None:
+    compose = (
+        Path(__file__).resolve().parents[2] / "docker" / "docker-compose.yml"
+    ).read_text(encoding="utf-8")
+    assert "${JWT_SECRET_KEY:?" in compose
+    assert "${JWT_REFRESH_SECRET_KEY:?" in compose
+
+
 def test_cookie_security_defaults_follow_environment_and_allow_override(monkeypatch) -> None:
     # Settings reads env vars ahead of its defaults, so an exported
     # COOKIE_SECURE from a local .env would silently answer for the assertion
     # this test is making about the default.
     monkeypatch.delenv("COOKIE_SECURE", raising=False)
     assert Settings(_env_file=None, app_env="development").auth_cookie_secure is False
-    assert Settings(_env_file=None, app_env="production").auth_cookie_secure is True
+    assert Settings(_env_file=None, app_env="production", **_REAL_SECRETS).auth_cookie_secure is True
     assert (
         Settings(_env_file=None, app_env="development", cookie_secure=True).auth_cookie_secure
         is True
@@ -66,7 +104,7 @@ def test_cross_site_cookie_mode_requires_secure_transport(monkeypatch) -> None:
 def test_insecure_cookie_override_is_rejected_outside_development(monkeypatch) -> None:
     monkeypatch.delenv("COOKIE_SECURE", raising=False)
     with pytest.raises(ValidationError, match="secure authentication cookies"):
-        Settings(_env_file=None, app_env="production", cookie_secure=False)
+        Settings(_env_file=None, app_env="production", cookie_secure=False, **_REAL_SECRETS)
 
 
 def test_trusted_hosts_are_explicit_and_deduplicated() -> None:

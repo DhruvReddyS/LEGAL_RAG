@@ -16,6 +16,7 @@ from app.models import AdvocateWorkProduct, AuditLog, User
 from app.schemas.strategy import DefenceAnalysisRequest, DefenceAnalysisResponse
 from app.services.advocate_work import save_work_product, work_summary
 from app.services.llm import OllamaClient
+from app.services.rate_limit import enforce_llm_sync_limit
 from app.services.retrieval import HybridRetrievalService
 
 
@@ -42,6 +43,7 @@ async def analyse_defence(
     runtime: StrategyRuntime = Depends(get_strategy_runtime),
     session: AsyncSession = Depends(get_db_session),
 ) -> DefenceAnalysisResponse:
+    await enforce_llm_sync_limit(current_user.id)
     result = await DefenceStrategyAgent(runtime.retrieval, runtime.llm).run(
         case_id=str(case_id),
         case_scenario=request.case_scenario,

@@ -157,7 +157,7 @@ async def test_document_analysis_is_owned_grounded_and_audited() -> None:
             denied_owner = await client.post(
                 path, json={"document_id": str(document_id)}, headers=other_headers
             )
-            assert denied_owner.status_code == 403
+            assert denied_owner.status_code == 404
             denied_citizen = await client.post(
                 path, json={"document_id": str(document_id)}, headers=citizen_headers
             )
@@ -214,7 +214,7 @@ async def test_document_analysis_is_owned_grounded_and_audited() -> None:
                 await client.get(
                     f"/cases/{case_id}/documents/indexed", headers=other_headers
                 )
-            ).status_code == 403
+            ).status_code == 404
 
             inspected = await client.get(
                 f"/cases/{case_id}/sources/{fake.client.private_point.id}",
@@ -232,7 +232,7 @@ async def test_document_analysis_is_owned_grounded_and_audited() -> None:
                     f"/cases/{case_id}/sources/{fake.client.private_point.id}",
                     headers=other_headers,
                 )
-            ).status_code == 403
+            ).status_code == 404
 
             async with AsyncSessionLocal() as session:
                 generated = await session.get(GeneratedDocument, uuid.UUID(body["id"]))

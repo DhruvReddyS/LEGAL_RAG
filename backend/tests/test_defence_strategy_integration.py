@@ -155,7 +155,7 @@ async def test_advocate_strategy_is_verified_safe_and_case_isolated() -> None:
                 json={"case_scenario": scenario},
                 headers=other_headers,
             )
-            assert denied.status_code == 403
+            assert denied.status_code == 404
             assert fake_llm.draft_calls == 0
 
             analysed = await client.post(

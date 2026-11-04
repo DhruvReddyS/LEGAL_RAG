@@ -101,7 +101,7 @@ jobs:
       - name: Report service logs on failure
         if: failure()
         run: >-
-          docker compose -f docker/docker-compose.yml -f docker/docker-compose.ci.yml
+          docker compose --env-file .env.example -f docker/docker-compose.yml -f docker/docker-compose.ci.yml
           logs --tail 100
 
 
@@ -185,7 +185,7 @@ jobs:
       - name: Report service logs on failure
         if: failure()
         run: >-
-          docker compose -f docker/docker-compose.yml -f docker/docker-compose.ci.yml
+          docker compose --env-file .env.example -f docker/docker-compose.yml -f docker/docker-compose.ci.yml
           logs --tail 100
 
 

@@ -15,6 +15,17 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 _REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
 
 
+MIN_JWT_SECRET_BYTES = 32
+_PUBLIC_JWT_SECRETS = frozenset(
+    {
+        "",
+        "change_me",
+        "development-access-secret-change-me",
+        "development-refresh-secret-change-me",
+    }
+)
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=(_REPOSITORY_ROOT / ".env", ".env"),
@@ -142,6 +153,14 @@ class Settings(BaseSettings):
     # unthrottled login endpoint is both a credential-guessing target and
     # the cheapest denial-of-service surface in the application.
     login_attempts_per_minute: int = Field(default=8, ge=1, le=60)
+    # Registration runs bcrypt too, and needs no account to reach.
+    register_requests_per_minute: int = Field(default=5, ge=1, le=600)
+    # One bucket across every synchronous route that calls the model: drafting,
+    # defence analysis, document analysis and indexing. There is one generation
+    # slot, and the limit that protects it on /chat/query was bypassable by
+    # calling any of these instead.
+    llm_sync_requests_per_minute: int = Field(default=4, ge=1, le=600)
+    retrieval_requests_per_minute: int = Field(default=60, ge=1, le=600)
     login_attempts_per_account_per_minute: int = Field(default=5, ge=1, le=60)
     legacy_sync_long_running_enabled: bool = True
     warm_query_models_on_startup: bool = True
@@ -173,6 +192,10 @@ class Settings(BaseSettings):
     s3_advocate_bucket: str = "legal-rag-advocate"
     s3_generated_bucket: str = "legal-rag-generated"
     legal_kb_root: str = "/data/legal_kb"
+    # Where the release console reads evidence. Empty means docs/evidence in the
+    # repository, which a container only has if it is mounted.
+    evaluation_evidence_root: str = ""
+    gate_evidence_root: str = ""
 
     # Account recovery. Nothing here may need a third party: a self-hosted
     # install has no mail relay by default, so the recovery path that always
@@ -283,6 +306,28 @@ class Settings(BaseSettings):
             raise ValueError("COOKIE_SAMESITE=none requires COOKIE_SECURE=true")
         if self.app_env.casefold() not in {"development", "test"} and not self.auth_cookie_secure:
             raise ValueError("secure authentication cookies are required outside development")
+        return self
+
+    @model_validator(mode="after")
+    def validate_signing_secrets(self) -> "Settings":
+        """Refuse to start outside development on a signing key anyone can read.
+
+        The defaults are public strings in this repository, compose turned an
+        unset variable into an empty string, jose accepts an empty HMAC key, and
+        `.env.example`'s CHANGE_ME is a working key too. Any of those lets a
+        holder of someone's user id sign a valid token for them.
+        """
+        if self.app_env.casefold() in {"development", "test"}:
+            return self
+        access = self.jwt_secret_key.get_secret_value()
+        refresh = self.jwt_refresh_secret_key.get_secret_value()
+        for name, secret in (("JWT_SECRET_KEY", access), ("JWT_REFRESH_SECRET_KEY", refresh)):
+            if secret.casefold() in _PUBLIC_JWT_SECRETS:
+                raise ValueError(f"{name} is empty or a published default")
+            if len(secret.encode("utf-8")) < MIN_JWT_SECRET_BYTES:
+                raise ValueError(f"{name} must be at least {MIN_JWT_SECRET_BYTES} bytes")
+        if access == refresh:
+            raise ValueError("JWT_SECRET_KEY and JWT_REFRESH_SECRET_KEY must differ")
         return self
 
     @property

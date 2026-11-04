@@ -16,6 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.agents.orchestrator import LegalRAGWorkflow
+from app.core.admin_access import record_admin_access
 from app.core.database import get_db_session
 from app.core.config import settings
 from app.core.permissions import CHAT_USE
@@ -36,6 +37,7 @@ from app.schemas.chat import (
 )
 from app.schemas.agents import AgentTraceEvent, QueryIntent
 from app.services.adaptive_routing import route_legal_query
+from app.services.audit_redaction import trace_for_audit
 from app.services.citizen_safety import EMERGENCY_CONTACTS, screen_citizen_query
 from app.services.rate_limit import RateLimitExceeded, user_rate_limiter
 from app.services.jobs import append_job_event
@@ -91,23 +93,49 @@ def get_workflow(request: Request) -> LegalRAGWorkflow:
     return request.app.state.legal_rag_workflow
 
 
-async def _owned_session(session: AsyncSession, session_id: uuid.UUID, user: User) -> ChatSession:
+async def _owned_session(
+    session: AsyncSession,
+    session_id: uuid.UUID,
+    user: User,
+    *,
+    admin_read: bool = False,
+) -> ChatSession:
     chat_session = await session.scalar(
         select(ChatSession).options(selectinload(ChatSession.messages)).where(ChatSession.id == session_id)
     )
     if chat_session is None:
         raise HTTPException(status_code=404, detail="Chat session not found")
-    if chat_session.user_id != user.id and user.role is not UserRole.ADMIN:
-        raise HTTPException(status_code=403, detail="You do not own this chat session")
+    if chat_session.user_id == user.id:
+        return chat_session
+    if user.role is not UserRole.ADMIN:
+        raise HTTPException(status_code=404, detail="Chat session not found")
+    # An administrator may read a named conversation, on the record. Nobody may
+    # put a message in a conversation that shows it as written by someone else.
+    if not admin_read:
+        raise HTTPException(
+            status_code=403,
+            detail="Administrators have read-only access to another user's conversation",
+        )
+    await record_admin_access(
+        session,
+        user,
+        action="admin.chat_session.read",
+        resource_type="chat_session",
+        resource_id=chat_session.id,
+        owner_id=chat_session.user_id,
+    )
     return chat_session
 
 
 async def _validate_case(session: AsyncSession, case_id: uuid.UUID, user: User) -> None:
     case = await session.get(Case, case_id)
-    if case is None:
+    if case is None or (case.owner_id != user.id and user.role is not UserRole.ADMIN):
         raise HTTPException(status_code=404, detail="Case not found")
-    if case.owner_id != user.id and user.role is not UserRole.ADMIN:
-        raise HTTPException(status_code=403, detail="You do not own this case")
+    if case.owner_id != user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="Administrators have read-only access to another user's matter",
+        )
     if user.role in {UserRole.POLICE, UserRole.ADVOCATE} and case.role_type.value != user.role.value:
         raise HTTPException(status_code=403, detail="Case role does not match the current user role")
 
@@ -384,7 +412,7 @@ async def query_chat(
                     "fast_confidence_score": result["confidence_score"],
                     "threshold": settings.fast_auto_escalation_threshold,
                     "fast_citation_count": len(result["citations"]),
-                    "agent_trace": trace,
+                    "agent_trace": trace_for_audit(trace),
                 },
             )
         )
@@ -461,7 +489,7 @@ async def query_chat(
                 "routing_signals": list(routing.signals),
                 "timings_ms": result.get("timings", {}),
                 "pipeline_metrics": result.get("stage_metrics", []),
-                "agent_trace": trace,
+                "agent_trace": trace_for_audit(trace),
             },
         )
     )
@@ -652,7 +680,7 @@ async def read_chat_session(
     user: User = Depends(require_permission(CHAT_USE)),
     session: AsyncSession = Depends(get_db_session),
 ) -> ChatSessionResponse:
-    chat_session = await _owned_session(session, session_id, user)
+    chat_session = await _owned_session(session, session_id, user, admin_read=True)
     return ChatSessionResponse(
         id=chat_session.id,
         title=chat_session.title,

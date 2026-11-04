@@ -95,7 +95,7 @@ async def test_text_evidence_indexing_is_idempotent_and_private() -> None:
                 json={"doc_type": "witness_statement"},
                 headers=other_headers,
             )
-            assert denied.status_code == 403
+            assert denied.status_code == 404
             assert fake.embedding_calls == []
 
             first = await client.post(
