@@ -1,0 +1,1039 @@
+{
+ "_source": "Every quote is verbatim from data/legal_kb/processed/extracted_text for document_id. Checked by backend/tests/test_citizen_law_is_in_the_corpus.py.",
+ "acts": {
+  "BNSS": {
+   "name": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+   "document_id": "gold-doc-4fc9cd46fd30dd1e806ff44e",
+   "source_url": "https://www.mha.gov.in/sites/default/files/2024-04/250884_2_english_01042024.pdf",
+   "corpus_status": "current/verify"
+  },
+  "BNS": {
+   "name": "Bharatiya Nyaya Sanhita, 2023",
+   "document_id": "exp-doc-5301b19bbc9b40a5bb27eef7",
+   "source_url": "https://indiacode.gov.in/server/api/core/bitstreams/8007a80e-259b-429d-9ca4-1a2f474b5000/content",
+   "corpus_status": "current/verify"
+  },
+  "CONST": {
+   "name": "Constitution of India",
+   "document_id": "exp-doc-328e9ee00b2147c397d503c3",
+   "source_url": "https://www.legislative.gov.in/static/uploads/2025/07/c9fe9c9b6840524844316f74bb1c556c.pdf",
+   "corpus_status": "current/verify"
+  },
+  "LSA": {
+   "name": "Legal Services Authorities Act, 1987",
+   "document_id": "gold-doc-d396cff2169d34d1335a7e30",
+   "source_url": "https://cdnbbsr.s3waas.gov.in/s32e45f93088c7db59767efef516b306aa/uploads/2025/04/202504081796627129.pdf",
+   "corpus_status": "current/verify"
+  },
+  "LIM": {
+   "name": "Limitation Act, 1963",
+   "document_id": "exp-doc-6674e347c2f54592bfe9200e",
+   "source_url": "https://indiacode.gov.in/server/api/core/bitstreams/3900a3de-8131-435a-9af0-ebad58242273/content",
+   "corpus_status": "current/verify"
+  },
+  "CPA": {
+   "name": "Consumer Protection Act, 2019",
+   "document_id": "exp-doc-2b82442714bf409f982c52cb",
+   "source_url": "https://ncdrc.nic.in/backend//uploads/pdfs/bareActsPDF/CPA2019.pdf",
+   "corpus_status": "current/verify"
+  },
+  "CPAFAQ": {
+   "name": "Department of Consumer Affairs, FAQs on the Consumer Protection Act, 2019",
+   "document_id": "phasea-doc-4acde7127d5b456a81481e0f",
+   "source_url": "https://consumeraffairs.gov.in/public/upload/admin/cmsfiles/whatsnews/New_Consumer_Protection_Act%2C_2019_-_FAQ_whatsnews.pdf",
+   "corpus_status": "current/verify"
+  },
+  "NI": {
+   "name": "Negotiable Instruments Act, 1881",
+   "document_id": "exp-doc-9480be766ea84a66b20ace0f",
+   "source_url": "https://indiacode.gov.in/server/api/core/bitstreams/82bf1927-5e52-4aab-a876-50552c5952cd/content",
+   "corpus_status": "current/verify"
+  },
+  "DV": {
+   "name": "Protection of Women from Domestic Violence Act, 2005",
+   "document_id": "exp-doc-096a46178837425b842e85b8",
+   "source_url": "https://indiacode.gov.in/server/api/core/bitstreams/8aa8ec49-c98c-4e76-91ac-bab44815e835/content",
+   "corpus_status": "current/verify"
+  },
+  "POSH": {
+   "name": "Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013",
+   "document_id": "civil-doc-287b5d4d96c74556b72273f2",
+   "source_url": "https://www.wcd.gov.in/documents/uploaded/1710219823.pdf",
+   "corpus_status": "current/verify"
+  },
+  "RTI": {
+   "name": "Right to Information Act, 2005",
+   "document_id": "exp-doc-8e0ceda048c74046afdb1721",
+   "source_url": "https://cic.gov.in/sites/default/files/RTI_English.pdf",
+   "corpus_status": "current/verify"
+  },
+  "RTIR": {
+   "name": "Right to Information Rules, 2012",
+   "document_id": "exp-doc-f300994b23c142329c4c7ea7",
+   "source_url": "https://cic.gov.in/sites/default/files/RTIRules2012_Eng.pdf",
+   "corpus_status": "current/verify"
+  },
+  "IT": {
+   "name": "Information Technology Act, 2000",
+   "document_id": "gold-doc-d2e0898940c03054cad6a9c2",
+   "source_url": "https://cca.gov.in/sites/files/pdf/ACT/ACT2000.pdf",
+   "corpus_status": "current/verify"
+  },
+  "ITKIT": {
+   "name": "Information Technology Act, 2000, as reproduced in NCPCR, Child Victims of Cyber Crime: Legal Tool Kit",
+   "document_id": "exp-doc-f136f87ca1b74480b89647c8",
+   "source_url": "https://ncpcr.gov.in/public/viewPdf/1752039691686e010b3b4b9_child-victims-of-cyber-crime-legal-tool-kit.pdf",
+   "corpus_status": "current/verify"
+  },
+  "ITFORM": {
+   "name": "Information Technology Act, 2000: complaint proforma notified 17 March 2003",
+   "document_id": "gold-doc-e9a49edcfa9eac516ca2d8a5",
+   "source_url": "https://cca.gov.in/sites/files/pdf/ACT/Notification2003.pdf",
+   "corpus_status": "current/verify"
+  },
+  "TPA": {
+   "name": "Transfer of Property Act, 1882",
+   "document_id": "exp-doc-3344be12bfe94caea1cd5836",
+   "source_url": "https://indiacode.gov.in/server/api/core/bitstreams/df9f8770-4efe-4cf9-85ba-1ea884649679/content",
+   "corpus_status": "current/verify"
+  },
+  "APTEN": {
+   "name": "Andhra Pradesh Residential and Non-Residential Premises Tenancy Act, 2017",
+   "document_id": "exp-doc-96dad161d15d438a9ec90ca3",
+   "source_url": "https://indiacode.gov.in/server/api/core/bitstreams/b3a9d863-d87c-4f12-b6c7-cf277aaa1d79/content",
+   "corpus_status": "current/verify"
+  },
+  "CPC": {
+   "name": "Code of Civil Procedure, 1908",
+   "document_id": "exp-doc-d7299f97eebd495fae6e82e4",
+   "source_url": "https://indiacode.gov.in/server/api/core/bitstreams/fc9dad3f-97a9-4216-843b-934665693468/content",
+   "corpus_status": "current/verify"
+  },
+  "NALSA": {
+   "name": "NALSA, DAWN Scheme 2025",
+   "document_id": "exp-doc-88b88558344c4f7c94f6fc3e",
+   "source_url": "https://cdnbbsr.s3waas.gov.in/s32e45f93088c7db59767efef516b306aa/uploads/2025/05/202505101337160458.pdf",
+   "corpus_status": "current/verify"
+  },
+  "NALSACHILD": {
+   "name": "NALSA, Child Friendly Legal Services Scheme 2024",
+   "document_id": "exp-doc-86bed096cf9c43c8b9e22d42",
+   "source_url": "https://cdnbbsr.s3waas.gov.in/s32e45f93088c7db59767efef516b306aa/uploads/2025/04/202504081834821576.pdf",
+   "corpus_status": "current/verify"
+  },
+  "MHA": {
+   "name": "Ministry of Home Affairs, advisory on mandatory action by police in cases of crimes against women",
+   "document_id": "gold-doc-caea2b143057ab368fcc9308",
+   "source_url": "https://www.mha.gov.in/sites/default/files/2022-12/09-10-2020%5B1%5D.pdf",
+   "corpus_status": "current/verify"
+  },
+  "NALSAMH": {
+   "name": "NALSA, Mental Illness and Disability Scheme 2024",
+   "document_id": "exp-doc-45953777a5024e60aa4bfd8f",
+   "source_url": "https://cdnbbsr.s3waas.gov.in/s32e45f93088c7db59767efef516b306aa/uploads/2025/04/20250408408064338.pdf",
+   "corpus_status": "current/verify"
+  },
+  "PORTAL": {
+   "name": "National Cyber Crime Reporting Portal, as described in a corpus document",
+   "document_id": "exp-doc-bfa66bafaf464d2c9ce928db",
+   "source_url": "https://ncpcr.gov.in/public/viewPdf/17834954586a4dfb2284359_a.pdf",
+   "corpus_status": "current/verify"
+  }
+ },
+ "provisions": {
+  "bnss-35-1": {
+   "act": "BNSS",
+   "section": "s.35(1)(b)",
+   "quote": "the police officer shall record while making such arrest, his reasons in writing",
+   "page": 13
+  },
+  "bnss-35-3": {
+   "act": "BNSS",
+   "section": "s.35(3)",
+   "quote": "issue a notice directing the person against whom a reasonable complaint has been made",
+   "page": 14
+  },
+  "bnss-35-4": {
+   "act": "BNSS",
+   "section": "s.35(4)",
+   "quote": "it shall be the duty of that person to comply with the terms of the notice",
+   "page": 14
+  },
+  "bnss-35-5": {
+   "act": "BNSS",
+   "section": "s.35(5)",
+   "quote": "he shall not be arrested in respect of the offence referred to in the notice unless, for reasons to be recorded",
+   "page": 14
+  },
+  "bnss-35-6": {
+   "act": "BNSS",
+   "section": "s.35(6)",
+   "quote": "fails to comply with the terms of the notice or is unwilling to identify himself",
+   "page": 14
+  },
+  "bnss-35-7": {
+   "act": "BNSS",
+   "section": "s.35(7)",
+   "quote": "such person is infirm or is above sixty years of age",
+   "page": 14
+  },
+  "bnss-36-a": {
+   "act": "BNSS",
+   "section": "s.36(a)",
+   "quote": "bear an accurate, visible and clear identification of his name",
+   "page": 14
+  },
+  "bnss-36-b": {
+   "act": "BNSS",
+   "section": "s.36(b)",
+   "quote": "prepare a memorandum of arrest",
+   "page": 14
+  },
+  "bnss-36-b-ii": {
+   "act": "BNSS",
+   "section": "s.36(b)(ii)",
+   "quote": "countersigned by the person arrested",
+   "page": 14
+  },
+  "bnss-36-c": {
+   "act": "BNSS",
+   "section": "s.36(c)",
+   "quote": "he has a right to have a relative or a friend or any other person named by him to be informed of his arrest",
+   "page": 14
+  },
+  "bnss-38": {
+   "act": "BNSS",
+   "section": "s.38",
+   "quote": "to meet an advocate of his choice during interrogation, though not throughout interrogation",
+   "page": 15
+  },
+  "bnss-43-1-m": {
+   "act": "BNSS",
+   "section": "s.43(1)",
+   "quote": "actually touch or confine the body of the person to be arrested",
+   "page": 16
+  },
+  "bnss-63-e": {
+   "act": "BNSS",
+   "section": "s.63(ii)",
+   "quote": "in an encrypted or any other form of electronic communication",
+   "page": 20
+  },
+  "bnss-43-1": {
+   "act": "BNSS",
+   "section": "s.43(1), proviso",
+   "quote": "the police officer shall not touch the person of the woman for making her arrest",
+   "page": 16
+  },
+  "bnss-43-3": {
+   "act": "BNSS",
+   "section": "s.43(3)",
+   "quote": "use handcuff while making the arrest of a person",
+   "page": 16
+  },
+  "bnss-43-5": {
+   "act": "BNSS",
+   "section": "s.43(5)",
+   "quote": "no woman shall be arrested after sunset and before sunrise",
+   "page": 16
+  },
+  "bnss-47-1": {
+   "act": "BNSS",
+   "section": "s.47(1)",
+   "quote": "communicate to him full particulars of the offence for which he is arrested",
+   "page": 17
+  },
+  "bnss-47-2": {
+   "act": "BNSS",
+   "section": "s.47(2)",
+   "quote": "he shall inform the person arrested that he is entitled to be released on bail",
+   "page": 17
+  },
+  "bnss-48-1": {
+   "act": "BNSS",
+   "section": "s.48(1)",
+   "quote": "forthwith give the information regarding such arrest and place where the arrested person is",
+   "page": 17
+  },
+  "bnss-48-2": {
+   "act": "BNSS",
+   "section": "s.48(2)",
+   "quote": "inform the arrested person of his rights under sub-section (1) as soon as he is brought to the police station",
+   "page": 17
+  },
+  "bnss-49-1": {
+   "act": "BNSS",
+   "section": "s.49(1)",
+   "quote": "a receipt showing the articles taken in possession by the police officer shall be given to such person",
+   "page": 17
+  },
+  "bnss-49-2": {
+   "act": "BNSS",
+   "section": "s.49(2)",
+   "quote": "the search shall be made by another female with strict regard to decency",
+   "page": 17
+  },
+  "bnss-53-1": {
+   "act": "BNSS",
+   "section": "s.53(1)",
+   "quote": "he shall be examined by a medical officer in the service of the Central Government or a State Government",
+   "page": 18
+  },
+  "bnss-56": {
+   "act": "BNSS",
+   "section": "s.56",
+   "quote": "It shall be the duty of the person having the custody of an accused to take",
+   "page": 19
+  },
+  "bnss-58": {
+   "act": "BNSS",
+   "section": "s.58",
+   "quote": "shall not, in the absence of a special order of a Magistrate under section 187, exceed",
+   "page": 19
+  },
+  "bnss-63": {
+   "act": "BNSS",
+   "section": "s.63",
+   "quote": "signed by the presiding officer of such Court",
+   "page": 20
+  },
+  "bnss-64-1": {
+   "act": "BNSS",
+   "section": "s.64(1)",
+   "quote": "Every summons shall be served by a police officer",
+   "page": 20
+  },
+  "bnss-90": {
+   "act": "BNSS",
+   "section": "s.90(b)",
+   "quote": "if at such time he fails to appear and the summons is proved to have been duly served",
+   "page": 26
+  },
+  "bnss-179-1": {
+   "act": "BNSS",
+   "section": "s.179(1)",
+   "quote": "in writing, require the attendance before himself",
+   "page": 55
+  },
+  "bnss-179-p": {
+   "act": "BNSS",
+   "section": "s.179(1), proviso",
+   "quote": "shall be required to attend at any place other than the place in which such person resides",
+   "page": 55
+  },
+  "bnss-179-2": {
+   "act": "BNSS",
+   "section": "s.179(2)",
+   "quote": "the reasonable expenses of every person",
+   "page": 55
+  },
+  "bnss-180-2": {
+   "act": "BNSS",
+   "section": "s.180(2)",
+   "quote": "other than questions the answers to which would have a tendency to expose him to a criminal charge",
+   "page": 55
+  },
+  "bnss-103-1": {
+   "act": "BNSS",
+   "section": "s.103(1)",
+   "quote": "executing the warrant, and on production of the warrant, allow him",
+   "page": 29
+  },
+  "bnss-103-4": {
+   "act": "BNSS",
+   "section": "s.103(4)",
+   "quote": "call upon two or more independent and respectable inhabitants of the locality",
+   "page": 29
+  },
+  "bnss-103-5": {
+   "act": "BNSS",
+   "section": "s.103(5)",
+   "quote": "The search shall be made in their presence, and a list of all things seized",
+   "page": 29
+  },
+  "bnss-103-6": {
+   "act": "BNSS",
+   "section": "s.103(6)",
+   "quote": "The occupant of the place searched, or some person in his behalf, shall, in every instance, be permitted to attend during the search",
+   "page": 30
+  },
+  "bnss-185-1": {
+   "act": "BNSS",
+   "section": "s.185(1)",
+   "quote": "after recording in writing the grounds of his belief in the case-diary",
+   "page": 58
+  },
+  "bnss-185-2": {
+   "act": "BNSS",
+   "section": "s.185(2), proviso",
+   "quote": "shall be recorded through audio-video electronic means preferably by mobile phone",
+   "page": 57
+  },
+  "bnss-173-1": {
+   "act": "BNSS",
+   "section": "s.173(1)",
+   "quote": "irrespective of the area where the offence is committed",
+   "page": 52
+  },
+  "bnss-173-1-ii": {
+   "act": "BNSS",
+   "section": "s.173(1)(ii)",
+   "quote": "signed within three days by the person giving it",
+   "page": 52
+  },
+  "bnss-173-1-w": {
+   "act": "BNSS",
+   "section": "s.173(1), proviso",
+   "quote": "such information shall be recorded, by a woman police officer or any woman officer",
+   "page": 53
+  },
+  "bnss-173-2": {
+   "act": "BNSS",
+   "section": "s.173(2)",
+   "quote": "shall be given forthwith, free of cost, to the informant or the victim",
+   "page": 53
+  },
+  "bnss-173-4": {
+   "act": "BNSS",
+   "section": "s.173(4)",
+   "quote": "may send the substance of such information, in writing and by post, to the Superintendent of Police",
+   "page": 53
+  },
+  "bnss-173-4-m": {
+   "act": "BNSS",
+   "section": "s.173(4)",
+   "quote": "failing which such aggrieved person may make an application to the Magistrate",
+   "page": 53
+  },
+  "bnss-340": {
+   "act": "BNSS",
+   "section": "s.340",
+   "quote": "may of right be defended by an advocate of",
+   "page": 102
+  },
+  "bnss-341": {
+   "act": "BNSS",
+   "section": "s.341(1)",
+   "quote": "the Court shall assign an advocate for his defence at the expense",
+   "page": 102
+  },
+  "bnss-514-2": {
+   "act": "BNSS",
+   "section": "s.514(2)",
+   "quote": "six months, if the offence is punishable with fine only",
+   "page": 153
+  },
+  "bnss-531": {
+   "act": "BNSS",
+   "section": "s.531(1)",
+   "quote": "The Code of Criminal Procedure, 1973 is hereby repealed",
+   "page": 156
+  },
+  "const-20-3": {
+   "act": "CONST",
+   "section": "Art. 20(3)",
+   "quote": "No person accused of any offence shall be compelled to be a witness against himself",
+   "page": 42
+  },
+  "const-21": {
+   "act": "CONST",
+   "section": "Art. 21",
+   "quote": "No person shall be deprived of his life or personal liberty except according to procedure established by law",
+   "page": 42
+  },
+  "const-22-1": {
+   "act": "CONST",
+   "section": "Art. 22(1)",
+   "quote": "nor shall he be denied the right to consult, and to be defended by, a legal practitioner of his choice",
+   "page": 42
+  },
+  "const-22-2": {
+   "act": "CONST",
+   "section": "Art. 22(2)",
+   "quote": "shall be produced before the nearest magistrate within a period of twenty-four hours of such arrest",
+   "page": 43
+  },
+  "const-39a": {
+   "act": "CONST",
+   "section": "Art. 39A",
+   "quote": "provide free legal aid, by suitable legislation or schemes or in any other way",
+   "page": 53
+  },
+  "bns-75": {
+   "act": "BNS",
+   "section": "s.75",
+   "quote": "shall be guilty of the offence of sexual harassment",
+   "page": 40
+  },
+  "bns-85": {
+   "act": "BNS",
+   "section": "s.85",
+   "quote": "subjects such woman to cruelty shall be punished",
+   "page": 42
+  },
+  "bns-208": {
+   "act": "BNS",
+   "section": "s.208",
+   "quote": "being legally bound to attend in person or by an agent at a certain place and time in obedience to a summons, notice, order, or proclamation",
+   "page": 70
+  },
+  "bns-318": {
+   "act": "BNS",
+   "section": "s.318(2)",
+   "quote": "Whoever cheats shall be punished",
+   "page": 96
+  },
+  "bns-319": {
+   "act": "BNS",
+   "section": "s.319(2)",
+   "quote": "Whoever cheats by personation shall be punished",
+   "page": 96
+  },
+  "bns-358": {
+   "act": "BNS",
+   "section": "s.358(1)",
+   "quote": "The Indian Penal Code (45 of 1860) is hereby repealed",
+   "page": 110
+  },
+  "it-66c": {
+   "act": "ITKIT",
+   "section": "s.66C",
+   "quote": "66C. Punishment for identity theft",
+   "page": 38
+  },
+  "it-66d": {
+   "act": "ITKIT",
+   "section": "s.66D",
+   "quote": "66D. Punishment for cheating by personation by using computer resource",
+   "page": 24
+  },
+  "it-46": {
+   "act": "IT",
+   "section": "s.2(1)(c), s.46",
+   "quote": "means an adjudicating officer appointed under sub-section (1) of section 46",
+   "page": 3
+  },
+  "it-form": {
+   "act": "ITFORM",
+   "section": "Proforma",
+   "quote": "PROFORMA FOR COMPLAINT TO ADJUDICATING OFFICER UNDER INFORMATION TECHNOLOGY ACT",
+   "page": 1
+  },
+  "portal-cyber": {
+   "act": "PORTAL",
+   "section": "Reporting portal",
+   "quote": "Visit the website of National Cyber Crime Reporting Portal at https://cybercrime.gov.in/",
+   "page": 107
+  },
+  "lsa-12": {
+   "act": "LSA",
+   "section": "s.12",
+   "quote": "Every person who has to file or defend a case shall be entitled to legal services under this Act if that person is",
+   "page": 9
+  },
+  "lsa-12-a": {
+   "act": "LSA",
+   "section": "s.12(a)",
+   "quote": "a member of a Scheduled Caste or Scheduled Tribe",
+   "page": 9
+  },
+  "lsa-12-b": {
+   "act": "LSA",
+   "section": "s.12(b)",
+   "quote": "a victim of trafficking in human beings or begar",
+   "page": 9
+  },
+  "lsa-12-c": {
+   "act": "LSA",
+   "section": "s.12(c)",
+   "quote": "a woman or a child",
+   "page": 9
+  },
+  "lsa-12-d": {
+   "act": "LSA",
+   "section": "s.12(d)",
+   "quote": "a person with disability as defined in",
+   "page": 9
+  },
+  "lsa-12-e": {
+   "act": "LSA",
+   "section": "s.12(e)",
+   "quote": "a person under circumstances of underserved want such as being a victim of a mass disaster",
+   "page": 10
+  },
+  "lsa-12-f": {
+   "act": "LSA",
+   "section": "s.12(f)",
+   "quote": "an industrial workman",
+   "page": 10
+  },
+  "lsa-12-g": {
+   "act": "LSA",
+   "section": "s.12(g)",
+   "quote": "in custody, including custody in a protective home",
+   "page": 10
+  },
+  "lsa-12-h": {
+   "act": "LSA",
+   "section": "s.12(h)",
+   "quote": "in receipt of annual income less than rupees nine thousand or such other higher amount as may be prescribed by the State Government",
+   "page": 10
+  },
+  "lsa-13-1": {
+   "act": "LSA",
+   "section": "s.13(1)",
+   "quote": "provided that the concerned Authority is satisfied that such person has",
+   "page": 10
+  },
+  "lsa-13-2": {
+   "act": "LSA",
+   "section": "s.13(2)",
+   "quote": "An affidavit made by a person as to his income may be regarded as sufficient",
+   "page": 10
+  },
+  "nalsa-15100": {
+   "act": "NALSA",
+   "section": "Helpline",
+   "quote": "Helpline Number 15100 for legal services assistance",
+   "page": 17
+  },
+  "helpline-1098": {
+   "act": "NALSACHILD",
+   "section": "Helpline",
+   "quote": "Child Helpline 1098",
+   "page": 37
+  },
+  "helpline-112": {
+   "act": "MHA",
+   "section": "ERSS",
+   "quote": "ERSS is accessible through call, SMS, email and 112 India mobile app",
+   "page": 7
+  },
+  "helpline-14416": {
+   "act": "NALSAMH",
+   "section": "Tele-MANAS",
+   "quote": "The toll-free number for Tele-MANAS is 14416",
+   "page": 22
+  },
+  "lim-3": {
+   "act": "LIM",
+   "section": "s.3(1)",
+   "quote": "every suit instituted, appeal preferred, and application made after the prescribed period shall be dismissed",
+   "page": 4
+  },
+  "lim-5": {
+   "act": "LIM",
+   "section": "s.5",
+   "quote": "if the appellant or the applicant satisfies the court that he had sufficient cause",
+   "page": 4
+  },
+  "lim-12": {
+   "act": "LIM",
+   "section": "s.12(1)",
+   "quote": "the day from which such period is to be reckoned, shall be excluded",
+   "page": 6
+  },
+  "lim-17": {
+   "act": "LIM",
+   "section": "s.17(1)",
+   "quote": "the period of limitation shall not begin to run until the plaintiff or applicant has discovered the fraud or the mistake",
+   "page": 8
+  },
+  "lim-a19": {
+   "act": "LIM",
+   "section": "Schedule, Art. 19",
+   "quote": "For money payable for money lent. Three years. When the loan is made.",
+   "page": 13
+  },
+  "lim-a55": {
+   "act": "LIM",
+   "section": "Schedule, Art. 55",
+   "quote": "For compensation for the breach of Three years. When the contract is broken",
+   "page": 15
+  },
+  "lim-a113": {
+   "act": "LIM",
+   "section": "Schedule, Art. 113",
+   "quote": "Any suit for which no period of Three years. When the right to sue accrues.",
+   "page": 21
+  },
+  "lim-a67": {
+   "act": "LIM",
+   "section": "Schedule, Art. 67",
+   "quote": "By a landlord to recover possession Twelve years. When the tenancy is determined.",
+   "page": 17
+  },
+  "cpa-2-7": {
+   "act": "CPA",
+   "section": "s.2(7)",
+   "quote": "but does not include a person who obtains such goods for resale or for any commercial purpose",
+   "page": 3
+  },
+  "cpa-2-10": {
+   "act": "CPA",
+   "section": "s.2(10)",
+   "quote": "\"defect\" means any fault, imperfection or shortcoming in the quality, quantity, potency, purity or standard",
+   "page": 4
+  },
+  "cpa-2-11": {
+   "act": "CPA",
+   "section": "s.2(11)",
+   "quote": "\"deficiency\" means any fault, imperfection, shortcoming or inadequacy",
+   "page": 4
+  },
+  "cpa-34-1": {
+   "act": "CPA",
+   "section": "s.34(1)",
+   "quote": "does not exceed one crore rupees",
+   "page": 17
+  },
+  "cpa-34-1-p": {
+   "act": "CPA",
+   "section": "s.34(1), proviso",
+   "quote": "it may prescribe such other value, as it deems fit",
+   "page": 17
+  },
+  "cpa-34-2": {
+   "act": "CPA",
+   "section": "s.34(2)(d)",
+   "quote": "the complainant resides or personally works for gain",
+   "page": 17
+  },
+  "cpa-35-1": {
+   "act": "CPA",
+   "section": "s.35(1), proviso",
+   "quote": "the complaint under this sub-section may be filed electronically",
+   "page": 18
+  },
+  "cpa-35-2": {
+   "act": "CPA",
+   "section": "s.35(2)",
+   "quote": "shall be accompanied with such fee and payable in such manner, including electronic form, as may be prescribed",
+   "page": 18
+  },
+  "cpa-38-2": {
+   "act": "CPA",
+   "section": "s.38(2)(a)",
+   "quote": "directing him to give his version of the case within a period of thirty days or such extended period not exceeding fifteen days",
+   "page": 19
+  },
+  "cpa-41": {
+   "act": "CPA",
+   "section": "s.41",
+   "quote": "within a period of forty-five days from the date of the order",
+   "page": 22
+  },
+  "cpa-69-1": {
+   "act": "CPA",
+   "section": "s.69(1)",
+   "quote": "shall not admit a complaint unless it is filed within two years from the date on which the cause of action has arisen",
+   "page": 28
+  },
+  "cpa-69-2": {
+   "act": "CPA",
+   "section": "s.69(2)",
+   "quote": "he had sufficient cause for not filing the complaint within such period",
+   "page": 28
+  },
+  "cpafaq-adv": {
+   "act": "CPAFAQ",
+   "section": "FAQ 39",
+   "quote": "There is no need for an advocate or any other pleader",
+   "page": 9
+  },
+  "cpafaq-online": {
+   "act": "CPAFAQ",
+   "section": "FAQ 35",
+   "quote": "Can be filed online",
+   "page": 8
+  },
+  "ni-138": {
+   "act": "NI",
+   "section": "s.138",
+   "quote": "is returned by the bank unpaid",
+   "page": 28
+  },
+  "ni-138-a": {
+   "act": "NI",
+   "section": "s.138, proviso (a)",
+   "quote": "within a period of six months from the date on which it is drawn or within the period of its validity, whichever is earlier",
+   "page": 28
+  },
+  "ni-138-b": {
+   "act": "NI",
+   "section": "s.138, proviso (b)",
+   "quote": "of the receipt of information by him from the bank regarding the return of the cheque as unpaid",
+   "page": 28
+  },
+  "ni-138-c": {
+   "act": "NI",
+   "section": "s.138, proviso (c)",
+   "quote": "within fifteen days of the receipt of the said notice",
+   "page": 28
+  },
+  "ni-142-b": {
+   "act": "NI",
+   "section": "s.142(1)(b)",
+   "quote": "such complaint is made within one month of the date on which the cause of action arises under clause (c) of the proviso to section 138",
+   "page": 29
+  },
+  "ni-142-p": {
+   "act": "NI",
+   "section": "s.142(1)(b), proviso",
+   "quote": "if the complainant satisfies the Court that he had sufficient cause for not making a complaint within such period",
+   "page": 29
+  },
+  "ni-142-c": {
+   "act": "NI",
+   "section": "s.142(1)(c)",
+   "quote": "no court inferior to that of a Metropolitan Magistrate or a Judicial Magistrate of the first class",
+   "page": 29
+  },
+  "ni-142-2": {
+   "act": "NI",
+   "section": "s.142(2)",
+   "quote": "the branch of the bank where the payee or holder in due course, as the case may be, maintains the account",
+   "page": 29
+  },
+  "dv-3": {
+   "act": "DV",
+   "section": "s.3",
+   "quote": "harms or injures or endangers the health, safe",
+   "page": 4
+  },
+  "dv-4": {
+   "act": "DV",
+   "section": "s.4(1)",
+   "quote": "may give information about it to the concerned Protection Officer",
+   "page": 5
+  },
+  "dv-5-a": {
+   "act": "DV",
+   "section": "s.5(a)",
+   "quote": "of her right to make an application for obtaining a relief by way of a protection order",
+   "page": 5
+  },
+  "dv-5-d": {
+   "act": "DV",
+   "section": "s.5(d)",
+   "quote": "of her right to free legal services under the Legal Services Authorities Act, 1987",
+   "page": 5
+  },
+  "dv-6": {
+   "act": "DV",
+   "section": "s.6",
+   "quote": "6. Duties of shelter homes",
+   "page": 1
+  },
+  "dv-7": {
+   "act": "DV",
+   "section": "s.7",
+   "quote": "7. Duties of medical facilities",
+   "page": 1
+  },
+  "dv-12-1": {
+   "act": "DV",
+   "section": "s.12(1)",
+   "quote": "may present an application to the Magistrate seeking one or more reliefs under this Act",
+   "page": 7
+  },
+  "dv-12-4": {
+   "act": "DV",
+   "section": "s.12(4)",
+   "quote": "shall not ordinarily be beyond three days from the date of receipt of the application by the court",
+   "page": 7
+  },
+  "dv-18": {
+   "act": "DV",
+   "section": "s.18",
+   "quote": "18. Protection orders",
+   "page": 1
+  },
+  "dv-19": {
+   "act": "DV",
+   "section": "s.19",
+   "quote": "19. Residence orders",
+   "page": 1
+  },
+  "dv-20": {
+   "act": "DV",
+   "section": "s.20",
+   "quote": "20. Monetary reliefs",
+   "page": 1
+  },
+  "dv-21": {
+   "act": "DV",
+   "section": "s.21",
+   "quote": "21. Custody orders",
+   "page": 1
+  },
+  "dv-22": {
+   "act": "DV",
+   "section": "s.22",
+   "quote": "22. Compensation orders",
+   "page": 1
+  },
+  "dv-27": {
+   "act": "DV",
+   "section": "s.27(1)",
+   "quote": "the person aggrieved permanently or temporarily resides or carries on business or is employed",
+   "page": 10
+  },
+  "posh-2-n": {
+   "act": "POSH",
+   "section": "s.2(n)",
+   "quote": "includes any one or more of the following unwelcome acts or behaviour",
+   "page": 3
+  },
+  "posh-4": {
+   "act": "POSH",
+   "section": "s.4(1)",
+   "quote": "shall, by an order in writing, constitute a Committee",
+   "page": 4
+  },
+  "posh-6": {
+   "act": "POSH",
+   "section": "s.6(1)",
+   "quote": "Every District Officer shall constitute in the district concerned",
+   "page": 5
+  },
+  "posh-9-1": {
+   "act": "POSH",
+   "section": "s.9(1)",
+   "quote": "within a period of three months from the date of incident",
+   "page": 6
+  },
+  "posh-9-p": {
+   "act": "POSH",
+   "section": "s.9(1), proviso",
+   "quote": "extend the time limit not exceeding three months",
+   "page": 6
+  },
+  "posh-11-4": {
+   "act": "POSH",
+   "section": "s.11(4)",
+   "quote": "shall be completed within a period of ninety days",
+   "page": 7
+  },
+  "posh-12": {
+   "act": "POSH",
+   "section": "s.12(1)",
+   "quote": "During the pendency of an inquiry, on a written request",
+   "page": 7
+  },
+  "posh-18": {
+   "act": "POSH",
+   "section": "s.18(1)",
+   "quote": "may prefer an appeal to the court or tribunal",
+   "page": 9
+  },
+  "rti-6-1": {
+   "act": "RTI",
+   "section": "s.6(1)",
+   "quote": "shall make a request in writing or through electronic means in English or Hindi or in the official language of the area",
+   "page": 9
+  },
+  "rti-6-2": {
+   "act": "RTI",
+   "section": "s.6(2)",
+   "quote": "shall not be required to give any reason for requesting the information",
+   "page": 9
+  },
+  "rti-7-1": {
+   "act": "RTI",
+   "section": "s.7(1)",
+   "quote": "as expeditiously as possible, and in any case within thirty days of the receipt of the request",
+   "page": 9
+  },
+  "rti-7-1-p": {
+   "act": "RTI",
+   "section": "s.7(1), proviso",
+   "quote": "shall be provided within forty-eight hours of the receipt of the request",
+   "page": 9
+  },
+  "rti-7-5": {
+   "act": "RTI",
+   "section": "s.7(5), proviso",
+   "quote": "no such fee shall be charged from the persons who are of below poverty line",
+   "page": 10
+  },
+  "rti-7-6": {
+   "act": "RTI",
+   "section": "s.7(6)",
+   "quote": "shall be provided the information free of charge where a public authority fails to comply with the time limits",
+   "page": 10
+  },
+  "rti-19-1": {
+   "act": "RTI",
+   "section": "s.19(1)",
+   "quote": "may within thirty days from the expiry of such period or from the receipt of such a decision prefer an appeal",
+   "page": 17
+  },
+  "rti-19-3": {
+   "act": "RTI",
+   "section": "s.19(3)",
+   "quote": "A second appeal against the decision under sub-section (1) shall lie within ninety days",
+   "page": 18
+  },
+  "rtir-3": {
+   "act": "RTIR",
+   "section": "r.3",
+   "quote": "shall be accompanied by a fee of rupees ten",
+   "page": 2
+  },
+  "tpa-106": {
+   "act": "TPA",
+   "section": "s.106(1)",
+   "quote": "In the absence of a contract or local law or usage to the contrary",
+   "page": 38
+  },
+  "tpa-106-b": {
+   "act": "TPA",
+   "section": "s.106(1)",
+   "quote": "terminable, on the part of either lessor or lessee, by fifteen days’ notice",
+   "page": 38
+  },
+  "tpa-108-q": {
+   "act": "TPA",
+   "section": "s.108(q)",
+   "quote": "on the determination of the lease, the lessee is bound to put the lessor into possession of the property",
+   "page": 40
+  },
+  "apten-1-3": {
+   "act": "APTEN",
+   "section": "s.1(3)",
+   "quote": "It shall come into force on such date as the State Government may, by notification",
+   "page": 4
+  },
+  "apten-11": {
+   "act": "APTEN",
+   "section": "s.11",
+   "quote": "The security deposit shall be refunded to the tenant within one month after vacation of the premises",
+   "page": 8
+  },
+  "cpc-15": {
+   "act": "CPC",
+   "section": "s.15",
+   "quote": "Every suit shall be instituted in the Court of the lowest grade competent to try it",
+   "page": 40
+  },
+  "cpc-20": {
+   "act": "CPC",
+   "section": "s.20",
+   "quote": "every suit shall be instituted in a Court within the local limits of whose jurisdiction",
+   "page": 41
+  },
+  "cpc-o5r1": {
+   "act": "CPC",
+   "section": "Order V, r.1",
+   "quote": "a summons may be issued to the defendant to appear and answer the claim",
+   "page": 44
+  },
+  "cpc-o8r1": {
+   "act": "CPC",
+   "section": "Order VIII, r.1",
+   "quote": "within thirty days from the date of service of summons on him, present a written statement of his defence",
+   "page": 105
+  }
+ }
+}

@@ -13,6 +13,7 @@ from app.models.enums import (
     OffenceGravity,
     UserRole,
 )
+from app.models.citizen import ChatMessageAnnotation, CitizenDeadline
 from app.models.investigation import InvestigationFacts
 from app.models.job import Job, JobEvent
 from app.models.storage import StorageNamespace, StorageObject
@@ -30,6 +31,8 @@ __all__ = [
     "ChatMessageRole",
     "ChatSession",
     "CorpusSource",
+    "ChatMessageAnnotation",
+    "CitizenDeadline",
     "InvestigationFacts",
     "OffenceGravity",
     "CorpusIntake",

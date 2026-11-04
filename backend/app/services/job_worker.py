@@ -12,7 +12,7 @@ from sqlalchemy import select
 from app.agents.orchestrator import LegalRAGWorkflow
 from app.core.config import settings
 from app.core.database import AsyncSessionLocal
-from app.models import AuditLog, Case, CaseDocument, ChatMessage, Job, StorageObject, User
+from app.models import AuditLog, Case, CaseDocument, ChatMessage, ChatMessageAnnotation, Job, StorageObject, User
 from app.models.enums import ChatMessageRole, JobStatus, JobType
 from app.services.case_documents import CaseDocumentIndexingService
 from app.services.document_analysis import DocumentAnalysisService
@@ -356,6 +356,13 @@ class DurableJobWorker:
                 )
                 session.add(assistant)
                 await session.flush()
+                if serialized["section_confidence"]:
+                    session.add(
+                        ChatMessageAnnotation(
+                            message_id=assistant.id,
+                            section_confidence=serialized["section_confidence"],
+                        )
+                    )
                 serialized["message_id"] = str(assistant.id)
                 for citation in serialized["citations"]:
                     append_job_event(
@@ -641,6 +648,9 @@ class DurableJobWorker:
             "citations": [citation.model_dump(mode="json") for citation in result["citations"]],
             "confidence_score": result["confidence_score"],
             "evidence_strength": result["evidence_strength"],
+            # The sync lane returns this. Leaving it out meant an escalated
+            # Deep answer never showed how well each part is grounded.
+            "section_confidence": result.get("section_confidence", []),
             "intent": result["intent"].model_dump(mode="json"),
             "agent_trace": [event.model_dump(mode="json") for event in result["agent_trace"]],
             "timings_ms": result.get("timings", {}),

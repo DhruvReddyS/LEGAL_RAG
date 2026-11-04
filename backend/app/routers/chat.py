@@ -20,7 +20,7 @@ from app.core.database import get_db_session
 from app.core.config import settings
 from app.core.permissions import CHAT_USE
 from app.core.rbac import require_permission
-from app.models import AuditLog, Case, ChatMessage, ChatSession, Job, User
+from app.models import AuditLog, Case, ChatMessage, ChatMessageAnnotation, ChatSession, Job, User
 from app.models.enums import ChatMessageRole, JobStatus, JobType, UserRole
 from app.schemas.chat import (
     ChatSessionRename,
@@ -210,6 +210,7 @@ async def query_chat(
         )
         session.add(assistant_message)
         await session.flush()
+        session.add(ChatMessageAnnotation(message_id=assistant_message.id, safety_kind=intervention.kind))
         session.add(
             AuditLog(
                 user_id=user.id,
@@ -442,6 +443,13 @@ async def query_chat(
     )
     session.add(assistant_message)
     await session.flush()
+    if result.get("section_confidence"):
+        session.add(
+            ChatMessageAnnotation(
+                message_id=assistant_message.id,
+                section_confidence=result["section_confidence"],
+            )
+        )
     trace = [event.model_dump(mode="json") for event in result["agent_trace"]]
     session.add(
         AuditLog(
@@ -503,6 +511,7 @@ async def query_chat(
 async def list_chat_sessions(
     limit: Annotated[int, Query(ge=1, le=100)] = 30,
     cursor: Annotated[str | None, Query(max_length=64)] = None,
+    case_id: uuid.UUID | None = None,
     user: User = Depends(require_permission(CHAT_USE)),
     session: AsyncSession = Depends(get_db_session),
 ) -> ChatSessionListResponse:
@@ -529,6 +538,8 @@ async def list_chat_sessions(
         .order_by(last_activity.desc(), ChatSession.id.desc())
         .limit(limit + 1)
     )
+    if case_id is not None:
+        query = query.where(ChatSession.case_id == case_id)
     if cursor is not None:
         try:
             cursor_at = datetime.fromisoformat(cursor)
@@ -651,6 +662,14 @@ async def read_chat_session(
     session: AsyncSession = Depends(get_db_session),
 ) -> ChatSessionResponse:
     chat_session = await _owned_session(session, session_id, user)
+    annotations = {
+        row.message_id: row
+        for row in await session.scalars(
+            select(ChatMessageAnnotation).where(
+                ChatMessageAnnotation.message_id.in_([message.id for message in chat_session.messages])
+            )
+        )
+    }
     return ChatSessionResponse(
         id=chat_session.id,
         title=chat_session.title,
@@ -664,6 +683,8 @@ async def read_chat_session(
                 "citations": message.citations,
                 "confidence_score": float(message.confidence_score) if message.confidence_score is not None else None,
                 "created_at": message.created_at,
+                "section_confidence": annotations[message.id].section_confidence if message.id in annotations else [],
+                "safety_kind": annotations[message.id].safety_kind if message.id in annotations else None,
             }
             for message in chat_session.messages
         ],

@@ -109,6 +109,8 @@ class ChatMessageResponse(BaseModel):
     citations: list[dict]
     confidence_score: float | None
     created_at: datetime
+    section_confidence: list[dict[str, Any]] = Field(default_factory=list)
+    safety_kind: str | None = None
 
 
 class ChatSessionSummary(BaseModel):
