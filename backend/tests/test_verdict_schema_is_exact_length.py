@@ -165,8 +165,8 @@ async def test_a_host_that_ignores_the_bound_still_gets_the_second_request(gramm
 
     The grammar is enforced by the inference host, and this code cannot
     verify that it was. If a short array arrives anyway, the behaviour must
-    be the one that existed before: ask again for the claims that were
-    skipped rather than record them as refuted.
+    be to ask again rather than record claims as refuted. A short array does
+    not say which claims it skipped, so all of them are asked for again.
     """
     llm = RecordingLLM(verdicts_returned=2)
     state = {"draft_answer": _draft(5), "retrieved_chunks": _hits(5), "stage_metrics": []}
@@ -174,8 +174,7 @@ async def test_a_host_that_ignores_the_bound_still_gets_the_second_request(gramm
 
     assert len(llm.schemas) == 2, "the skipped claims must be asked for again"
     assert result["stage_metrics"][-1]["outputs"]["second_verification_request_used"] is True
-    # The second request is scoped to the outstanding claims only.
-    assert llm.schemas[1].model_json_schema()["properties"]["verdicts"]["minItems"] == 3
+    assert llm.schemas[1].model_json_schema()["properties"]["verdicts"]["minItems"] == 5
 
 
 @pytest.mark.asyncio

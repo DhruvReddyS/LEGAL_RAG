@@ -179,6 +179,22 @@ def _format_verification_items(
     return "\n\n===== NEXT SOURCE =====\n\n".join(source_blocks)
 
 
+def _grouped_by_source(
+    valid_pairs: list[tuple[str, str, str]],
+) -> list[tuple[str, str, str]]:
+    """Order claims the way they are displayed, so a claim's number is its place.
+
+    The prompt groups claims under the source they cite and verdicts come back
+    by position. Numbering in draft order meant a draft citing A, B, A displayed
+    claims 1, 3, 2 while verdicts were bound as 1, 2, 3, so a verdict could
+    publish a claim the verifier had rejected.
+    """
+    first_seen: dict[str, int] = {}
+    for position, (_, _, chunk_id) in enumerate(valid_pairs):
+        first_seen.setdefault(chunk_id, position)
+    return sorted(valid_pairs, key=lambda pair: first_seen[pair[2]])
+
+
 def build_premises(chunks) -> tuple[dict[str, str], int]:
     """Premise text per chunk, capped, with the number of chunks that lost text.
 
@@ -214,6 +230,10 @@ async def verification_node(state: dict, llm: OllamaClient) -> dict:
         if chunk_id in hits_by_id
     ]
     missing = [claim for _, claim, chunk_id in pairs if chunk_id not in hits_by_id]
+    draft_order: dict[tuple[str, str], int] = {}
+    for position, (_, claim, chunk_id) in enumerate(valid_pairs):
+        draft_order.setdefault((claim, chunk_id), position)
+    valid_pairs = _grouped_by_source(valid_pairs)
 
     verified: list[ClaimVerification] = []
     items = ""
@@ -225,6 +245,7 @@ async def verification_node(state: dict, llm: OllamaClient) -> dict:
     # how a host that ignores the bound becomes visible instead of merely
     # slower.
     second_request_used = False
+    mismatched_verdict_arrays = 0
     if valid_pairs:
         items = _format_verification_items(valid_pairs, hits_by_id)
         # Stating the expected verdict count is measured, effective, and not
@@ -279,11 +300,16 @@ entails the material claim, partial for incomplete support, and no otherwise. Re
             )
             seen_indexes: set[int] = set()
 
-            def collect(result: VerificationBatch) -> None:
-                if result.verdicts:
-                    for index, verdict in enumerate(result.verdicts, start=1):
-                        if index > len(valid_pairs) or index in seen_indexes:
-                            continue
+            def collect(result: VerificationBatch, expected: list[int]) -> None:
+                nonlocal mismatched_verdict_arrays
+                # Position is the only link between a verdict and its claim. An
+                # array of the wrong length has lost that link: three verdicts
+                # for ten claims do not say which seven were skipped, and
+                # assuming "the first three" can publish a rejected claim.
+                if result.verdicts and len(result.verdicts) != len(expected):
+                    mismatched_verdict_arrays += 1
+                elif result.verdicts:
+                    for index, verdict in zip(expected, result.verdicts, strict=True):
                         seen_indexes.add(index)
                         category, claim, chunk_id = valid_pairs[index - 1]
                         verified.append(
@@ -314,13 +340,14 @@ entails the material claim, partial for incomplete support, and no otherwise. Re
                         )
                     )
 
-            collect(batch)
+            collect(batch, list(range(1, len(valid_pairs) + 1)))
 
             # The verifier routinely returns fewer verdicts than it was sent -
             # measured runs came back with three verdicts for ten and for
             # fourteen claims, and the rest were being recorded as refuted.
-            # Ask once more for only what it skipped, listing the indexes
-            # explicitly so the request is small and unambiguous.
+            # Ask once more for what has no usable verdict, listing the indexes
+            # explicitly. Indexed answers can leave a subset; a positional array
+            # of the wrong length leaves everything, because it was discarded.
             outstanding = [
                 index for index in range(1, len(valid_pairs) + 1)
                 if index not in seen_indexes
@@ -340,39 +367,25 @@ entails the material claim, partial for incomplete support, and no otherwise. Re
                     explicit_indexes=[index for index, _ in outstanding_pairs],
                 )
                 retry_prompt = (
-                    "You returned no verdict for some claims. Return a verdict for "
-                    "EVERY numbered claim below and nothing else. Return one "
-                    "verdict per claim in the order shown as JSON: "
+                    "You returned no usable verdict for these claims. Return a verdict "
+                    "for EVERY numbered claim below and nothing else. Return one "
+                    "verdict per claim in numeric order as JSON: "
                     "{\"verdicts\":[\"yes\",\"partial\",\"no\"]}. Verify each "
                     "claim only against its own premise. Return no explanations.\n\n"
                     f"{retry_items}"
                 )
                 try:
+                    # Always exact here. The setting governs the first pass, where
+                    # forcing a verdict changes what publishes and awaits its own
+                    # measurement; this request exists because the count was wrong.
                     second, retry_calls = await structured_with_metrics(
                         llm,
                         retry_prompt,
-                        (
-                            verdicts_for_exactly(len(outstanding))
-                            if settings.verification_exact_verdict_grammar_enabled
-                            else VerificationBatch
-                        ),
+                        verdicts_for_exactly(len(outstanding)),
                         num_predict=min(192, max(96, 64 + len(outstanding) * 12)),
                     )
                     llm_calls = [*llm_calls, *retry_calls]
-                    # Retry numbering is explicit and can be sparse. Convert
-                    # positional output back to the original claim indexes.
-                    if second.verdicts:
-                        second = VerificationBatch(
-                            claims=[
-                                VerdictItem(index=index, verdict=verdict)
-                                for index, verdict in zip(
-                                    outstanding,
-                                    second.verdicts,
-                                    strict=False,
-                                )
-                            ]
-                        )
-                    collect(second)
+                    collect(second, outstanding)
                 except RuntimeError as exc:
                     llm_calls = [*llm_calls, *getattr(exc, "telemetry_metrics", [])]
         except RuntimeError as exc:
@@ -412,6 +425,7 @@ entails the material claim, partial for incomplete support, and no otherwise. Re
                 reason="No verifier result",
             )
         )
+    verified.sort(key=lambda item: draft_order[(item.claim, item.chunk_id)])
     adjudicated = [
         item for item in verified if item.reason != "No verifier result"
     ]
@@ -469,6 +483,7 @@ entails the material claim, partial for incomplete support, and no otherwise. Re
             "adjudicated_claim_count": len(adjudicated),
             "unadjudicated_claim_count": len(unadjudicated),
             "second_verification_request_used": second_request_used,
+            "mismatched_verdict_arrays": mismatched_verdict_arrays,
             "verdict_schema_exact_length": len(valid_pairs) if valid_pairs else 0,
         },
         llm_calls=llm_calls,
