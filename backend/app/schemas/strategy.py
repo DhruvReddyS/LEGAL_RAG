@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import uuid
+from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -37,6 +39,12 @@ class VerifiedStrategyPoint(StrategyPoint):
 
 
 class DefenceAnalysisResponse(BaseModel):
+    # Set once saved. The agent builds the analysis before any row exists.
+    id: uuid.UUID | None = None
+    version: int | None = None
+    created_at: datetime | None = None
+    case_scenario: str | None = None
+    advocate_position: str | None = None
     summary: str
     points: list[VerifiedStrategyPoint]
     citations: list[AgentCitation]

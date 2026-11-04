@@ -32,6 +32,13 @@ def _fingerprint(builder: Callable[..., object]) -> str:
 def _builders() -> dict[str, Callable[..., object]]:
     # Imported lazily so importing this module does not drag in the agent
     # graph, its model client and their dependencies.
+    from app.agents.advocate_agents import (
+        build_brief_prompt,
+        build_comparison_prompt,
+        build_debate_prompt,
+        build_grounds_prompt,
+    )
+    from app.agents.claim_verification import build_verification_prompt
     from app.agents.defence_strategy_agent import DefenceStrategyAgent
     from app.agents.drafting_agent import LegalDraftingAgent
     from app.agents.query_understanding import query_understanding_node
@@ -46,6 +53,11 @@ def _builders() -> dict[str, Callable[..., object]]:
         "drafting_fact_extraction": LegalDraftingAgent._extract_facts,
         "defence_strategy": DefenceStrategyAgent.run,
         "document_analysis": DocumentAnalysisService.analyze,
+        "advocate_claim_verification": build_verification_prompt,
+        "advocate_grounds": build_grounds_prompt,
+        "advocate_brief": build_brief_prompt,
+        "advocate_comparison": build_comparison_prompt,
+        "advocate_debate": build_debate_prompt,
     }
 
 
