@@ -90,15 +90,26 @@ async def create_document_draft(
 async def list_generated_documents(
     case_id: uuid.UUID,
     _: Annotated[User, Depends(require_permission(CASE_READ_OWN))],
+    doc_type: str | None = None,
     session: AsyncSession = Depends(get_db_session),
 ) -> GeneratedDocumentListResponse:
-    """Everything drafted in this case, newest first."""
-    rows = (
-        await session.scalars(
-            select(GeneratedDocument)
-            .where(GeneratedDocument.case_id == case_id)
-            .order_by(GeneratedDocument.created_at.desc())
+    """What was drafted in this case, newest first.
+
+    A document analysis is stored in the same table but is not a draft, has no
+    text to reopen, and would open blank under a draft's heading. Neither is a
+    police draft listed here: those have their own list, and this one is what the
+    case file shows as FIR drafts. Naming a doc_type lists exactly that type.
+    """
+    query = select(GeneratedDocument).where(GeneratedDocument.case_id == case_id)
+    if doc_type is not None:
+        query = query.where(GeneratedDocument.doc_type == doc_type)
+    else:
+        query = query.where(
+            GeneratedDocument.doc_type.not_like("document\\_analysis:%", escape="\\"),
+            GeneratedDocument.doc_type.not_like("police\\_draft:%", escape="\\"),
         )
+    rows = (
+        await session.scalars(query.order_by(GeneratedDocument.created_at.desc()))
     ).all()
     return GeneratedDocumentListResponse(
         documents=[

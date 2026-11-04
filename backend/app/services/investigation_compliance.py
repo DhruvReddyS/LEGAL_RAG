@@ -12,9 +12,12 @@ checklist that certifies an investigation nobody checked, and the gap
 between "we did this" and "nobody said" is the entire value of the
 instrument.
 
-Requirements that do not apply on these facts are omitted. Requirements
-that apply are always listed, satisfied or not, because an omitted row and
-an inapplicable rule look identical to whoever reads the output.
+Requirements that do not apply on these facts are omitted. Those that are
+listed stay listed whether satisfied or not, because an omitted row and an
+inapplicable rule look identical to whoever reads the output. This is the set
+the Sanhita's arrest, search, diary and report provisions were read for; it is
+not a claim that no other duty could arise. State rules and police manuals are
+outside it.
 """
 
 from __future__ import annotations
@@ -120,6 +123,13 @@ _ARREST: tuple[tuple[str, str, str, str], ...] = (
         "alike, and its absence is the gap every custodial-injury allegation "
         "occupies.",
     ),
+    (
+        "rights_told_at_the_station",
+        "Tell the arrested person, as soon as he is brought to the police station, "
+        "of the right to have someone informed under s.48(1).",
+        "BNSS s.48(2)",
+        "The Magistrate must satisfy himself that this was done: s.48(4).",
+    ),
 )
 
 _SEARCH: tuple[tuple[str, str, str, str], ...] = (
@@ -159,6 +169,14 @@ _SEARCH: tuple[tuple[str, str, str, str], ...] = (
         "BNSS s.105",
         "Making the recording is not the whole obligation; forwarding it is part "
         "of the same section.",
+    ),
+    (
+        "record_copies_to_magistrate",
+        "Send copies of the s.185(1) and s.185(3) records to the nearest Magistrate "
+        "empowered to take cognizance, forthwith and not later than forty-eight hours.",
+        "BNSS s.185(5)",
+        "A search under s.185 only. The owner or occupier can obtain a free copy from "
+        "the Magistrate.",
     ),
 )
 
@@ -254,6 +272,7 @@ def compliance_checklist(
     memorandum_attested_by_family: bool = False,
     is_listed_sexual_offence: bool = False,
     electronic_device_seized: bool = False,
+    bailable_arrest_without_warrant: bool = False,
 ) -> list[ComplianceItem]:
     """The requirements that apply to this action, with what is known of each.
 
@@ -282,6 +301,27 @@ def compliance_checklist(
                 "otherwise or the officer is female.",
                 "the arrested person is a woman",
             ))
+            rows.append((
+                "woman_not_arrested_after_sunset",
+                "Do not arrest a woman after sunset and before sunrise, save in "
+                "exceptional circumstances; where they exist, the woman police officer "
+                "obtains the prior permission of the Magistrate of the first class by "
+                "a written report.",
+                "BNSS s.43(5)",
+                "The prior permission is the record. An arrest in those hours without "
+                "it is a defect however good the reason was.",
+                "the arrested person is a woman",
+            ))
+        if bailable_arrest_without_warrant:
+            rows.append((
+                "bail_right_informed",
+                "Inform the arrested person of the entitlement to be released on bail "
+                "and to arrange for sureties.",
+                "BNSS s.47(2)",
+                "Applies to an arrest without warrant of a person not accused of a "
+                "non-bailable offence.",
+                "the arrest was without warrant and the offence is bailable",
+            ))
         if handcuffs_used:
             rows.append((
                 "handcuff_ground_within_s43_3",
@@ -309,7 +349,8 @@ def compliance_checklist(
                 "Attach the report of the medical examination of the woman.",
                 "BNSS s.193(3)(i)(h)",
                 "Required where the investigation relates to BNS ss.64-68, 70 or "
-                "71. New in the BNSS; the old CrPC form did not ask for it.",
+                "71, not s.69 and not a POCSO offence on its own. New in the BNSS; "
+                "the old CrPC form did not ask for it.",
                 "the offence is one of those listed in clause (h)",
             ))
         if electronic_device_seized:
