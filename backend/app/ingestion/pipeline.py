@@ -38,6 +38,11 @@ class PipelineOptions:
     rechunk: bool = False
     document_id: str | None = None
     limit: int | None = None
+    # Exit cleanly after this many chunks, so the supervisor starts a fresh process.
+    # Metal driver memory only returns when a process exits. Left running, the
+    # encoder falls back to CPU after about 1,700 chunks and stays there, which is
+    # how the v5 build took 43 hours. A restart costs about 15 seconds.
+    max_chunks_per_run: int | None = None
     dry_run: bool = False
     # Small on purpose. Measured on an M5 Pro (MPS, 16.7 GB free) over 64 real
     # corpus chunks: batch 8 embedded 282 chunks per minute, batch 16 embedded
@@ -464,6 +469,12 @@ async def run_pipeline(options: PipelineOptions, *, corpus_root: Path | None = N
                         ),
                         flush=True,
                     )
+                    if (
+                        options.max_chunks_per_run is not None
+                        and result.chunks_written >= options.max_chunks_per_run
+                    ):
+                        print(json.dumps({"event": "process_recycled"}), flush=True)
+                        break
                 except Exception as exc:
                     consecutive_failures += 1
                     result.failed_documents += 1
@@ -505,6 +516,7 @@ def parse_args() -> PipelineOptions:
     )
     parser.add_argument("--document-id")
     parser.add_argument("--limit", type=int)
+    parser.add_argument("--max-chunks-per-run", type=int)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--embedding-batch-size", type=int, default=8)
     parser.add_argument("--shard-index", type=int, default=0)

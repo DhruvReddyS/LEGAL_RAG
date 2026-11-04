@@ -79,6 +79,9 @@ REPROBE_ACCELERATOR_EVERY_DOCUMENTS = 10
 _BATCHES_BEFORE_GROWING = 12
 
 
+PAD_TO_MULTIPLE_OF = 256
+
+
 class BGEM3Embedder:
     def __init__(self, model_name: str | None = None, *, use_fp16: bool | None = None) -> None:
         self.model_name = model_name or settings.embedding_model
@@ -239,6 +242,14 @@ class BGEM3Embedder:
                 "return_dense": True,
                 "return_sparse": True,
                 "return_colbert_vecs": False,
+                # Metal driver memory grows with each new tensor shape and is never
+                # returned, while tensor memory stays flat. Padding to a bucket caps
+                # the number of shapes, and half of all chunks are under 82 tokens so
+                # a wide bucket costs little: 18-21 chunks/s against 14 at 64. Vectors
+                # match within rounding, minimum cosine 1.0 over 64 real chunks. It
+                # delays exhaustion rather than ending it, from about 340 chunks to
+                # about 1,700, which is why the pipeline recycles the process.
+                "pad_to_multiple_of": PAD_TO_MULTIPLE_OF,
             }
             try:
                 output = self._encode_batch(batch, encode_options)

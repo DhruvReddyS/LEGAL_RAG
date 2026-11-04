@@ -34,6 +34,8 @@ from app.ingestion.metadata import load_manifest, iter_canonical_documents
 print(len(list(iter_canonical_documents(load_manifest(Path('$ROOT/data/legal_kb/metadata/canonical_documents.jsonl'))))))
 ")"
 [ "$TOTAL" -gt 0 ] 2>/dev/null || { echo "could not count canonical documents"; exit 1; }
+# Counts attempts that made no progress. A recycled process has made progress, so
+# recycling never uses this up.
 MAX_ATTEMPTS=40
 OLLAMA_URL="${OLLAMA_BASE_URL:-http://127.0.0.1:11434}"
 
@@ -125,7 +127,10 @@ echo "  ensuring collection $COLLECTION exists"
   "$ROOT/.venv-ingest/bin/python" -m app.ingestion.init_qdrant ) >>"$LOG" 2>&1 \
   || { echo "could not create $COLLECTION -- see $LOG"; exit 1; }
 
-for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
+attempt=0
+stalled=0
+while [ "$stalled" -lt "$MAX_ATTEMPTS" ]; do
+  attempt=$((attempt + 1))
   done_count="$(completed)"
   if [ "$done_count" -ge "$TOTAL" ]; then
     echo "COMPLETE: $done_count/$TOTAL documents"
@@ -142,16 +147,20 @@ for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
     HF_HUB_OFFLINE=1 \
     HF_HOME="$ROOT/data/legal_kb/cache/models" \
     "$ROOT/.venv-ingest/bin/python" -m app.ingestion.pipeline --rechunk --resume \
+      --max-chunks-per-run "${MAX_CHUNKS_PER_RUN:-1000}" \
   ) >>"$LOG" 2>&1
 
   after="$(completed)"
   if [ "$after" -le "$done_count" ]; then
     # No forward progress. Retrying immediately would spin; give the machine
     # room in case this is memory pressure, which is the usual cause.
+    stalled=$((stalled + 1))
     echo "  no progress this attempt, pausing before retry"
     sleep 60
+  else
+    stalled=0
   fi
 done
 
-echo "gave up after $MAX_ATTEMPTS attempts at $(completed)/$TOTAL"
+echo "gave up after $MAX_ATTEMPTS attempts with no progress at $(completed)/$TOTAL"
 exit 1
