@@ -134,3 +134,17 @@ button.police-chip[aria-pressed="true"] {background:var(--ink);border-color:var(
   .police-tri button {padding:6px 9px;}
   .police-file-frame {height:60vh;}
 }
+
+/* The tool rail outgrew a sticky column: on one column it slid over the page, and on
+   two its lower entries could fall below the fold. */
+@media (min-width:1101px) {
+  .matter-rail {max-height:calc(100dvh - 44px);overflow-y:auto;padding-right:2px;}
+}
+@media (max-width:1100px) {
+  .matter-rail {position:static;}
+  .tool-rail {grid-template-columns:repeat(auto-fill,minmax(min(100%,180px),1fr));}
+}
+
+.police-section .case-chats {grid-template-columns:minmax(0,1fr);}
+.police-section .case-chats button {flex-wrap:wrap;}
+.police-section .case-chats button > .truncate {white-space:normal;min-width:min(100%,180px);}
