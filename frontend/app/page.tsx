@@ -13,6 +13,8 @@ import { legalCategory } from "@/lib/answer-presentation";
 import ProfessionalWorkspace from "@/components/ProfessionalWorkspace";
 import { useDialogFocus } from "@/components/useDialogFocus";
 import AdminWorkspace from "@/components/AdminWorkspace";
+import { isTauriDesktop } from "@/lib/desktop";
+import { SITE_ROUTES } from "@/lib/site";
 import AccountDialog from "@/components/platform/AccountDialog";
 import AccountGate from "@/components/platform/AccountGate";
 import HistoryPanel from "@/components/platform/HistoryPanel";
@@ -563,6 +565,12 @@ export default function HomePage() {
     })();
   }, [user, historyReady]);
 
+  // The landing page owns a first visit on the web. The desktop app, an expired
+  // session and anyone who asked to sign in go straight to the form.
+  if (authChecked && !user && !sessionExpired && !isTauriDesktop() && !new URLSearchParams(window.location.search).has("signin")) {
+    window.location.replace(SITE_ROUTES.welcome);
+    return null;
+  }
   if (!authChecked) return <main className="grid min-h-screen place-items-center"><Scale size={24} className="text-neutral-400" aria-label="Loading workspace" /></main>;
   if (erasedReceipt) return <main className="erased-screen"><div><h1>Your account has been erased.</h1><p>Your account, conversations, case records and files have been removed from this installation. Backups, if the operator keeps any, leave as they age out.</p><p>Your receipt, should you need to quote it. It does not identify you:</p><code>{erasedReceipt}</code></div></main>;
   if (!user) return <>

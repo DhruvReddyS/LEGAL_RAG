@@ -5,7 +5,7 @@
  * the app moves off `/` so the landing page can own it, this line changes and
  * nothing else does.
  */
-export const APP_HREF = "/";
+export const APP_HREF = "/?signin=1";
 
 export const SITE_ROUTES = {
   welcome: "/welcome",
