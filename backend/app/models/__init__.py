@@ -24,6 +24,7 @@ from app.models.enums import (
     OffenceGravity,
     UserRole,
 )
+from app.models.citizen import ChatMessageAnnotation, CitizenDeadline
 from app.models.investigation import InvestigationFacts
 from app.models.job import Job, JobEvent
 from app.models import police as _police_models  # noqa: F401  (registers the tables)
@@ -68,6 +69,8 @@ __all__ = [
     "UserSecurity",
     "UserSession",
     "CorpusSource",
+    "ChatMessageAnnotation",
+    "CitizenDeadline",
     "InvestigationFacts",
     "OffenceGravity",
     "CorpusIntake",

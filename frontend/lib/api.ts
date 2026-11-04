@@ -27,6 +27,7 @@ import type {
   StoredChatSession,
 } from "./types";
 import { DEFAULT_BACKEND_URL, getRuntimeBackendUrl } from "./runtime-backend";
+import { notifySessionExpired } from "./session-expiry";
 
 const CONFIGURED_API_URL = DEFAULT_BACKEND_URL;
 
@@ -72,11 +73,11 @@ export class ApiError extends Error {
 // session. Several calls can hit 401 together after an idle spell, so they share one
 // refresh rather than each starting their own. A 409 means another tab refreshed a
 // moment ago: the new cookie is already in the jar, so the retry will work.
-let refreshInFlight: Promise<boolean> | null = null;
-function refreshOnce(baseUrl: string): Promise<boolean> {
+let refreshInFlight: Promise<"ok" | "refused" | "unreachable"> | null = null;
+function refreshOnce(baseUrl: string): Promise<"ok" | "refused" | "unreachable"> {
   refreshInFlight ??= fetch(`${baseUrl}/auth/cookie/refresh`, { method: "POST", credentials: "include" })
-    .then(response => response.ok || response.status === 409)
-    .catch(() => false)
+    .then(response => (response.ok || response.status === 409 ? "ok" as const : "refused" as const))
+    .catch(() => "unreachable" as const)
     .finally(() => { refreshInFlight = null; });
   return refreshInFlight;
 }
@@ -101,12 +102,15 @@ export async function request<T>(
 
   if (response.status === 401 && retryAuth && !path.startsWith("/auth/")) {
     const refreshed = await refreshOnce(baseUrl);
-    if (refreshed) {
+    if (refreshed === "ok") {
       response = await fetch(`${baseUrl}${path}`, {
         ...options,
         headers,
         credentials: "include",
       });
+    } else if (refreshed === "refused") {
+      // A network failure says nothing about the session. A refusal does.
+      notifySessionExpired();
     }
   }
 
@@ -276,9 +280,11 @@ export async function submitFeedback(
 export async function listChatSessions(
   limit = 30,
   cursor?: string,
+  caseId?: string,
 ): Promise<ChatSessionListResponse> {
   const params = new URLSearchParams({ limit: String(limit) });
   if (cursor) params.set("cursor", cursor);
+  if (caseId) params.set("case_id", caseId);
   return request<ChatSessionListResponse>(`/chat/sessions?${params}`);
 }
 

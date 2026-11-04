@@ -178,6 +178,7 @@ export default function AuthModal({ onSuccess, progress }: { onSuccess: (user: U
           <Link href={SITE_ROUTES.privacy}>Privacy</Link>
           <Link href={SITE_ROUTES.terms}>Terms</Link>
         </nav>
+        <a className="ctz-signin-rights" href="/rights">Your rights with the police, no account needed</a>
       </div>
     </section>
   </div>;

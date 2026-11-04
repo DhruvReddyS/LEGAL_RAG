@@ -35,6 +35,7 @@ from app.routers.advocate_tools import router as advocate_tools_router
 from app.routers.police_tools import router as police_tools_router
 from app.routers.account import router as account_router
 from app.routers.history import router as history_router
+from app.routers.citizen_tools import router as citizen_tools_router
 from app.services.crisis_similarity import CrisisSimilarity
 from app.services import quarantine
 from app.services.retrieval import HybridRetrievalService
@@ -211,6 +212,7 @@ app.include_router(account_router)
 app.include_router(history_router)
 app.include_router(authorities_router)
 app.include_router(advocate_tools_router)
+app.include_router(citizen_tools_router)
 
 
 @app.get("/health/live", tags=["system"])

@@ -22,6 +22,13 @@ import { DEFAULT_LIMITS, followJob, forgetActiveJob, readActiveJob, rememberActi
 import { bandwidthPlan, readPreferences, PREFERENCES_EVENT } from "@/lib/preferences";
 import type { HistorySession } from "@/lib/types-platform";
 import { HelplineNotice } from "@/components/HelplineNotice";
+import CitizenWorkspace, { CITIZEN_TOOLS, type CitizenTool } from "@/components/citizen/CitizenWorkspace";
+import DueSoonStrip from "@/components/citizen/DueSoonStrip";
+import { LangSwitcher } from "@/components/citizen/shared";
+import { useCitizenLang } from "@/components/citizen/useCitizenLang";
+import { readDraft, restoreStoredMessages, syncHistoryRow } from "@/lib/citizen-chat";
+import type { UiKey } from "@/lib/citizen-i18n";
+import { onSessionExpired } from "@/lib/session-expiry";
 import { ApiError, apiUrl, cancelDeepReviewJob, chatWithCorpus, checkForHelplines, deleteChatSession, getChatSession, renameChatSession, getDeepReviewJob, getIngestionProgress, getMe, logout, refreshSession, listCases } from "@/lib/api";
 import type { ChatMessage, CitizenDocument, IngestionProgress, RequestedResponseMode, User, LegalCase } from "@/lib/types";
 
@@ -182,6 +189,13 @@ export default function HomePage() {
   const [historyPanelOpen, setHistoryPanelOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [erasedReceipt, setErasedReceipt] = useState<string | null>(null);
+  const [sessionExpired, setSessionExpired] = useState(false);
+  const [restoredDraft, setRestoredDraft] = useState("");
+  const [citizenTool, setCitizenTool] = useState<{ tool: CitizenTool | null; nonce: number } | null>(null);
+  // Which conversation the screen is showing. A slow load for another one must not overwrite it.
+  const openingChat = useRef<string | null>(null);
+  const expiredUserId = useRef<string | null>(null);
+  const { t: citizenText } = useCitizenLang(user?.role === "citizen");
   const closeSettings = () => setSettingsOpen(false);
   const closeGuide = () => setGuideOpen(false);
   const settingsRef = useDialogFocus(settingsOpen, closeSettings);
@@ -227,6 +241,19 @@ export default function HomePage() {
     return () => { mounted = false; clearInterval(interval); window.removeEventListener(PREFERENCES_EVENT, pollIfWanted); };
   }, []);
 
+  // A refresh the server refused means this session is over. Show sign-in and
+  // keep the conversation and the draft, rather than leaving a signed-in screen
+  // where every feature fails.
+  useEffect(() => onSessionExpired(() => {
+    setUser(current => {
+      if (!current) return current;
+      setRestoredDraft(readDraft(window.sessionStorage));
+      expiredUserId.current = current.id;
+      setSessionExpired(true);
+      return null;
+    });
+  }), []);
+
   useEffect(() => {
     const media = window.matchMedia("(max-width: 1023px)");
     const update = () => setCompactNavigation(media.matches);
@@ -264,7 +291,7 @@ export default function HomePage() {
         setHistoryCursor(stored.next_cursor);
       } catch {
         // An offline or unauthenticated read must not blank the console.
-        if (!cancelled) setHistory([]);
+        if (!cancelled) { setHistory([]); setHistoryCursor(null); }
       } finally {
         if (!cancelled) setHistoryReady(true);
       }
@@ -276,27 +303,7 @@ export default function HomePage() {
     if (!user || !historyReady || loading || !activeChatId || !messages.length) return;
     // Keep the sidebar in step with the live conversation. The server already
     // holds the durable copy; this only avoids a round-trip after each answer.
-    setHistory(current => {
-      const existing = current.find(item => item.id === activeChatId || item.sessionId === sessionId);
-      const savedChat: SavedChat = {
-        id: existing?.id ?? activeChatId,
-        // The server holds the title, including any rename, so only a brand new
-        // conversation takes its title from the question.
-        title: existing?.customTitle || existing?.sessionId ? existing.title : messages.find(message => message.role === "user")?.content.slice(0, 90) || "Untitled chat",
-        messages,
-        sessionId,
-        // Opening a conversation is not activity, so only new messages move it up.
-        updatedAt: existing && existing.messageCount === messages.length ? existing.updatedAt : Date.now(),
-        pinned: existing?.pinned,
-        matter: existing?.matter,
-        customTitle: existing?.customTitle,
-        messageCount: messages.length,
-        // A session's scope is fixed at creation: the server rejects a
-        // case_id that disagrees with the one the session was opened with.
-        caseId: existing?.caseId ?? chatCaseId,
-      };
-      return [savedChat, ...current.filter(item => item !== existing)];
-    });
+    setHistory(current => syncHistoryRow(current, { activeChatId, sessionId, messages, caseId: chatCaseId }, Date.now()));
   }, [messages, sessionId, loading, user, historyReady, activeChatId, chatCaseId]);
 
   useEffect(() => {
@@ -312,6 +319,7 @@ export default function HomePage() {
     const active = activeRequest.current;
     if (!active) return;
     active.controller.abort(); activeRequest.current = null;
+    if (user) forgetActiveJob(window.sessionStorage, user.id);
     setLoading(false);
     setMessages(current => current.map(message => message.id === active.assistantId ? { ...message, loading: false, stopped: true, content: "Response stopped." } : message));
     if (user) { try { forgetActiveJob(window.sessionStorage, user.id); } catch { /* Storage disabled. */ } }
@@ -322,6 +330,7 @@ export default function HomePage() {
 
   const submit = async (query: string, documents: CitizenDocument[] = [], regenerate = false, editIndex?: number) => {
     if (!query.trim() || loading || !user) return;
+    setRestoredDraft("");
     const requestStarted = performance.now();
     setView("research");
     const assistantId = crypto.randomUUID();
@@ -382,6 +391,7 @@ export default function HomePage() {
             citations: result.citations,
             confidenceScore: result.confidence_score,
             evidenceStrength: result.evidence_strength,
+            sectionConfidence: result.section_confidence,
             responseMode: "deep",
             requestedMode: response.requested_mode,
             routingReason: response.routing_reason,
@@ -402,6 +412,7 @@ export default function HomePage() {
       setMessages((current) => current.map((message) => message.id === assistantId ? { ...message, messageId: response.message_id ?? undefined, content: response.answer, loading: false, citations: response.citations, confidenceScore: response.confidence_score, evidenceStrength: response.evidence_strength, sectionConfidence: response.section_confidence, responseMode: response.response_mode, requestedMode: response.requested_mode, routingReason: response.routing_reason, routingSignals: response.routing_signals, timingsMs: response.timings_ms, pipelineMetrics: response.pipeline_metrics, latencyTargetMs: response.latency_target_ms, targetMet: response.target_met, clientElapsedMs: Math.round(performance.now() - requestStarted) } : message));
     } catch (error) {
       if (operation.controller.signal.aborted) return;
+      forgetActiveJob(window.sessionStorage, user.id);
       const detail = error instanceof ApiError ? error.message : "The legal corpus is unavailable. Confirm the backend is healthy and try again.";
       setMessages((current) => current.map((item) => item.id === assistantId ? { ...item, content: "", loading: false, error: detail } : item));
     } finally { if (activeRequest.current === operation) { activeRequest.current = null; setLoading(false); } }
@@ -414,7 +425,7 @@ export default function HomePage() {
     listCases().then((response) => setChatCases(response.cases)).catch(() => setChatCases([]));
   }, [hasProfessionalWorkspace]);
   const hasOperationsWorkspace = hasProfessionalWorkspace || user?.role === "admin";
-  const resetResearch = (caseId: string | null = null) => { setMessages([]); setSessionId(null); setActiveChatId(crypto.randomUUID()); setChatCaseId(caseId); setDraftVersion(value => value + 1); setView("research"); setMobileNav(false); window.scrollTo({ top: 0, behavior: "auto" }); };
+  const resetResearch = (caseId: string | null = null) => { openingChat.current = null; setRestoredDraft(""); setMessages([]); setSessionId(null); setActiveChatId(crypto.randomUUID()); setChatCaseId(caseId); setDraftVersion(value => value + 1); setView("research"); setMobileNav(false); window.scrollTo({ top: 0, behavior: "auto" }); };
   const openSavedChat = (item: SavedChat) => {
     setChatMenuId(null);
     setActiveChatId(item.id);
@@ -427,6 +438,7 @@ export default function HomePage() {
     setMobileNav(false);
     window.scrollTo({ top: 0, behavior: "auto" });
 
+    openingChat.current = item.id;
     if (item.messages.length || !item.sessionId) { setMessages(item.messages); return; }
     // Sidebar rows carry no bodies. Load this conversation's messages from the
     // server, with their stored citations and confidence scores intact.
@@ -434,23 +446,13 @@ export default function HomePage() {
     void (async () => {
       try {
         const stored = await getChatSession(item.sessionId!);
-        const restored: ChatMessage[] = stored.messages.map(message => ({
-          id: message.id,
-          messageId: message.id,
-          role: message.role === "user" ? "user" : "assistant",
-          content: message.content,
-          citations: message.citations,
-          confidenceScore: message.confidence_score ?? undefined,
-          // Neither the lane nor the grade is stored. Deriving them called an
-          // unverified Fast brief "Moderate confidence" after a reload, so only
-          // what the score can honestly say is restored: a zero is an abstention.
-          evidenceStrength: message.confidence_score === 0 ? "insufficient" : undefined,
-          responseMode: undefined,
-          timestamp: Date.parse(message.created_at),
-        }));
+        // The person may have opened another chat while this one loaded.
+        if (openingChat.current !== item.id) return;
+        const restored = restoreStoredMessages(stored.messages);
         setMessages(restored);
-        setHistory(current => current.map(row => row.id === item.id ? { ...row, messages: restored } : row));
+        setHistory(current => current.map(row => row.id === item.id ? { ...row, messages: restored, messageCount: Math.max(row.messageCount ?? 0, restored.length) } : row));
       } catch {
+        if (openingChat.current !== item.id) return;
         setMessages([{ id: crypto.randomUUID(), role: "assistant", content: "", timestamp: Date.now(), error: "This conversation could not be loaded. Check your connection and try again." }]);
       }
     })();
@@ -563,14 +565,19 @@ export default function HomePage() {
 
   if (!authChecked) return <main className="grid min-h-screen place-items-center"><Scale size={24} className="text-neutral-400" aria-label="Loading workspace" /></main>;
   if (erasedReceipt) return <main className="erased-screen"><div><h1>Your account has been erased.</h1><p>Your account, conversations, case records and files have been removed from this installation. Backups, if the operator keeps any, leave as they age out.</p><p>Your receipt, should you need to quote it. It does not identify you:</p><code>{erasedReceipt}</code></div></main>;
-  if (!user) return <AuthModal onSuccess={setUser} progress={progress} />;
+  if (!user) return <>
+    {sessionExpired && <p className="ctz-session-expired" role="status">{citizenText("sessionExpired")}</p>}
+    <AuthModal onSuccess={(next) => {
+      setSessionExpired(false);
+      // The conversation on screen stays only if the same person came back.
+      if (expiredUserId.current && expiredUserId.current !== next.id) { setMessages([]); setSessionId(null); setActiveChatId(null); setRestoredDraft(""); }
+      setUser(next);
+    }} progress={progress} />
+  </>;
 
   const role = user.role;
-  const tools = role === "citizen" ? [
-    { title: "Know your rights", icon: ShieldCheck, guideIndex: 0 },
-    { title: "Report an incident", icon: FilePenLine, guideIndex: 1 },
-    { title: "Understand a document", icon: BookOpenText, guideIndex: 2 },
-  ] : role === "police" ? [
+  const openCitizenTool = (tool: CitizenTool | null) => { setCitizenTool(current => ({ tool, nonce: (current?.nonce ?? 0) + 1 })); setView("workspace"); setMobileNav(false); };
+  const tools: { title: string; icon: typeof Scale; target?: string; citizenTool?: CitizenTool }[] = role === "citizen" ? CITIZEN_TOOLS.map(tool => ({ title: citizenText(tool.title as UiKey), icon: tool.icon, citizenTool: tool.id })) : role === "police" ? [
     { title: "Investigations", icon: Fingerprint, target: "" },
     { title: "FIR drafting", icon: FilePenLine, target: "agent" },
     { title: "Evidence & documents", icon: ScanSearch, target: "documents" },
@@ -596,16 +603,17 @@ export default function HomePage() {
   return <main data-role={role} data-motion={animate ? "on" : "off"} className="app-shell">
     <aside aria-label="Main navigation" aria-hidden={compactNavigation && !mobileNav} ref={node => { if(node) node.inert = compactNavigation && !mobileNav; }} className={`app-sidebar ${mobileNav ? "is-open" : ""}`}>
       <div className="sidebar-brand"><BrandLogo /><button className="icon-button lg:hidden" onClick={() => setMobileNav(false)} aria-label="Close navigation"><X size={18} /></button></div>
-      <button disabled={loading} className="new-chat-button" onClick={() => { resetResearch(); setMobileNav(false); }}><Plus size={18} />New chat</button>
+      <button disabled={loading} className="new-chat-button" onClick={() => { resetResearch(); setMobileNav(false); }}><Plus size={18} />{citizenText("newChat")}</button>
       <button className="sidebar-search" onClick={() => { setMobileNav(false); setHistoryPanelOpen(true); }}><Search size={15} aria-hidden="true" />Search chats</button>
-      <nav className="feature-nav" aria-label="Features">{tools.map(tool => <button key={tool.title} onClick={() => { if ("guideIndex" in tool) { setCitizenGuideSlide(tool.guideIndex); setMobileNav(false); } else openTool(tool.target); }}><tool.icon size={18} strokeWidth={1.65} /><span>{tool.title}</span></button>)}</nav>
-      <div className="chat-history">{pinnedChats.length > 0 && <><div className="history-heading"><span>Pinned <b>{pinnedChats.length}/5</b></span><Pin size={13}/></div>{pinnedChats.map(chatRow)}</>}<div className="history-heading"><span>{hasProfessionalWorkspace ? "Law-only chats" : "Recent chats"}</span><History size={14}/></div>{publicChats.length ? publicChats.map(chatRow) : !pinnedChats.length && !matterChats.length && <p>Your conversations will appear here.</p>}{hasProfessionalWorkspace && <><div className="history-heading"><span>Case chats</span><BriefcaseBusiness size={13}/></div>{matterChats.length ? matterChats.map(chatRow) : <p>Open a case and ask a question there to start one.</p>}</>}{historyCursor && <button className="history-load-more" onClick={() => void loadOlderChats()}>Show older chats</button>}</div>
-      <div className="sidebar-bottom"><button onClick={() => { setMobileNav(false); role === "citizen" ? setCitizenGuideSlide(0) : setGuideOpen(true); }}><HelpCircle size={17} />Getting started</button><button onClick={() => { setMobileNav(false); setSettingsOpen(true); }}><Settings size={17} />Settings<span className="ml-auto text-[11px] capitalize text-neutral-400">{role}</span></button></div>
+      <nav className="feature-nav" aria-label="Features">{tools.map(tool => <button key={tool.title} onClick={() => { if (tool.citizenTool) openCitizenTool(tool.citizenTool); else openTool(tool.target); }}><tool.icon size={18} strokeWidth={1.65} /><span>{tool.title}</span></button>)}</nav>
+      <div className="chat-history">{pinnedChats.length > 0 && <><div className="history-heading"><span>Pinned <b>{pinnedChats.length}/5</b></span><Pin size={13}/></div>{pinnedChats.map(chatRow)}</>}<div className="history-heading"><span>{hasProfessionalWorkspace ? "Law-only chats" : citizenText("recentChats")}</span><History size={14}/></div>{publicChats.length ? publicChats.map(chatRow) : !pinnedChats.length && !matterChats.length && <p>Your conversations will appear here.</p>}{hasProfessionalWorkspace && <><div className="history-heading"><span>Case chats</span><BriefcaseBusiness size={13}/></div>{matterChats.length ? matterChats.map(chatRow) : <p>Open a case and ask a question there to start one.</p>}</>}{historyCursor && <button type="button" className="ctz-load-more" onClick={() => void loadOlderChats()}>{citizenText("loadMore")}</button>}</div>
+      <div className="sidebar-bottom"><button onClick={() => { setMobileNav(false); role === "citizen" ? setCitizenGuideSlide(0) : setGuideOpen(true); }}><HelpCircle size={17} />{citizenText("gettingStarted")}</button><button onClick={() => { setMobileNav(false); setSettingsOpen(true); }}><Settings size={17} />{citizenText("settings")}<span className="ml-auto text-[11px] capitalize text-neutral-400">{role}</span></button></div>
     </aside>
     {mobileNav && <button aria-label="Dismiss navigation" className="sidebar-scrim" onClick={() => setMobileNav(false)} />}
     {historyNotice && <div className="history-toast" role="status"><span>{historyNotice}</span><button aria-label="Dismiss notification" onClick={() => setHistoryNotice("")}><X size={13}/></button></div>}
     <div className="app-content" id="main-content" ref={node => { if(node) node.inert = compactNavigation && mobileNav; }}>
-      <header className="workspace-header"><button className="icon-button lg:hidden" aria-label="Open navigation" onClick={() => setMobileNav(true)}><Menu size={20} /></button><span>{view === "workspace" ? role === "police" ? "Investigation workspace" : role === "advocate" ? "Your case workspace" : "Administration" : " "}</span>{view === "workspace" && <button className="text-sm text-neutral-500" onClick={() => setView("research")}><MessageSquare size={16} className="mr-2 inline" />Back to chat</button>}</header>
+      <header className="workspace-header"><button className="icon-button lg:hidden" aria-label="Open navigation" onClick={() => setMobileNav(true)}><Menu size={20} /></button><span>{view === "workspace" ? role === "citizen" ? " " : role === "police" ? "Investigation workspace" : role === "advocate" ? "Your case workspace" : "Administration" : " "}</span>{role === "citizen" && view !== "workspace" && <LangSwitcher/>}{view === "workspace" && <button className="text-sm text-neutral-500" onClick={() => setView("research")}><MessageSquare size={16} className="mr-2 inline" />{citizenText("backToChat")}</button>}</header>
+      {view === "workspace" && role === "citizen" && <CitizenWorkspace requested={citizenTool} onAsk={(question) => { resetResearch(); void submit(question); }} />}
       {/* Stays mounted once opened: going back to chat must not lose an unsaved
           narrative or the selected case. */}
       {hasProfessionalWorkspace && workspaceVisited && <div hidden={view !== "workspace"}><ProfessionalWorkspace
@@ -617,19 +625,21 @@ export default function HomePage() {
           onOpenMatterChat={(chatId) => { const saved = history.find(item => item.id === chatId); if (saved) openSavedChat(saved); }}
           requestedView={workspaceView}
         /></div>}
-      {view === "workspace" && hasOperationsWorkspace ? role === "admin" ? <AdminWorkspace /> : null :
+      {view === "workspace" && hasOperationsWorkspace ? role === "admin" ? <AdminWorkspace /> : null : view === "workspace" ? null :
       <section className={`chat-workspace ${messages.length ? "has-conversation" : ""}`}>
         {!messages.length ? <div className="chat-welcome">
+          {role === "citizen" && <DueSoonStrip onOpen={() => openCitizenTool("matter")}/>}
           <div className="welcome-symbol"><Scale size={32} strokeWidth={1.3} /></div>
-          <h1>{role === "citizen" ? "Let’s make sense of the law." : role === "police" ? "What are you investigating?" : role === "advocate" ? "Where does your argument begin?" : "What would you like to research?"}</h1>
-          <p>{role === "citizen" ? "Ask in your own words. We’ll start from there." : role === "police" ? "Explore procedure, preserve evidence, and build your record." : role === "advocate" ? "Find authority. Explore both sides. Refine your position." : "Explore your legal corpus."}</p>
-          <ChatInput key={`${sessionId}:${draftVersion}`} onSend={submit} onStop={stopResearch} loading={loading} mode={responseMode} onModeChange={setResponseMode} cases={chatCases} caseId={chatCaseId} onCaseChange={setChatCaseId} scopeLockedReason={scopeLockedReason(sessionId)} placeholder={experience.placeholder} />
+          <h1>{role === "citizen" ? citizenText("welcomeHeading") : role === "police" ? "What are you investigating?" : role === "advocate" ? "Where does your argument begin?" : "What would you like to research?"}</h1>
+          <p>{role === "citizen" ? citizenText("welcomeLead") : role === "police" ? "Explore procedure, preserve evidence, and build your record." : role === "advocate" ? "Find authority. Explore both sides. Refine your position." : "Explore your legal corpus."}</p>
+          <ChatInput key={`${sessionId}:${draftVersion}`} onSend={submit} onStop={stopResearch} loading={loading} mode={responseMode} onModeChange={setResponseMode} cases={chatCases} caseId={chatCaseId} onCaseChange={setChatCaseId} scopeLockedReason={scopeLockedReason(sessionId)} placeholder={experience.placeholder} redactBeforeAttach={role === "citizen"} initialDraft={restoredDraft} />
+          {role === "citizen" && <div className="ctz-welcome-tools"><span>{citizenText("openTools")}</span>{CITIZEN_TOOLS.slice(0, 4).map(tool => <button type="button" key={tool.id} onClick={() => openCitizenTool(tool.id)}><tool.icon size={15} strokeWidth={1.6} aria-hidden="true"/>{citizenText(tool.title as UiKey)}</button>)}</div>}
           <div className="prompt-shortcuts">{experience.suggestions.map((suggestion,index) => { const Icon = [FilePenLine, ScanSearch, ShieldCheck, BookOpenText][index]; return <button key={suggestion.title} disabled={loading} onClick={() => void submit(suggestion.text)}><Icon size={16} strokeWidth={1.6} />{suggestion.title}</button>; })}</div>
           <button className="guide-invite" onClick={() => role === "citizen" ? setCitizenGuideSlide(0) : setGuideOpen(true)}><HelpCircle size={14} />First time here? Take a quick look</button>
         </div> : <>
-          <div className="conversation">{messages.map((message,index) => <div key={message.id} ref={index === messages.length-1 ? latestMessage : undefined}>{!!message.helplines?.length && <HelplineNotice contacts={message.helplines}/>}<MessageBubble message={message} role={role} question={message.role === "assistant" ? messages.slice(0, index).reverse().find(item => item.role === "user")?.content : undefined} onEdit={!loading && !message.documents?.some(document => !document.pages.length) ? (text) => void submit(text, message.documents, false, index) : undefined} onForgetDocuments={() => { const ids = new Set(message.documents?.map(document => document.id)); const clear = (items: ChatMessage[]) => items.map(item => ({...item, documents: item.documents?.map(document => ids.has(document.id) ? {...document, pages: []} : document)})); setMessages(clear); setHistory(current => current.map(item => ({...item, messages: clear(item.messages)}))); }} onRegenerate={!loading && message.role === "assistant" && index === messages.length-1 ? () => { const question=messages.slice(0,index).reverse().find(item=>item.role==="user"); if(question) void submit(question.content, question.documents, true); } : undefined} /></div>)}</div>
+          <div className="conversation">{messages.map((message,index) => <div key={message.id} ref={index === messages.length-1 ? latestMessage : undefined}>{!!message.helplines?.length && <HelplineNotice contacts={message.helplines}/>}<MessageBubble message={message} citizen={role === "citizen"} onLegalAid={role === "citizen" ? () => openCitizenTool("legal-aid") : undefined} role={role} question={message.role === "assistant" ? messages.slice(0, index).reverse().find(item => item.role === "user")?.content : undefined} onEdit={!loading && !message.documents?.some(document => !document.pages.length) ? (text) => void submit(text, message.documents, false, index) : undefined} onForgetDocuments={() => { const ids = new Set(message.documents?.map(document => document.id)); const clear = (items: ChatMessage[]) => items.map(item => ({...item, documents: item.documents?.map(document => ids.has(document.id) ? {...document, pages: []} : document)})); setMessages(clear); setHistory(current => current.map(item => ({...item, messages: clear(item.messages)}))); }} onRegenerate={!loading && message.role === "assistant" && index === messages.length-1 ? () => { const question=messages.slice(0,index).reverse().find(item=>item.role==="user"); if(question) void submit(question.content, question.documents, true); } : undefined} /></div>)}</div>
           {awayFromLatest && <button className="jump-latest" aria-label="Jump to latest message" onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: animate ? "smooth" : "auto" })}><ArrowDown size={17}/></button>}
-          <div className="conversation-composer"><ChatInput key={`${sessionId}:${draftVersion}`} onSend={submit} onStop={stopResearch} loading={loading} mode={responseMode} onModeChange={setResponseMode} cases={chatCases} caseId={chatCaseId} onCaseChange={setChatCaseId} scopeLockedReason={scopeLockedReason(sessionId)} /></div>
+          <div className="conversation-composer"><ChatInput key={`${sessionId}:${draftVersion}`} onSend={submit} onStop={stopResearch} loading={loading} mode={responseMode} onModeChange={setResponseMode} cases={chatCases} caseId={chatCaseId} onCaseChange={setChatCaseId} scopeLockedReason={scopeLockedReason(sessionId)} redactBeforeAttach={role === "citizen"} initialDraft={restoredDraft} /></div>
         </>}
       </section>}
     </div>
