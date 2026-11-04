@@ -154,3 +154,32 @@ def test_the_real_source_still_asserts_duties_on_hardcoded_provisions():
         "the concept bridges are no longer covered"
     )
     assert set(summary["provisions_per_statute"]) <= {"BNSS", "BNS", "BSA"}
+
+
+def test_sections_in_the_corpus_are_found_through_the_real_authority_check(monkeypatch):
+    """This gate could not pass: it handed a whole payload to a check expecting a type."""
+    import asyncio
+    from types import SimpleNamespace
+
+    point = SimpleNamespace(
+        payload={
+            "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+            "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+            "section": "173",
+            "document_type": "bare_act",
+            "heading_path": [],
+        }
+    )
+
+    class _Client:
+        async def scroll(self, **kwargs):
+            return [point], None
+
+        async def close(self):
+            return None
+
+    import app.core.qdrant as qdrant
+
+    monkeypatch.setattr(qdrant, "create_qdrant_client", lambda: _Client())
+    reachable = asyncio.run(drift.sections_in_corpus("any"))
+    assert "173" in reachable["BNSS"]

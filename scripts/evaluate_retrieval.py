@@ -259,7 +259,14 @@ async def evaluate(
                     )
                     abstain_correct += correct
                     per_item.append(
-                        {"id": item.id, "expectation": "abstain", "abstained": correct}
+                        {
+                            "id": item.id,
+                            "expectation": "abstain",
+                            "abstained": correct,
+                            "nearest_sources": [
+                                str(payload.get("title") or "")[:90] for payload in payloads[:5]
+                            ],
+                        }
                     )
                     continue
                 outcome = score(item, payloads)

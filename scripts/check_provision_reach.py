@@ -149,7 +149,9 @@ def main() -> int:
             print(f"\nREGRESSION: no longer reachable -- {', '.join(lost)}")
             return 1
         print("\nno provision became unreachable")
-    return 0
+        return 0
+    print(f"\nno baseline at {BASELINE.relative_to(ROOT)}; record one deliberately with --record")
+    return 2
 
 
 if __name__ == "__main__":

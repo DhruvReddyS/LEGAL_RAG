@@ -185,3 +185,26 @@ class TestUnmeasuredMetricsDoNotSilentlyPass:
         )
 
         assert "not measured on both sides" in result.stdout
+
+
+class TestAQuestionThatMustAbstain:
+    def _answered(self) -> dict:
+        report = _report()
+        report["rows"] = [{"id": "foreign-visa", "abstained": False, "unsupported_claim_details": []}]
+        return report
+
+    def test_answering_it_fails_with_no_tolerance(self, tmp_path: Path) -> None:
+        result = _with_baseline(tmp_path, _report(), self._answered())
+        assert result.returncode == 1
+        assert "foreign-visa" in result.stdout
+
+    def test_it_cannot_be_recorded_into_a_baseline(self, tmp_path: Path) -> None:
+        result = _run(tmp_path, self._answered(), "--record")
+        assert result.returncode == 1
+        assert not (tmp_path / "baseline.json").exists()
+
+
+def test_a_missing_baseline_fails_rather_than_installing_one(tmp_path: Path) -> None:
+    result = _run(tmp_path, _report())
+    assert result.returncode == 2
+    assert not (tmp_path / "baseline.json").exists()

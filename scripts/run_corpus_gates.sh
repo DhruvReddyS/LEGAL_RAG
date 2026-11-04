@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Run every gate a corpus version must pass before it serves anyone.
 #
-# There are six, they were written at different times for different reasons,
+# There are seven, they were written at different times for different reasons,
 # and running them by hand means running five of them and forgetting one. This
 # is the order and the arguments, in one place, with the evidence written under
 # a single label so a release has one set of numbers rather than six.
@@ -38,18 +38,20 @@
 #
 # Usage:
 #   ./scripts/run_corpus_gates.sh global_legal_corpus_v5 v5-cutover
-#   ./scripts/run_corpus_gates.sh global_legal_corpus_v5 v5-cutover --record
 #
-# --record sets the recorded baseline for the gates that compare against one.
-# Use it to establish a new contract deliberately, never to make a failure go
-# away.
+# Baselines are recorded one gate at a time, with that gate's own --record and a
+# commit message saying why. A flag here overwrote four at once and then printed
+# "All gates passed".
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 COLLECTION="${1:-}"
 LABEL="${2:-}"
-RECORD=0
-[ "${3:-}" = "--record" ] && RECORD=1
+if [ "$#" -gt 2 ]; then
+  echo "usage: $0 <collection> <label>" >&2
+  echo "to record a baseline, run that one gate's script with --record" >&2
+  exit 2
+fi
 
 PY="$ROOT/.venv-ingest/bin/python"
 # The version the haystack analysis compares against. Not a gate input: it
@@ -60,7 +62,7 @@ OUT="$ROOT/docs/evidence/gates/$LABEL"
 SUMMARY="$OUT/SUMMARY.md"
 
 if [ -z "$COLLECTION" ] || [ -z "$LABEL" ]; then
-  echo "usage: $0 <collection> <label> [--record]" >&2
+  echo "usage: $0 <collection> <label>" >&2
   exit 2
 fi
 
@@ -109,13 +111,8 @@ note "2/7 retrieval: recall@5 and citation accuracy@5"
   --out "$OUT/retrieval-eval.json" > "$OUT/retrieval-eval.log" 2>&1
 retrieval_eval=$?
 if [ "$retrieval_eval" -eq 0 ]; then
-  if [ "$RECORD" -eq 1 ]; then
-    "$PY" "$ROOT/scripts/check_quality_gate.py" --result "$OUT/retrieval-eval.json" --record \
-      2>&1 | tee "$OUT/retrieval-gate.txt"
-  else
-    "$PY" "$ROOT/scripts/check_quality_gate.py" --result "$OUT/retrieval-eval.json" \
-      2>&1 | tee "$OUT/retrieval-gate.txt"
-  fi
+  "$PY" "$ROOT/scripts/check_quality_gate.py" --result "$OUT/retrieval-eval.json" \
+    2>&1 | tee "$OUT/retrieval-gate.txt"
   record_result retrieval "${PIPESTATUS[0]}"
 else
   echo "the evaluation itself failed; see retrieval-eval.log" | tee "$OUT/retrieval-gate.txt"
@@ -129,13 +126,8 @@ QDRANT_GLOBAL_COLLECTION="$COLLECTION" "$PY" "$ROOT/scripts/evaluate_answers.py"
 answer_eval="${PIPESTATUS[0]}"
 ANSWERS="$ROOT/docs/evidence/answers-$LABEL.json"
 if [ "$answer_eval" -eq 0 ] && [ -f "$ANSWERS" ]; then
-  if [ "$RECORD" -eq 1 ]; then
-    "$PY" "$ROOT/scripts/check_answer_gate.py" --result "$ANSWERS" --record \
-      2>&1 | tee "$OUT/answer-gate.txt"
-  else
-    "$PY" "$ROOT/scripts/check_answer_gate.py" --result "$ANSWERS" \
-      2>&1 | tee "$OUT/answer-gate.txt"
-  fi
+  "$PY" "$ROOT/scripts/check_answer_gate.py" --result "$ANSWERS" \
+    2>&1 | tee "$OUT/answer-gate.txt"
   record_result answers "${PIPESTATUS[0]}"
 else
   echo "the evaluation itself failed; see answer-eval.log" | tee "$OUT/answer-gate.txt"
@@ -144,19 +136,14 @@ fi
 
 # ------------------------------------------------------------- provision
 note "4/7 provision reach: can the governing provision be reached at all"
-if [ "$RECORD" -eq 1 ]; then
-  QDRANT_GLOBAL_COLLECTION="$COLLECTION" "$PY" "$ROOT/scripts/check_provision_reach.py" --record \
-    2>&1 | tee "$OUT/provision.txt"
-else
-  QDRANT_GLOBAL_COLLECTION="$COLLECTION" "$PY" "$ROOT/scripts/check_provision_reach.py" \
-    2>&1 | tee "$OUT/provision.txt"
-fi
+QDRANT_GLOBAL_COLLECTION="$COLLECTION" "$PY" "$ROOT/scripts/check_provision_reach.py" \
+  2>&1 | tee "$OUT/provision.txt"
 record_result provision "${PIPESTATUS[0]}"
 
 # ------------------------------------------------------- retrieval health
 note "5/7 retrieval health: index and configuration"
 QDRANT_GLOBAL_COLLECTION="$COLLECTION" "$PY" "$ROOT/scripts/verify_retrieval_health.py" \
-  --json "$OUT/retrieval-health.json" 2>&1 | tee "$OUT/health.txt"
+  --with-model --strict --json "$OUT/retrieval-health.json" 2>&1 | tee "$OUT/health.txt"
 record_result health "${PIPESTATUS[0]}"
 
 # --------------------------------------------------------------- latency
@@ -184,17 +171,12 @@ else
   done
   if [ "$ready" -eq 1 ]; then
     curl -s http://127.0.0.1:8000/health/ready > "$OUT/health-ready.json"
-    "$PY" "$ROOT/scripts/latency_benchmark.py" --label "$LABEL" --mode both --repeats 3 \
+    QDRANT_GLOBAL_COLLECTION="$COLLECTION" "$PY" "$ROOT/scripts/latency_benchmark.py" --label "$LABEL" --mode both --repeats 3 \
       --output "$OUT/latency.json" > "$OUT/latency-bench.log" 2>&1
     bench=$?
     if [ "$bench" -eq 0 ]; then
-      if [ "$RECORD" -eq 1 ]; then
-        "$PY" "$ROOT/scripts/check_latency_gate.py" --result "$OUT/latency.json" --record \
-          2>&1 | tee "$OUT/latency-gate.txt"
-      else
-        "$PY" "$ROOT/scripts/check_latency_gate.py" --result "$OUT/latency.json" \
-          2>&1 | tee "$OUT/latency-gate.txt"
-      fi
+      "$PY" "$ROOT/scripts/check_latency_gate.py" --result "$OUT/latency.json" \
+        2>&1 | tee "$OUT/latency-gate.txt"
       record_result latency "${PIPESTATUS[0]}"
     else
       echo "the benchmark itself failed; see latency-bench.log" | tee "$OUT/latency-gate.txt"
@@ -239,7 +221,6 @@ fi
   echo "Collection: \`$COLLECTION\`"
   echo "Run: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
   echo "Commit: $(git -C "$ROOT" rev-parse --short HEAD)"
-  [ "$RECORD" -eq 1 ] && echo "Baselines were **recorded** by this run, not compared."
   echo
   echo "| Gate | Result |"
   echo "|---|---|"

@@ -17,11 +17,35 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # printing a stale v4 ledger next to a live v5 one is how a reader concludes
 # that two rebuilds are in flight.
 COLLECTION="${2:-global_legal_corpus_v4}"
+if [ -z "${2:-}" ] && [ "${1:-start}" = "start" ]; then
+  # With no argument this started writing into the collection that serves users.
+  printf 'refusing to start: name the collection to build\n' >&2
+  exit 2
+fi
 if [ -z "${2:-}" ] && [ "${1:-start}" != "__loop" ]; then
   printf 'no collection given; reporting on %s\n' "$COLLECTION" >&2
 fi
 LOG="$ROOT/data/legal_kb/logs/rebuild_forever.$COLLECTION.log"
 PIDFILE="$ROOT/data/legal_kb/logs/rebuild_forever.$COLLECTION.pid"
+
+# A plain pgrep also matched any process whose arguments mention the module, so a
+# monitoring command in another terminal stalled the build with no log line.
+ingestion_worker_running() {
+  local pid exe command
+  for pid in $(pgrep -f 'app\.ingestion\.pipeline' 2>/dev/null); do
+    exe="$(ps -o comm= -p "$pid" 2>/dev/null)" || continue
+    case "${exe##*/}" in
+      [Pp]ython*) ;;
+      *) continue ;;
+    esac
+    command="$(ps -ww -o command= -p "$pid" 2>/dev/null)" || continue
+    if printf '%s\n' "$command" | grep -Eq \
+      '^([^ ]| [^-])*[Pp]ython[0-9.]*( +-[A-Za-z]+)* +-m +app\.ingestion\.pipeline( |$)'; then
+      return 0
+    fi
+  done
+  return 1
+}
 
 total() {
   "$ROOT/.venv-ingest/bin/python" -c "
@@ -73,7 +97,8 @@ loop() {
     fi
     # Never start a second ingestion worker: two encoders on this machine is
     # what turns a slow rebuild into a swapping one.
-    if pgrep -f "app.ingestion.pipeline" >/dev/null; then
+    if ingestion_worker_running; then
+      echo "$(date '+%F %T')  a worker is running, waiting" >>"$LOG"
       sleep 60
       continue
     fi

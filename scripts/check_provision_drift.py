@@ -186,7 +186,7 @@ async def sections_in_corpus(collection: str) -> dict[str, set[str]]:
                 for code, act_name in LIVE_STATUTES.items():
                     if act_name.casefold() not in name.casefold():
                         continue
-                    if not is_the_authority_itself(payload):
+                    if not is_the_authority_itself(str(payload.get("document_type") or "")):
                         continue
                     for section in _sections_on(payload):
                         reachable[code].add(section)

@@ -63,7 +63,7 @@ def memory_state() -> dict[str, Any]:
     }
 
 
-async def run(only_role: str | None) -> dict[str, Any]:
+async def run(only_role: str | None, resume: bool = False) -> dict[str, Any]:
     from app.agents.orchestrator import LegalRAGWorkflow
     from app.agents.prompt_registry import prompt_versions
     from app.core.config import settings
@@ -80,13 +80,30 @@ async def run(only_role: str | None) -> dict[str, Any]:
     service = HybridRetrievalService()
     workflow = LegalRAGWorkflow(service)
     rows: list[dict[str, Any]] = []
+    errors: list[dict[str, str]] = []
+    if resume and partial_path.is_file():
+        earlier = json.loads(partial_path.read_text(encoding="utf-8"))
+        if earlier.get("collection") == settings.qdrant_global_collection:
+            rows = list(earlier.get("rows") or [])
+            print(f"resuming with {len(rows)} questions already answered", flush=True)
+    finished = {row["id"] for row in rows}
     try:
         await service.warmup()
         for index, item in enumerate(items, 1):
+            if item["id"] in finished:
+                continue
             started = time.perf_counter()
-            state = await workflow.run(
-                query=item["question"], role=item["role"], case_id=None, history=[]
-            )
+            # One question failing used to end a run of about an hour, and the run
+            # could not be picked up again. It is recorded, and fails the run at
+            # the end, so a partial result can never pass as a complete one.
+            try:
+                state = await workflow.run(
+                    query=item["question"], role=item["role"], case_id=None, history=[]
+                )
+            except Exception as exc:
+                errors.append({"id": item["id"], "error": f"{type(exc).__name__}: {exc}"})
+                print(f" !{index:>3}/{len(items)} {item['id']} failed: {type(exc).__name__}", flush=True)
+                continue
             elapsed_ms = (time.perf_counter() - started) * 1000
 
             quality = assess_answer(
@@ -109,7 +126,14 @@ async def run(only_role: str | None) -> dict[str, Any]:
             # stuck one.
             if partial_path is not None:
                 partial_path.write_text(
-                    json.dumps({"completed": len(rows), "rows": rows}, indent=2),
+                    json.dumps(
+                        {
+                            "collection": settings.qdrant_global_collection,
+                            "completed": len(rows),
+                            "rows": rows,
+                        },
+                        indent=2,
+                    ),
                     encoding="utf-8",
                 )
 
@@ -143,6 +167,7 @@ async def run(only_role: str | None) -> dict[str, Any]:
             "memory_after": memory_state(),
         },
         "metrics": aggregate(rows),
+        "errors": errors,
         "rows": rows,
     }
 
@@ -262,6 +287,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--label", help="write docs/evidence/answers-<label>.json")
     parser.add_argument("--only", help="restrict to one role")
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="keep the answers already in answers-in-progress.json for this collection",
+    )
     parser.add_argument("--compare", nargs=2, metavar=("BEFORE", "AFTER"))
     arguments = parser.parse_args()
 
@@ -271,11 +301,14 @@ def main() -> int:
     if not arguments.label:
         parser.error("--label is required unless --compare is used")
 
-    payload = asyncio.run(run(arguments.only))
+    payload = asyncio.run(run(arguments.only, resume=arguments.resume))
     report(payload)
     destination = OUT / f"answers-{arguments.label}.json"
     destination.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     print(f"\nwrote {destination.relative_to(ROOT)}")
+    if payload["errors"]:
+        print(f"{len(payload['errors'])} questions failed; this is not a complete run", file=sys.stderr)
+        return 1
     return 0
 
 

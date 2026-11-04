@@ -47,6 +47,10 @@ GATED_METRICS = ("abstention_correct", "ground_coverage", "currency_correct")
 # moves by one ground out of four on a single item -- 0.05 of that item.
 TOLERANCE = 0.05
 
+# See check_quality_gate.py. Averaged over 61 items with this tolerance, three more
+# wrong answers on these questions would pass.
+MUST_ABSTAIN = ("foreign-visa",)
+
 
 def _metrics(report: dict[str, Any]) -> dict[str, Any]:
     metrics = (report.get("metrics") or {}).get("overall")
@@ -102,7 +106,19 @@ def main() -> int:
         )
         return 1
 
-    if arguments.record or not arguments.baseline.is_file():
+    answered = [
+        row["id"] for row in report.get("rows", [])
+        if row.get("id") in MUST_ABSTAIN and not row.get("abstained")
+    ]
+    if answered:
+        print(f"answer gate FAILED: must abstain and did not: {', '.join(answered)}")
+        return 1
+
+    if not arguments.record and not arguments.baseline.is_file():
+        print(f"no baseline at {arguments.baseline}; record one deliberately with --record")
+        return 2
+
+    if arguments.record:
         payload = {
             "recorded_at": datetime.now(timezone.utc).isoformat(),
             "golden_set": report.get("golden_set"),
@@ -146,6 +162,11 @@ def main() -> int:
             file=sys.stderr,
         )
 
+    print(
+        f"baseline: {(baseline.get('measurement_config') or {}).get('collection')} recorded "
+        f"{baseline.get('recorded_at')}; this run: "
+        f"{(report.get('measurement_config') or {}).get('collection')}"
+    )
     failures: list[str] = []
     print(f"answer gate: against {arguments.baseline.name}")
     for name in GATED_METRICS:

@@ -48,6 +48,21 @@ GATED_METRICS = ("recall_at_5", "citation_accuracy_at_5")
 # wide enough to absorb that and narrow enough to catch a real loss.
 TOLERANCE = 0.02
 
+# Questions no corpus of Indian law can answer, so abstaining is a rule rather than a
+# rate. Topics the corpus has since gained do not belong here: tenancy and consumer
+# law are now held, and answering those can be right. An average hid this: abstention
+# fell from 0.500 to 0.333 on v5 with no line in this gate's output.
+MUST_ABSTAIN = ("foreign-visa",)
+
+
+def _must_abstain_failures(report: dict[str, Any], config: str) -> list[str]:
+    items = (report.get("configs") or {}).get(config, {}).get("items") or []
+    return [
+        f"{item['id']} must abstain and did not"
+        for item in items
+        if item.get("id") in MUST_ABSTAIN and not item.get("abstained")
+    ]
+
 
 def _summary(report: dict[str, Any], config: str) -> dict[str, Any]:
     configs = report.get("configs") or {}
@@ -75,8 +90,19 @@ def main() -> int:
         raise SystemExit(f"no result file at {arguments.result}")
     report = json.loads(arguments.result.read_text(encoding="utf-8"))
     summary = _summary(report, arguments.config)
+    abstention_failures = _must_abstain_failures(report, arguments.config)
+    if abstention_failures:
+        print("quality gate FAILED, and this cannot be recorded into a baseline:")
+        for failure in abstention_failures:
+            print(f"  {failure}")
+        return 1
 
-    if arguments.record or not arguments.baseline.is_file():
+    if not arguments.record and not arguments.baseline.is_file():
+        # Recording here let a renamed file pass the gate and install a new contract.
+        print(f"no baseline at {arguments.baseline}; record one deliberately with --record")
+        return 2
+
+    if arguments.record:
         payload = {
             "recorded_at": datetime.now(timezone.utc).isoformat(),
             "config": arguments.config,
@@ -90,8 +116,7 @@ def main() -> int:
         }
         arguments.baseline.parent.mkdir(parents=True, exist_ok=True)
         arguments.baseline.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
-        action = "recorded" if arguments.record else "no baseline existed, recorded"
-        print(f"{action} {arguments.baseline}")
+        print(f"recorded {arguments.baseline}")
         for name in GATED_METRICS:
             print(f"  {name:<24} {summary[name]:.3f}")
         return 0
@@ -105,6 +130,17 @@ def main() -> int:
             "two different yardsticks; re-record before trusting it.",
             file=sys.stderr,
         )
+
+    # The baseline sat two corpus generations behind for a month without a word.
+    print(
+        f"baseline: {baseline.get('collection')} recorded {baseline.get('recorded_at')}; "
+        f"this run: {report.get('collection')}"
+    )
+    was_prompts = (baseline.get("measurement_config") or {}).get("prompt_versions") or {}
+    now_prompts = (report.get("config") or {}).get("prompt_versions") or {}
+    changed = sorted(name for name in was_prompts if was_prompts[name] != now_prompts.get(name))
+    if changed:
+        print(f"  NOTE: prompts changed since the baseline: {', '.join(changed)}")
 
     failures: list[str] = []
     print(f"quality gate: {arguments.config} against {arguments.baseline.name}")
