@@ -175,5 +175,5 @@ def claim_budget_note(proposed: int, verified: int) -> str:
         return f"All {proposed} proposed statements passed the check against their cited passages."
     return (
         f"{verified} of {proposed} proposed statements passed the check against their cited passages. "
-        f"The other {proposed - verified} are not shown."
+        f"Not shown: {proposed - verified}."
     )

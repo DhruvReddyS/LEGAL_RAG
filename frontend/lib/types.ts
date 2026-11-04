@@ -318,6 +318,11 @@ export interface StrategyPoint {
 }
 
 export interface DefenceAnalysisResponse {
+  id?: string | null;
+  version?: number | null;
+  created_at?: string | null;
+  case_scenario?: string | null;
+  advocate_position?: string | null;
   summary: string;
   points: StrategyPoint[];
   citations: AgentCitation[];

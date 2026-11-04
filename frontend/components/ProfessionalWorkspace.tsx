@@ -8,6 +8,8 @@ import { InvestigationTimeline } from "@/components/InvestigationTimeline";
 import { ApiError, analyseDefence, createCase, draftFir, getInvestigationTimeline, indexCaseEvidence, listCases, listGeneratedDocuments, listIndexedCaseDocuments, readGeneratedDocument, scopedSearch, updateCase, uploadCaseEvidence } from "@/lib/api";
 import type { CaseDocumentSummary, DefenceAnalysisResponse, FIRDraftResponse, GeneratedDocumentSummary, InvestigationTimeline as InvestigationTimelineData, LegalCase, RetrievalHit, User } from "@/lib/types";
 import DocumentAnalyzerWorkspace from "@/components/DocumentAnalyzerWorkspace";
+import AdvocateDesk from "@/components/advocate/AdvocateDesk";
+import { AdvocateCaseFile, DefenceAnalysisResult } from "@/components/advocate/DefenceAnalysisResult";
 
 function errorText(error: unknown): string { return error instanceof ApiError ? error.message : "The operation failed. Check the backend and try again."; }
 
@@ -192,7 +194,7 @@ export default function ProfessionalWorkspace({
   };
 
 
-type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" | "search" | "evidence" | "documents";
+type ViewKey = "advocate" | "casefile" | "agent" | "deadlines" | "compliance" | "citations" | "search" | "evidence" | "documents";
 
   const tools: { key: ViewKey; label: string; icon: typeof Scale; title: string; blurb: string; needsMatter: boolean }[] = [
     {
@@ -230,6 +232,18 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
             title: "BNSS compliance record",
             blurb: "What the Sanhita requires to be recorded for an arrest, a search, the case diary and the final report. Nothing is assumed done.",
             needsMatter: true,
+          },
+        ])
+      : []),
+    ...(!isPolice
+      ? ([
+          {
+            key: "advocate" as ViewKey,
+            label: "Advocate desk",
+            icon: BriefcaseBusiness,
+            title: "Bail, drafting, calendar, briefs, debate and judgments held",
+            blurb: "What the tools compute, and the passages they rest on. The research tools read only the judgments this corpus holds, and say how many.",
+            needsMatter: false,
           },
         ])
       : []),
@@ -407,7 +421,7 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
                     </dd></div>
                     <div><dt>Opened</dt><dd>{new Date(selected.created_at).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}</dd></div>
                     <div><dt>Files</dt><dd>{files === null ? "—" : files.length.toLocaleString()}</dd></div>
-                    <div><dt>{isPolice ? "Drafts" : "Analyses"}</dt><dd>{drafts === null ? "—" : drafts.length.toLocaleString()}</dd></div>
+                    <div><dt>{isPolice ? "Drafts" : "Document analyses"}</dt><dd>{drafts === null ? "—" : drafts.length.toLocaleString()}</dd></div>
                     <div><dt>Searchable passages</dt><dd>{files === null ? "—" : files.reduce((total, item) => total + item.chunk_count, 0).toLocaleString()}</dd></div>
                   </dl>
 
@@ -463,7 +477,17 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
                     </section>
                   )}
 
-                  <section className="case-block">
+                  {!isPolice && (
+                    <AdvocateCaseFile
+                      caseId={selected.id}
+                      refreshToken={analysis?.id}
+                      onOpenAnalysis={(item) => { setAnalysis(item); setScenario(item.case_scenario ?? ""); setView("agent"); }}
+                      onNewAnalysis={() => { setAnalysis(null); setScenario(""); setView("agent"); }}
+                      onOpenDesk={() => setView("advocate")}
+                    />
+                  )}
+
+                  {isPolice && <section className="case-block">
                     <div className="case-block-head">
                       <div>
                         <h4>{isPolice ? "FIRs drafted in this case" : "Analyses in this case"}</h4>
@@ -489,7 +513,7 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
                     ) : (
                       <p className="case-empty">{drafts === null ? "The drafting history could not be read." : "Nothing has been drafted in this case yet."}</p>
                     )}
-                  </section>
+                  </section>}
 
                   <section className="case-block">
                     <div className="case-block-head">
@@ -557,23 +581,11 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
                       <pre className="max-h-[520px] overflow-auto whitespace-pre-wrap p-5 text-xs leading-6 text-[var(--ink)]">{draft.rendered_text}</pre>
                     </div>
                   )}
-                  {analysis && (
-                    <div className="mt-6">
-                      <div className="rounded-xl bg-[var(--hover)] p-4 text-sm leading-6 text-[var(--ink)]">{analysis.summary}</div>
-                      <div className="mt-3 grid gap-3 lg:grid-cols-2">
-                        {analysis.points.map((point, index) => (
-                          <article key={`${point.category}-${index}`} className="rounded-xl border border-[var(--border)] p-4">
-                            <p className="text-[10px] font-semibold text-[var(--accent)]">{point.category.replaceAll("_", " ")} / {point.verification}</p>
-                            <p className="mt-2 text-sm leading-6 text-[var(--ink)]">{point.point}</p>
-                          </article>
-                        ))}
-                      </div>
-                      <p className="mt-4 text-xs text-[var(--ink-soft)]">{analysis.disclaimer}</p>
-                    </div>
-                  )}
+                  {analysis && <DefenceAnalysisResult analysis={analysis} />}
                 </div>
               )}
 
+              {view === "advocate" && !isPolice && <AdvocateDesk key={selectedId} caseId={selectedId} caseTitle={selected?.title} />}
               {view === "deadlines" && <InvestigationTimeline caseId={selectedId} />}
               {view === "compliance" && <ComplianceChecklist caseId={selectedId} />}
               {view === "citations" && <AuthorityCheck caseId={selectedId} />}
