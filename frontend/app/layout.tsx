@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import { DM_Sans, Newsreader } from "next/font/google";
 import DesktopUpdater from "@/components/DesktopUpdater";
+import DesktopReadiness from "@/components/DesktopReadiness";
+import PreferencesBoot from "@/components/platform/PreferencesBoot";
 import "./globals.css";
 import "./advocate.css";
 import "./police.css";
+import "./platform.css";
 const uiFont = DM_Sans({ subsets: ["latin"], variable: "--font-ui", display: "swap" });
 const editorialFont = Newsreader({ subsets: ["latin"], variable: "--font-editorial", display: "swap", adjustFontFallback: false });
 
@@ -32,6 +35,10 @@ export default function RootLayout({
     <html lang="en" className={`${uiFont.variable} ${editorialFont.variable}`}>
       <body>
         {children}
+        <PreferencesBoot />
+        {/* Here, not in Settings: on a fresh install the server address has to be
+            reachable before anyone can sign in. It renders nothing outside the app. */}
+        <DesktopReadiness />
         <DesktopUpdater />
       </body>
     </html>

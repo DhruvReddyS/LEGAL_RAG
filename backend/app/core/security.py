@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.database import get_db_session
-from app.models import User
+from app.models import User, UserSession
 from app.schemas.auth import TokenPayload
 
 
@@ -34,6 +34,7 @@ def _create_token(
     token_type: str,
     secret: str,
     expires_delta: timedelta,
+    sid: uuid.UUID | None = None,
 ) -> str:
     now = datetime.now(timezone.utc)
     payload = {
@@ -46,24 +47,28 @@ def _create_token(
         "iss": settings.jwt_issuer,
         "aud": settings.jwt_audience,
     }
+    if sid is not None:
+        payload["sid"] = str(sid)
     return jwt.encode(payload, secret, algorithm=settings.jwt_algorithm)
 
 
-def create_access_token(user: User) -> str:
+def create_access_token(user: User, sid: uuid.UUID | None = None) -> str:
     return _create_token(
         user,
         token_type="access",
         secret=settings.jwt_secret_key.get_secret_value(),
         expires_delta=timedelta(minutes=settings.access_token_expire_minutes),
+        sid=sid,
     )
 
 
-def create_refresh_token(user: User) -> str:
+def create_refresh_token(user: User, sid: uuid.UUID | None = None) -> str:
     return _create_token(
         user,
         token_type="refresh",
         secret=settings.jwt_refresh_secret_key.get_secret_value(),
         expires_delta=timedelta(days=settings.refresh_token_expire_days),
+        sid=sid,
     )
 
 
@@ -145,4 +150,14 @@ async def get_optional_current_user(
             detail="Session ended. Sign in again.",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    # Revoking one device must take effect now, not when its access token
+    # expires half an hour later.
+    if payload.sid is not None:
+        device = await session.get(UserSession, payload.sid)
+        if device is None or device.revoked_at is not None or device.user_id != user.id:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Session ended. Sign in again.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
     return user

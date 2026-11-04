@@ -1,9 +1,13 @@
 "use client";
 
 import { ArrowRight, Eye, EyeOff, Loader2, ShieldCheck } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import BrandLogo from "@/components/BrandLogo";
+import ForgotPassword from "@/components/platform/ForgotPassword";
 import { ApiError, login, register } from "@/lib/api";
+import { PRIVACY_NOTICE_VERSION } from "@/lib/privacy-text";
+import { SITE_ROUTES } from "@/lib/site";
 import type { IngestionProgress, User } from "@/lib/types";
 
 /**
@@ -28,7 +32,11 @@ const GUARANTEES = [
 ];
 
 export default function AuthModal({ onSuccess, progress }: { onSuccess: (user: User) => void; progress?: IngestionProgress | null }) {
-  const [mode, setMode] = useState<"login" | "register">("login");
+  const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
+  const [needsCode, setNeedsCode] = useState(false);
+  const [code, setCode] = useState("");
+  const [consented, setConsented] = useState(false);
+  const [notice, setNotice] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,9 +45,15 @@ export default function AuthModal({ onSuccess, progress }: { onSuccess: (user: U
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault(); setError(""); setLoading(true);
-    try { onSuccess(mode === "login" ? await login(email, password) : await register(name, email, password)); }
-    catch (err) { setError(err instanceof ApiError ? err.message : "Unable to reach the workspace. Please try again."); }
+    event.preventDefault(); setError(""); setNotice(""); setLoading(true);
+    const typed = code.trim();
+    const secondFactor = !needsCode || !typed ? {} : /^[\d\s]{6,8}$/.test(typed) ? { mfa_code: typed } : { recovery_code: typed };
+    try { onSuccess(mode === "login" ? await login(email, password, secondFactor) : await register(name, email, password, PRIVACY_NOTICE_VERSION)); }
+    catch (err) {
+      if (err instanceof ApiError && err.message === "mfa_required") { setNeedsCode(true); }
+      else if (err instanceof ApiError && err.message === "mfa_invalid") { setNeedsCode(true); setError("That code is not correct, or it has already been used."); }
+      else setError(err instanceof ApiError ? err.message : "Unable to reach the workspace. Please try again.");
+    }
     finally { setLoading(false); }
   };
 
@@ -86,16 +100,25 @@ export default function AuthModal({ onSuccess, progress }: { onSuccess: (user: U
         <div className="auth-mobile-brand"><BrandLogo /></div>
         <div className="auth-panel-top"><span>Private workspace</span><ShieldCheck size={15}/></div>
 
+        {mode === "forgot" ? <ForgotPassword initialEmail={email} onBack={() => setMode("login")} onDone={(address) => { setEmail(address); setPassword(""); setMode("login"); setNotice("Password changed. Sign in with your new password."); }} /> : <>
         <div className="auth-heading">
-          <h2>{mode === "login" ? "Sign in" : "Create an account"}</h2>
+          <h2>{needsCode ? "Two-step sign-in" : mode === "login" ? "Sign in" : "Create an account"}</h2>
           <span>
-            {mode === "login"
+            {needsCode
+              ? "Enter the code from your authenticator app, or one of your recovery codes."
+              : mode === "login"
               ? "Your conversations and matters return with their context intact."
               : "Citizen accounts are created here. Police and advocate accounts are provisioned by an administrator."}
           </span>
         </div>
 
+        {notice && <p role="status" className="acct-success">{notice}</p>}
         <form onSubmit={handleSubmit} className="auth-form">
+          {needsCode ? (
+            <label>Code
+              <input autoFocus autoComplete="one-time-code" value={code} onChange={e => setCode(e.target.value)} required maxLength={32} className="field" />
+            </label>
+          ) : <>
           {mode === "register" && (
             <label>Full name
               <input autoComplete="name" value={name} onChange={e => setName(e.target.value)} required minLength={2} className="field" placeholder="Your full name" />
@@ -121,24 +144,40 @@ export default function AuthModal({ onSuccess, progress }: { onSuccess: (user: U
               </button>
             </div>
           </label>
+          {mode === "register" && (
+            <label className="auth-consent">
+              <input type="checkbox" required checked={consented} onChange={e => setConsented(e.target.checked)} />
+              <span>I have read the <Link href={SITE_ROUTES.privacy} target="_blank" rel="noopener">privacy notice</Link> and accept it and the <Link href={SITE_ROUTES.terms} target="_blank" rel="noopener">terms of use</Link>.</span>
+            </label>
+          )}
+          </>}
           {error && <p role="alert" className="auth-error">{error}</p>}
           <button type="submit" disabled={loading} className="auth-submit">
-            {loading ? <Loader2 size={17} className="animate-spin" /> : <span>{mode === "login" ? "Sign in" : "Create account"}</span>}
+            {loading ? <Loader2 size={17} className="animate-spin" /> : <span>{needsCode ? "Continue" : mode === "login" ? "Sign in" : "Create account"}</span>}
             {!loading && <ArrowRight size={17}/>}
           </button>
         </form>
 
+        {mode === "login" && !needsCode && <button type="button" className="auth-link" style={{ marginTop: 12 }} onClick={() => { setMode("forgot"); setError(""); setNotice(""); }}>Forgot your password?</button>}
+        {needsCode && <button type="button" className="auth-link" style={{ marginTop: 12 }} onClick={() => { setNeedsCode(false); setCode(""); setError(""); }}>Back</button>}
         <div className="auth-switch">
           <span>{mode === "login" ? "No account yet?" : "Already registered?"}</span>
-          <button onClick={() => { setMode(mode === "login" ? "register" : "login"); setError(""); }}>
+          <button onClick={() => { setMode(mode === "login" ? "register" : "login"); setError(""); setNeedsCode(false); }}>
             {mode === "login" ? "Create one" : "Sign in"}<ArrowRight size={13}/>
           </button>
         </div>
+        </>}
 
         <p className="auth-footnote">
           Legal information, not advice. Check the current official text before
           relying on any answer in a live matter.
         </p>
+        <nav className="auth-footer-links" aria-label="About Corpusil">
+          <Link href={SITE_ROUTES.welcome}>About</Link>
+          <Link href={SITE_ROUTES.help}>Help</Link>
+          <Link href={SITE_ROUTES.privacy}>Privacy</Link>
+          <Link href={SITE_ROUTES.terms}>Terms</Link>
+        </nav>
       </div>
     </section>
   </div>;

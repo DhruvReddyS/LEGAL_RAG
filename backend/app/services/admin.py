@@ -16,7 +16,7 @@ from app.ingestion.metadata import CanonicalDocument
 from app.ingestion.qdrant_writer import legal_chunk_payload
 from app.ingestion.sparse import to_sparse_vector
 from app.ingestion.structure import parse_legal_structure
-from app.models import AuditLog, Case, CorpusIntake, CorpusSource, StorageObject, User
+from app.models import AuditLog, Case, CorpusIntake, CorpusSource, StorageObject, User, UserSecurity
 from app.models.enums import CorpusSourceType, UserRole
 from app.models.storage import StorageNamespace
 from app.schemas.admin import (
@@ -104,6 +104,9 @@ async def create_professional_user(
             role=UserRole(payload.role),
         ),
     )
+    # The administrator chose this password and knows it, so it only gets the
+    # officer through the first sign-in (audit F30).
+    session.add(UserSecurity(user_id=user.id, must_change_password=True))
     session.add(
         AuditLog(
             user_id=admin.id,

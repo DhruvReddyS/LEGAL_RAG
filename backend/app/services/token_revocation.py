@@ -14,13 +14,13 @@ instead of a session that continues.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import AuditLog, RevokedRefreshToken, User
+from app.models import AuditLog, RevokedRefreshToken, User, UserSession
 
 
 REASON_ROTATED = "rotated"
@@ -36,6 +36,22 @@ async def is_revoked(session: AsyncSession, jti: uuid.UUID) -> bool:
     ) is not None
 
 
+async def rotated_within(
+    session: AsyncSession, jti: uuid.UUID, *, seconds: int
+) -> bool:
+    """Whether this token was rotated moments ago, by another tab's refresh.
+
+    Only rotation qualifies. A token ended by logout or by reuse detection has
+    no innocent second use.
+    """
+    if seconds <= 0:
+        return False
+    row = await session.get(RevokedRefreshToken, jti, populate_existing=True)
+    if row is None or row.reason != REASON_ROTATED:
+        return False
+    return row.revoked_at >= datetime.now(timezone.utc) - timedelta(seconds=seconds)
+
+
 async def revoke(
     session: AsyncSession,
     *,
@@ -43,8 +59,8 @@ async def revoke(
     user_id: uuid.UUID,
     expires_at: datetime,
     reason: str,
-) -> None:
-    """Record one token as unusable.
+) -> bool:
+    """Record one token as unusable. True if this call is the one that did.
 
     Idempotent: revoking twice is normal - a client retrying a refresh on a
     dropped connection does exactly that - and must not raise.
@@ -55,7 +71,7 @@ async def revoke(
     and both insert. ON CONFLICT DO NOTHING settles both cases in the database,
     where the uniqueness actually lives.
     """
-    await session.execute(
+    result = await session.execute(
         insert(RevokedRefreshToken)
         .values(
             jti=jti,
@@ -65,6 +81,10 @@ async def revoke(
         )
         .on_conflict_do_nothing(index_elements=["jti"])
     )
+    # False means another request got there first. Two refreshes racing on one
+    # token both pass the is_revoked check, and only this row count tells them
+    # apart: without it a replay issued a second live token family unnoticed.
+    return bool(result.rowcount)
 
 
 async def revoke_all_for_user(
@@ -83,6 +103,11 @@ async def revoke_all_for_user(
     if user is None:
         return
     user.sessions_valid_from = datetime.now(timezone.utc)
+    await session.execute(
+        update(UserSession)
+        .where(UserSession.user_id == user_id, UserSession.revoked_at.is_(None))
+        .values(revoked_at=user.sessions_valid_from)
+    )
     session.add(
         AuditLog(
             user_id=user_id,

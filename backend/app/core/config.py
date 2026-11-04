@@ -174,6 +174,47 @@ class Settings(BaseSettings):
     s3_generated_bucket: str = "legal-rag-generated"
     legal_kb_root: str = "/data/legal_kb"
 
+    # Account recovery. Nothing here may need a third party: a self-hosted
+    # install has no mail relay by default, so the recovery path that always
+    # works is a one-time code an administrator issues and hands over.
+    # Encrypts stored TOTP secrets. Falls back to a key derived from
+    # JWT_SECRET_KEY, so setting this is what lets that secret rotate without
+    # locking every enrolled user out of their second factor.
+    mfa_encryption_key: SecretStr | None = None
+    mfa_issuer: str = "Corpusil"
+    password_reset_ttl_minutes: int = Field(default=60, ge=5, le=1440)
+    # Optional mail delivery for self-service reset. Unset means the feature is
+    # off and the sign-in screen says to ask an administrator instead.
+    smtp_host: str = ""
+    smtp_port: int = Field(default=587, ge=1, le=65535)
+    smtp_username: str = ""
+    smtp_password: SecretStr | None = None
+    smtp_from: str = ""
+    smtp_use_tls: bool = True
+    # Two tabs share one refresh cookie. When both notice an expired access
+    # token, the second presents a token the first has just rotated. Inside this
+    # window that is a race, answered without a new token; after it, it is
+    # treated as theft. Cookie refresh only: a bearer client holds its own copy.
+    refresh_reuse_grace_seconds: int = Field(default=10, ge=0, le=60)
+    job_streams_per_user: int = Field(default=3, ge=1, le=20)
+    job_stream_recheck_seconds: float = Field(default=15.0, ge=1.0, le=300.0)
+
+    # Privacy. The operator of an install is the one answerable for it, so these
+    # identify them. Left empty, the notice says plainly that nobody has been
+    # named, rather than printing a placeholder that reads like a contact.
+    data_fiduciary_name: str = ""
+    grievance_officer_name: str = ""
+    grievance_officer_email: str = ""
+    grievance_officer_phone: str = ""
+    grievance_officer_address: str = ""
+    # Conversations with no activity for this many days are erased when the
+    # retention pass runs. 0 keeps them until their owner deletes them.
+    chat_retention_days: int = Field(default=0, ge=0, le=36500)
+    # "auto" refuses processing without consent outside development, so a
+    # deployment cannot forget to turn it on and the test suite is not forced to
+    # consent on behalf of every account it provisions.
+    consent_enforcement: Literal["auto", "on", "off"] = "auto"
+
     @field_validator("legal_kb_root", mode="after")
     @classmethod
     def _anchor_to_the_repository(cls, value: str) -> str:
@@ -245,6 +286,39 @@ class Settings(BaseSettings):
         return self
 
     @property
+    def consent_is_enforced(self) -> bool:
+        if self.consent_enforcement == "auto":
+            return self.app_env.casefold() not in {"development", "test"}
+        return self.consent_enforcement == "on"
+
+    @property
+    def self_service_reset_available(self) -> bool:
+        return bool(self.smtp_host and self.smtp_from)
+
+    def insecure_secrets(self) -> list[str]:
+        """Name every secret that is unsafe outside development.
+
+        The repository is public, so the development defaults above are public
+        too: a deployment still using one can have its tokens forged by anyone.
+        Names only, never values, because this ends up in a startup log.
+        """
+        if self.app_env.casefold() in {"development", "test"}:
+            return []
+        problems: list[str] = []
+        for name, value, minimum, default in (
+            ("JWT_SECRET_KEY", self.jwt_secret_key, 32, "development-access-secret-change-me"),
+            ("JWT_REFRESH_SECRET_KEY", self.jwt_refresh_secret_key, 32, "development-refresh-secret-change-me"),
+            ("S3_ACCESS_KEY_ID", self.s3_access_key_id, 3, "development-minio-user"),
+            ("S3_SECRET_ACCESS_KEY", self.s3_secret_access_key, 8, "development-minio-secret"),
+        ):
+            secret = value.get_secret_value().strip()
+            if secret == default or "change_me" in secret.casefold() or "changeme" in secret.casefold():
+                problems.append(f"{name} is a placeholder or public default")
+            elif len(secret) < minimum:
+                problems.append(f"{name} is shorter than {minimum} characters")
+        return problems
+
+    @property
     def cors_origin_list(self) -> list[str]:
         return self.cors_origins.split(",")
 
@@ -261,7 +335,18 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    return Settings()
+    loaded = Settings()
+    # Here rather than in a validator: this is the load the running service
+    # goes through, and refusing it stops the process before it serves a token
+    # anyone could forge. Settings(...) stays constructible for inspection.
+    problems = loaded.insecure_secrets()
+    if problems:
+        raise RuntimeError(
+            f"Refusing to start with APP_ENV={loaded.app_env}: "
+            + "; ".join(problems)
+            + ". Run scripts/init_local_env.sh or set strong values."
+        )
+    return loaded
 
 
 settings = get_settings()

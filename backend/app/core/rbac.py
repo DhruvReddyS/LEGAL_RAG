@@ -13,6 +13,7 @@ from app.core.config import settings
 from app.core.security import bearer_scheme, get_optional_current_user
 from app.models import Case, Permission, Role, RolePermission, User
 from app.models.enums import UserRole
+from app.services.account_gate import assert_account_may_proceed
 
 
 @dataclass(frozen=True)
@@ -55,6 +56,8 @@ class PermissionChecker:
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Permission denied",
             )
+
+        await assert_account_may_proceed(session, current_user)
 
         if self.case_id_param is not None and current_user.role is not UserRole.ADMIN:
             raw_case_id = request.path_params.get(self.case_id_param)

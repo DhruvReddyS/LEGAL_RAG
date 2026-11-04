@@ -15,9 +15,10 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.core.database import get_db_session
+from app.core.database import AsyncSessionLocal, get_db_session
 from app.core.permissions import CASE_DOCUMENT_MANAGE_OWN, CHAT_USE
 from app.core.rbac import require_permission
+from app.core.security import decode_token
 from app.models import (
     AuditLog,
     Case,
@@ -28,6 +29,7 @@ from app.models import (
     JobEvent,
     StorageObject,
     User,
+    UserSession,
 )
 from app.models.enums import ChatMessageRole, JobStatus, JobType, UserRole
 from app.schemas.jobs import (
@@ -45,6 +47,7 @@ from app.services.jobs import (
     owned_jobs_query,
     request_job_cancellation,
 )
+from app.services.job_streams import StreamLimitReached, job_stream_gate
 from app.services.rate_limit import RateLimitExceeded, user_rate_limiter
 from app.core.config import settings
 
@@ -498,35 +501,83 @@ async def stream_job_events(
         except ValueError as exc:
             raise HTTPException(status_code=422, detail="Last-Event-ID must be an integer") from exc
 
+    user_id = user.id
+    sessions_valid_from = user.sessions_valid_from
+    # Which device opened this. An admin token presented here also has one.
+    presented = request.headers.get("authorization", "").removeprefix("Bearer ").strip()
+    device_id = decode_token(
+        presented or request.cookies.get("legal_rag_access", ""), expected_type="access"
+    ).sid
+    try:
+        job_stream_gate.acquire(str(user_id), limit=settings.job_streams_per_user)
+    except StreamLimitReached as exc:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many open progress streams",
+            headers={"Retry-After": "5"},
+        ) from exc
+    # The stream may run for minutes. The request's session would hold a pooled
+    # connection idle in transaction for all of it, so fifteen streams starved
+    # every other request. It is closed here, and each poll below borrows a
+    # connection only for as long as that poll takes.
+    await session.close()
+
+    async def still_allowed(db: AsyncSession) -> bool:
+        """Signing out or being suspended must also end a stream already open."""
+        current_user = await db.get(User, user_id)
+        if (
+            current_user is None
+            or not current_user.is_active
+            or current_user.sessions_valid_from != sessions_valid_from
+        ):
+            return False
+        if device_id is None:
+            return True
+        device = await db.get(UserSession, device_id)
+        return device is not None and device.revoked_at is None
+
     async def events():
         current = cursor
         idle_polls = 0
-        while not await request.is_disconnected():
-            async with session.begin_nested():
-                rows = list(
-                    (
-                        await session.scalars(
-                            select(JobEvent)
-                            .where(JobEvent.job_id == job_id, JobEvent.id > current)
-                            .order_by(JobEvent.id)
-                            .limit(100)
-                        )
-                    ).all()
-                )
-                job_status = await session.scalar(select(Job.status).where(Job.id == job_id))
-            if rows:
-                idle_polls = 0
-                for event in rows:
-                    current = event.id
-                    yield _sse_event(event)
-            else:
-                idle_polls += 1
-                if idle_polls >= 20:
+        polls_since_check = 0
+        polls_between_checks = max(1, int(settings.job_stream_recheck_seconds / 0.5))
+        try:
+            while not await request.is_disconnected():
+                async with AsyncSessionLocal() as db:
+                    polls_since_check += 1
+                    if polls_since_check >= polls_between_checks:
+                        polls_since_check = 0
+                        if not await still_allowed(db):
+                            yield "event: end\ndata: {\"reason\":\"session_ended\"}\n\n"
+                            return
+                    rows = list(
+                        (
+                            await db.scalars(
+                                select(JobEvent)
+                                .where(JobEvent.job_id == job_id, JobEvent.id > current)
+                                .order_by(JobEvent.id)
+                                .limit(100)
+                            )
+                        ).all()
+                    )
+                    job_status = await db.scalar(select(Job.status).where(Job.id == job_id))
+                if rows:
                     idle_polls = 0
-                    yield ": keep-alive\n\n"
-            if job_status in TERMINAL_JOB_STATUSES and not rows:
-                break
-            await asyncio.sleep(0.5)
+                    for event in rows:
+                        current = event.id
+                        yield _sse_event(event)
+                else:
+                    idle_polls += 1
+                    if idle_polls >= 20:
+                        idle_polls = 0
+                        yield ": keep-alive\n\n"
+                # A vanished job (status None) is over too: it was erased.
+                if (job_status is None or job_status in TERMINAL_JOB_STATUSES) and not rows:
+                    yield "event: end\ndata: {\"reason\":\"finished\"}\n\n"
+                    return
+                await asyncio.sleep(0.5)
+        finally:
+            job_stream_gate.release(str(user_id))
 
     return StreamingResponse(
         events(),

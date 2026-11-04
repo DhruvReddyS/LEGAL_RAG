@@ -17,6 +17,15 @@ from app.models.enums import (
 from app.models.investigation import InvestigationFacts
 from app.models.job import Job, JobEvent
 from app.models import police as _police_models  # noqa: F401  (registers the tables)
+from app.models.platform import (
+    ChatSessionMeta,
+    ConsentRecord,
+    ErasureReceipt,
+    PasswordResetCode,
+    RecoveryCode,
+    UserSecurity,
+    UserSession,
+)
 from app.models.storage import StorageNamespace, StorageObject
 from app.models.token import RevokedRefreshToken
 from app.models.user import Permission, Role, RolePermission, User
@@ -33,6 +42,13 @@ __all__ = [
     "ChatMessage",
     "ChatMessageRole",
     "ChatSession",
+    "ChatSessionMeta",
+    "ConsentRecord",
+    "ErasureReceipt",
+    "PasswordResetCode",
+    "RecoveryCode",
+    "UserSecurity",
+    "UserSession",
     "CorpusSource",
     "InvestigationFacts",
     "OffenceGravity",
