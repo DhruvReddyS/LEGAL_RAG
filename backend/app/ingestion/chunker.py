@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+from bisect import bisect_right
 import re
 
 from pydantic import BaseModel, Field
@@ -115,21 +116,47 @@ class LegalChunk(BaseModel):
 
 def _token_windows(text: str, *, maximum_tokens: int, overlap_tokens: int) -> list[str]:
     """Token-boundary fallback for a structural unit that is too large."""
+    return [
+        text[start:end].strip()
+        for start, end in _token_window_spans(
+            text, maximum_tokens=maximum_tokens, overlap_tokens=overlap_tokens
+        )
+    ]
+
+
+def _token_window_spans(
+    text: str, *, maximum_tokens: int, overlap_tokens: int
+) -> list[tuple[int, int]]:
     matches = list(re.finditer(r"\S+", text))
     if len(matches) <= maximum_tokens:
-        return [text.strip()]
-    windows: list[str] = []
+        return [(0, len(text))]
+    windows: list[tuple[int, int]] = []
     start = 0
     stride = maximum_tokens - overlap_tokens
     while start < len(matches):
         end = min(start + maximum_tokens, len(matches))
         char_start = matches[start].start()
         char_end = matches[end - 1].end()
-        windows.append(text[char_start:char_end].strip())
+        windows.append((char_start, char_end))
         if end == len(matches):
             break
         start += stride
     return windows
+
+
+def _pages_of_span(unit: StructuralUnit, start: int, end: int) -> tuple[int, int]:
+    """The pages one window covers.
+
+    Every window used to inherit its whole unit's range, so 8,830 chunks claimed
+    to span more than five pages, and a citizen was sent to "pages 4-35" for one
+    paragraph.
+    """
+    if not unit.page_marks:
+        return unit.page_start, unit.page_end
+    offsets = [offset for offset, _ in unit.page_marks]
+    first = unit.page_marks[max(0, bisect_right(offsets, start) - 1)][1]
+    last = unit.page_marks[max(0, bisect_right(offsets, max(start, end - 1)) - 1)][1]
+    return first, last
 
 
 def chunk_structural_units(
@@ -153,17 +180,19 @@ def chunk_structural_units(
     for unit_index, unit in enumerate(units):
         if not unit.text.strip():
             continue
-        pieces = _token_windows(
+        spans = _token_window_spans(
             unit.text,
             maximum_tokens=maximum_tokens,
             overlap_tokens=overlap_tokens,
         )
+        pieces = [unit.text[start:end].strip() for start, end in spans]
         for piece_index, piece in enumerate(pieces):
+            page_start, page_end = _pages_of_span(unit, *spans[piece_index])
             if not re.search(r"[^\W_]", piece, re.UNICODE):
                 continue
             stable_input = (
                 f"{document.canonical_document_id}|{unit_index}|{piece_index}|"
-                f"{unit.page_start}|{unit.page_end}|{piece}"
+                f"{page_start}|{page_end}|{piece}"
             )
             chunk_id = "gold-chunk-" + hashlib.sha256(stable_input.encode()).hexdigest()[:32]
             unit_id = "gold-unit-" + hashlib.sha256(
@@ -191,8 +220,8 @@ def chunk_structural_units(
                     heading_path=unit.heading_path,
                     decision_date=document.decision_date,
                     decision_year=document.decision_year,
-                    page_start=unit.page_start,
-                    page_end=unit.page_end,
+                    page_start=page_start,
+                    page_end=page_end,
                     current_status=document.current_status,
                     unit_id=unit_id,
                     unit_ordinal=piece_index,
