@@ -27,10 +27,11 @@ jobs:
     name: Correctness (does the code do what it was told)
     runs-on: ubuntu-24.04
     env:
-      POSTGRES_DB: legal_rag
+      POSTGRES_DB: legal_rag_test
       POSTGRES_USER: legal_rag
       POSTGRES_PASSWORD: ci-postgres-password
-      DATABASE_URL: postgresql+asyncpg://legal_rag:ci-postgres-password@localhost:5432/legal_rag
+      DATABASE_URL: postgresql+asyncpg://legal_rag:ci-postgres-password@localhost:5432/legal_rag_test
+      TEST_DATABASE_URL: postgresql+asyncpg://legal_rag:ci-postgres-password@localhost:5432/legal_rag_test
       QDRANT_URL: http://localhost:6333
       S3_ENDPOINT_URL: http://localhost:9000
       S3_PUBLIC_ENDPOINT_URL: http://localhost:9000
@@ -108,10 +109,11 @@ jobs:
     name: Security (cross-tenant red team)
     runs-on: ubuntu-24.04
     env:
-      POSTGRES_DB: legal_rag
+      POSTGRES_DB: legal_rag_test
       POSTGRES_USER: legal_rag
       POSTGRES_PASSWORD: ci-postgres-password
-      DATABASE_URL: postgresql+asyncpg://legal_rag:ci-postgres-password@localhost:5432/legal_rag
+      DATABASE_URL: postgresql+asyncpg://legal_rag:ci-postgres-password@localhost:5432/legal_rag_test
+      TEST_DATABASE_URL: postgresql+asyncpg://legal_rag:ci-postgres-password@localhost:5432/legal_rag_test
       QDRANT_URL: http://localhost:6333
       S3_ENDPOINT_URL: http://localhost:9000
       S3_PUBLIC_ENDPOINT_URL: http://localhost:9000
@@ -187,90 +189,9 @@ jobs:
           logs --tail 100
 
 
-  quality:
-    name: Quality (does retrieval find the right law)
-    # Needs an indexed corpus, which a fresh CI runner does not have: the
-    # containers start empty. Run it where a corpus exists -- a self-hosted
-    # runner, or manually against a restored snapshot. Wiring it to every push
-    # against an empty index would fail for a reason that has nothing to do
-    # with the change under review, and a gate that cries wolf gets disabled.
-    if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-24.04
-    env:
-      DATABASE_URL: postgresql+asyncpg://legal_rag:ci-postgres-password@localhost:5432/legal_rag
-      QDRANT_URL: http://localhost:6333
-      LEGAL_KB_ROOT: data/legal_kb
-      HF_HOME: ${{ github.workspace }}/.hf-cache
-    steps:
-      - name: Check out source
-        uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: pip
-          cache-dependency-path: backend/requirements-dev.txt
-
-      - name: Install backend dependencies
-        run: python -m pip install --disable-pip-version-check -r requirements-dev.txt
-        working-directory: backend
-
-      - name: Cache the embedding model
-        uses: actions/cache@v4
-        with:
-          path: ${{ github.workspace }}/.hf-cache
-          key: hf-bge-m3-${{ runner.os }}
-
-      - name: Measure retrieval quality against the golden set
-        run: >-
-          python scripts/evaluate_retrieval.py
-          --configs dense sparse hybrid reranked
-          --out eval-result.json
-
-      - name: Fail on a quality regression
-        # The gate that makes the verification architecture a defended
-        # property rather than a claim: a change that improves latency and
-        # quietly costs recall or citation accuracy stops being mergeable.
-        run: python scripts/check_quality_gate.py --result eval-result.json
-
-      - name: Upload evaluation result
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: retrieval-quality
-          path: eval-result.json
-          if-no-files-found: ignore
-
-      # Retrieval finding the right law is necessary and not sufficient. A
-      # change can leave retrieval untouched and still take ground coverage
-      # from 0.67 to 0.50 by altering a prompt -- which happened here, with
-      # the retrieval gate green throughout.
-      # Asks whether the provision that governs a question is reachable at
-      # all. Recall cannot: its predicates match any passage containing a
-      # phrase, so a judgment quoting BNSS s.173 satisfies the FIR item while
-      # the section itself is absent from the top 100. Cheap -- embeddings
-      # only, no model -- so it runs before the answer evaluation.
-      - name: Check the governing provision is reachable
-        run: python scripts/check_provision_reach.py
-
-      - name: Measure answer quality against the golden set
-        run: python scripts/evaluate_answers.py --label ci
-
-      - name: Fail on an answer-quality regression
-        run: >-
-          python scripts/check_answer_gate.py
-          --result docs/evidence/answers-ci.json
-
-      - name: Upload answer-quality result
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: answer-quality
-          path: docs/evidence/answers-ci.json
-          if-no-files-found: ignore
+  # Retrieval and answer quality need an indexed corpus and a local model, which
+  # a hosted runner does not have. They run locally, on the machine that holds
+  # the corpus, through scripts/run_corpus_gates.sh.
 
   frontend:
     name: Frontend lint, test and build

@@ -31,6 +31,7 @@ WARNED = (("Tenancy Act", "commencement"),)
 def _document(**overrides):
     row = {
         "document_id": "doc-1",
+        "canonical_document_id": "doc-1",
         "title": "The Tenancy Act, 2017",
         "source_url": "https://indiacode.gov.in/x",
         "currency_note": "Section 1(3) requires a Gazette commencement notification, not located.",
@@ -43,6 +44,7 @@ def _document(**overrides):
 def _payload(**overrides):
     payload = {
         "document_id": "doc-1",
+        "canonical_document_id": "doc-1",
         "title": "The Tenancy Act, 2017",
         "source_url": "https://indiacode.gov.in/x",
         "currency_note": "Section 1(3) requires a Gazette commencement notification, not located.",
@@ -122,7 +124,7 @@ def test_a_flagged_instrument_missing_from_the_manifest_fails() -> None:
 
 def test_an_unfinished_build_is_tolerated_until_the_cutover_check() -> None:
     """The gate is useful during a build and decisive before a cutover."""
-    documents = {**_document(), "doc-2": {"document_id": "doc-2", "title": "Another Act"}}
+    documents = {**_document(), "doc-2": {"document_id": "doc-2", "canonical_document_id": "doc-2", "title": "Another Act"}}
     mid_build, _ = GATE.check(documents, _payload(), WARNED, require_complete=False)
     assert mid_build == []
     before_cutover, _ = GATE.check(documents, _payload(), WARNED, require_complete=True)

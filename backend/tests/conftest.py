@@ -38,6 +38,28 @@ os.environ["CORS_ORIGINS"] = (
     "http://tauri.localhost,tauri://localhost"
 )
 
+# The suite commits what it writes, claims the oldest queued job of any user
+# and leaves accounts behind, so it must never share a database with anything
+# that matters. It runs against its own throwaway stack, started by
+# scripts/run_backend_tests.sh. These defaults point at that stack rather than
+# at the .env values, because env vars beat .env and a developer's .env names
+# the live services. A database that is not named *_test is refused outright.
+_TEST_DATABASE_URL = os.environ.get(
+    "TEST_DATABASE_URL",
+    "postgresql+asyncpg://legal_rag:legal_rag_dev_only@127.0.0.1:55433/legal_rag_test",
+)
+if not urlsplit(_TEST_DATABASE_URL).path.rstrip("/").endswith("_test"):
+    raise pytest.UsageError(
+        "Refusing to run: TEST_DATABASE_URL must name a database ending in _test."
+    )
+os.environ["DATABASE_URL"] = _TEST_DATABASE_URL
+os.environ["JOB_WORKER_ENABLED"] = "false"
+os.environ.setdefault("QDRANT_URL", "http://127.0.0.1:56333")
+os.environ.setdefault("S3_ENDPOINT_URL", "http://127.0.0.1:59000")
+os.environ.setdefault("S3_PUBLIC_ENDPOINT_URL", "http://127.0.0.1:59000")
+os.environ.setdefault("S3_ACCESS_KEY_ID", "test-access-key")
+os.environ.setdefault("S3_SECRET_ACCESS_KEY", "test-secret-key")
+
 # Modules whose tests reach PostgreSQL. Everything ending in `_integration`
 # qualifies by name; these additionally do, without following that convention.
 _DATABASE_BACKED_MODULES = frozenset(
@@ -50,6 +72,9 @@ _DATABASE_BACKED_MODULES = frozenset(
         # failed with a connection error instead of skipping when Postgres is
         # down.
         "test_admin_case_scope",
+        # Both provision users, so they failed instead of skipping as well.
+        "test_chat_message_order_is_stable",
+        "test_queue_position_is_visible",
     }
 )
 
@@ -67,7 +92,9 @@ _OBJECT_STORAGE_MODULES = frozenset(
 # Modules that drive DurableJobWorker directly. claim_next_job is unscoped by
 # design -- any worker takes the oldest queued job of a supported type -- so
 # these tests are only meaningful when no other worker polls the same database.
-_JOB_WORKER_MODULES = frozenset({"test_jobs_integration"})
+_JOB_WORKER_MODULES = frozenset(
+    {"test_jobs_integration", "test_queue_position_is_visible"}
+)
 
 # Where a developer's own backend usually listens. If something is serving
 # there it is almost certainly the API, whose durable worker polls this same
@@ -209,6 +236,7 @@ def _require_sole_job_worker(request: pytest.FixtureRequest) -> None:
     if request.node.get_closest_marker("sole_job_worker") is None:
         return
     if not _tcp_reachable("127.0.0.1", _LOCAL_BACKEND_PORT):
+        request.getfixturevalue("_swept_stale_jobs")
         return
     message = (
         f"a service is listening on 127.0.0.1:{_LOCAL_BACKEND_PORT}; its durable "
@@ -221,50 +249,37 @@ def _require_sole_job_worker(request: pytest.FixtureRequest) -> None:
     pytest.skip(message)
 
 
-@pytest.fixture(scope="session", autouse=True)
-def _clear_stale_queued_jobs():
-    """Remove jobs left behind by an earlier interrupted run.
+@pytest.fixture(scope="session")
+def _swept_stale_jobs():
+    """Remove jobs an earlier interrupted run left behind.
 
-    The durable worker claims any QUEUED job, by design - that is what makes it
-    safe to run several. In tests it means one orphan from a run that failed
-    part-way is picked up instead of the job the test just created, and the
-    jobs suite then fails for a reason that has nothing to do with the change
-    under test. CI gets a fresh database and never sees this; a developer
-    re-running locally sees it every time.
+    The durable worker claims any QUEUED job, by design. In tests that means
+    one orphan is picked up instead of the job the test just created, and the
+    jobs suite fails for a reason unrelated to the change under test.
 
-    Only jobs older than an hour are removed, so nothing a running test - or a
-    developer's live app sharing this database - is working on gets deleted.
-
-    Note that the jobs suite still cannot run alongside a live backend whose
-    durable worker is enabled: both workers claim from the same queue with
-    SKIP_LOCKED, which is correct behaviour and exactly what makes them
-    interchangeable in production. Stop the app, or point the tests at their
-    own database, before running that suite.
+    Requested only by the worker tests: as a session-wide autouse fixture this
+    needed a working database for every test, so one unreachable login turned
+    the pure unit tests into 358 setup errors. It uses its own engine because
+    asyncio.run() owns a private loop, and pooled asyncpg connections bind to
+    the loop that opened them.
     """
-    host, port = _database_endpoint()
-    if not _tcp_reachable(host, port):
-        yield
-        return
-
     import asyncio
     from datetime import datetime, timedelta, timezone
 
+    from sqlalchemy import delete
+    from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+    from sqlalchemy.pool import NullPool
+
+    from app.core.config import settings
+    from app.models import Job
+    from app.models.enums import JobStatus
+
     async def sweep() -> None:
-        from sqlalchemy import delete
-
-        from app.core.database import AsyncSessionLocal
-        from app.models import Job
-        from app.models.enums import JobStatus
-
-        from app.core.database import engine
-
+        engine = create_async_engine(settings.database_url, poolclass=NullPool)
         # Only jobs old enough that no run could still be working on them.
-        # "Predates this session" was wrong: a developer with the app open
-        # against the same database had a live Deep job deleted mid-flight, and
-        # the browser then polled a job id that no longer existed.
         cutoff = datetime.now(timezone.utc) - timedelta(hours=1)
         try:
-            async with AsyncSessionLocal() as session:
+            async with AsyncSession(engine) as session:
                 await session.execute(
                     delete(Job).where(
                         Job.status.in_((JobStatus.QUEUED, JobStatus.RUNNING)),
@@ -273,11 +288,6 @@ def _clear_stale_queued_jobs():
                 )
                 await session.commit()
         finally:
-            # asyncio.run() below owns a private event loop. Pooled asyncpg
-            # connections bind to the loop that opened them, so leaving any
-            # behind hands the session-scoped test loop a connection attached
-            # to a loop that no longer exists.
             await engine.dispose()
 
     asyncio.run(sweep())
-    yield

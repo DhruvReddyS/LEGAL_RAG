@@ -37,7 +37,7 @@ set**, backed by automatic abstention and visible uncertainty outside it.
 
 | | |
 |---|---|
-| Backend tests | **902** across 117 files |
+| Backend tests | **1,351** collected from 942 functions (all passing, 4 November 2026) |
 | Frontend tests | 6 suites |
 | API endpoints | 58 across 16 routers |
 | Corpus manifest | 1,566 rows / **1,563 unique documents** / 55,382 pages |

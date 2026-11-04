@@ -66,4 +66,23 @@ docker compose --env-file .env -f docker/docker-compose.yml logs backend | tail 
 `/ingestion` reports corpus build progress from the ingestion checkpoint. A
 fresh clone has no checkpoint, so the page correctly reads **Not started** at
 0% until an ingestion run has been started. Running one is a separate
-operation, covered in [`OPERATIONS.md`](OPERATIONS.md).
+operation, covered in [`04-OPERATIONS.md`](04-OPERATIONS.md).
+
+## Running the tests
+
+```bash
+scripts/run_backend_tests.sh
+```
+
+This starts a throwaway stack with its own volumes and ports, so it cannot reach
+your live database, corpus or object store. Remove it afterwards with
+`scripts/run_backend_tests.sh --down`.
+
+Plain `pytest` from `backend/` needs nothing running: tests that need services
+skip. The suite refuses any database whose name does not end in `_test`.
+
+## If port 5432 is already taken
+
+If another Postgres runs on this machine, set `POSTGRES_PORT` to a free port in
+`.env` and add a matching `DATABASE_URL`, so native backend runs and scripts do
+not connect to the other server.

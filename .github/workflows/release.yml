@@ -33,10 +33,11 @@ jobs:
     permissions:
       contents: read
     env:
-      POSTGRES_DB: legal_rag
+      POSTGRES_DB: legal_rag_test
       POSTGRES_USER: legal_rag
       POSTGRES_PASSWORD: ci-postgres-password
-      DATABASE_URL: postgresql+asyncpg://legal_rag:ci-postgres-password@localhost:5432/legal_rag
+      DATABASE_URL: postgresql+asyncpg://legal_rag:ci-postgres-password@localhost:5432/legal_rag_test
+      TEST_DATABASE_URL: postgresql+asyncpg://legal_rag:ci-postgres-password@localhost:5432/legal_rag_test
       QDRANT_URL: http://localhost:6333
       S3_ENDPOINT_URL: http://localhost:9000
       S3_PUBLIC_ENDPOINT_URL: http://localhost:9000
