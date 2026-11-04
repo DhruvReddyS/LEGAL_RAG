@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import shutil
 import sys
 import uuid
@@ -103,9 +104,10 @@ def main() -> int:
                 "staged_at": datetime.now(timezone.utc).isoformat(),
                 "title": source["title"],
                 "verified_official": True,
-                "year": int(source["title"].rsplit(" ", 1)[-1]),
+                "year": int(re.findall(r"\d{4}", source["title"])[-1]),
             }
         )
+        held.add(checksum)
         added += 1
 
     MANIFEST.write_text("".join(json.dumps(row, sort_keys=True) + "\n" for row in rows), encoding="utf-8")

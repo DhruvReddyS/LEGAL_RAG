@@ -65,6 +65,9 @@ def search(session: requests.Session, phrase: str, scope: str,
             for o in found.get("_embedded", {}).get("objects", [])]
 
 
+_HINDI_FILE = re.compile(r"h\d{4}", re.I)
+
+
 def pdf_for(session: requests.Session, uuid: str) -> tuple[str, str] | None:
     """The ORIGINAL bundle's first PDF, as (filename, download url)."""
     bundles = session.get(f"{BASE}/core/items/{uuid}/bundles", timeout=(10, 60))
@@ -76,11 +79,17 @@ def pdf_for(session: requests.Session, uuid: str) -> tuple[str, str] | None:
     listing = session.get(f"{BASE}/core/bundles/{original['uuid']}/bitstreams",
                           timeout=(10, 60), params={"page": 0, "size": 50})
     listing.raise_for_status()
-    for bitstream in listing.json().get("_embedded", {}).get("bitstreams", []):
-        name = bitstream.get("name") or ""
-        if name.lower().endswith(".pdf"):
-            return name, f"{BASE}/core/bitstreams/{bitstream['uuid']}/content"
-    return None
+    pdfs = [
+        bitstream for bitstream in listing.json().get("_embedded", {}).get("bitstreams", [])
+        if (bitstream.get("name") or "").lower().endswith(".pdf")
+    ]
+    if not pdfs:
+        return None
+    # India Code files each language under one record: A2013-30.pdf is English and
+    # H2013-30.pdf is Hindi. Taking the first PDF got Hindi often enough that 31 Acts
+    # were quarantined as "Devanagari-only" with their English text one file away.
+    chosen = min(pdfs, key=lambda item: _HINDI_FILE.match(item["name"]) is not None)
+    return chosen["name"], f"{BASE}/core/bitstreams/{chosen['uuid']}/content"
 
 
 NOISE = {"the", "act", "of", "and", "or", "a", "an", "to", "for"}
