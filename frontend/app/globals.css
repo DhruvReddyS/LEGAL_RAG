@@ -375,3 +375,6 @@
 .helpline-notice {margin:0 0 14px;padding:12px 14px;border:1px solid var(--state-warn-line);border-radius:10px;background:var(--state-warn-bg);color:var(--ink);font-size:13px;line-height:1.55;}
 .helpline-notice ul {display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px;list-style:none;padding:0;}
 .helpline-notice a {display:inline-flex;align-items:center;gap:5px;color:var(--state-warn-text);min-height:32px;}
+.source-currency {margin-top:20px;padding:12px 14px;border:1px solid var(--state-warn-line);border-radius:10px;background:var(--state-warn-bg);font-size:13px;line-height:1.6;}
+.source-currency h3 {margin:0 0 6px;font-size:13px;font-weight:600;color:var(--state-warn-text);}
+.source-currency p+p,.source-currency ul {margin-top:6px;}

@@ -101,7 +101,7 @@ class SourceInspectorResponse(BaseModel):
     retrieved_passage: str
     retrieval_score: float | None
     verification_status: Literal["verified", "partial", "unverified"]
-    current_status: Literal["current", "superseded", "status_unverified", "not_applicable"]
+    current_status: Literal["current", "superseded", "repealed", "status_unverified", "not_applicable"]
     case_id: uuid.UUID | None = None
     document_id: uuid.UUID | None = None
     storage_object_id: uuid.UUID | None = None

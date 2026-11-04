@@ -598,7 +598,7 @@ type ViewKey = "casefile" | "agent" | "deadlines" | "compliance" | "citations" |
                         <p className="mt-2 line-clamp-4 text-xs leading-5 text-[var(--ink-soft)]">{String(hit.payload.text ?? "")}</p>
                       </article>
                     ))}
-                    {!searchResults.length && <p className="state-hint">No results yet. Searching this case also reads the files in it; searching all your cases reads the law and nothing private.</p>}
+                    {!searchResults.length && <p className="state-hint">No results yet. Searching this case also reads the files in it; searching all your cases reads the law and the files in every case you own, and nobody else&apos;s.</p>}
                   </div>
                 </div>
               )}

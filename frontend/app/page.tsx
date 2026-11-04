@@ -14,7 +14,7 @@ import { useDialogFocus } from "@/components/useDialogFocus";
 import AdminWorkspace from "@/components/AdminWorkspace";
 import DesktopReadiness from "@/components/DesktopReadiness";
 import { HelplineNotice } from "@/components/HelplineNotice";
-import { ApiError, cancelDeepReviewJob, chatWithCorpus, checkForHelplines, getChatSession, getDeepReviewJob, getIngestionProgress, getMe, listChatSessions, logout, refreshSession, listCases } from "@/lib/api";
+import { ApiError, cancelDeepReviewJob, chatWithCorpus, checkForHelplines, deleteChatSession, getChatSession, renameChatSession, getDeepReviewJob, getIngestionProgress, getMe, listChatSessions, logout, refreshSession, listCases } from "@/lib/api";
 import type { ChatMessage, CitizenDocument, IngestionProgress, RequestedResponseMode, User, LegalCase } from "@/lib/types";
 
 const ROLE_EXPERIENCES = {
@@ -131,7 +131,6 @@ export default function HomePage() {
   const [chatMenuId, setChatMenuId] = useState<string | null>(null);
   const [renamingChatId, setRenamingChatId] = useState<string | null>(null);
   const [renameDraft, setRenameDraft] = useState("");
-  const [deletedChat, setDeletedChat] = useState<SavedChat | null>(null);
   const [historyNotice, setHistoryNotice] = useState("");
   const closeSettings = () => setSettingsOpen(false);
   const closeGuide = () => setGuideOpen(false);
@@ -393,19 +392,11 @@ export default function HomePage() {
           content: message.content,
           citations: message.citations,
           confidenceScore: message.confidence_score ?? undefined,
-          // evidence_strength is not a stored column, so a restored answer
-          // showed "Limited evidence" whatever it had originally been graded.
-          // Derived from the stored score using the same thresholds
-          // response_generation applies when it publishes.
-          evidenceStrength:
-            message.confidence_score == null
-              ? undefined
-              : message.confidence_score > 0.85
-                ? "strong"
-                : message.confidence_score >= 0.5
-                  ? "moderate"
-                  : "insufficient",
-          responseMode: message.citations.length ? "deep" : undefined,
+          // Neither the lane nor the grade is stored. Deriving them called an
+          // unverified Fast brief "Moderate confidence" after a reload, so only
+          // what the score can honestly say is restored: a zero is an abstention.
+          evidenceStrength: message.confidence_score === 0 ? "insufficient" : undefined,
+          responseMode: undefined,
           timestamp: Date.parse(message.created_at),
         }));
         setMessages(restored);
@@ -427,16 +418,24 @@ export default function HomePage() {
   };
   const saveChatTitle = (item: SavedChat) => {
     const title = renameDraft.trim().slice(0, 90);
-    if (title) setHistory(current => current.map(chat => chat.id === item.id ? { ...chat, title, customTitle: true } : chat));
+    if (title) {
+      setHistory(current => current.map(chat => chat.id === item.id ? { ...chat, title, customTitle: true } : chat));
+      if (item.sessionId) void renameChatSession(item.sessionId, title).catch(() => setHistoryNotice("The new name could not be saved."));
+    }
     setRenamingChatId(null);
     setChatMenuId(null);
   };
-  const deleteChat = (item: SavedChat) => {
-    setDeletedChat(item);
-    setHistory(current => current.filter(chat => chat.id !== item.id));
+  const deleteChat = async (item: SavedChat) => {
     setChatMenuId(null);
-    setHistoryNotice("Chat deleted.");
-    if (activeChatId === item.id) resetResearch();
+    if (!window.confirm("Delete this conversation permanently? This cannot be undone.")) return;
+    try {
+      if (item.sessionId) await deleteChatSession(item.sessionId);
+      setHistory(current => current.filter(chat => chat.id !== item.id));
+      setHistoryNotice("Chat deleted.");
+      if (activeChatId === item.id) resetResearch();
+    } catch {
+      setHistoryNotice("The chat could not be deleted. Please try again.");
+    }
   };
   // The nonce matters: clicking the same sidebar link twice must reopen
   // that view, and a bare value would not change on the second click.
@@ -490,7 +489,7 @@ export default function HomePage() {
       <div className="sidebar-bottom"><button onClick={() => { setMobileNav(false); role === "citizen" ? setCitizenGuideSlide(0) : setGuideOpen(true); }}><HelpCircle size={17} />Getting started</button><button onClick={() => { setMobileNav(false); setSettingsOpen(true); }}><Settings size={17} />Settings<span className="ml-auto text-[11px] capitalize text-neutral-400">{role}</span></button></div>
     </aside>
     {mobileNav && <button aria-label="Dismiss navigation" className="sidebar-scrim" onClick={() => setMobileNav(false)} />}
-    {historyNotice && <div className="history-toast" role="status"><span>{historyNotice}</span>{deletedChat && historyNotice === "Chat deleted." && <button onClick={() => { setHistory(current => [deletedChat, ...current.filter(item => item.id !== deletedChat.id)].slice(0, 20)); setDeletedChat(null); setHistoryNotice("Chat restored."); }}><Undo2 size={13}/>Undo</button>}<button aria-label="Dismiss notification" onClick={() => { setHistoryNotice(""); setDeletedChat(null); }}><X size={13}/></button></div>}
+    {historyNotice && <div className="history-toast" role="status"><span>{historyNotice}</span><button aria-label="Dismiss notification" onClick={() => setHistoryNotice("")}><X size={13}/></button></div>}
     <div className="app-content" ref={node => { if(node) node.inert = compactNavigation && mobileNav; }}>
       <header className="workspace-header"><button className="icon-button lg:hidden" aria-label="Open navigation" onClick={() => setMobileNav(true)}><Menu size={20} /></button><span>{view === "workspace" ? role === "police" ? "Investigation workspace" : role === "advocate" ? "Your case workspace" : "Administration" : " "}</span>{view === "workspace" && <button className="text-sm text-neutral-500" onClick={() => setView("research")}><MessageSquare size={16} className="mr-2 inline" />Back to chat</button>}</header>
       {view === "workspace" && hasOperationsWorkspace ? role === "admin" ? <AdminWorkspace /> : <ProfessionalWorkspace
@@ -526,7 +525,7 @@ export default function HomePage() {
         <label className="setting-block"><span className="setting-copy"><strong>Ambient motion</strong><small>Includes the scales and subtle background glow.</small></span><span className="premium-switch"><input type="checkbox" checked={animate} onChange={event => setAnimate(event.target.checked)} /><i/></span></label>
       </section>
       <section className="settings-section"><h3>History & privacy</h3>
-        <label className="setting-block"><span className="setting-copy"><strong>Remember chats in this tab</strong><small>Keep up to 20 conversations. Nothing is synced across devices.</small></span><span className="premium-switch"><input type="checkbox" checked={rememberHistory} onChange={event => setRememberHistory(event.target.checked)} /><i/></span></label>
+        <label className="setting-block"><span className="setting-copy"><strong>Show recent chats</strong><small>Your conversations are stored on the server for your account. Delete one from its menu to erase it.</small></span><span className="premium-switch"><input type="checkbox" checked={rememberHistory} onChange={event => setRememberHistory(event.target.checked)} /><i/></span></label>
         <details className="settings-privacy"><summary>Documents, voice & retention<span>View details</span></summary><UploadPrivacy/><p>Voice uses your browser’s recognition service. English is currently validated; transcripts remain editable and never send automatically.</p></details>
       </section>
       <section className="settings-section"><h3>Corpus connection</h3><div className="corpus-status"><span className={progress?.validation_status === "pass" ? "is-online" : ""}/><div><strong>{progress?.validation_status === "pass" ? "Verified corpus ready" : "Corpus status unavailable"}</strong><small>{progress ? `${progress.canonical_documents.toLocaleString()} sources · ${(progress.global_points ?? progress.qdrant_points).toLocaleString()} searchable passages` : "Reconnect to check source availability."}</small></div></div></section>

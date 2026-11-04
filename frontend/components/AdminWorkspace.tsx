@@ -38,10 +38,13 @@ export default function AdminWorkspace() {
 
   const createAccount = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault(); setBusy("account"); setNotice("");
-    const form = new FormData(event.currentTarget);
+    // React clears currentTarget once the handler awaits, so resetting through it
+    // threw after the account had been created and reported a failure.
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     try {
       await createAdminUser({ name: String(form.get("name")), email: String(form.get("email")), password: String(form.get("password")), role: String(form.get("role")) as "police" | "advocate" });
-      event.currentTarget.reset(); setNotice("Professional account created and audit logged."); await refresh();
+      formElement.reset(); setNotice("Professional account created and audit logged."); await refresh();
     } catch (error) { setNotice(error instanceof ApiError ? error.message : "Account creation failed"); }
     finally { setBusy(null); }
   };
@@ -55,11 +58,12 @@ export default function AdminWorkspace() {
 
   const stageDocument = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault(); setBusy("corpus"); setNotice("");
-    const form = new FormData(event.currentTarget); const file = form.get("file");
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement); const file = form.get("file");
     if (!(file instanceof File) || !file.size) { setNotice("Choose a PDF to stage."); setBusy(null); return; }
     try {
       await stageCorpusIntake({ file, title: String(form.get("title")), sourceType: String(form.get("sourceType")), jurisdiction: String(form.get("jurisdiction")), authority: String(form.get("authority") ?? ""), sourceUrl: String(form.get("sourceUrl")) });
-      event.currentTarget.reset(); setNotice("Document staged. Run validation before publishing."); await refresh();
+      formElement.reset(); setNotice("Document staged. Run validation before publishing."); await refresh();
     } catch (error) { setNotice(error instanceof ApiError ? error.message : "Corpus intake failed"); }
     finally { setBusy(null); }
   };

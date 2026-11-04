@@ -68,6 +68,18 @@ export class ApiError extends Error {
   }
 }
 
+// The server treats a second use of a rotated refresh token as theft and ends every
+// session. Several calls can hit 401 together after an idle spell, so they share one
+// refresh rather than each starting their own.
+let refreshInFlight: Promise<boolean> | null = null;
+function refreshOnce(baseUrl: string): Promise<boolean> {
+  refreshInFlight ??= fetch(`${baseUrl}/auth/cookie/refresh`, { method: "POST", credentials: "include" })
+    .then(response => response.ok)
+    .catch(() => false)
+    .finally(() => { refreshInFlight = null; });
+  return refreshInFlight;
+}
+
 async function request<T>(
   path: string,
   options: RequestInit = {},
@@ -87,11 +99,8 @@ async function request<T>(
   });
 
   if (response.status === 401 && retryAuth && !path.startsWith("/auth/")) {
-    const refreshed = await fetch(`${baseUrl}/auth/cookie/refresh`, {
-      method: "POST",
-      credentials: "include",
-    });
-    if (refreshed.ok) {
+    const refreshed = await refreshOnce(baseUrl);
+    if (refreshed) {
       response = await fetch(`${baseUrl}${path}`, {
         ...options,
         headers,
@@ -178,6 +187,14 @@ export async function searchCorpus(
       }),
     },
   );
+}
+
+export async function renameChatSession(sessionId: string, title: string): Promise<void> {
+  await request(`/chat/sessions/${encodeURIComponent(sessionId)}`, { method: "PATCH", body: JSON.stringify({ title }) });
+}
+
+export async function deleteChatSession(sessionId: string): Promise<void> {
+  await request(`/chat/sessions/${encodeURIComponent(sessionId)}`, { method: "DELETE" });
 }
 
 /** Never throws: the notice is an addition to the answer, and must not disturb it. */

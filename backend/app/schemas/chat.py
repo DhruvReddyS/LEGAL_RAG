@@ -127,6 +127,10 @@ class ChatSessionSummary(BaseModel):
     last_message_preview: str | None = None
 
 
+class ChatSessionRename(BaseModel):
+    title: str = Field(min_length=1, max_length=120)
+
+
 class ChatSessionListResponse(BaseModel):
     items: list[ChatSessionSummary]
     next_cursor: str | None = None

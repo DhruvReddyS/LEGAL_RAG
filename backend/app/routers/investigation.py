@@ -295,7 +295,26 @@ async def record_compliance(
         session.add(row)
 
     stored = dict(row.compliance_status or {})
-    stored[str(request.action)] = {k: str(v) for k, v in request.status.items()}
+    # Merged, not replaced. A conditional item is only listed while its flag is set,
+    # and flags are not stored, so replacing erased what was recorded under a flag
+    # that happened to be off in this request. Items the current flags do list are
+    # replaced, since leaving one out is how a mistaken tick is withdrawn.
+    listed = {
+        item.key
+        for item in compliance_checklist(
+            request.action,
+            arrested_person_is_woman=request.arrested_person_is_woman,
+            handcuffs_used=request.handcuffs_used,
+            memorandum_attested_by_family=request.memorandum_attested_by_family,
+            is_listed_sexual_offence=request.is_listed_sexual_offence,
+            electronic_device_seized=request.electronic_device_seized,
+        )
+    }
+    earlier = stored.get(str(request.action)) or {}
+    stored[str(request.action)] = {
+        **{key: value for key, value in earlier.items() if key not in listed},
+        **{key: str(value) for key, value in request.status.items()},
+    }
     row.compliance_status = stored
 
     session.add(

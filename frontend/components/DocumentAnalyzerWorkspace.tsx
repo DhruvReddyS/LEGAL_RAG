@@ -32,7 +32,9 @@ export default function DocumentAnalyzerWorkspace({ caseId, role, refreshToken }
   }, [caseId, refreshToken]);
 
   useEffect(() => {
-    if (!caseId || !selectedId) { setAnalysis(null); return; }
+    // Cleared first: a 404 for this document must not leave another case's findings up.
+    setAnalysis(null);
+    if (!caseId || !selectedId) return;
     let active = true;
     getLatestDocumentAnalysis(caseId, selectedId)
       .then((result) => { if (active) setAnalysis(result); })

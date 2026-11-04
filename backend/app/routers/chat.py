@@ -23,6 +23,8 @@ from app.core.rbac import require_permission
 from app.models import AuditLog, Case, ChatMessage, ChatSession, Job, User
 from app.models.enums import ChatMessageRole, JobStatus, JobType, UserRole
 from app.schemas.chat import (
+    ChatSessionRename,
+    ChatSessionSummary,
     HelplineContact,
     SafetyCheckRequest,
     SafetyCheckResponse,
@@ -588,6 +590,58 @@ async def list_chat_sessions(
         ],
         next_cursor=rows[-1][1].isoformat() if has_more and rows else None,
     )
+
+
+@router.patch("/sessions/{session_id}", response_model=ChatSessionSummary)
+async def rename_chat_session(
+    session_id: uuid.UUID,
+    request: ChatSessionRename,
+    user: User = Depends(require_permission(CHAT_USE)),
+    session: AsyncSession = Depends(get_db_session),
+) -> ChatSessionSummary:
+    chat_session = await _owned_session(session, session_id, user)
+    if chat_session.user_id != user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your conversation")
+    chat_session.title = request.title
+    await session.commit()
+    return ChatSessionSummary(
+        id=chat_session.id,
+        title=chat_session.title,
+        case_id=chat_session.case_id,
+        created_at=chat_session.created_at,
+        updated_at=max(
+            (message.created_at for message in chat_session.messages),
+            default=chat_session.created_at,
+        ),
+        message_count=len(chat_session.messages),
+    )
+
+
+@router.delete("/sessions/{session_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_chat_session(
+    session_id: uuid.UUID,
+    user: User = Depends(require_permission(CHAT_USE)),
+    session: AsyncSession = Depends(get_db_session),
+) -> None:
+    """Delete a conversation for good: its messages and feedback go with it.
+
+    Owner only, including against an administrator, who may read a named matter but
+    has no business erasing someone's record. The audit row keeps no message text.
+    """
+    chat_session = await _owned_session(session, session_id, user)
+    if chat_session.user_id != user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your conversation")
+    await session.delete(chat_session)
+    session.add(
+        AuditLog(
+            user_id=user.id,
+            action="chat.session_deleted",
+            resource_type="chat_session",
+            resource_id=session_id,
+            metadata_={},
+        )
+    )
+    await session.commit()
 
 
 @router.get("/sessions/{session_id}", response_model=ChatSessionResponse)

@@ -428,3 +428,31 @@ async def test_each_action_keeps_its_own_record_across_all_four() -> None:
     assert diary_status["day_by_day_entries"] == "not_recorded"
     assert report_status["names_of_parties"] == "satisfied"
     assert report_status["nature_of_information"] == "not_recorded"
+
+
+@pytest.mark.asyncio
+async def test_a_conditional_record_survives_a_save_with_its_flag_off() -> None:
+    """Flags are not stored, so a later save used to erase what was under one."""
+    headers, case_id = await _police_case()
+    url = f"/cases/{case_id}/investigation/compliance"
+    async with await _client() as client:
+        with_flag = await client.get(f"{url}?action=arrest&handcuffs_used=true", headers=headers)
+        without_flag = await client.get(f"{url}?action=arrest", headers=headers)
+        conditional = {item["key"] for item in with_flag.json()["items"]} - {
+            item["key"] for item in without_flag.json()["items"]
+        }
+        assert conditional, "needs an item that only the flag lists"
+        key = sorted(conditional)[0]
+
+        saved = await client.put(
+            url,
+            json={"action": "arrest", "status": {key: "satisfied"}, "handcuffs_used": True},
+            headers=headers,
+        )
+        assert saved.status_code == 200, saved.text
+        later = await client.put(url, json={"action": "arrest", "status": {}}, headers=headers)
+        assert later.status_code == 200, later.text
+
+        again = await client.get(f"{url}?action=arrest&handcuffs_used=true", headers=headers)
+    status = {item["key"]: item["status"] for item in again.json()["items"]}
+    assert status[key] == "satisfied"
