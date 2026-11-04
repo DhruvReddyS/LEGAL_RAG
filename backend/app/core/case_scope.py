@@ -8,6 +8,7 @@ from fastapi import Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.admin_access import record_admin_access
 from app.core.database import get_db_session
 from app.core.permissions import CORPUS_READ
 from app.core.rbac import require_permission
@@ -60,6 +61,16 @@ async def resolve_authorized_case_scope(
     if mode == "case_specific" and not cases:
         # Do not disclose whether another user's private case exists.
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Case not found")
+    if mode == "case_specific" and cases[0].owner_id != current_user.id:
+        # Only an administrator reaches this. The query text stays out of it.
+        await record_admin_access(
+            session,
+            current_user,
+            action="admin.case.search",
+            resource_type="case",
+            resource_id=cases[0].id,
+            owner_id=cases[0].owner_id,
+        )
 
     grouped = {CaseRoleType.POLICE: [], CaseRoleType.ADVOCATE: []}
     for case in cases:

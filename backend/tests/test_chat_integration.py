@@ -111,7 +111,7 @@ async def test_chat_persistence_and_session_ownership() -> None:
                 f"/chat/sessions/{session_id}",
                 headers={"Authorization": f"Bearer {tokens[1]}"},
             )
-            assert denied.status_code == 403
+            assert denied.status_code == 404
 
             async with AsyncSessionLocal() as session:
                 audit = await session.scalar(

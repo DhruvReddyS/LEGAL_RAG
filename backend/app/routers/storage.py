@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 
-from fastapi import APIRouter, Depends, File, Query, Request, Response, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, Response, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db_session
@@ -18,9 +18,14 @@ from app.schemas.storage import (
     CaseDocumentIndexRequest,
     CaseDocumentIndexResponse,
 )
-from app.services.case_documents import CaseDocumentIndexingService
+from app.services.case_documents import MAX_INDEXABLE_BYTES, CaseDocumentIndexingService
+from app.services.rate_limit import enforce_llm_sync_limit
 from app.services.retrieval import HybridRetrievalService
-from app.services.storage import DocumentStorageService
+from app.services.storage import (
+    DocumentStorageService,
+    attachment_disposition,
+    content_matches_declared_type,
+)
 
 
 router = APIRouter(prefix="/cases/{case_id}/storage", tags=["case-storage"])
@@ -37,13 +42,27 @@ async def upload_case_object(
     current_user: User = Depends(require_permission(CASE_DOCUMENT_MANAGE_OWN)),
     session: AsyncSession = Depends(get_db_session),
 ) -> StorageObjectResponse:
+    # Bounded and checked before anything lands in the bucket: this was the one
+    # upload path with no limit, and it holds the most sensitive files.
+    content = await file.read(MAX_INDEXABLE_BYTES + 1)
+    content_type = (file.content_type or "application/octet-stream").split(";")[0].strip().lower()
+    if not content or len(content) > MAX_INDEXABLE_BYTES:
+        raise HTTPException(
+            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+            detail="Case documents must be between 1 byte and 25 MiB",
+        )
+    if not content_matches_declared_type(content, content_type):
+        raise HTTPException(
+            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+            detail="Case documents must be a PDF, a PNG, JPEG or WebP image, or plain text",
+        )
     service = DocumentStorageService(session)
     stored = await service.upload_case_document(
         case_id=case_id,
         user=current_user,
         filename=file.filename or "document.bin",
-        content=await file.read(),
-        content_type=file.content_type or "application/octet-stream",
+        content=content,
+        content_type=content_type,
     )
     await session.commit()
     await session.refresh(stored)
@@ -64,18 +83,15 @@ async def index_case_object(
     retrieval: HybridRetrievalService = Depends(get_retrieval_service),
 ) -> CaseDocumentIndexResponse:
     if not settings.legacy_sync_long_running_enabled:
-        from fastapi import HTTPException
-
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Synchronous indexing is disabled; enqueue /jobs/ocr-ingestion",
         )
+    await enforce_llm_sync_limit(current_user.id)
     case = await session.get(Case, case_id)
     service = DocumentStorageService(session)
     stored = await service._authorized_object(object_id, current_user)
     if stored.case_id != case_id:
-        from fastapi import HTTPException
-
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Object not found")
     document, pages, chunks = await CaseDocumentIndexingService(
         session, retrieval
@@ -120,14 +136,12 @@ async def download_case_object(
     service = DocumentStorageService(session)
     stored = await service._authorized_object(object_id, current_user)
     if stored.case_id != case_id:
-        from fastapi import HTTPException
-
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Object not found")
     content = await service.download_case_document(object_id, current_user)
     return Response(
         content=content,
         media_type=stored.content_type,
-        headers={"Content-Disposition": f'attachment; filename="{stored.original_filename}"'},
+        headers={"Content-Disposition": attachment_disposition(stored.original_filename)},
     )
 
 
@@ -142,8 +156,6 @@ async def presign_case_object_download(
     service = DocumentStorageService(session)
     stored = await service._authorized_object(object_id, current_user)
     if stored.case_id != case_id:
-        from fastapi import HTTPException
-
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Object not found")
     url = await service.create_presigned_download_url(
         object_id,

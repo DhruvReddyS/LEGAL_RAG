@@ -92,19 +92,19 @@ async def test_storage_round_trip_presign_and_cross_case_denial() -> None:
                 f"/cases/{case_ids[0]}/storage/objects/{stored_id}",
                 headers=other_headers,
             )
-            assert cross_case_download.status_code == 403
+            assert cross_case_download.status_code == 404
 
             wrong_path_case = await client.get(
                 f"/cases/{case_ids[1]}/storage/objects/{stored_id}",
                 headers=other_headers,
             )
-            assert wrong_path_case.status_code == 403
+            assert wrong_path_case.status_code == 404
 
             cross_case_presign = await client.post(
                 f"/cases/{case_ids[0]}/storage/objects/{stored_id}/presign",
                 headers=other_headers,
             )
-            assert cross_case_presign.status_code == 403
+            assert cross_case_presign.status_code == 404
         finally:
             if stored_bucket and stored_key:
                 await asyncio.to_thread(

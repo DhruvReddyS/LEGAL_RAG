@@ -138,7 +138,7 @@ async def test_another_owner_cannot_check_against_this_matter() -> None:
             headers={"Authorization": f"Bearer {intruder['access_token']}"},
         )
 
-    assert response.status_code == 403
+    assert response.status_code == 404
 
 
 @pytest.mark.asyncio

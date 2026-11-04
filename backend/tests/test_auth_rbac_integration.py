@@ -155,7 +155,7 @@ async def test_authentication_and_case_ownership_rbac() -> None:
                 f"/_tests/cases/{created_case_ids[1]}/edit",
                 headers={"Authorization": f"Bearer {owner_tokens['access_token']}"},
             )
-            assert other_case_denied.status_code == 403
+            assert other_case_denied.status_code == 404
 
             role_mismatch_denied = await client.get(
                 f"/_tests/cases/{created_case_ids[2]}/edit",

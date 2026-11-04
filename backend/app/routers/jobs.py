@@ -15,6 +15,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.core.admin_access import record_admin_access
 from app.core.database import get_db_session
 from app.core.permissions import CASE_DOCUMENT_MANAGE_OWN, CHAT_USE
 from app.core.rbac import require_permission
@@ -179,10 +180,15 @@ async def _owned_chat_session(
         .options(selectinload(ChatSession.messages))
         .where(ChatSession.id == session_id)
     )
-    if chat_session is None:
+    if chat_session is None or (
+        chat_session.user_id != user.id and user.role is not UserRole.ADMIN
+    ):
         raise HTTPException(status_code=404, detail="Chat session not found")
-    if chat_session.user_id != user.id and user.role is not UserRole.ADMIN:
-        raise HTTPException(status_code=403, detail="You do not own this chat session")
+    if chat_session.user_id != user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="Administrators have read-only access to another user's conversation",
+        )
     return chat_session
 
 
@@ -192,21 +198,37 @@ async def _validate_case(
     user: User,
 ) -> Case:
     case = await session.get(Case, case_id)
-    if case is None:
+    if case is None or (case.owner_id != user.id and user.role is not UserRole.ADMIN):
         raise HTTPException(status_code=404, detail="Case not found")
-    if case.owner_id != user.id and user.role is not UserRole.ADMIN:
-        raise HTTPException(status_code=403, detail="You do not own this case")
+    if case.owner_id != user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="Administrators have read-only access to another user's matter",
+        )
     if user.role in {UserRole.POLICE, UserRole.ADVOCATE} and case.role_type.value != user.role.value:
         raise HTTPException(status_code=403, detail="Case role does not match the current user role")
     return case
 
 
-async def _owned_job(session: AsyncSession, job_id: uuid.UUID, user: User) -> Job:
+async def _owned_job(
+    session: AsyncSession,
+    job_id: uuid.UUID,
+    user: User,
+    *,
+    audit_read: bool = False,
+) -> Job:
     job = await session.get(Job, job_id)
-    if job is None:
+    if job is None or (job.user_id != user.id and user.role is not UserRole.ADMIN):
         raise HTTPException(status_code=404, detail="Job not found")
-    if job.user_id != user.id and user.role is not UserRole.ADMIN:
-        raise HTTPException(status_code=403, detail="You do not own this job")
+    if job.user_id != user.id and audit_read:
+        await record_admin_access(
+            session,
+            user,
+            action="admin.job.read",
+            resource_type="job",
+            resource_id=job.id,
+            owner_id=job.user_id,
+        )
     return job
 
 
@@ -394,7 +416,10 @@ async def list_jobs(
     user: User = Depends(require_permission(CHAT_USE)),
     session: AsyncSession = Depends(get_db_session),
 ) -> JobListResponse:
-    query = owned_jobs_query(user.id, include_all=user.role is UserRole.ADMIN)
+    # Strictly the caller's own, administrators included. Every user's results
+    # used to arrive here with no matter named and no row written; the admin
+    # console has a metadata-only view for operating the queue.
+    query = owned_jobs_query(user.id, include_all=False)
     if job_status is not None:
         query = query.where(Job.status == job_status)
     jobs = list((await session.scalars(query.order_by(Job.created_at.desc()).limit(limit))).all())
@@ -407,7 +432,7 @@ async def read_job(
     user: User = Depends(require_permission(CHAT_USE)),
     session: AsyncSession = Depends(get_db_session),
 ) -> JobResponse:
-    job = await _owned_job(session, job_id, user)
+    job = await _owned_job(session, job_id, user, audit_read=True)
     response = JobResponse.model_validate(job)
     # The browser polls this endpoint once a second for every running Deep
     # job. Stage and located-source progress used to require two independent
@@ -490,7 +515,7 @@ async def stream_job_events(
     user: User = Depends(require_permission(CHAT_USE)),
     session: AsyncSession = Depends(get_db_session),
 ) -> StreamingResponse:
-    await _owned_job(session, job_id, user)
+    await _owned_job(session, job_id, user, audit_read=True)
     cursor = after
     if last_event_id is not None:
         try:

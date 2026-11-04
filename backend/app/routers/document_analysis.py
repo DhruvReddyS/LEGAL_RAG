@@ -25,6 +25,7 @@ from app.schemas.document_analysis import (
 from app.services.citation_status import citation_labels_for
 from app.services.document_analysis import DISCLAIMER, DocumentAnalysisService
 from app.services.llm import OllamaClient
+from app.services.rate_limit import enforce_llm_sync_limit
 from app.services.retrieval import HybridRetrievalService
 
 
@@ -61,6 +62,7 @@ async def analyze_document(
             status_code=status.HTTP_409_CONFLICT,
             detail="Synchronous analysis is disabled; enqueue /jobs/document-analysis",
         )
+    await enforce_llm_sync_limit(current_user.id)
     case = await session.get(Case, case_id)
     if case is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Case not found")

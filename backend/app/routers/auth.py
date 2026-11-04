@@ -22,7 +22,7 @@ from app.schemas.auth import (
     UserResponse,
 )
 from app.services.auth import authenticate_user, create_user, get_user_by_email
-from app.services.rate_limit import RateLimitExceeded, user_rate_limiter
+from app.services.rate_limit import RateLimitExceeded, enforce_rate_limit, user_rate_limiter
 from app.services import token_revocation
 from app.core.config import settings
 
@@ -73,8 +73,10 @@ def build_token_pair(user: User) -> TokenPairResponse:
 )
 async def register(
     registration: RegisterRequest,
+    request: Request,
     session: AsyncSession = Depends(get_db_session),
 ) -> TokenPairResponse:
+    await _admit_registration(request)
     if registration.role is not UserRole.CITIZEN:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -107,6 +109,16 @@ async def register(
         ) from exc
 
     return build_token_pair(user)
+
+
+async def _admit_registration(request: Request) -> None:
+    """Before bcrypt, keyed on the source: there is no account to key on yet."""
+    await enforce_rate_limit(
+        request.client.host if request.client else "unknown",
+        "register_source",
+        limit=settings.register_requests_per_minute,
+        detail="Too many registration attempts. Try again shortly.",
+    )
 
 
 async def _admit_login_attempt(request: Request, email: str) -> None:
@@ -234,10 +246,11 @@ async def read_current_user(
 @router.post("/cookie/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def cookie_register(
     registration: RegisterRequest,
+    request: Request,
     response: Response,
     session: AsyncSession = Depends(get_db_session),
 ) -> UserResponse:
-    tokens = await register(registration, session)
+    tokens = await register(registration, request, session)
     _set_auth_cookies(response, tokens)
     return tokens.user
 

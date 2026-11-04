@@ -108,7 +108,7 @@ async def test_missing_dog_fir_draft_is_grounded_versioned_and_owner_isolated() 
                 json={"doc_type": "fir", "case_description": description},
                 headers=other_headers,
             )
-            assert denied.status_code == 403
+            assert denied.status_code == 404
             assert fake_llm.calls == 0
 
             versions = []
@@ -182,13 +182,13 @@ async def test_missing_dog_fir_draft_is_grounded_versioned_and_owner_isolated() 
             # Another officer's case file must not reach this one.
             assert (
                 await client.get(f"/cases/{case_id}/documents/generated", headers=other_headers)
-            ).status_code == 403
+            ).status_code == 404
             assert (
                 await client.get(
                     f"/cases/{case_id}/documents/generated/{entries[0]['id']}",
                     headers=other_headers,
                 )
-            ).status_code == 403
+            ).status_code == 404
         finally:
             app.dependency_overrides.pop(get_drafting_runtime, None)
             async with AsyncSessionLocal() as session:

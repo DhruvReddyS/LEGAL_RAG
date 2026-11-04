@@ -24,6 +24,7 @@ from app.schemas.admin import (
     CorpusIntakeResponse,
     CorpusPublishResponse,
 )
+from app.services.audit_redaction import redact_audit_metadata
 from app.services.admin import (
     MAX_CORPUS_UPLOAD_BYTES,
     admin_overview,
@@ -201,7 +202,7 @@ async def audit_events(
                 action=event.action,
                 resource_type=event.resource_type,
                 resource_id=event.resource_id,
-                metadata=event.metadata_,
+                metadata=redact_audit_metadata(event.metadata_),
                 timestamp=event.timestamp,
             )
             for event, actor_name in rows

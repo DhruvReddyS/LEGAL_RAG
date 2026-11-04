@@ -35,6 +35,7 @@ from app.services.retrieval import HybridRetrievalService
 from app.services.fast_research import FastLegalResearchService
 from app.services.job_worker import DurableJobWorker
 from app.core.config import settings
+from app.core.body_limit import BodySizeLimitMiddleware
 from app.core.http_security import DesktopOriginSecurityMiddleware
 from app.services.health import (
     assert_accelerated_inference,
@@ -85,6 +86,8 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Added first, so it sits inside CORS and a browser can read the 413.
+app.add_middleware(BodySizeLimitMiddleware)
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.trusted_host_list)
 app.add_middleware(
     CORSMiddleware,

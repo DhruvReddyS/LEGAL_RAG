@@ -5,6 +5,10 @@ from collections import defaultdict, deque
 from dataclasses import dataclass
 from time import monotonic
 
+from fastapi import HTTPException, status
+
+from app.core.config import settings
+
 
 @dataclass(frozen=True)
 class RateLimitExceeded(Exception):
@@ -67,3 +71,24 @@ class UserRateLimiter:
 
 
 user_rate_limiter = UserRateLimiter()
+
+
+async def enforce_rate_limit(identity: str, bucket: str, *, limit: int, detail: str) -> None:
+    """Admit a request or answer 429, for routes with nothing else to do on refusal."""
+    try:
+        await user_rate_limiter.admit(identity, bucket, limit=limit)
+    except RateLimitExceeded as exc:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=detail,
+            headers={"Retry-After": str(exc.retry_after_seconds)},
+        ) from exc
+
+
+async def enforce_llm_sync_limit(user_id: object) -> None:
+    await enforce_rate_limit(
+        str(user_id),
+        "llm_sync",
+        limit=settings.llm_sync_requests_per_minute,
+        detail="Too many analysis requests. Try again shortly.",
+    )

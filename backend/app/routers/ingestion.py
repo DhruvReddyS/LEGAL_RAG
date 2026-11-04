@@ -1,19 +1,28 @@
 from __future__ import annotations
 
+import asyncio
 import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from qdrant_client import models
 
 from app.core.config import settings
+from app.core.permissions import ADMIN_CORPUS_MANAGE
 from app.core.qdrant import create_qdrant_client
+from app.core.rbac import require_permission
 from app.ingestion.init_qdrant import GLOBAL_LEGAL_CORPUS
 from app.ingestion.pipeline import checkpoint_path_for, chunks_dir_for
 from app.ingestion.metadata import iter_canonical_documents, load_manifest
 
-router = APIRouter(prefix="/ingestion", tags=["ingestion"])
+router = APIRouter(
+    prefix="/ingestion",
+    tags=["ingestion"],
+    # Operator information, and /progress walks 1.3 GB of chunk files: neither
+    # is for anyone who can reach the port.
+    dependencies=[Depends(require_permission(ADMIN_CORPUS_MANAGE))],
+)
 
 
 def _current_checkpoint(kb_root: Path) -> tuple[Path, str]:
@@ -36,10 +45,13 @@ def _current_checkpoint(kb_root: Path) -> tuple[Path, str]:
     return checkpoint, collection
 
 
-@router.get("/progress")
-async def ingestion_progress() -> dict:
-    """Return corpus embedding progress from the ingestion checkpoint."""
-    kb_root = Path(settings.legal_kb_root)
+def _count_lines(path: Path) -> int:
+    with path.open(encoding="utf-8") as handle:
+        return sum(1 for line in handle if line.strip())
+
+
+def _progress_from_files(kb_root: Path) -> tuple[int, int, int, int, int]:
+    """The slow part of /progress. Runs on a worker thread, never the event loop."""
     manifest_path = kb_root / "metadata" / "canonical_documents.jsonl"
     checkpoint_path = checkpoint_path_for(kb_root)
 
@@ -58,10 +70,21 @@ async def ingestion_progress() -> dict:
         completed_documents = len(completed)
         total_chunks = sum(entry.get("chunk_count", 0) for entry in completed.values())
 
-    chunks_on_disk = sum(
-        sum(1 for line in path.open(encoding="utf-8") if line.strip())
-        for path in chunks_dir_for(kb_root).glob("*.jsonl")
-    )
+    chunks_on_disk = sum(_count_lines(path) for path in chunks_dir_for(kb_root).glob("*.jsonl"))
+    return total_documents, physical_documents, completed_documents, total_chunks, chunks_on_disk
+
+
+@router.get("/progress")
+async def ingestion_progress() -> dict:
+    """Return corpus embedding progress from the ingestion checkpoint."""
+    kb_root = Path(settings.legal_kb_root)
+    (
+        total_documents,
+        physical_documents,
+        completed_documents,
+        total_chunks,
+        chunks_on_disk,
+    ) = await asyncio.to_thread(_progress_from_files, kb_root)
 
     percent = round(completed_documents / total_documents * 100, 1) if total_documents else 0.0
     status = "complete" if completed_documents >= total_documents and total_documents > 0 else "in_progress"
@@ -86,7 +109,11 @@ async def ingestion_progress() -> dict:
     finally:
         await qdrant.close()
     report_path = kb_root / "logs" / "ingestion_report.md"
-    report_text = report_path.read_text(encoding="utf-8") if report_path.exists() else ""
+    report_text = (
+        await asyncio.to_thread(report_path.read_text, encoding="utf-8")
+        if report_path.exists()
+        else ""
+    )
     validation_status = (
         "pass"
         if qdrant_points == chunks_on_disk and "- Validation issues: 0" in report_text
@@ -110,15 +137,7 @@ async def ingestion_progress() -> dict:
     }
 
 
-@router.get("/status")
-async def ingestion_status() -> dict:
-    """Lightweight ingestion status.
-
-    `/progress` counts Qdrant points exactly and walks every chunk file, which
-    is too slow to poll. This answers the only question a caller polling for
-    "is it done yet?" has, from the manifest and the checkpoint alone.
-    """
-    kb_root = Path(settings.legal_kb_root)
+def _status_from_files(kb_root: Path) -> tuple[str, int, int, str | None]:
     manifest_path = kb_root / "metadata" / "canonical_documents.jsonl"
     checkpoint_path, collection = _current_checkpoint(kb_root)
 
@@ -135,6 +154,20 @@ async def ingestion_status() -> dict:
             checkpoint_path.stat().st_mtime,
             tz=timezone.utc,
         ).isoformat()
+    return collection, total_documents, completed_documents, updated_at
+
+
+@router.get("/status")
+async def ingestion_status() -> dict:
+    """Lightweight ingestion status.
+
+    `/progress` counts Qdrant points exactly and walks every chunk file, which
+    is too slow to poll. This answers the only question a caller polling for
+    "is it done yet?" has, from the manifest and the checkpoint alone.
+    """
+    collection, total_documents, completed_documents, updated_at = await asyncio.to_thread(
+        _status_from_files, Path(settings.legal_kb_root)
+    )
 
     if total_documents == 0:
         status = "not_started"

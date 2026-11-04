@@ -106,7 +106,7 @@ async def test_deep_job_idempotency_ownership_cancellation_and_worker_success() 
                 f"/jobs/{job_id}",
                 headers={"Authorization": f"Bearer {second_token}"},
             )
-            assert denied.status_code == 403
+            assert denied.status_code == 404
 
             listed = await client.get(
                 "/jobs",
@@ -154,7 +154,7 @@ async def test_deep_job_idempotency_ownership_cancellation_and_worker_success() 
                 f"/jobs/{job_id}/events",
                 headers={"Authorization": f"Bearer {second_token}"},
             )
-            assert denied_events.status_code == 403
+            assert denied_events.status_code == 404
 
             cancel_terminal = await client.post(
                 f"/jobs/{job_id}/cancel",
@@ -375,7 +375,7 @@ async def test_private_document_jobs_are_idempotent_owner_scoped_and_executable(
                 headers={**other_headers, "Idempotency-Key": f"other-{suffix}"},
                 json=ocr_payload,
             )
-            assert denied.status_code == 403
+            assert denied.status_code == 404
 
             analysis = await client.post(
                 "/jobs/document-analysis",

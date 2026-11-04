@@ -112,7 +112,6 @@ async def update_case(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="At least one case field must be supplied",
         )
-    previous = {field: getattr(case, field) for field in changes}
     for field, value in changes.items():
         setattr(case, field, value)
     session.add(
@@ -122,9 +121,9 @@ async def update_case(
             resource_type="case",
             resource_id=case.id,
             metadata_={
+                # Which fields, not their values: a case title or description
+                # can name a person and describe what happened to them.
                 "changed_fields": sorted(changes),
-                "previous": previous,
-                "current": changes,
             },
         )
     )

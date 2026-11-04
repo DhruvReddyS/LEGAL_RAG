@@ -4,6 +4,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request
 
+from app.core.config import settings
 from app.core.permissions import CORPUS_READ
 from app.core.case_scope import (
     AuthorizedCaseScope,
@@ -19,6 +20,7 @@ from app.schemas.retrieval import (
     RetrievalResponse,
     ScopedRetrievalResponse,
 )
+from app.services.rate_limit import enforce_rate_limit
 from app.services.retrieval import (
     HybridRetrievalService,
     RetrievalFilters,
@@ -34,12 +36,23 @@ def get_retrieval_service(request: Request) -> HybridRetrievalService:
     return request.app.state.retrieval_service
 
 
+async def _admit_retrieval(request: Request, user: User | None) -> None:
+    await enforce_rate_limit(
+        str(user.id) if user else (request.client.host if request.client else "unknown"),
+        "retrieval",
+        limit=settings.retrieval_requests_per_minute,
+        detail="Too many search requests. Try again shortly.",
+    )
+
+
 @router.post("/search", response_model=RetrievalResponse)
 async def hybrid_search(
     request: RetrievalRequest,
     service: Annotated[HybridRetrievalService, Depends(get_retrieval_service)],
-    _: User | None = Depends(require_permission(CORPUS_READ, allow_anonymous=True)),
+    http_request: Request,
+    user: User | None = Depends(require_permission(CORPUS_READ, allow_anonymous=True)),
 ) -> RetrievalResponse:
+    await _admit_retrieval(http_request, user)
     hits = await service.search(
         request.query,
         filters=RetrievalFilters(**request.filters.model_dump()),
@@ -58,9 +71,11 @@ async def hybrid_search(
 @router.post("/scoped-search", response_model=ScopedRetrievalResponse)
 async def scoped_hybrid_search(
     request: RetrievalRequest,
+    http_request: Request,
     scope: Annotated[AuthorizedCaseScope, Depends(resolve_authorized_case_scope)],
     service: Annotated[HybridRetrievalService, Depends(get_retrieval_service)],
 ) -> ScopedRetrievalResponse:
+    await _admit_retrieval(http_request, None)
     targets = [
         RetrievalTarget(
             collection_name=GLOBAL_LEGAL_CORPUS,
