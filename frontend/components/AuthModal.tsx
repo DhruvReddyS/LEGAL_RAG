@@ -139,6 +139,7 @@ export default function AuthModal({ onSuccess, progress }: { onSuccess: (user: U
           Legal information, not advice. Check the current official text before
           relying on any answer in a live matter.
         </p>
+        <a className="ctz-signin-rights" href="/rights">Your rights with the police, no account needed</a>
       </div>
     </section>
   </div>;

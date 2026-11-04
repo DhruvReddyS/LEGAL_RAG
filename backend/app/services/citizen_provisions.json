@@ -261,6 +261,12 @@
    "quote": "inform the arrested person of his rights under sub-section (1) as soon as he is brought to the police station",
    "page": 17
   },
+  "bnss-48-3": {
+   "act": "BNSS",
+   "section": "s.48(3)",
+   "quote": "An entry of the fact as to who has been informed of the arrest of such person shall be made in a book",
+   "page": 17
+  },
   "bnss-49-1": {
    "act": "BNSS",
    "section": "s.49(1)",
@@ -433,6 +439,12 @@
    "act": "CONST",
    "section": "Art. 20(3)",
    "quote": "No person accused of any offence shall be compelled to be a witness against himself",
+   "page": 42
+  },
+  "const-22-1-g": {
+   "act": "CONST",
+   "section": "Art. 22(1)",
+   "quote": "without being informed, as soon as may be, of the grounds for such arrest",
    "page": 42
   },
   "const-21": {

@@ -2,8 +2,10 @@
 import { ArrowUp, ChevronDown, FileText, Image as ImageIcon, Mic, Paperclip, Square, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { extractCitizenDocument } from "@/lib/api";
+import { saveDraft } from "@/lib/citizen-chat";
 import type { CitizenDocument, RequestedResponseMode } from "@/lib/types";
 import AttachmentDialog from "./AttachmentDialog";
+import RedactionDialog from "./citizen/RedactionDialog";
 
 type Recognition = { lang: string; continuous: boolean; interimResults: boolean; start: () => void; stop: () => void; abort: () => void; onresult: ((event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null; onerror: ((event: { error: string }) => void) | null; onend: (() => void) | null };
 type SpeechWindow = Window & { SpeechRecognition?: new () => Recognition; webkitSpeechRecognition?: new () => Recognition };
@@ -12,10 +14,18 @@ interface ChatInputProps { onSend: (message: string, documents?: CitizenDocument
   /** The matter the question may also read. Null means public law only. */
   caseId?: string | null;
   onCaseChange?: (caseId: string | null) => void;
+  /** Citizens check extracted text and mask personal details before it joins the question. */
+  redactBeforeAttach?: boolean;
+  /** Text to restore after having to sign in again. */
+  initialDraft?: string;
 }
 
-export default function ChatInput({ onSend, onStop, disabled = false, loading = false, placeholder = "Ask a follow-up…", mode = "auto", onModeChange, cases = [], caseId = null, onCaseChange }: ChatInputProps) {
-  const [value, setValue] = useState("");
+export default function ChatInput({ onSend, onStop, disabled = false, loading = false, placeholder = "Ask a follow-up…", mode = "auto", onModeChange, cases = [], caseId = null, onCaseChange, redactBeforeAttach = false, initialDraft = "" }: ChatInputProps) {
+  const [value, setValueState] = useState(initialDraft);
+  const setValue = (next: string) => { setValueState(next); saveDraft(window.sessionStorage, next); };
+  const [pendingDocument, setPendingDocument] = useState<CitizenDocument | null>(null);
+  // A fresh composer has no draft, so an old one cannot resurface after the next sign-in.
+  useEffect(() => { saveDraft(window.sessionStorage, initialDraft); }, [initialDraft]);
   const [documents, setDocuments] = useState<CitizenDocument[]>([]);
   const [extracting, setExtracting] = useState(false);
   const [error, setError] = useState("");
@@ -66,11 +76,12 @@ export default function ChatInput({ onSend, onStop, disabled = false, loading = 
       const file = event.target.files?.[0]; event.target.value = ""; if (!file) return;
       if (file.size > 10 * 1024 * 1024) { setError("Choose a file smaller than 10 MiB."); return; }
       setExtracting(true); setError("");
-      try { const document = await extractCitizenDocument(file); if (mounted.current) { setDocuments(current => [...current, document]); if (document.truncated) setError("Only the first 12,000 characters were extracted. Use a shorter document for complete review."); } }
+      try { const document = await extractCitizenDocument(file); if (mounted.current) { if (redactBeforeAttach) setPendingDocument(document); else setDocuments(current => [...current, document]); if (document.truncated) setError("Only the first 12,000 characters were extracted. Use a shorter document for complete review."); } }
       catch (cause) { if (mounted.current) setError(cause instanceof Error ? cause.message : "Extraction failed. Try another file."); }
       finally { if (mounted.current) setExtracting(false); }
     }}/>
   </div>
+  <RedactionDialog document={pendingDocument} onCancel={() => setPendingDocument(null)} onConfirm={masked => { setDocuments(current => [...current, masked]); setPendingDocument(null); }}/>
   <AttachmentDialog open={privacy} onClose={() => setPrivacy(false)} onChoose={() => { setPrivacy(false); fileInput.current?.click(); }}/>
   {voiceInfo && <section className="intake-disclosure" aria-label="Voice privacy"><p>Your browser’s speech-recognition service may send audio to its provider. English (India) is enabled; Hindi and regional-language recognition are not validated. Review and edit the transcript before sending. Corpus does not upload or store your audio.</p><button className="button-secondary" onClick={startVoice}>Allow voice input</button><button className="answer-text-action" onClick={() => setVoiceInfo(false)}>Cancel</button></section>}
   {error && <p className="composer-status" role="status">{error}</p>}

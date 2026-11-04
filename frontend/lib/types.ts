@@ -408,6 +408,7 @@ export interface DeepReviewJob {
     citations: AgentCitation[];
     confidence_score: number;
     evidence_strength: "strong" | "moderate" | "insufficient";
+    section_confidence?: SectionConfidence[];
     intent: Record<string, unknown>;
     agent_trace: Array<{ node: string; details: Record<string, unknown> }>;
     timings_ms: Record<string, unknown>;
@@ -443,6 +444,8 @@ export interface StoredChatMessage {
   citations: AgentCitation[];
   confidence_score: number | null;
   created_at: string;
+  section_confidence?: SectionConfidence[];
+  safety_kind?: string | null;
 }
 
 export interface StoredChatSession {
@@ -506,6 +509,8 @@ export interface ChatMessage {
   requestedMode?: RequestedResponseMode;
   routingReason?: string;
   routingSignals?: string[];
+  /** Set when a safety screen answered instead of the corpus. */
+  safetyKind?: string | null;
   agentLabel?: string;
   timingsMs?: Record<string, unknown>;
   pipelineMetrics?: PipelineStageMetric[];
