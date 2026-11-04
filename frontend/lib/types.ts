@@ -548,6 +548,7 @@ export interface InvestigationFacts {
   gravity: OffenceGravity;
   is_listed_sexual_offence: boolean;
   is_unnatural_death: boolean;
+  is_custodial_death: boolean;
 }
 
 export interface StoredInvestigationFacts extends InvestigationFacts {

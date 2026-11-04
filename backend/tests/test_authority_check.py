@@ -171,3 +171,41 @@ class TestDraftHandling:
 
     def test_prose_with_no_citations_yields_nothing(self) -> None:
         assert check_authorities("The client denies the allegation entirely.") == []
+
+
+class TestEveryCitationInADraftIsFound:
+    """A missing row reads as "checked and fine"."""
+
+    @pytest.mark.parametrize(
+        ("draft", "expected"),
+        [
+            ("Sections 302 and 34 IPC", {"IPC s.302", "IPC s.34"}),
+            ("charged u/s 420, 468, 471 IPC", {"IPC s.420", "IPC s.468", "IPC s.471"}),
+            ("ss. 302/34 IPC", {"IPC s.302", "IPC s.34"}),
+            ("IPC 302 and CrPC 438", {"IPC s.302", "CrPC s.438"}),
+            ("under the CrPC, section 154", {"CrPC s.154"}),
+            ("section 498A of the Indian Penal Code, 1860", {"IPC s.498A"}),
+        ],
+    )
+    def test_it_gets_a_row(self, draft: str, expected: set[str]) -> None:
+        assert {check.citation for check in check_authorities(draft)} >= expected
+
+    def test_a_year_is_not_a_section(self) -> None:
+        citations = {check.citation for check in check_authorities("The Code of Criminal Procedure, 1973 applies")}
+        assert "CrPC s.1973" not in citations
+
+    def test_another_act_does_not_lend_its_section_to_the_ipc(self) -> None:
+        citations = {
+            check.citation
+            for check in check_authorities("Section 3 of the SC/ST Act read with section 498A IPC")
+        }
+        assert "IPC s.3" not in citations
+        assert "IPC s.498A" in citations
+
+    def test_a_section_with_no_act_named_is_listed_as_unchecked(self) -> None:
+        checks = check_authorities("The accused relied on section 302 throughout.")
+        assert [check.finding for check in checks] == [AuthorityFinding.NOT_CHECKED]
+
+    def test_a_number_the_new_code_does_not_have_is_not_called_current(self) -> None:
+        checks = check_authorities("Section 999 of the Bharatiya Nyaya Sanhita")
+        assert checks[0].finding is AuthorityFinding.NOT_CHECKED

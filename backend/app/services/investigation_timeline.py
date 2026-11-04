@@ -66,6 +66,9 @@ class InvestigationFacts:
     is_listed_sexual_offence: bool = False
     preliminary_enquiry_started_at: datetime | None = None
     is_unnatural_death: bool = False
+    # Asked rather than inferred: s.196(6) turns on it, and "unnatural" does not
+    # imply "in custody".
+    is_custodial_death: bool = False
 
 
 @dataclass(frozen=True)
@@ -275,32 +278,40 @@ def investigation_deadlines(facts: InvestigationFacts) -> list[Deadline]:
         )
 
     # ---- s.194: unnatural death
-    if facts.is_unnatural_death and facts.death_occurred_at:
+    # s.196(6) applies to an inquiry under s.196(2), a death in custody. Elsewhere
+    # s.194(3) makes forwarding the body conditional and sets no fixed time, so no
+    # deadline is shown: a body found three days late is not already a breach.
+    if facts.is_custodial_death and facts.death_occurred_at:
         add(
             "post_mortem_referral",
-            "Forward the body for examination by the Civil Surgeon or other "
+            "Forward the body for examination by the nearest Civil Surgeon or other "
             "qualified medical person.",
-            "BNSS s.194(6)",
+            "BNSS s.196(6)",
             facts.death_occurred_at + timedelta(hours=24),
             "The body must be forwarded within twenty-four hours of the death "
-            "unless it is impossible to do so.",
+            "unless that is not possible, with reasons recorded.",
             "twenty-four hours from the death",
         )
+    if facts.is_unnatural_death and facts.death_occurred_at:
         add(
             "inquest_report_to_magistrate",
             "Forward the inquest report to the District or Sub-divisional Magistrate.",
             "BNSS s.194(2)",
             facts.death_occurred_at + timedelta(hours=24),
             "The signed report must reach the Magistrate within twenty-four hours.",
-            "twenty-four hours from the death",
+            # s.194(2) does not say when the period starts. Taking the earliest
+            # reading can only warn too soon, never too late.
+            "twenty-four hours, measured from the death as the earliest reading; "
+            "the section does not state a starting point",
         )
 
     # ---- s.230: supply of the report and documents to the accused
     if facts.accused_produced_at:
         add(
             "supply_of_documents",
-            "Furnish the accused and the victim's advocate with the police report, "
-            "the FIR, the s.180(3) statements and the s.183 confessions, free of cost.",
+            "Magistrate's duty, on a police report: furnish the accused and the victim's "
+            "advocate with the police report, the FIR, the s.180(3) statements and the "
+            "s.183 confessions, free of cost.",
             "BNSS s.230",
             facts.accused_produced_at + timedelta(days=14),
             "Supply must be without delay and in no case beyond fourteen days.",

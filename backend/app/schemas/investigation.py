@@ -52,6 +52,7 @@ class InvestigationTimelineRequest(BaseModel):
     )
     preliminary_enquiry_started_at: datetime | None = None
     is_unnatural_death: bool = False
+    is_custodial_death: bool = False
 
 
 class DeadlineResponse(BaseModel):

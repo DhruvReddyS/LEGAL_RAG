@@ -76,6 +76,9 @@ class InvestigationFacts(Base):
     is_unnatural_death: Mapped[bool] = mapped_column(
         Boolean, default=False, server_default="false", nullable=False
     )
+    is_custodial_death: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default="false", nullable=False
+    )
 
     # Requirement key -> status, for the BNSS compliance checklist. Absent
     # and empty mean the same thing: nothing confirmed. There is no way to

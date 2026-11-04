@@ -198,15 +198,32 @@ class TestOnlyApplicableObligationsAppear:
         assert "post_mortem_referral" not in keys
         assert "inquest_report_to_magistrate" not in keys
 
-    def test_an_unnatural_death_gets_both_twenty_four_hour_obligations(self) -> None:
+    def test_a_death_in_custody_gets_both_twenty_four_hour_obligations(self) -> None:
         facts = InvestigationFacts(
-            is_unnatural_death=True, death_occurred_at=_at(2026, 1, 1, 6)
+            is_unnatural_death=True,
+            is_custodial_death=True,
+            death_occurred_at=_at(2026, 1, 1, 6),
         )
 
         keys = _by_key(facts)
 
         assert keys["post_mortem_referral"].due_at == _at(2026, 1, 2, 6)
+        assert keys["post_mortem_referral"].provision == "BNSS s.196(6)"
         assert keys["inquest_report_to_magistrate"].due_at == _at(2026, 1, 2, 6)
+
+    def test_an_unnatural_death_outside_custody_has_no_fixed_post_mortem_deadline(self) -> None:
+        """s.194(3) is conditional and sets no time, so none is invented here."""
+        facts = InvestigationFacts(is_unnatural_death=True, death_occurred_at=_at(2026, 1, 1, 6))
+
+        keys = _by_key(facts)
+
+        assert "post_mortem_referral" not in keys
+        assert "inquest_report_to_magistrate" in keys
+
+    def test_supply_of_documents_names_the_magistrate(self) -> None:
+        keys = _by_key(InvestigationFacts(accused_produced_at=_at(2026, 1, 1)))
+
+        assert "Magistrate" in keys["supply_of_documents"].obligation
 
     def test_empty_facts_produce_no_deadlines_rather_than_guesses(self) -> None:
         assert investigation_deadlines(InvestigationFacts()) == []
@@ -229,6 +246,7 @@ class TestEveryDeadlineCitesItsProvision:
             is_listed_sexual_offence=True,
             preliminary_enquiry_started_at=_at(2026, 1, 1),
             is_unnatural_death=True,
+            is_custodial_death=True,
         )
 
         deadlines = investigation_deadlines(facts)

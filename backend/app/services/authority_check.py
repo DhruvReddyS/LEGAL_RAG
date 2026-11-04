@@ -25,6 +25,7 @@ Four findings, and the third is the one this exists for:
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from enum import StrEnum
 
@@ -57,6 +58,8 @@ _CODE_BY_KEY = {
     "rti": "RTI Act",
 }
 _IN_FORCE_CODES = {"BNS", "BNSS", "BSA"}
+_CONCORDANCE_CODES = {"IPC", "CrPC", "IEA", "BNS", "BNSS", "BSA"}
+_NO_ACT_NAMED = "No Act named"
 
 
 class AuthorityFinding(StrEnum):
@@ -98,6 +101,18 @@ class CitationCheck:
 
 def _check_one(code: str, section: str, citation: str) -> CitationCheck:
     if code in _IN_FORCE_CODES:
+        if not map_sections(code, section):
+            return CitationCheck(
+                citation=citation,
+                code=code,
+                section=section,
+                finding=AuthorityFinding.NOT_CHECKED,
+                advice=(
+                    f"{code} is in force, but the official concordance has no entry "
+                    f"for s.{section}. It may be a new provision or a wrong number, "
+                    "so confirm it against the Act."
+                ),
+            )
         return CitationCheck(
             citation=citation,
             code=code,
@@ -173,22 +188,95 @@ def _check_one(code: str, section: str, citation: str) -> CitationCheck:
     )
 
 
+_SECTION = r"\d{1,4}[A-Za-z]{0,2}(?:\(\d+\))*"
+_SECTION_LIST = rf"{_SECTION}(?:\s*(?:,|/|&|\band\b|\br/w\b|\bread\s+with\b)\s*{_SECTION})*"
+_CODE_NAMES = (
+    r"(?P<code>indian\s+penal\s+code|i\.?p\.?c\.?|code\s+of\s+criminal\s+procedure|"
+    r"cr\.?\s?p\.?\s?c\.?|indian\s+evidence\s+act|evidence\s+act|i\.?e\.?a\.?|"
+    r"bharatiya\s+nyaya\s+sanhita|bharatiya\s+nagarik\s+suraksha\s+sanhita|"
+    r"bharatiya\s+sakshya\s+adhiniyam|bnss|bns|bsa)"
+)
+# "Sections 302 and 34 IPC", "u/s 420, 468, 471 IPC", "section 438 of the CrPC".
+_NUMBERS_THEN_CODE = re.compile(
+    rf"\b(?:u/s|under\s+sections?|sections?|secs?\.?|ss?\.)\s*(?P<numbers>{_SECTION_LIST})"
+    rf"\s*,?\s*(?:(?:of|under)\s+(?:the\s+)?)?{_CODE_NAMES}(?![a-z])",
+    re.I,
+)
+# "IPC 302", "IPC s.302", "under the CrPC, section 154".
+_CODE_THEN_NUMBERS = re.compile(
+    rf"(?<![a-z]){_CODE_NAMES}\s*,?\s*(?:u/s|sections?|secs?\.?|ss?\.)?\s*(?P<numbers>{_SECTION_LIST})",
+    re.I,
+)
+_YEAR = re.compile(r"(?:18|19|20)\d\d")
+
+
+def _concordance_code(name: str) -> str | None:
+    folded = re.sub(r"[\s.]+", "", name).casefold()
+    if "penal" in folded or folded == "ipc":
+        return "IPC"
+    if "criminalprocedure" in folded or folded == "crpc":
+        return "CrPC"
+    if "evidenceact" in folded or folded == "iea":
+        return "IEA"
+    if "nyaya" in folded or folded == "bns":
+        return "BNS"
+    if "nagarik" in folded or folded == "bnss":
+        return "BNSS"
+    if "sakshya" in folded or folded == "bsa":
+        return "BSA"
+    return None
+
+
+def _concordance_citations(draft: str) -> list[tuple[int, str, str]]:
+    """Position, code and section of each citation to the six concordance codes.
+
+    Stricter than the ingestion parser, which reads one number per reference and
+    borrows the nearest Act within 120 characters. That is right for building a
+    graph, where a missing edge is harmless. Here a missing row reads as "checked
+    and fine": "Sections 302 and 34 IPC" checked only 302, "IPC 302" found nothing,
+    and "Section 3 of the SC/ST Act read with section 498A IPC" reported IPC s.3.
+    """
+    found: list[tuple[int, str, str]] = []
+    for pattern in (_NUMBERS_THEN_CODE, _CODE_THEN_NUMBERS):
+        for match in pattern.finditer(draft):
+            code = _concordance_code(match.group("code"))
+            if code is None:
+                continue
+            for number in re.findall(_SECTION, match.group("numbers")):
+                section = re.sub(r"\(.*", "", number).upper()
+                if _YEAR.fullmatch(section):
+                    continue
+                found.append((match.start(), code, section))
+    return sorted(found, key=lambda item: item[0])
+
+
 def check_authorities(draft: str, *, max_citations: int = 60) -> list[CitationCheck]:
     """Every provision the draft cites, in the order it cites them.
 
     Duplicates collapse: a provision cited eight times is one finding, not
-    eight, or a long petition drowns its own warnings.
+    eight, or a long petition drowns its own warnings. A section with no Act named
+    is listed as unchecked, because leaving it out reads as having checked it.
     """
-    references = extract_references(draft or "", max_references=max_citations)
+    draft = draft or ""
+    references = extract_references(draft, max_references=max_citations)
     seen: set[tuple[str, str]] = set()
     results: list[CitationCheck] = []
+
+    def add(code: str, section: str) -> None:
+        if (code, section) not in seen:
+            seen.add((code, section))
+            results.append(_check_one(code, section, f"{code} s.{section}"))
+
+    for _, code, section in _concordance_citations(draft):
+        add(code, section)
     for reference in references.provisions:
         key, _, section = str(reference).partition(":")
         code = _CODE_BY_KEY.get(key.casefold())
-        if code is None or not section:
+        if code is None or not section or code in _CONCORDANCE_CODES:
             continue
-        if (code, section) in seen:
-            continue
-        seen.add((code, section))
-        results.append(_check_one(code, section, f"{code} s.{section}"))
+        add(code, section)
+    for number in references.unresolved_sections:
+        section = str(number).upper()
+        if not any(section == known for _, known in seen):
+            add(_NO_ACT_NAMED, section)
     return results

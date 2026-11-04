@@ -105,6 +105,7 @@ _FACT_FIELDS = (
     "gravity",
     "is_listed_sexual_offence",
     "is_unnatural_death",
+    "is_custodial_death",
 )
 
 

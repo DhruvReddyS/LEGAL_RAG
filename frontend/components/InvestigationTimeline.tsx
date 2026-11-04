@@ -17,6 +17,7 @@ const EMPTY: InvestigationFacts = {
   gravity: "unknown",
   is_listed_sexual_offence: false,
   is_unnatural_death: false,
+  is_custodial_death: false,
 };
 
 const DATE_FIELDS: { key: keyof InvestigationFacts; label: string; hint?: string }[] = [
@@ -239,6 +240,16 @@ export function InvestigationTimeline({ caseId }: { caseId: string }) {
               }
             />
             Unnatural death — s.194 inquest applies
+          </label>
+          <label className="flex items-center gap-2 text-xs text-[var(--ink)]">
+            <input
+              type="checkbox"
+              checked={facts.is_custodial_death}
+              onChange={(event) =>
+                setFacts((current) => ({ ...current, is_custodial_death: event.target.checked }))
+              }
+            />
+            Death in custody — s.196(6) applies
           </label>
         </div>
       </div>
