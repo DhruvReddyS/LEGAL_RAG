@@ -6,6 +6,7 @@ from time import perf_counter_ns
 from app.schemas.agents import AgentTraceEvent
 from app.services.retrieval import HybridRetrievalService, RetrievalFilters
 from app.services.retrieval import RetrievalTarget
+from app.services.legal_term_normalization import normalize_legal_terms
 from app.services.fast_research import (
     _focus_tokens,
     _payload_windows,
@@ -137,6 +138,9 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
     # procedure language, and the gate then required every passage to contain
     # it. Two questions that published fell to a 15-word refusal.
     asked = str(state.get("query") or query)
+    # Corrected before the gate reads it. Retrieval searches "POCSO" for "pocos",
+    # and the gate then required passages to contain the typo, which none do.
+    asked = normalize_legal_terms(asked).normalized
     distinctive_terms_task = asyncio.create_task(
         _distinctive_terms(service, _focus_tokens(asked), targets[0])
     )
@@ -276,12 +280,14 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
                     str(hit.payload.get("collection_name") or ""),
                     hit.point_id,
                 )
+                # Checked before adding: starting at eight or more, `== 8` after
+                # an append never fired and evidence ran to 16-18 chunks.
+                if len(hits) >= 8:
+                    break
                 if identity in seen:
                     continue
                 hits.append(hit)
                 seen.add(identity)
-                if len(hits) == 8:
-                    break
     except Exception as exc:
         # Started before the search, so it outlives a failing search unless
         # it is cancelled here. An orphaned task holds a Qdrant connection

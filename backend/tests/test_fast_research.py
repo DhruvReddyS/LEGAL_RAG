@@ -368,16 +368,17 @@ async def test_fast_lane_corrects_a_misspelled_acronym() -> None:
     assert corrections == [{"from": "pocos", "to": "POCSO"}]
 
 
-def test_three_letter_acronyms_are_correctable_without_becoming_ambiguous() -> None:
-    """bns, bsa and ipc were below the old four-character floor."""
+def test_three_letter_tokens_are_not_corrected() -> None:
+    """A three-letter typo cannot be told from a different word or acronym.
+
+    Correcting them turned "IPS", "IBC", "NSA", "bus" and "pic" into the codes,
+    silently searching for something else. An uncorrected typo costs an honest
+    refusal, which is the better failure.
+    """
     from app.services.legal_term_normalization import normalize_legal_terms
 
-    assert normalize_legal_terms("what does bnd say").normalized == "what does BNS say"
-    assert (
-        normalize_legal_terms("under ipa section 302").normalized
-        == "under IPC section 302"
-    )
-    # Ambiguity must still refuse: bns and bnss are both one edit from "bnss".
+    assert normalize_legal_terms("what does bnd say").normalized == "what does bnd say"
+    assert normalize_legal_terms("under ipa section 302").normalized == "under ipa section 302"
     assert normalize_legal_terms("under bnss rules").normalized == "under bnss rules"
 
 

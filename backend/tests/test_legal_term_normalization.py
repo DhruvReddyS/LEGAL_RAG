@@ -22,3 +22,23 @@ def test_unsupported_ordinary_query_is_not_rewritten() -> None:
 
     assert result.normalized == query
     assert result.corrections == ()
+
+
+import pytest as _pytest
+
+
+@_pytest.mark.parametrize(
+    "query",
+    [
+        "my boss is harassing me",
+        "bus accident compensation",
+        "IPS officer complaint",
+        "IBC insolvency petition",
+        "NSA detention rights",
+        "NPS pension",
+        "a pic of my daughter",
+        "visa to USA",
+    ],
+)
+def test_ordinary_words_and_other_acronyms_are_left_alone(query: str) -> None:
+    assert normalize_legal_terms(query).normalized == query

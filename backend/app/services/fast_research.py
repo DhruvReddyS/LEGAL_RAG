@@ -201,11 +201,24 @@ def _compact(value: object, limit: int = 420) -> str:
     return text[: limit - 1].rstrip() + "…"
 
 
+_UNMARKED_NEGATIONS = frozenset(
+    {
+        "didnt", "doesnt", "dont", "isnt", "wasnt", "werent", "arent", "cant", "wont",
+        "hasnt", "havent", "hadnt", "couldnt", "wouldnt", "shouldnt",
+    }
+)
+
+
 def _focus_tokens(query: str) -> set[str]:
+    # "didn't" split into "didn", which legal text almost never contains, so it
+    # became the rarest term and every passage was refused for lacking it. A
+    # negation carries no topic, and a possessive keeps its noun.
+    query = re.sub(r"\b\w+n['\u2019]t\b", " ", query.casefold())
+    query = re.sub(r"['\u2019](?:s|re|ve|ll|d|m)\b", " ", query)
     tokens = {
         token
-        for token in re.findall(r"[a-z0-9]+", query.casefold())
-        if len(token) > 1 and token not in FOCUS_STOPWORDS
+        for token in re.findall(r"[a-z0-9]+", query)
+        if len(token) > 1 and token not in FOCUS_STOPWORDS and token not in _UNMARKED_NEGATIONS
     }
     for token in tuple(tokens):
         tokens.update(LEGAL_ACRONYM_EXPANSIONS.get(token, ()))
@@ -722,9 +735,13 @@ class FastLegalResearchService:
                 # cites a moved section would be false in the direction a
                 # police reader would catch immediately.
                 if citation.repeal_label == "no_longer_in_force":
-                    repeal_note = (
-                        f" [no longer in force from {citation.repealed_on}; "
-                        f"replaced by {citation.replaced_by}]"
+                    repeal_note = "".join(
+                        (
+                            " [no longer in force",
+                            f" from {citation.repealed_on}" if citation.repealed_on else "",
+                            f"; replaced by {citation.replaced_by}" if citation.replaced_by else "",
+                            "]",
+                        )
                     )
                 elif citation.repeal_label == "concerns_repealed_provision":
                     moved = "; ".join(
@@ -733,7 +750,7 @@ class FastLegalResearchService:
                         for m in citation.section_mappings[:2]
                     )
                     repeal_note = (
-                        f" [still in force; cites renumbered provisions: {moved}]"
+                        f" [cites renumbered provisions: {moved}]"
                         if moved
                         else ""
                     )

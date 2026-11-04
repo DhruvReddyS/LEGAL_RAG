@@ -130,7 +130,15 @@ class DurableJobWorker:
                 if len(self._in_flight) >= self.concurrency:
                     await self._reap(block=True)
                     continue
-                job_id = await self._claim()
+                # One failed poll must not end the worker. Nothing supervises this
+                # task, so a brief database restart stopped it for good while the
+                # API stayed up, readiness stayed green and jobs queued forever.
+                try:
+                    job_id = await self._claim()
+                except Exception as exc:
+                    logger.error("job claim failed: %s", type(exc).__name__)
+                    await asyncio.sleep(self.poll_interval_seconds)
+                    continue
                 if job_id is None:
                     # Nothing to claim. Wait for a stop, for a running job to
                     # finish, or for the poll interval -- whichever comes

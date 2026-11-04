@@ -72,23 +72,24 @@ def _damerau_levenshtein_at_most_one(left: str, right: str) -> bool:
 def normalize_legal_terms(query: str) -> LegalTermNormalization:
     """Correct a unique one-edit match to a known legal acronym.
 
-    Ambiguous matches and ordinary words are left unchanged. Requiring at
-    least four letters prevents common short words from being rewritten.
+    Ambiguous matches and ordinary words are left unchanged. Only tokens of
+    four or more letters are corrected, and a swapped letter counts while a
+    wrong one does not. "pocos" is POCSO mistyped. "boss" is one letter from
+    BNSS and is a boss; "IBC", "IPS", "NSA" and "bus" are other things entirely
+    and were being rewritten into the codes, which changed what was searched for.
     """
     corrections: list[tuple[str, str]] = []
 
     def replace(match: re.Match[str]) -> str:
         token = match.group(0)
         folded = token.casefold()
-        if folded in KNOWN_LEGAL_ACRONYMS or len(folded) < 3:
+        if folded in KNOWN_LEGAL_ACRONYMS or len(folded) < 4:
             return token
-        # A three-character floor lets bns, bsa and ipc be corrected. The
-        # unique-match requirement below still refuses anything ambiguous, so
-        # "bnss" cannot be pulled toward "bns" and vice versa.
         candidates = sorted(
             acronym
             for acronym in KNOWN_LEGAL_ACRONYMS
-            if len(acronym) >= 3 and _damerau_levenshtein_at_most_one(folded, acronym)
+            if _damerau_levenshtein_at_most_one(folded, acronym)
+            and (len(acronym) != len(folded) or sorted(acronym) == sorted(folded))
         )
         if len(candidates) != 1:
             return token
