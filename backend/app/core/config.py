@@ -192,6 +192,10 @@ class Settings(BaseSettings):
     s3_advocate_bucket: str = "legal-rag-advocate"
     s3_generated_bucket: str = "legal-rag-generated"
     legal_kb_root: str = "/data/legal_kb"
+    # Where the release console reads evidence. Empty means docs/evidence in the
+    # repository, which a container only has if it is mounted.
+    evaluation_evidence_root: str = ""
+    gate_evidence_root: str = ""
 
     @field_validator("legal_kb_root", mode="after")
     @classmethod

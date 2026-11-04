@@ -25,6 +25,7 @@ from app.schemas.document_analysis import (
 from app.services.citation_status import citation_labels_for
 from app.services.document_analysis import DISCLAIMER, DocumentAnalysisService
 from app.services.llm import OllamaClient
+from app.services.quarantine import is_quarantined
 from app.services.rate_limit import enforce_llm_sync_limit
 from app.services.retrieval import HybridRetrievalService
 
@@ -245,7 +246,7 @@ async def inspect_global_source(
         with_payload=True,
         with_vectors=False,
     )
-    if not points:
+    if not points or is_quarantined((points[0].payload or {}).get("canonical_document_id")):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Source not found")
     return _source_response(points[0], private=False)
 

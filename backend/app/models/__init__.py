@@ -1,3 +1,13 @@
+from app.models.admin_tools import (
+    AccountFlag,
+    CorpusWorkItem,
+    DocumentQuarantine,
+    FeedbackTriage,
+    GateRun,
+    ReleaseDecision,
+    RetentionPolicy,
+    RetentionRun,
+)
 from app.models.audit import AuditLog
 from app.models.base import Base
 from app.models.case import Case, CaseDocument, GeneratedDocument
@@ -20,6 +30,14 @@ from app.models.token import RevokedRefreshToken
 from app.models.user import Permission, Role, RolePermission, User
 
 __all__ = [
+    "AccountFlag",
+    "CorpusWorkItem",
+    "DocumentQuarantine",
+    "FeedbackTriage",
+    "GateRun",
+    "ReleaseDecision",
+    "RetentionPolicy",
+    "RetentionRun",
     "AuditLog",
     "Base",
     "Bookmark",

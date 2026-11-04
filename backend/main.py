@@ -24,6 +24,7 @@ from app.routers.ingestion import router as ingestion_router
 from app.routers.storage import router as storage_router
 from app.routers.retrieval import router as retrieval_router
 from app.routers.admin import router as admin_router
+from app.routers.admin_tools import router as admin_tools_router
 from app.routers.document_analysis import router as document_analysis_router
 from app.routers.jobs import router as jobs_router
 from app.routers.citizen_intake import router as citizen_intake_router
@@ -31,6 +32,7 @@ from app.routers.feedback import router as feedback_router
 from app.routers.authorities import router as authorities_router
 from app.routers.investigation import router as investigation_router
 from app.services.crisis_similarity import CrisisSimilarity
+from app.services import quarantine
 from app.services.retrieval import HybridRetrievalService
 from app.services.fast_research import FastLegalResearchService
 from app.services.job_worker import DurableJobWorker
@@ -55,6 +57,7 @@ async def lifespan(app: FastAPI):
     assert_accelerated_inference()
     assert_reasoning_model_tier()
     log_runtime_profile(logger)
+    await quarantine.start()
     retrieval_service = HybridRetrievalService()
     app.state.retrieval_service = retrieval_service
     app.state.crisis_similarity = CrisisSimilarity(retrieval_service)
@@ -74,6 +77,7 @@ async def lifespan(app: FastAPI):
     try:
         yield
     finally:
+        await quarantine.stop()
         if settings.job_worker_enabled:
             await app.state.job_worker.stop()
         await app.state.legal_rag_workflow.llm.close()
@@ -192,6 +196,7 @@ app.include_router(ingestion_router)
 app.include_router(storage_router)
 app.include_router(retrieval_router)
 app.include_router(admin_router)
+app.include_router(admin_tools_router)
 app.include_router(document_analysis_router)
 app.include_router(jobs_router)
 app.include_router(citizen_intake_router)
