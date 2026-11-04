@@ -221,9 +221,123 @@ class TestOnlyApplicableObligationsAppear:
         assert "inquest_report_to_magistrate" in keys
 
     def test_supply_of_documents_names_the_magistrate(self) -> None:
-        keys = _by_key(InvestigationFacts(accused_produced_at=_at(2026, 1, 1)))
+        keys = _by_key(
+            InvestigationFacts(
+                accused_produced_at=_at(2026, 1, 1),
+                police_report_forwarded_at=_at(2026, 1, 1),
+            )
+        )
 
         assert "Magistrate" in keys["supply_of_documents"].obligation
+        assert keys["supply_of_documents"].actor == "magistrate"
+
+    def test_supply_of_documents_needs_a_police_report(self) -> None:
+        """s.230 applies "where the proceeding has been instituted on a police
+        report". First production at remand must not start a clock against nobody."""
+        keys = _by_key(InvestigationFacts(accused_produced_at=_at(2026, 1, 1)))
+
+        assert "supply_of_documents" not in keys
+
+
+class TestScopeOfSection184:
+    """POL-5. s.184 is rape or attempted rape of a woman, narrower than s.193(2)."""
+
+    def test_a_listed_offence_alone_does_not_send_anyone_for_examination(self) -> None:
+        """A POCSO s.8 case about a boy is on the s.193(2) list and has no woman in it."""
+        keys = _by_key(
+            InvestigationFacts(information_recorded_at=_at(2026, 1, 1), is_listed_sexual_offence=True)
+        )
+
+        assert "investigation_completion" in keys
+        assert "victim_medical_examination" not in keys
+        assert "medical_report_to_officer" not in keys
+
+    def test_rape_starts_the_twenty_four_hours(self) -> None:
+        keys = _by_key(
+            InvestigationFacts(information_recorded_at=_at(2026, 1, 1, 9), is_rape_or_attempt=True)
+        )
+
+        assert keys["victim_medical_examination"].due_at == _at(2026, 1, 2, 9)
+        assert keys["victim_medical_examination"].provision == "BNSS s.184(1)"
+
+    def test_the_listed_note_says_section_69_is_not_listed(self) -> None:
+        keys = _by_key(
+            InvestigationFacts(information_recorded_at=_at(2026, 1, 1), is_listed_sexual_offence=True)
+        )
+
+        assert any("s.69 is not listed" in note for note in keys["investigation_completion"].notes)
+
+
+class TestSection184SubSection6:
+    """POL-6. The seven days are the practitioner's, and name no starting point."""
+
+    def test_without_an_examination_time_it_is_undetermined_not_absent(self) -> None:
+        row = _by_key(InvestigationFacts(is_rape_or_attempt=True))["medical_report_to_officer"]
+
+        assert row.due_at is None
+        assert "examination" in row.undetermined_because
+        assert row.actor == "medical_practitioner"
+
+    def test_it_runs_seven_days_from_the_examination(self) -> None:
+        row = _by_key(
+            InvestigationFacts(is_rape_or_attempt=True, victim_examined_at=_at(2026, 1, 5))
+        )["medical_report_to_officer"]
+
+        assert row.due_at == _at(2026, 1, 12)
+        assert "does not state a starting point" in row.computed_from
+
+
+class TestArrestTypeChoosesTheCitation:
+    """POL-8. s.58 is arrest without warrant; s.78 is under a warrant."""
+
+    def test_without_warrant_is_s58(self) -> None:
+        row = _by_key(
+            InvestigationFacts(arrested_at=_at(2026, 1, 1), arrested_under_warrant=False)
+        )["production_before_magistrate"]
+
+        assert row.provision == "BNSS s.58"
+        assert row.notes == ()
+
+    def test_under_warrant_is_s78_with_the_same_period(self) -> None:
+        row = _by_key(
+            InvestigationFacts(arrested_at=_at(2026, 1, 1), arrested_under_warrant=True)
+        )["production_before_magistrate"]
+
+        assert row.provision == "BNSS s.78"
+        assert row.due_at == _at(2026, 1, 2)
+        assert row.is_earliest_possible
+
+    def test_not_recorded_is_flagged_rather_than_assumed(self) -> None:
+        row = _by_key(InvestigationFacts(arrested_at=_at(2026, 1, 1)))["production_before_magistrate"]
+
+        assert any("s.78" in note for note in row.notes)
+
+
+class TestAnotherStatuteMayChangeTheDefaultBailPeriod:
+    """POL-7. Only NDPS s.36A, whose text is in the corpus. UAPA is not named."""
+
+    def test_the_caveat_travels_with_the_computed_date(self) -> None:
+        row = _by_key(
+            InvestigationFacts(first_remand_at=_at(2026, 1, 3), gravity=OffenceGravity.OTHER)
+        )["default_bail_entitlement"]
+
+        assert row.due_at is not None
+        assert any("NDPS Act s.36A(4)" in note for note in row.notes)
+        assert not any("UAPA" in note for note in row.notes)
+
+    def test_an_ndps_case_gets_no_bnss_date_at_all(self) -> None:
+        """Showing 90 days as due on a commercial-quantity case misleads both ways."""
+        row = _by_key(
+            InvestigationFacts(
+                first_remand_at=_at(2026, 1, 3),
+                gravity=OffenceGravity.DEATH_LIFE_OR_TEN_YEARS_OR_MORE,
+                special_statute="ndps_s36a",
+            )
+        )["default_bail_entitlement"]
+
+        assert row.due_at is None
+        assert row.is_breached(_at(2030, 1, 1)) is None
+        assert "s.36A" in row.undetermined_because
 
     def test_empty_facts_produce_no_deadlines_rather_than_guesses(self) -> None:
         assert investigation_deadlines(InvestigationFacts()) == []
@@ -247,11 +361,14 @@ class TestEveryDeadlineCitesItsProvision:
             preliminary_enquiry_started_at=_at(2026, 1, 1),
             is_unnatural_death=True,
             is_custodial_death=True,
+            is_rape_or_attempt=True,
+            police_report_forwarded_at=_at(2026, 1, 3),
         )
 
         deadlines = investigation_deadlines(facts)
 
-        assert len(deadlines) == 9
+        # The nine, plus s.184(6), which is undetermined until an examination is recorded.
+        assert len(deadlines) == 10
         for deadline in deadlines:
             assert deadline.provision.startswith("BNSS s."), deadline.key
             assert deadline.obligation.strip()

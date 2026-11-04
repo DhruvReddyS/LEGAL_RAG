@@ -12,7 +12,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, func
+from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, String, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -79,11 +79,23 @@ class InvestigationFacts(Base):
     is_custodial_death: Mapped[bool] = mapped_column(
         Boolean, default=False, server_default="false", nullable=False
     )
+    is_rape_or_attempt: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default="false", nullable=False
+    )
+    victim_examined_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # Null is "not recorded": s.58 or s.78 is then left to the reader.
+    arrested_under_warrant: Mapped[bool | None] = mapped_column(Boolean)
+    police_report_forwarded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    special_statute: Mapped[str] = mapped_column(
+        String(30), default="none", server_default="none", nullable=False
+    )
 
     # Requirement key -> status, for the BNSS compliance checklist. Absent
     # and empty mean the same thing: nothing confirmed. There is no way to
     # express "satisfied" by leaving a key out, which is the point.
     compliance_status: Mapped[dict | None] = mapped_column(JSONB)
+    # The conditions that decide which conditional requirements are listed.
+    compliance_flags: Mapped[dict | None] = mapped_column(JSONB)
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False

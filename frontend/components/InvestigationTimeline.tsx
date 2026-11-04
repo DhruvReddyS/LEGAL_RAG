@@ -18,13 +18,20 @@ const EMPTY: InvestigationFacts = {
   is_listed_sexual_offence: false,
   is_unnatural_death: false,
   is_custodial_death: false,
+  is_rape_or_attempt: false,
+  victim_examined_at: null,
+  arrested_under_warrant: null,
+  police_report_forwarded_at: null,
+  special_statute: "none",
 };
 
 const DATE_FIELDS: { key: keyof InvestigationFacts; label: string; hint?: string }[] = [
   { key: "information_recorded_at", label: "Information recorded", hint: "Starts the s.193(3)(ii) victim update and, for listed offences, the s.193(2) two months." },
-  { key: "arrested_at", label: "Arrest", hint: "Starts the s.58 twenty-four hours." },
+  { key: "arrested_at", label: "Arrest", hint: "Starts the twenty-four hours in s.58, or s.78 if under a warrant." },
   { key: "first_remand_at", label: "First remand", hint: "Starts the s.187(3) period. Not the arrest — using the arrest date shortens it." },
-  { key: "accused_produced_at", label: "Accused produced or appeared", hint: "Starts the s.230 fourteen days for supply of documents." },
+  { key: "accused_produced_at", label: "Accused produced or appeared", hint: "With a police report on record, starts the Magistrate's s.230 fourteen days for supply of documents." },
+  { key: "police_report_forwarded_at", label: "Police report forwarded", hint: "s.193(3). Answers the s.187(3) and s.193(2) limits on the register, and is what s.230 needs." },
+  { key: "victim_examined_at", label: "Medical examination of the woman", hint: "For rape or attempted rape. Starts the practitioner's seven days under s.184(6)." },
   { key: "preliminary_enquiry_started_at", label: "Preliminary enquiry begun", hint: "s.173(3)(i) allows fourteen days." },
   { key: "death_occurred_at", label: "Death occurred", hint: "For an unnatural death: s.194 post-mortem and inquest report." },
 ];
@@ -101,7 +108,7 @@ function DeadlineRow({ deadline }: { deadline: InvestigationDeadline }) {
               <span className={breached ? tone.accent : ""}>({remaining(deadline.due_at as string)})</span>
               {deadline.is_earliest_possible && (
                 <span className="text-[10px] opacity-80">
-                  earliest it can expire — s.58 excludes travel from the place of arrest
+                  earliest it can expire — ss.58 and 78 exclude travel from the place of arrest
                 </span>
               )}
             </p>
@@ -111,17 +118,26 @@ function DeadlineRow({ deadline }: { deadline: InvestigationDeadline }) {
             {deadline.consequence}
             {!undetermined && <> Computed as {deadline.computed_from}.</>}
           </p>
+          {deadline.actor && deadline.actor !== "investigating_officer" && (
+            <p className="state-row-detail font-medium">
+              {deadline.actor === "magistrate" ? "This is the Magistrate's duty." : "This is the medical practitioner's duty."}
+            </p>
+          )}
+          {deadline.notes?.map((note) => <p key={note} className="state-row-detail">{note}</p>)}
         </div>
       </div>
     </article>
   );
 }
 
-export function InvestigationTimeline({ caseId }: { caseId: string }) {
+export function InvestigationTimeline({ caseId, onSaved }: { caseId: string; onSaved?: () => void }) {
   const [facts, setFacts] = useState<InvestigationFacts>(EMPTY);
   const [timeline, setTimeline] = useState<Timeline | null>(null);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
+  // A failed read leaves nothing safe to save. The form would hold blanks or stale
+  // values, and saving them replaces whatever is on record.
+  const [loaded, setLoaded] = useState(false);
 
   const load = useCallback(async () => {
     if (!caseId) return;
@@ -133,6 +149,7 @@ export function InvestigationTimeline({ caseId }: { caseId: string }) {
       setFacts({ ...EMPTY, ...stored });
       setTimeline(computed);
       setNotice("");
+      setLoaded(true);
     } catch (error) {
       // 404 is the ordinary state of a matter nobody has recorded yet, and
       // must not be shown as a failure.
@@ -140,8 +157,12 @@ export function InvestigationTimeline({ caseId }: { caseId: string }) {
         setFacts(EMPTY);
         setTimeline(null);
         setNotice("");
+        setLoaded(true);
         return;
       }
+      setFacts(EMPTY);
+      setTimeline(null);
+      setLoaded(false);
       setNotice(error instanceof Error ? error.message : "Could not load the timeline.");
     }
   }, [caseId]);
@@ -153,6 +174,7 @@ export function InvestigationTimeline({ caseId }: { caseId: string }) {
     try {
       await recordInvestigationFacts(caseId, facts);
       await load();
+      onSaved?.();
       setNotice("Recorded. Deadlines recomputed.");
     } catch (error) {
       setNotice(error instanceof Error ? error.message : "Could not record these dates.");
@@ -220,6 +242,41 @@ export function InvestigationTimeline({ caseId }: { caseId: string }) {
           </span>
         </label>
 
+        <label className="block">
+          <span className="block text-xs font-medium text-[var(--ink)]">Arrest type</span>
+          <select
+            className="field mt-1.5 h-10 w-full"
+            value={facts.arrested_under_warrant === null ? "" : String(facts.arrested_under_warrant)}
+            onChange={(event) =>
+              setFacts((current) => ({
+                ...current,
+                arrested_under_warrant: event.target.value === "" ? null : event.target.value === "true",
+              }))
+            }
+          >
+            <option value="">Not recorded</option>
+            <option value="false">Without warrant (s.58)</option>
+            <option value="true">Under a warrant (s.78)</option>
+          </select>
+        </label>
+
+        <label className="block">
+          <span className="block text-xs font-medium text-[var(--ink)]">Another statute</span>
+          <select
+            className="field mt-1.5 h-10 w-full"
+            value={facts.special_statute}
+            onChange={(event) =>
+              setFacts((current) => ({ ...current, special_statute: event.target.value as InvestigationFacts["special_statute"] }))
+            }
+          >
+            <option value="none">None recorded</option>
+            <option value="ndps_s36a">NDPS Act s.36A: ss.19, 24, 27A or commercial quantity</option>
+          </select>
+          <span className="state-field-hint">
+            NDPS s.36A(4) changes the default-bail period, so no BNSS date is computed for it.
+          </span>
+        </label>
+
         <div className="flex flex-col justify-end gap-2">
           <label className="flex items-center gap-2 text-xs text-[var(--ink)]">
             <input
@@ -229,7 +286,17 @@ export function InvestigationTimeline({ caseId }: { caseId: string }) {
                 setFacts((current) => ({ ...current, is_listed_sexual_offence: event.target.checked }))
               }
             />
-            Listed offence under s.193(2) — BNS ss.64–71, POCSO ss.4, 6, 8, 10
+            Listed under s.193(2): BNS ss.64–68, 70, 71; POCSO ss.4, 6, 8, 10. BNS s.69 is not listed
+          </label>
+          <label className="flex items-center gap-2 text-xs text-[var(--ink)]">
+            <input
+              type="checkbox"
+              checked={facts.is_rape_or_attempt}
+              onChange={(event) =>
+                setFacts((current) => ({ ...current, is_rape_or_attempt: event.target.checked }))
+              }
+            />
+            Rape or attempted rape of a woman: s.184. For a child victim, POCSO s.27 governs the examination
           </label>
           <label className="flex items-center gap-2 text-xs text-[var(--ink)]">
             <input
@@ -257,7 +324,7 @@ export function InvestigationTimeline({ caseId }: { caseId: string }) {
       <div className="flex flex-wrap items-center gap-3">
         <button
           onClick={save}
-          disabled={busy}
+          disabled={busy || !loaded}
           className="button-primary"
         >
           {busy ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}

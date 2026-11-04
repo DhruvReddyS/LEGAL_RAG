@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -46,8 +47,28 @@ class InvestigationTimelineRequest(BaseModel):
     is_listed_sexual_offence: bool = Field(
         default=False,
         description=(
-            "True for BNS ss.64-71 and POCSO ss.4, 6, 8, 10, which carry the "
-            "two-month completion rule in s.193(2)."
+            "True for BNS ss.64-68, 70, 71 and POCSO ss.4, 6, 8, 10, which carry "
+            "the two-month completion rule in s.193(2). BNS s.69 is not listed."
+        ),
+    )
+    is_rape_or_attempt: bool = Field(
+        default=False,
+        description=(
+            "Rape or attempted rape of a woman. This, not the s.193(2) listing, "
+            "is what brings s.184 into play."
+        ),
+    )
+    victim_examined_at: datetime | None = None
+    arrested_under_warrant: bool | None = Field(
+        default=None,
+        description="Chooses s.78 over s.58. Null means the arrest type is not recorded.",
+    )
+    police_report_forwarded_at: datetime | None = None
+    special_statute: Literal["none", "ndps_s36a"] = Field(
+        default="none",
+        description=(
+            "ndps_s36a stops the s.187(3) date being computed: NDPS Act s.36A(4) "
+            "changes the period."
         ),
     )
     preliminary_enquiry_started_at: datetime | None = None
@@ -64,6 +85,8 @@ class DeadlineResponse(BaseModel):
     computed_from: str
     is_earliest_possible: bool
     undetermined_because: str
+    actor: str = "investigating_officer"
+    notes: list[str] = Field(default_factory=list)
     is_breached: bool | None = Field(
         description=(
             "None where the deadline could not be computed. Never False for "
@@ -108,22 +131,26 @@ class ComplianceChecklistResponse(BaseModel):
     # `not_recorded`, never here: an unknown is not a breach.
     outstanding: list[str]
     not_recorded: list[str]
+    # What this checklist was computed with, so a reload can show the same list.
+    flags: dict[str, bool] = Field(default_factory=dict)
 
 
 class ComplianceUpdateRequest(BaseModel):
     """What has been confirmed, one way or the other.
 
-    A full replace of the recorded statuses for this action. Keys absent
-    from the map return to not_recorded, which is how a wrongly ticked item
-    is untricked -- under merge semantics there would be no way to withdraw
-    a confirmation.
+    Replaces the statuses of the rows the effective flags list. A listed key
+    absent from the map returns to not_recorded, which is how a wrongly ticked
+    item is unticked. Rows the flags do not list keep what they had.
     """
 
     action: PoliceAction
     status: dict[str, ComplianceStatus] = Field(default_factory=dict)
-    arrested_person_is_woman: bool = False
-    handcuffs_used: bool = False
-    memorandum_attested_by_family: bool = False
+    # Null keeps what is stored. These decide which conditional rows are listed,
+    # so they are part of the record: a reload must show the same list.
+    arrested_person_is_woman: bool | None = None
+    handcuffs_used: bool | None = None
+    memorandum_attested_by_family: bool | None = None
+    bailable_arrest_without_warrant: bool | None = None
     # s.193(3)(i)(h) and (i): both conditional, both new in the BNSS.
-    is_listed_sexual_offence: bool = False
-    electronic_device_seized: bool = False
+    is_listed_sexual_offence: bool | None = None
+    electronic_device_seized: bool | None = None

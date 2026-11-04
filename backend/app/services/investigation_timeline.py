@@ -59,11 +59,24 @@ class InvestigationFacts:
     accused_produced_at: datetime | None = None
     death_occurred_at: datetime | None = None
     gravity: OffenceGravity = OffenceGravity.UNKNOWN
-    # s.193(2) lists the BNS sexual offences and the POCSO sections that
-    # carry the two-month completion rule. It is a flag rather than an
-    # inferred property because inferring it from free text is exactly the
-    # kind of guess this module exists to avoid.
+    # s.193(2) lists BNS ss.64-68, 70 and 71 and POCSO ss.4, 6, 8 and 10. BNS
+    # s.69 is not in it. A flag rather than an inferred property because
+    # inferring it from free text is exactly the kind of guess this module
+    # exists to avoid.
     is_listed_sexual_offence: bool = False
+    # s.184 is narrower than s.193(2): rape or attempted rape of a woman only.
+    # It is its own fact so a POCSO case about a boy, or a s.70-only record,
+    # never reads "send the woman for examination".
+    is_rape_or_attempt: bool = False
+    victim_examined_at: datetime | None = None
+    # None is "not recorded". s.58 governs arrest without warrant and s.78 a
+    # warrant arrest; the period is the same but the citation is not.
+    arrested_under_warrant: bool | None = None
+    # s.230 is the Magistrate's duty and arises only on a police report.
+    police_report_forwarded_at: datetime | None = None
+    # A statute that displaces the s.187(3) period. Only "ndps_s36a" is
+    # recognised: it is the one such provision whose text is in this corpus.
+    special_statute: str = "none"
     preliminary_enquiry_started_at: datetime | None = None
     is_unnatural_death: bool = False
     # Asked rather than inferred: s.196(6) turns on it, and "unnatural" does not
@@ -86,6 +99,12 @@ class Deadline:
     # figure is the earliest the period could expire, not the limit itself.
     is_earliest_possible: bool = False
     undetermined_because: str = ""
+    # Whose duty this is. The register keeps the officer's own apart from a
+    # period the officer can only watch; a Magistrate's lapse is not a police
+    # breach.
+    actor: str = "investigating_officer"
+    # Limits of the arithmetic that the reader must see beside the date.
+    notes: tuple[str, ...] = ()
 
     @property
     def determined(self) -> bool:
@@ -120,6 +139,21 @@ def add_calendar_months(moment: datetime, months: int) -> datetime:
     return moment.replace(year=year, month=month, day=day)
 
 
+# NDPS Act s.36A(4), read from the Act in the corpus. UAPA s.43D is not named: the
+# Act itself is not in this corpus, so nothing here can be checked against it.
+NDPS_S36A_NOTE = (
+    "Another statute may change this period. NDPS Act s.36A(4) reads the ninety "
+    "days as one hundred and eighty days for persons accused under ss.19, 24 or "
+    "27A or of offences involving commercial quantity, and the Special Court may "
+    "extend it up to one year. It is worded against the CrPC; confirm with the "
+    "prosecutor how it applies."
+)
+
+LISTED_OFFENCE_NOTE = (
+    "s.193(2) lists BNS ss.64, 65, 66, 67, 68, 70 and 71 and POCSO ss.4, 6, 8 and "
+    "10. BNS s.69 is not listed."
+)
+
 _UNKNOWN_GRAVITY = (
     "the offence's gravity is not recorded, so it is unknown whether the "
     "s.187(3) period is ninety or sixty days"
@@ -146,6 +180,8 @@ def investigation_deadlines(facts: InvestigationFacts) -> list[Deadline]:
         *,
         earliest: bool = False,
         missing: str = "",
+        actor: str = "investigating_officer",
+        notes: tuple[str, ...] = (),
     ) -> None:
         out.append(
             Deadline(
@@ -157,24 +193,62 @@ def investigation_deadlines(facts: InvestigationFacts) -> list[Deadline]:
                 computed_from=computed_from,
                 is_earliest_possible=earliest and due_at is not None,
                 undetermined_because=missing if due_at is None else "",
+                actor=actor,
+                notes=notes,
             )
         )
 
-    # ---- s.58: production before a Magistrate within twenty-four hours
+    # ---- s.58 / s.78: production before a Magistrate within twenty-four hours
     if facts.arrested_at:
-        add(
-            "production_before_magistrate",
-            "Produce the arrested person before a Magistrate.",
-            "BNSS s.58",
-            facts.arrested_at + timedelta(hours=24),
-            "Detention beyond this without an order under s.187 is unlawful.",
-            "twenty-four hours from the time of arrest",
-            earliest=True,
-        )
+        if facts.arrested_under_warrant is True:
+            add(
+                "production_before_magistrate",
+                "Bring the person arrested under the warrant before the Court.",
+                "BNSS s.78",
+                facts.arrested_at + timedelta(hours=24),
+                "The delay may not exceed twenty-four hours, exclusive of the journey "
+                "to the Magistrate's Court.",
+                "twenty-four hours from the time of arrest",
+                earliest=True,
+            )
+        else:
+            add(
+                "production_before_magistrate",
+                "Produce the arrested person before a Magistrate.",
+                "BNSS s.58",
+                facts.arrested_at + timedelta(hours=24),
+                "Detention beyond this without an order under s.187 is unlawful.",
+                "twenty-four hours from the time of arrest",
+                earliest=True,
+                notes=(
+                    ()
+                    if facts.arrested_under_warrant is False
+                    else (
+                        "s.58 governs arrest without warrant. If this arrest was under "
+                        "a warrant, s.78 is the provision; the period is the same.",
+                    )
+                ),
+            )
 
     # ---- s.187(3): the default-bail period
     if facts.first_remand_at or facts.arrested_at:
-        if facts.gravity is OffenceGravity.UNKNOWN:
+        if facts.special_statute == "ndps_s36a":
+            add(
+                "default_bail_entitlement",
+                "Complete the investigation and file the report, or the accused "
+                "becomes entitled to release on bail.",
+                "BNSS s.187(3)",
+                None,
+                "On expiry the accused shall be released on bail if prepared to "
+                "furnish it. The entitlement is indefeasible once it accrues.",
+                "not computed",
+                missing=(
+                    "the case is recorded as falling under NDPS Act s.36A, which changes "
+                    "the period; no date is computed from the BNSS periods alone"
+                ),
+                notes=(NDPS_S36A_NOTE,),
+            )
+        elif facts.gravity is OffenceGravity.UNKNOWN:
             add(
                 "default_bail_entitlement",
                 "Complete the investigation and file the report, or the accused "
@@ -217,6 +291,7 @@ def investigation_deadlines(facts: InvestigationFacts) -> list[Deadline]:
                 "On expiry the accused shall be released on bail if prepared to "
                 "furnish it. The entitlement is indefeasible once it accrues.",
                 f"{days} days from the date of first remand",
+                notes=(NDPS_S36A_NOTE,),
             )
 
     # ---- s.173(3)(i): preliminary enquiry within fourteen days
@@ -242,6 +317,7 @@ def investigation_deadlines(facts: InvestigationFacts) -> list[Deadline]:
                 "The Sanhita fixes two months for these offences.",
                 "not computed",
                 missing="the date the information was recorded is not known",
+                notes=(LISTED_OFFENCE_NOTE,),
             )
         else:
             add(
@@ -252,6 +328,7 @@ def investigation_deadlines(facts: InvestigationFacts) -> list[Deadline]:
                 "The Sanhita requires completion within two months of recording "
                 "the information.",
                 "two calendar months from the date the information was recorded",
+                notes=(LISTED_OFFENCE_NOTE,),
             )
 
     # ---- s.193(3)(ii): tell the informant or victim where it has got to
@@ -266,15 +343,35 @@ def investigation_deadlines(facts: InvestigationFacts) -> list[Deadline]:
             "ninety days from the date the information was recorded",
         )
 
-    # ---- s.184: medical examination of the victim
-    if facts.is_listed_sexual_offence and facts.information_recorded_at:
+    # ---- s.184(1): medical examination of the victim of rape or attempted rape
+    if facts.is_rape_or_attempt and facts.information_recorded_at:
         add(
             "victim_medical_examination",
-            "Send the woman to a registered medical practitioner for examination.",
-            "BNSS s.184",
+            "With her consent, send the woman to a registered medical practitioner "
+            "for examination.",
+            "BNSS s.184(1)",
             facts.information_recorded_at + timedelta(hours=24),
-            "Delay degrades the medical evidence and is itself a lapse.",
+            "Delay degrades the medical evidence and is itself a lapse. No examination "
+            "is lawful without consent: s.184(7).",
             "twenty-four hours from receiving the information",
+        )
+
+    # ---- s.184(6): the practitioner's report
+    if facts.is_rape_or_attempt:
+        add(
+            "medical_report_to_officer",
+            "The registered medical practitioner forwards the report to the "
+            "investigating officer, who forwards it to the Magistrate with the s.193 "
+            "documents.",
+            "BNSS s.184(6)",
+            facts.victim_examined_at + timedelta(days=7) if facts.victim_examined_at else None,
+            "The period is the practitioner's. Chase it: the report must go up with "
+            "the police report.",
+            # s.184(6) names no starting point; the examination is the earliest reading.
+            "seven days, measured from the examination as the earliest reading; the "
+            "sub-section does not state a starting point",
+            missing="the time of the examination is not recorded",
+            actor="medical_practitioner",
         )
 
     # ---- s.194: unnatural death
@@ -306,7 +403,9 @@ def investigation_deadlines(facts: InvestigationFacts) -> list[Deadline]:
         )
 
     # ---- s.230: supply of the report and documents to the accused
-    if facts.accused_produced_at:
+    # s.230 applies "where the proceeding has been instituted on a police report",
+    # so it has no footing until a report exists, whatever production has happened.
+    if facts.accused_produced_at and facts.police_report_forwarded_at:
         add(
             "supply_of_documents",
             "Magistrate's duty, on a police report: furnish the accused and the victim's "
@@ -316,6 +415,7 @@ def investigation_deadlines(facts: InvestigationFacts) -> list[Deadline]:
             facts.accused_produced_at + timedelta(days=14),
             "Supply must be without delay and in no case beyond fourteen days.",
             "fourteen days from the production or appearance of the accused",
+            actor="magistrate",
         )
 
     return out

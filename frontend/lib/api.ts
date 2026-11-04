@@ -504,6 +504,7 @@ interface ComplianceFlags {
   arrested_person_is_woman?: boolean;
   handcuffs_used?: boolean;
   memorandum_attested_by_family?: boolean;
+  bailable_arrest_without_warrant?: boolean;
   is_listed_sexual_offence?: boolean;
   electronic_device_seized?: boolean;
 }
@@ -514,7 +515,7 @@ export async function getComplianceChecklist(
   flags: ComplianceFlags = {},
 ): Promise<import("@/lib/types").ComplianceChecklist> {
   const params = new URLSearchParams({ action });
-  for (const [key, value] of Object.entries(flags)) if (value) params.set(key, "true");
+  for (const [key, value] of Object.entries(flags)) if (value !== undefined) params.set(key, String(value));
   return request<import("@/lib/types").ComplianceChecklist>(
     `/cases/${caseId}/investigation/compliance?${params}`,
   );

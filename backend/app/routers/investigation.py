@@ -86,6 +86,8 @@ async def compute_timeline(
                 computed_from=d.computed_from,
                 is_earliest_possible=d.is_earliest_possible,
                 undetermined_because=d.undetermined_because,
+                actor=d.actor,
+                notes=list(d.notes),
                 is_breached=d.is_breached(now),
             )
             for d in deadlines
@@ -106,7 +108,30 @@ _FACT_FIELDS = (
     "is_listed_sexual_offence",
     "is_unnatural_death",
     "is_custodial_death",
+    "is_rape_or_attempt",
+    "victim_examined_at",
+    "arrested_under_warrant",
+    "police_report_forwarded_at",
+    "special_statute",
 )
+
+COMPLIANCE_FLAGS = (
+    "arrested_person_is_woman",
+    "handcuffs_used",
+    "memorandum_attested_by_family",
+    "bailable_arrest_without_warrant",
+    "is_listed_sexual_offence",
+    "electronic_device_seized",
+)
+
+
+def effective_flags(stored: dict | None, submitted: dict[str, bool | None]) -> dict[str, bool]:
+    """What was asked for, falling back to what is on record, then to False."""
+    known = stored or {}
+    return {
+        flag: bool(submitted[flag]) if submitted.get(flag) is not None else bool(known.get(flag))
+        for flag in COMPLIANCE_FLAGS
+    }
 
 
 def _timeline_from(facts: InvestigationFacts, now: datetime) -> InvestigationTimelineResponse:
@@ -123,6 +148,8 @@ def _timeline_from(facts: InvestigationFacts, now: datetime) -> InvestigationTim
                 computed_from=d.computed_from,
                 is_earliest_possible=d.is_earliest_possible,
                 undetermined_because=d.undetermined_because,
+                actor=d.actor,
+                notes=list(d.notes),
                 is_breached=d.is_breached(now),
             )
             for d in deadlines
@@ -170,7 +197,9 @@ async def record_facts(
             resource_type="case",
             resource_id=case_id,
             metadata_={
-                "fields_set": [f for f in _FACT_FIELDS if submitted[f] not in (None, False)],
+                "fields_set": [
+                    f for f in _FACT_FIELDS if submitted[f] not in (None, False, "none", "unknown")
+                ],
             },
         )
     )
@@ -236,12 +265,7 @@ async def stored_timeline(
 def _checklist_response(
     action: PoliceAction,
     stored: dict | None,
-    *,
-    arrested_person_is_woman: bool,
-    handcuffs_used: bool,
-    memorandum_attested_by_family: bool,
-    is_listed_sexual_offence: bool = False,
-    electronic_device_seized: bool = False,
+    flags: dict[str, bool],
 ) -> ComplianceChecklistResponse:
     recorded = {
         key: ComplianceStatus(value)
@@ -251,15 +275,7 @@ def _checklist_response(
         # is not about anything.
         if value in set(ComplianceStatus)
     }
-    items = compliance_checklist(
-        action,
-        status=recorded,
-        arrested_person_is_woman=arrested_person_is_woman,
-        handcuffs_used=handcuffs_used,
-        memorandum_attested_by_family=memorandum_attested_by_family,
-        is_listed_sexual_offence=is_listed_sexual_offence,
-        electronic_device_seized=electronic_device_seized,
-    )
+    items = compliance_checklist(action, status=recorded, **flags)
     return ComplianceChecklistResponse(
         action=action,
         items=[
@@ -275,6 +291,7 @@ def _checklist_response(
         ],
         outstanding=[item.key for item in outstanding(items)],
         not_recorded=[item.key for item in unrecorded(items)],
+        flags=flags,
     )
 
 
@@ -294,22 +311,18 @@ async def record_compliance(
         row = InvestigationFactsRow(case_id=case_id)
         session.add(row)
 
+    flags = effective_flags(
+        row.compliance_flags, {flag: getattr(request, flag) for flag in COMPLIANCE_FLAGS}
+    )
+    row.compliance_flags = flags
+
     stored = dict(row.compliance_status or {})
     # Merged, not replaced. A conditional item is only listed while its flag is set,
-    # and flags are not stored, so replacing erased what was recorded under a flag
-    # that happened to be off in this request. Items the current flags do list are
-    # replaced, since leaving one out is how a mistaken tick is withdrawn.
-    listed = {
-        item.key
-        for item in compliance_checklist(
-            request.action,
-            arrested_person_is_woman=request.arrested_person_is_woman,
-            handcuffs_used=request.handcuffs_used,
-            memorandum_attested_by_family=request.memorandum_attested_by_family,
-            is_listed_sexual_offence=request.is_listed_sexual_offence,
-            electronic_device_seized=request.electronic_device_seized,
-        )
-    }
+    # so a flag switched off, or a save that does not name it, must not erase what
+    # was recorded under it. Items this request's own flags list are replaced, since
+    # leaving one out is how a mistaken tick is withdrawn.
+    named = {flag: bool(getattr(request, flag)) for flag in COMPLIANCE_FLAGS}
+    listed = {item.key for item in compliance_checklist(request.action, **named)}
     earlier = stored.get(str(request.action)) or {}
     stored[str(request.action)] = {
         **{key: value for key, value in earlier.items() if key not in listed},
@@ -333,20 +346,13 @@ async def record_compliance(
                     k for k, v in request.status.items()
                     if v is ComplianceStatus.NOT_SATISFIED
                 ),
+                "flags": sorted(flag for flag, value in flags.items() if value),
             },
         )
     )
     await session.commit()
 
-    return _checklist_response(
-        request.action,
-        stored.get(str(request.action)),
-        arrested_person_is_woman=request.arrested_person_is_woman,
-        handcuffs_used=request.handcuffs_used,
-        memorandum_attested_by_family=request.memorandum_attested_by_family,
-        is_listed_sexual_offence=request.is_listed_sexual_offence,
-        electronic_device_seized=request.electronic_device_seized,
-    )
+    return _checklist_response(request.action, stored.get(str(request.action)), flags)
 
 
 @router.get("/compliance", response_model=ComplianceChecklistResponse)
@@ -357,27 +363,32 @@ async def read_compliance(
         Depends(require_permission(POLICE_INVESTIGATION_OWN, case_id_param="case_id")),
     ],
     action: PoliceAction = PoliceAction.ARREST,
-    arrested_person_is_woman: bool = False,
-    handcuffs_used: bool = False,
-    memorandum_attested_by_family: bool = False,
-    is_listed_sexual_offence: bool = False,
-    electronic_device_seized: bool = False,
+    arrested_person_is_woman: bool | None = None,
+    handcuffs_used: bool | None = None,
+    memorandum_attested_by_family: bool | None = None,
+    bailable_arrest_without_warrant: bool | None = None,
+    is_listed_sexual_offence: bool | None = None,
+    electronic_device_seized: bool | None = None,
     session: AsyncSession = Depends(get_db_session),
 ) -> ComplianceChecklistResponse:
     """The checklist for one action, with whatever has been recorded.
 
     Returns the full checklist even when nothing has been recorded, unlike
     the timeline: the requirements apply whether or not anyone has looked at
-    them, and a 404 here would read as "no requirements apply".
+    them, and a 404 here would read as "no requirements apply". A flag not
+    named in the query comes from the record.
     """
     row = await _row_for(session, case_id)
     stored = (row.compliance_status or {}).get(str(action)) if row else None
-    return _checklist_response(
-        action,
-        stored,
-        arrested_person_is_woman=arrested_person_is_woman,
-        handcuffs_used=handcuffs_used,
-        memorandum_attested_by_family=memorandum_attested_by_family,
-        is_listed_sexual_offence=is_listed_sexual_offence,
-        electronic_device_seized=electronic_device_seized,
+    flags = effective_flags(
+        row.compliance_flags if row else None,
+        {
+            "arrested_person_is_woman": arrested_person_is_woman,
+            "handcuffs_used": handcuffs_used,
+            "memorandum_attested_by_family": memorandum_attested_by_family,
+            "bailable_arrest_without_warrant": bailable_arrest_without_warrant,
+            "is_listed_sexual_offence": is_listed_sexual_offence,
+            "electronic_device_seized": electronic_device_seized,
+        },
     )
+    return _checklist_response(action, stored, flags)

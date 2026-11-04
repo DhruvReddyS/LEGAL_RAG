@@ -10,6 +10,9 @@ CASE_DELETE_OWN = "case:delete:own"
 CASE_DOCUMENT_MANAGE_OWN = "case:document:manage:own"
 
 POLICE_INVESTIGATION_OWN = "police:investigation:own"
+# Held by the police role, and useless alone: a view also needs an explicit
+# supervisor row in police_unit_members, which only an administrator can write.
+POLICE_UNIT_SUPERVISE = "police:unit:supervise"
 ADVOCATE_STRATEGY_OWN = "advocate:strategy:own"
 ADVOCATE_DEBATE_OWN = "advocate:debate:own"
 
@@ -29,6 +32,7 @@ ALL_PERMISSIONS = frozenset(
         CASE_DELETE_OWN,
         CASE_DOCUMENT_MANAGE_OWN,
         POLICE_INVESTIGATION_OWN,
+        POLICE_UNIT_SUPERVISE,
         ADVOCATE_STRATEGY_OWN,
         ADVOCATE_DEBATE_OWN,
         ADMIN_AUDIT_READ,

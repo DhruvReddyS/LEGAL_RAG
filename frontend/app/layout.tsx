@@ -3,6 +3,7 @@ import { DM_Sans, Newsreader } from "next/font/google";
 import DesktopUpdater from "@/components/DesktopUpdater";
 import "./globals.css";
 import "./advocate.css";
+import "./police.css";
 const uiFont = DM_Sans({ subsets: ["latin"], variable: "--font-ui", display: "swap" });
 const editorialFont = Newsreader({ subsets: ["latin"], variable: "--font-editorial", display: "swap", adjustFontFallback: false });
 
