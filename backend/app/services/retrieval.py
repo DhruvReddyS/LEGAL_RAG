@@ -515,29 +515,45 @@ class HybridRetrievalService:
         return await future
 
     async def _flush_query_embedding_batch(self) -> None:
-        # A very small window captures a burst from concurrent HTTP requests
-        # while remaining negligible for a single interactive query.
-        await asyncio.sleep(0.01)
-        async with self._query_batch_lock:
-            pending = self._pending_query_embeddings
-            self._pending_query_embeddings = []
-        if not pending:
-            return
-        try:
-            async with self._embedding_slots:
-                embeddings = await self._run_embedding(
-                    [query for query, _ in pending],
-                    batch_size=min(len(pending), 8),
-                )
-            if len(embeddings) != len(pending):
-                raise RuntimeError("query embedding batch returned an unexpected size")
-            for (_, future), embedding in zip(pending, embeddings, strict=True):
-                if not future.done():
-                    future.set_result(embedding)
-        except BaseException as exc:
-            for _, future in pending:
-                if not future.done():
-                    future.set_exception(exc)
+        # Loops until the queue is empty. A query arriving during a model pass
+        # sees this task still running, so it starts no task of its own; flushing
+        # once left that query waiting, with no timeout, until some later request
+        # happened to start a new flush.
+        while True:
+            # A very small window captures a burst from concurrent HTTP requests
+            # while remaining negligible for a single interactive query.
+            await asyncio.sleep(0.01)
+            async with self._query_batch_lock:
+                pending = self._pending_query_embeddings
+                self._pending_query_embeddings = []
+                if not pending:
+                    self._query_batch_task = None
+                    return
+            try:
+                async with self._embedding_slots:
+                    embeddings = await self._run_embedding(
+                        [query for query, _ in pending],
+                        batch_size=min(len(pending), 8),
+                    )
+                if len(embeddings) != len(pending):
+                    raise RuntimeError("query embedding batch returned an unexpected size")
+                for (_, future), embedding in zip(pending, embeddings, strict=True):
+                    if not future.done():
+                        future.set_result(embedding)
+            except asyncio.CancelledError as exc:
+                for _, future in pending:
+                    if not future.done():
+                        future.set_exception(exc)
+                raise
+            except Exception as exc:
+                for _, future in pending:
+                    if not future.done():
+                        future.set_exception(exc)
+
+    async def embed_query(self, query: str) -> list[float]:
+        """The dense vector retrieval would use for this query."""
+        embedding = await self._embed_query_batched(query)
+        return embedding.dense
 
     async def embed_documents(
         self, texts: list[str], *, batch_size: int = 8
