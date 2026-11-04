@@ -113,14 +113,14 @@ def format_evidence(hits: list[RetrievalHit]) -> str:
         blocks.append(
             "SOURCE: {chunk_id}\nTITLE: {title}\nSOURCE_TYPE: {source_type}\n"
             "ACT_NAME: {act_name}\nSECTION: {section}\nIS_CURRENT: {is_current}\n"
-            "IS_SUPERSEDED: {is_superseded}\nPAGES: {start}-{end}\nTEXT:\n{text}".format(
+            "CURRENCY: {currency}\nPAGES: {start}-{end}\nTEXT:\n{text}".format(
                 chunk_id=labels.get(str(payload.get("chunk_id")), "S?"),
                 title=payload.get("title") or "Unknown",
                 source_type=payload.get("source_type") or "unknown",
                 act_name=payload.get("act_name") or "not stated",
                 section=payload.get("section") or "not stated",
                 is_current=payload.get("is_current"),
-                is_superseded=resolve_currency(payload).status,
+                currency=resolve_currency(payload).status.value,
                 start=payload.get("page_start") or "?",
                 end=payload.get("page_end") or "?",
                 text=str(payload.get("text") or "").strip()[:MAX_EVIDENCE_TEXT_CHARACTERS],
@@ -173,8 +173,9 @@ Writing requirements:
 - Explain legal terms in ordinary language while retaining exact statutory terminology where needed.
 - Put practical steps in a sensible action order and make clear when a step depends on missing facts.
 - State a material uncertainty as a limit; never hide it behind confident wording.
-- Do not describe an authority as current unless IS_CURRENT is true. Do not rely on a source whose
-  IS_SUPERSEDED value is true. Treat a missing or false IS_CURRENT value as a currency limitation.
+- Do not describe an authority as current unless its CURRENCY is in_force. A source whose CURRENCY is
+  superseded is repealed law: use it only for conduct from before its repeal, never to say what the law
+  is now. Treat unverified CURRENCY as a currency limitation.
 - Do not use a generic "consult a lawyer" sentence as a substitute for a supported answer.
 
 {profile_prompt(state.get('role', 'citizen'))}

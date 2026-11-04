@@ -61,6 +61,14 @@ ROLE_SECTION_LABELS = {
 PROFESSIONAL_SECTION_LABELS = POLICE_SECTION_LABELS
 
 
+CLAIMS_PRESENT_FORCE_RE = re.compile(
+    r"\b(?:currently|presently|at present|today|now governs?|is now the law|"
+    r"remains? (?:in force|the law|applicable|operative)|still (?:in force|governs?|applies|apply|operative)|"
+    r"continues? to (?:govern|apply)|not yet (?:been )?(?:fully )?(?:implemented|commenced|in force|notified))\b",
+    re.I,
+)
+
+
 def response_generation_node(state: dict) -> dict:
     started_ns = perf_counter_ns()
     result = state["verification_result"]
@@ -107,6 +115,14 @@ def response_generation_node(state: dict) -> dict:
             # point in the live index, so `is True` never fired and this gate
             # has been open since the field was added.
             if hit is None or not resolve_currency(hit.payload).may_ground_a_published_claim:
+                continue
+            # Support is not truth. A 2015 passage entails "the CrPC currently
+            # governs arrest", and was once published as verified. Repealed law
+            # may say what the law was; it cannot ground a claim about now.
+            if (
+                resolve_currency(hit.payload).status is CurrencyStatus.SUPERSEDED
+                and CLAIMS_PRESENT_FORCE_RE.search(claim.claim)
+            ):
                 continue
             supported_sources.setdefault(key, [])
             if claim.chunk_id not in supported_sources[key]:
@@ -241,7 +257,9 @@ def response_generation_node(state: dict) -> dict:
         # this source while Deep stayed silent, which is the third currency
         # divergence between the lanes found in this audit.
         superseded_without_successor: set[str] = set()
-        renumbered: dict[str, str] = {}
+        # One old provision can map to several sub-sections. A plain dict kept
+        # only the last, so CrPC s.154 was reported as BNSS s.173(3) alone.
+        renumbered: dict[str, list[str]] = {}
         not_re_enacted: set[str] = set()
         unverified = False
         for chunk_id in cited_ids:
@@ -269,7 +287,8 @@ def response_generation_node(state: dict) -> dict:
                 value = f"{mapping.to_code} s.{mapping.to_section}"
                 if mapping.ingredients_changed:
                     value += " (the elements of the provision also changed)"
-                renumbered[key] = value
+                if value not in renumbered.setdefault(key, []):
+                    renumbered[key].append(value)
             # A provision the new code dropped altogether. Saying nothing
             # here would leave the reader assuming it survived under a new
             # number, which is what happens with sedition: IPC s.124A was
@@ -311,7 +330,7 @@ def response_generation_node(state: dict) -> dict:
             )
         if renumbered:
             moved = "\n".join(
-                f"- {old} is now {new}." for old, new in sorted(renumbered.items())
+                f"- {old} is now {' and '.join(new)}." for old, new in sorted(renumbered.items())
             )
             answer += (
                 "The sources above remain in force, but they cite provisions that were "

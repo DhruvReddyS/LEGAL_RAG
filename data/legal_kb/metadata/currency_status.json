@@ -77,8 +77,10 @@
     },
     {
       "starts_with": "the arms rules, 1962",
-      "status": "in_force",
-      "basis": "In force as amended; the corpus also holds the 2016 amendment compendium.",
+      "status": "superseded",
+      "superseded_by": "The Arms Rules, 2016",
+      "saves_prior_conduct": true,
+      "basis": "The 2016 Rules are made 'in supersession of the Arms Rules, 1962, except as respects things done or omitted to be done' before it (corpus: Arms Rule 2016, page 134).",
       "corpus_chunks": 288
     },
     {
@@ -90,7 +92,7 @@
     {
       "starts_with": "arms rule 2016",
       "status": "in_force",
-      "basis": "Amendments to the Arms Rules, 1962.",
+      "basis": "The Arms Rules, 2016, which supersede the Arms Rules, 1962.",
       "corpus_chunks": 827
     },
     {

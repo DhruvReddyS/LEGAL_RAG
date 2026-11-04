@@ -139,7 +139,10 @@ def resolve_currency(payload: dict[str, Any]) -> CurrencyDecision:
 
     Order matters and is from most to least trustworthy:
 
-    1. The curated table, which a person reviewed.
+    1. The curated table, which a person reviewed. Its prefixes name a family
+       of instruments, so an "in force" row does not outrank an explicit
+       `is_superseded` on one member: "the juvenile justice" must not label the
+       Act of 2000 current because the Act of 2015 is.
     2. The repeal table, which knows the three codes replaced in July 2024.
     3. The stored `is_superseded` flag, but only when it is exactly True --
        `None` means the index predates the field, not that the source is
@@ -159,7 +162,9 @@ def resolve_currency(payload: dict[str, Any]) -> CurrencyDecision:
     name_fields = (payload.get("act_name"), payload.get("title"))
 
     curated = _curated(*name_fields)
-    if curated is not None:
+    if curated is not None and not (
+        curated.status is CurrencyStatus.IN_FORCE and payload.get("is_superseded") is True
+    ):
         return curated
 
     replacement = replacement_for(*name_fields)

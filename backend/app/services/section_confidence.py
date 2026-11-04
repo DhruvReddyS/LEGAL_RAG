@@ -148,10 +148,17 @@ def section_confidence(
     payloads = [payload_by_chunk_id[i] for i in ids if i in payload_by_chunk_id]
 
     tiers = tuple(authority_tier(payload) for payload in payloads)
-    unverified = any(
-        resolve_currency(payload).status is CurrencyStatus.UNVERIFIED
-        for payload in payloads
-    )
+    statuses = [resolve_currency(payload).status for payload in payloads]
+    unverified = CurrencyStatus.UNVERIFIED in statuses
+    superseded = CurrencyStatus.SUPERSEDED in statuses
+    # Two chunks of one Act are one source. Counting chunks let a single document
+    # corroborate itself, which is what "one source is never strong" rules out.
+    documents = {
+        str(payload.get("canonical_document_id") or payload.get("document_id") or chunk_id)
+        for chunk_id, payload in zip(
+            (i for i in ids if i in payload_by_chunk_id), payloads, strict=True
+        )
+    }
     establishing = [tier for tier in tiers if tier in _ESTABLISHING]
 
     # Ordered from the most disqualifying, so the reason names the first
@@ -164,10 +171,15 @@ def section_confidence(
             "grounded only in guidance or commentary, which shows how officials "
             "read the law rather than what it says",
         )
-    elif len(payloads) == 1:
+    elif len(documents) == 1:
         label, reason = (
             ConfidenceLabel.MODERATE,
             "grounded in a single source; a second would be needed to corroborate it",
+        )
+    elif superseded:
+        label, reason = (
+            ConfidenceLabel.MODERATE,
+            "one or more cited sources is no longer in force",
         )
     elif unverified:
         label, reason = (
@@ -177,14 +189,14 @@ def section_confidence(
     else:
         label, reason = (
             ConfidenceLabel.STRONG,
-            f"grounded in {len(payloads)} sources including primary authority, "
+            f"grounded in {len(documents)} sources including primary authority, "
             "all of verified current status",
         )
 
     return SectionConfidence(
         section=section,
         claim_count=claim_count,
-        source_count=len(payloads),
+        source_count=len(documents),
         tiers=tiers,
         currency_unverified=unverified,
         label=label,
