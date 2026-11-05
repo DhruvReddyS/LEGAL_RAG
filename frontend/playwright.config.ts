@@ -17,6 +17,7 @@ export default defineConfig({
   outputDir: "./test-results",
   use: {
     baseURL: `http://localhost:${PORT}`,
+    actionTimeout: 15_000,
     trace: "retain-on-failure",
     ...devices["Desktop Chrome"],
     viewport: { width: 1280, height: 800 },

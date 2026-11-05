@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertTriangle, ArrowRight, BriefcaseBusiness, CalendarClock, Check, ClipboardCheck, ClipboardCopy, ScanText, CheckCircle2, Download, FilePlus2, FileSearch, FileText, FolderPlus, Loader2, MessageSquare, MessageSquarePlus, Pencil, Plus, Scale, ScanSearch, ShieldCheck, UploadCloud } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AuthorityCheck } from "@/components/AuthorityCheck";
 import { ComplianceChecklist } from "@/components/ComplianceChecklist";
 import { InvestigationTimeline } from "@/components/InvestigationTimeline";
@@ -47,6 +47,8 @@ export default function ProfessionalWorkspace({
     search: "Authority & case search",
   };
   const [cases, setCases] = useState<LegalCase[]>([]);
+  // The chat composer lists these too. Reported from an effect, never from a state updater.
+  useEffect(() => { onCasesChange?.(cases); }, [cases, onCasesChange]);
   const [selectedId, setSelectedId] = useState("");
   const [newTitle, setNewTitle] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
@@ -60,14 +62,15 @@ export default function ProfessionalWorkspace({
   const [draft, setDraft] = useState<FIRDraftResponse | null>(null);
   const [analysis, setAnalysis] = useState<DefenceAnalysisResponse | null>(null);
   const [documentRefresh, setDocumentRefresh] = useState(0);
-  const [view, setView] = useState<ViewKey>("casefile");
+  const [view, setViewState] = useState<ViewKey>("casefile");
+  const setView = (next: ViewKey) => { setNotice(""); setFailed(false); setViewState(next); };
   const fail = (message: string) => { setFailed(true); setNotice(message); };
   const selected = useMemo(() => cases.find((item) => item.id === selectedId), [cases, selectedId]);
   // A sidebar link opens the feature it names. Unknown names are ignored
   // rather than blanking the working area.
   useEffect(() => {
     if (!requestedView) return;
-    if (tools.some((tool) => tool.key === requestedView.view)) setView(requestedView.view as ViewKey);
+    if (tools.some((tool) => tool.key === requestedView.view)) setViewState(requestedView.view as ViewKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestedView?.nonce, requestedView?.view]);
   const matterChats = useMemo(
@@ -117,11 +120,7 @@ export default function ProfessionalWorkspace({
     setBusy("case-edit"); setNotice(""); setFailed(false);
     try {
       const updated = await updateCase(selectedId, changes);
-      setCases((current) => {
-        const next = current.map((item) => (item.id === updated.id ? updated : item));
-        onCasesChange?.(next);
-        return next;
-      });
+      setCases((current) => current.map((item) => (item.id === updated.id ? updated : item)));
       setNotice(changes.status ? `Case marked ${changes.status}.` : "Case renamed.");
     } catch (error) { fail(errorText(error)); } finally { setBusy(null); setRenaming(false); }
   };
@@ -148,13 +147,15 @@ export default function ProfessionalWorkspace({
   // Everything on screen belongs to one case. Selecting another one has to
   // clear it: a draft, an analysis or a search result left standing under a
   // different case's name is read as that case's material.
+  const keepNoticeFor = useRef<string | null>(null);
   useEffect(() => {
     setDraft(null);
     setAnalysis(null);
     setScenario("");
     setSearchResults([]);
-    setNotice("");
-    setFailed(false);
+    // "Case created" arrives with the selection that would otherwise clear it.
+    if (keepNoticeFor.current !== selectedId) { setNotice(""); setFailed(false); }
+    keepNoticeFor.current = null;
     setRenaming(false);
   }, [selectedId]);
   const openDraft = async (documentId: string) => {
@@ -162,12 +163,12 @@ export default function ProfessionalWorkspace({
     setBusy("draft"); setNotice(""); setFailed(false);
     // Read back, never re-drafted: a reviewed draft must not change under
     // the officer who reviewed it.
-    try { setDraft(await readGeneratedDocument(selectedId, documentId)); setView("agent"); }
+    try { setDraft(await readGeneratedDocument(selectedId, documentId)); setViewState("agent"); }
     catch (error) { fail(errorText(error)); } finally { setBusy(null); }
   };
   const docLabel = (type: string) => type.split(/[_-]/).map((word) => word.toUpperCase() === "FIR" ? "FIR" : word).join(" ").replace(/^./, (c) => c.toUpperCase());
 
-  useEffect(() => { listCases().then((response) => { setCases(response.cases); setSelectedId(response.cases[0]?.id ?? ""); onCasesChange?.(response.cases); }).catch((error) => fail(errorText(error)));
+  useEffect(() => { listCases().then((response) => { setCases(response.cases); setSelectedId(response.cases[0]?.id ?? ""); }).catch((error) => fail(errorText(error)));
   // Loaded once per mount. onCasesChange is a setter and is deliberately not
   // a dependency: including it would refetch on every parent render.
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -175,7 +176,7 @@ export default function ProfessionalWorkspace({
 
   const makeCase = async () => {
     if (newTitle.trim().length < 3) return; setBusy("case"); setNotice(""); setFailed(false);
-    try { const created = await createCase(newTitle.trim()); setCases((current) => { const next = [created, ...current]; onCasesChange?.(next); return next; }); setSelectedId(created.id); setNewTitle(""); setView("casefile"); setNotice("Case created. Only you can read the files you add to it."); }
+    try { const created = await createCase(newTitle.trim()); setCases((current) => [created, ...current]); keepNoticeFor.current = created.id; setSelectedId(created.id); setNewTitle(""); setViewState("casefile"); setNotice("Case created. Only you can read the files you add to it."); }
     catch (error) { fail(errorText(error)); } finally { setBusy(null); }
   };
   const search = async () => {
@@ -375,7 +376,7 @@ type ViewKey = "advocate" | "casefile" | "agent" | "deadlines" | "compliance" | 
             {tools.map((tool) => (
               <button key={tool.key} onClick={() => setView(tool.key)} aria-current={view === tool.key ? "page" : undefined}>
                 <tool.icon size={16} />
-                <span><strong>{tool.label}</strong><small>{tool.title}</small></span>
+                <span><strong>{tool.label}</strong>{tool.title !== tool.label && <small>{tool.title}</small>}</span>
               </button>
             ))}
           </nav>
@@ -554,7 +555,7 @@ type ViewKey = "advocate" | "casefile" | "agent" | "deadlines" | "compliance" | 
                       {tools.filter((tool) => tool.key !== "casefile").map((tool) => (
                         <button key={tool.key} onClick={() => setView(tool.key)}>
                           <tool.icon size={15} />
-                          <span><strong>{tool.label}</strong><small>{tool.title}</small></span>
+                          <span><strong>{tool.label}</strong>{tool.title !== tool.label && <small>{tool.title}</small>}</span>
                         </button>
                       ))}
                     </div>

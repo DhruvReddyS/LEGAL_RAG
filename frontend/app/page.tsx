@@ -186,7 +186,13 @@ export default function HomePage() {
   const openNavRef = useRef<HTMLButtonElement>(null);
   const closeNavRef = useRef<HTMLButtonElement>(null);
   // The drawer is inert until it opens, so focus has to be moved into it by hand.
-  useEffect(() => { if (mobileNav) closeNavRef.current?.focus(); }, [mobileNav]);
+  // Only an effect can: the rest of the page stays inert until this render commits.
+  const navWasOpen = useRef(false);
+  useEffect(() => {
+    if (mobileNav) closeNavRef.current?.focus();
+    else if (navWasOpen.current && !document.querySelector("[role='dialog']")) openNavRef.current?.focus();
+    navWasOpen.current = mobileNav;
+  }, [mobileNav]);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
   const [citizenGuideSlide, setCitizenGuideSlide] = useState<number | null>(null);
@@ -202,6 +208,11 @@ export default function HomePage() {
   const [renamingChatId, setRenamingChatId] = useState<string | null>(null);
   const [renameDraft, setRenameDraft] = useState("");
   const [historyNotice, setHistoryNotice] = useState("");
+  useEffect(() => {
+    if (!historyNotice) return;
+    const timer = window.setTimeout(() => setHistoryNotice(""), 5000);
+    return () => window.clearTimeout(timer);
+  }, [historyNotice]);
   const [historyCursor, setHistoryCursor] = useState<string | null>(null);
   const [historyVersion, setHistoryVersion] = useState(0);
   const [historyPanelOpen, setHistoryPanelOpen] = useState(false);
@@ -666,7 +677,7 @@ export default function HomePage() {
   return <main data-role={role} data-motion={animate ? "on" : "off"} className="app-shell">
     <a className="skip-link" href="#main-content">Skip to content</a>
     <aside aria-label="Main navigation" aria-hidden={compactNavigation && !mobileNav} ref={node => { if(node) node.inert = compactNavigation && !mobileNav; }} className={`app-sidebar ${mobileNav ? "is-open" : ""}`}>
-      <div className="sidebar-brand"><BrandLogo /><button ref={closeNavRef} className="icon-button lg:hidden" onClick={() => { setMobileNav(false); openNavRef.current?.focus(); }} aria-label="Close navigation"><X size={18} /></button></div>
+      <div className="sidebar-brand"><BrandLogo /><button ref={closeNavRef} className="icon-button lg:hidden" onClick={() => setMobileNav(false)} aria-label="Close navigation"><X size={18} /></button></div>
       <button disabled={loading} className="new-chat-button" onClick={() => { resetResearch(); setMobileNav(false); }}><Plus size={18} />{citizenText("newChat")}</button>
       <button className="sidebar-search" onClick={() => { setMobileNav(false); setHistoryPanelOpen(true); }}><Search size={15} aria-hidden="true" />{citizenText("searchChats")}</button>
       <nav className="feature-nav" aria-label="Features">{tools.map(tool => <button key={tool.title} onClick={() => { if (tool.citizenTool) openCitizenTool(tool.citizenTool); else openTool(tool.target); }}><tool.icon size={18} strokeWidth={1.65} /><span>{tool.title}</span></button>)}</nav>
