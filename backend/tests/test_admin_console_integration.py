@@ -1200,6 +1200,15 @@ class _FakeS3:
     def delete_object(self, Bucket: str, Key: str) -> None:
         self.deleted.append(Key)
 
+    # A purge lists an object's versions and deletes those, since the buckets are versioned.
+    def get_paginator(self, _operation: str) -> SimpleNamespace:
+        return SimpleNamespace(
+            paginate=lambda Bucket, Prefix: [{"Versions": [{"Key": Prefix, "VersionId": "v1"}]}]
+        )
+
+    def delete_objects(self, Bucket: str, Delete: dict) -> None:
+        self.deleted.extend(item["Key"] for item in Delete["Objects"])
+
 
 @pytest.mark.asyncio
 async def test_a_closed_case_goes_from_every_store(console, monkeypatch) -> None:
