@@ -24,7 +24,7 @@ interface ChatInputProps { scopeLockedReason?: string | null; onSend: (message: 
 
 export default function ChatInput({ scopeLockedReason = null, onSend, onStop, disabled = false, loading = false, placeholder, mode = "auto", onModeChange, cases = [], caseId = null, onCaseChange, redactBeforeAttach = false, initialDraft = "" }: ChatInputProps) {
   // Only a citizen's composer has this flag, and only a citizen's chat is translated.
-  const { t } = useCitizenLang(redactBeforeAttach);
+  const { t, lang } = useCitizenLang(redactBeforeAttach);
   const [value, setValueState] = useState(initialDraft);
   const setValue = (next: string) => { setValueState(next); saveDraft(window.sessionStorage, next); };
   const [pendingDocument, setPendingDocument] = useState<CitizenDocument | null>(null);
@@ -62,7 +62,7 @@ export default function ChatInput({ scopeLockedReason = null, onSend, onStop, di
     const Constructor = host.SpeechRecognition || host.webkitSpeechRecognition;
     if (!Constructor) return;
     const session = new Constructor(); recognition.current = session;
-    session.lang = "en-IN"; session.continuous = true; session.interimResults = true;
+    session.lang = { hi: "hi-IN", te: "te-IN" }[lang as string] ?? "en-IN"; session.continuous = true; session.interimResults = true;
     const prefix = value.trim();
     session.onresult = event => { const text = Array.from(event.results).map(result => result[0]?.transcript || "").join(" "); setValue([prefix, text].filter(Boolean).join(" ")); };
     session.onend = () => setRecording(false);
