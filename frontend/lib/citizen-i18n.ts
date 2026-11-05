@@ -246,7 +246,7 @@ export const UI = {
   thinkDeep3: l("Taking a closer look at the evidence", "प्रमाण को ध्यान से देखा जा रहा है", "ఆధారాలను దగ్గరగా పరిశీలిస్తోంది"),
   deepInProgress: l("Deep review in progress", "गहन समीक्षा चल रही है", "లోతైన సమీక్ష జరుగుతోంది"),
   searchInProgress: l("Source search in progress", "स्रोत खोज चल रही है", "మూలాల శోధన జరుగుతోంది"),
-  elapsedUsual: l("elapsed · usually two to five minutes", "बीते · आमतौर पर दो से पाँच मिनट", "గడిచింది · సాధారణంగా రెండు నుండి ఐదు నిమిషాలు"),
+  elapsedUsual: l("elapsed · usually about a minute", "बीते · आमतौर पर लगभग एक मिनट", "గడిచింది · సాధారణంగా ఒక నిమిషం"),
   deepProgress: l("Deep review progress", "गहन समीक्षा की प्रगति", "లోతైన సమీక్ష పురోగతి"),
   waitingInLine: l("Waiting in line, position {n}", "क़तार में प्रतीक्षा, स्थान {n}", "వరుసలో వేచి ఉంది, స్థానం {n}"),
   provisionalNote: l("Provisional — found by the quick search, not yet checked against your question.", "अस्थायी — त्वरित खोज से मिला, अभी आपके प्रश्न से जाँचा नहीं गया।", "తాత్కాలికం — త్వరిత శోధనలో దొరికింది, మీ ప్రశ్నతో ఇంకా సరిచూడలేదు."),
