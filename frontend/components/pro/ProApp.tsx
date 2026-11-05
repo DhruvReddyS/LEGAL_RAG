@@ -240,7 +240,8 @@ export default function ProApp({ user, route, navigate, chats, onCasesChange, on
   }, [drawer]);
 
   // Arriving on a new screen moves the reader to its top, and the keyboard to its heading.
-  const href = proHref(route);
+  // The open conversation joins the address as its first answer arrives: not a new screen.
+  const href = proHref({ ...route, chat: undefined });
   const screenKey = `${route.section}:${route.caseId ?? ""}`;
   const shownHref = useRef(href);
   const shownScreen = useRef(screenKey);

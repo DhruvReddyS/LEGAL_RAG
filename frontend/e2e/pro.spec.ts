@@ -154,6 +154,44 @@ for (const role of ROLES) {
       await expect(page.locator("body")).not.toContainText("A case question");
     });
 
+    test("reloading a case's Ask tab keeps the open conversation, and only its own", async ({ page }) => {
+      const stored = (caseId: string | null) => ({
+        id: SESSION_ID, title: "A case question", case_id: caseId, pinned: false, created_at: "2026-11-05T09:00:00Z", updated_at: "2026-11-05T09:00:00Z",
+        messages: [
+          { id: "11111111-1111-4111-8111-111111111111", role: "user", content: "A case question", citations: [], created_at: "2026-11-05T09:00:00Z" },
+          { id: MESSAGE_ID, role: "assistant", content: "The stored answer survives a reload.", citations: [], created_at: "2026-11-05T09:00:01Z" },
+        ],
+      });
+      let scope: string | null = CASE_ID;
+      let missing = false;
+      await openPro(page, role, caseUrl(CASE_ID, "&tab=ask"), {
+        overrides: {
+          [`GET /chat/sessions/${SESSION_ID}`]: (route: Route) => missing ? json(route, { detail: "Not found" }, 404) : json(route, stored(scope)),
+        },
+      });
+      await page.getByLabel("Legal research question").fill("A case question");
+      await page.keyboard.press("Enter");
+      await expect(page.getByText("may be given to an officer")).toBeVisible();
+      await expect(page).toHaveURL(new RegExp(`chat=${SESSION_ID}`));
+
+      await page.reload();
+      await expect(page.getByText("The stored answer survives a reload.")).toBeVisible();
+      await expect(page.getByRole("heading", { level: 1, name: "State v. Test" })).toBeVisible();
+
+      // A conversation from elsewhere is not shown under this case.
+      scope = null;
+      await page.goto(caseUrl(SECOND_CASE_ID, `&tab=ask&chat=${SESSION_ID}`));
+      await expect(page.getByRole("heading", { name: "Ask about State v. Second" })).toBeVisible();
+      await expect(page.locator("body")).not.toContainText("The stored answer survives");
+      await expect(page).not.toHaveURL(/chat=/);
+
+      // Someone else's, or a deleted one, opens as an empty chat.
+      missing = true;
+      await page.goto(caseUrl(CASE_ID, `&tab=ask&chat=${SESSION_ID}`));
+      await expect(page.getByRole("heading", { name: "Ask about State v. Test" })).toBeVisible();
+      await expect(page).not.toHaveURL(/chat=/);
+    });
+
     test("nothing overflows a phone, and the drawer holds the navigation", async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 800 });
       await openPro(page, role);

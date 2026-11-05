@@ -506,11 +506,12 @@ export default function HomePage() {
   // still being answered is left to finish: its screen offers the way back to it.
   const chatScopeId = hasProfessionalWorkspace && proRoute.section === "research" ? null : hasProfessionalWorkspace && proRoute.section === "case" && proRoute.tab === "ask" ? proRoute.caseId ?? null : undefined;
   useEffect(() => {
-    if (chatScopeId === undefined || chatScopeId === chatCaseId || activeRequest.current) return;
+    // An address naming a conversation is restored below, which sets the scope itself.
+    if (chatScopeId === undefined || chatScopeId === chatCaseId || activeRequest.current || proRoute.chat) return;
     resetResearch(chatScopeId);
     // resetResearch only touches state setters and refs.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chatScopeId, chatCaseId, loading]);
+  }, [chatScopeId, chatCaseId, loading, proRoute.chat]);
   const openSavedChat = (item: SavedChat) => {
     if (hasProfessionalWorkspace) proNavigate(item.caseId ? { section: "case", caseId: item.caseId, tab: "ask" } : { section: "research" });
     leaveActiveRequest();
@@ -659,6 +660,53 @@ export default function HomePage() {
     // showJobProgress only touches state setters.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, historyReady]);
+  // Reload, back and a shared link land on the same conversation. After the resume above,
+  // so a job still running keeps the screen it already took.
+  const restoringChat = useRef<string | null>(null);
+  const shownSession = useRef<string | null>(null);
+  const routeChatId = proRoute.chat;
+  useEffect(() => {
+    if (!hasProfessionalWorkspace || !historyReady || !routeChatId || routeChatId === sessionId || activeRequest.current) return;
+    const leaveAddress = () => { const { chat: _chat, ...rest } = proRoute; proNavigate(rest, { replace: true }); };
+    const scope = chatScopeId ?? null;
+    restoringChat.current = routeChatId;
+    openingChat.current = routeChatId;
+    setMessages([{ id: crypto.randomUUID(), role: "assistant", content: "", timestamp: Date.now(), loading: true, requestedMode: "fast" }]);
+    void (async () => {
+      try {
+        const stored = await getChatSession(routeChatId);
+        if (openingChat.current !== routeChatId) return;
+        restoringChat.current = null;
+        // A conversation is only ever shown under its own scope.
+        if ((stored.case_id ?? null) !== scope) { setMessages([]); leaveAddress(); return; }
+        setChatCaseId(scope);
+        setSessionId(routeChatId);
+        setActiveChatId(routeChatId);
+        setMessages(restoreStoredMessages(stored.messages));
+      } catch (error) {
+        if (openingChat.current !== routeChatId) return;
+        restoringChat.current = null;
+        const status = error instanceof ApiError ? error.status : 0;
+        if (status === 403 || status === 404) { setMessages([]); leaveAddress(); return; }
+        setMessages([{ id: crypto.randomUUID(), role: "assistant", content: "", timestamp: Date.now(), error: citizenText("chatNotLoaded") }]);
+      }
+    })();
+    // Runs when the address names a different conversation, not on each change it causes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeChatId, hasProfessionalWorkspace, historyReady]);
+  useEffect(() => {
+    const changed = shownSession.current !== sessionId;
+    shownSession.current = sessionId;
+    if (!hasProfessionalWorkspace || chatScopeId === undefined || restoringChat.current) return;
+    if (sessionId && chatCaseId === chatScopeId) {
+      if (!proRoute.chat || (changed && proRoute.chat !== sessionId)) proNavigate({ ...proRoute, chat: sessionId }, { replace: true });
+    } else if (!sessionId && proRoute.chat && changed) {
+      const { chat: _chat, ...rest } = proRoute;
+      proNavigate(rest, { replace: true });
+    }
+    // proRoute is read for its current value; the address follows the session, not the reverse.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId, chatScopeId, chatCaseId, proRoute.chat, hasProfessionalWorkspace]);
 
   // The landing page owns a first visit on the web. The desktop app, an expired
   // session and anyone who asked to sign in go straight to the form.
