@@ -334,3 +334,20 @@ def test_a_search_without_a_warrant_points_at_the_general_power() -> None:
 
     found = {(p.code, p.section) for p in implementation_provisions_for_query("Can police search my house without a warrant?")}
     assert ("BNSS", "185") in found
+
+
+@pytest.mark.parametrize(
+    "question, code, section",
+    [
+        ("The police refuse to register my FIR", "BNSS", "173"),
+        ("How is a first information report recorded?", "BNSS", "173"),
+        ("Who can give me anticipatory bail?", "BNSS", "482"),
+        ("What goes in a chargesheet?", "BNSS", "193"),
+        ("Is CCTV footage admissible?", "BSA", "63"),
+        ("My shopkeeper cheated me", "BNS", "318"),
+    ],
+)
+def test_common_names_reach_the_section_that_never_uses_them(question, code, section) -> None:
+    from app.services.citation_following import implementation_provisions_for_query
+
+    assert (code, section) in {(p.code, p.section) for p in implementation_provisions_for_query(question)}

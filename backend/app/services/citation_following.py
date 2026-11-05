@@ -137,6 +137,26 @@ _CONCEPTS: tuple[_Concept, ...] = (
             ("without warrant", "without a warrant", "warrantless", "warrant less", "no warrant"),
         ),
     ),
+    # What people call these is not what the sections say. s.173 never says "FIR", and
+    # "register my FIR" ranked the Registration Act. Each section here was read in the
+    # corpus by scripts/build_golden_set_v4.py. Asked by what the thing is called, so
+    # the same words a person uses, and not the wording of any test question.
+    _Concept(
+        "BNSS", "173", "first-information implementation",
+        all_of=(("fir", "first information report", "first information"),),
+        none_of=(("quash", "bail", "anticipat"),),
+    ),
+    _Concept("BNSS", "482", "anticipatory-bail implementation", all_of=(("anticipatory bail", "advance bail", "pre-arrest bail"),)),
+    _Concept("BNSS", "193", "final-report implementation", all_of=(("chargesheet", "charge sheet", "final report", "police report"),), none_of=(("bail",),)),
+    _Concept("BNSS", "192", "case-diary implementation", all_of=(("case diary", "police diary"),)),
+    _Concept("BNSS", "194", "inquest implementation", all_of=(("inquest",),)),
+    _Concept("BNSS", "196", "custodial-death implementation", all_of=(("custodial death", "death in custody", "death in police custody", "died in custody", "died in police custody"),)),
+    _Concept("BNSS", "54", "identification-parade implementation", all_of=(("identification parade", "test identification", "tip parade"),)),
+    _Concept("BSA", "26", "dying-declaration implementation", all_of=(("dying declaration", "dying person", "statement before death"),)),
+    _Concept("BSA", "63", "electronic-record implementation", all_of=(("electronic record", "electronic evidence", "digital evidence", "whatsapp", "cctv"),)),
+    _Concept("BSA", "104", "burden-of-proof implementation", all_of=(("burden of proof",),)),
+    _Concept("BNS", "356", "defamation implementation", all_of=(("defam",),)),
+    _Concept("BNS", "318", "cheating implementation", all_of=(("cheat", "tricked me", "duped"),), none_of=(("exam",),)),
     # Special Acts each have their own "search without warrant" power and outrank the
     # general one, so a person asking about their house got the Immoral Traffic Act.
     _Concept(
