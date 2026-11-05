@@ -160,7 +160,7 @@ if lsof -nP -iTCP:8000 -sTCP:LISTEN >/dev/null 2>&1; then
 else
   (
     cd "$ROOT/backend" || exit 1
-    ANSWER_CACHE_SIZE=0 QDRANT_GLOBAL_COLLECTION="$COLLECTION" nohup "$PY" -m uvicorn main:app \
+    ANSWER_CACHE_SIZE=0 JOB_ENQUEUES_PER_MINUTE=120 FAST_REQUESTS_PER_MINUTE=600 QDRANT_GLOBAL_COLLECTION="$COLLECTION" nohup "$PY" -m uvicorn main:app \
       --host 127.0.0.1 --port 8000 > "$OUT/backend.log" 2>&1 &
     echo $! > "$OUT/backend.pid"
   )
