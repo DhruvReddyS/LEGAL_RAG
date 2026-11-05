@@ -268,27 +268,6 @@ class DocumentStorageService:
             ExpiresIn=expires,
         )
 
-    async def create_presigned_upload_url(
-        self,
-        *,
-        case_id: uuid.UUID,
-        user: User,
-        filename: str,
-        content_type: str = "application/octet-stream",
-        expires_seconds: int = 900,
-    ) -> tuple[str, str, str]:
-        case = await self._authorized_case(case_id, user)
-        bucket, _ = self._case_location(case)
-        object_key = f"cases/{case.id}/pending/{uuid.uuid4()}/{sanitize_filename(filename)}"
-        expires = max(60, min(expires_seconds, 3600))
-        url = await asyncio.to_thread(
-            self.public_client.generate_presigned_url,
-            "put_object",
-            Params={"Bucket": bucket, "Key": object_key, "ContentType": content_type},
-            ExpiresIn=expires,
-        )
-        return url, bucket, object_key
-
     async def delete_object(self, object_id: uuid.UUID, user: User) -> None:
         stored = await self._authorized_object(object_id, user)
         await asyncio.to_thread(

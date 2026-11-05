@@ -1,6 +1,6 @@
 "use client";
 
-import { Bot, BriefcaseBusiness, Gauge, ScanSearch, Search, Sparkles, X } from "lucide-react";
+import { BookOpen, Bot, BriefcaseBusiness, Gauge, ScanSearch, Search, Sparkles, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { User } from "@/lib/types";
 import { useDialogFocus } from "@/components/useDialogFocus";
@@ -26,6 +26,7 @@ export default function CommandPalette({ open, user, onClose, onNavigate, onRese
     { label: "Start legal research", detail: "Auto-route a grounded legal question", icon: Search, shortcut: "R", run: () => onNavigate("research") },
     ...(operations ? [{ label: user.role === "police" ? "Open police case operations" : user.role === "advocate" ? "Open advocate matter strategy" : "Open administration workspace", detail: user.role === "admin" ? "Accounts, corpus governance and audit events" : "Private cases, evidence and professional agents", icon: BriefcaseBusiness, shortcut: "C", run: () => onNavigate("workspace" as AppView) }] : []),
     ...(professional ? [{ label: "Open Document Analyzer", detail: "Review indexed evidence, clauses, risks and verified authority", icon: ScanSearch, shortcut: "A", run: () => { onNavigate("workspace" as AppView); window.setTimeout(() => document.getElementById("document-analyzer")?.scrollIntoView({ behavior: "smooth", block: "start" }), 80); } }] : []),
+    { label: "Open a provision", detail: "Read a section by citation, such as IPC 420 or BNSS 173", icon: BookOpen, run: () => { window.location.href = "/law"; } },
     { label: "Test mandatory FIR authority", detail: "Run a known grounded research scenario", icon: Sparkles, run: () => onResearch("Is FIR registration mandatory for cognizable offences? State only what retrieved authorities establish.") },
     { label: user.role === "advocate" ? "Run two-sided authority review" : user.role === "police" ? "Check electronic evidence safeguards" : "Explain a right in plain language", detail: "Launch the recommended role-specific agent", icon: Bot, run: () => onResearch(user.role === "advocate" ? "Analyse the strongest lawful arguments on both sides of a bail application." : user.role === "police" ? "Analyse safeguards for electronic evidence authenticity and chain of custody." : "Explain Article 14 and its main limitations in plain language.") },
   ], [operations, professional, user.role, onNavigate, onResearch]);

@@ -12,8 +12,6 @@ from app.core.rbac import require_permission
 from app.models import AuditLog, Case, User
 from app.schemas.storage import (
     PresignedDownloadResponse,
-    PresignedUploadRequest,
-    PresignedUploadResponse,
     StorageObjectResponse,
     CaseDocumentIndexRequest,
     CaseDocumentIndexResponse,
@@ -163,26 +161,3 @@ async def presign_case_object_download(
         expires_seconds=expires_seconds,
     )
     return PresignedDownloadResponse(url=url, expires_seconds=expires_seconds)
-
-
-@router.post("/presign-upload", response_model=PresignedUploadResponse)
-async def presign_case_object_upload(
-    case_id: uuid.UUID,
-    request: PresignedUploadRequest,
-    current_user: User = Depends(require_permission(CASE_DOCUMENT_MANAGE_OWN)),
-    session: AsyncSession = Depends(get_db_session),
-) -> PresignedUploadResponse:
-    service = DocumentStorageService(session)
-    url, bucket, object_key = await service.create_presigned_upload_url(
-        case_id=case_id,
-        user=current_user,
-        filename=request.filename,
-        content_type=request.content_type,
-        expires_seconds=request.expires_seconds,
-    )
-    return PresignedUploadResponse(
-        url=url,
-        bucket=bucket,
-        object_key=object_key,
-        expires_seconds=request.expires_seconds,
-    )

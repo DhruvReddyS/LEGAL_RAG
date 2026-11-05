@@ -29,7 +29,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
 OUT = ROOT / "docs" / "evidence"
-GOLDEN = ROOT / "data/legal_kb/evaluation/golden_set_v3.json"
+GOLDEN = ROOT / "data/legal_kb/evaluation/golden_set_v4.json"
 
 
 def _run(command: list[str]) -> str:
