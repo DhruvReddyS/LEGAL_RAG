@@ -184,8 +184,8 @@ test("the two roles arrange a case differently", async ({ browser }) => {
     await context.close();
     return found;
   };
-  expect(await labels("police")).toEqual(["Overview", "Timeline", "Files and evidence", "Deadlines and compliance", "Drafts", "Tools", "Ask"]);
-  expect(await labels("advocate")).toEqual(["Overview", "Timeline", "Files", "Dates", "Strategy", "Authorities", "Drafts", "Ask"]);
+  expect(await labels("police")).toEqual(["Overview", "Timeline and people", "Files and evidence", "Deadlines and compliance", "Drafts", "Tools", "Notes", "Ask"]);
+  expect(await labels("advocate")).toEqual(["Overview", "Timeline and people", "Files", "Dates", "Strategy", "Authorities", "Drafts", "Notes", "Ask"]);
 });
 
 test("the police tools are all reachable, and each names itself", async ({ page }) => {

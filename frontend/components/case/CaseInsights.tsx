@@ -44,10 +44,7 @@ export default function CaseInsights({ caseId }: { caseId: string }) {
   </>;
 
   return <section aria-label="Case insights" className="space-y-6">
-    <div>
-      <h2 className="text-lg font-semibold">Read across the files</h2>
-      <p className="text-sm text-[var(--ink-soft)]">Every quotation here was found word for word in the case files, but the reading is the model&apos;s. Treat these as leads to check, not findings.</p>
-    </div>
+    <p className="text-sm text-[var(--ink-soft)]">Every quotation here was found word for word in the case files, but the reading is the model&apos;s. Treat these as leads to check, not findings.</p>
     {error && <p role="alert" className="text-sm text-[var(--state-bad-text)]">{error}</p>}
 
     <div className="space-y-3">

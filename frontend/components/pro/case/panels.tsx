@@ -9,9 +9,7 @@ import type { CaseDocumentSummary, DefenceAnalysisResponse, FIRDraftResponse, Ge
 import { CaseBulkUpload } from "./slots";
 
 /**
- * The case tools that used to live inside ProfessionalWorkspace, each now on its own.
- * Behaviour is the same; only the selected-case state is gone, because each of these
- * is mounted under the case it belongs to.
+ * The case tools, each mounted under the case it belongs to.
  */
 const errorText = (error: unknown) => (error instanceof ApiError ? error.message : "The operation failed. Check the connection and try again.");
 

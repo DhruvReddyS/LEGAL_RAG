@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import type { ReactNode } from "react";
 import type { DefenceAnalysisResponse } from "@/lib/types";
 import { RowsLoading } from "../context";
+import CaseInsights from "@/components/case/CaseInsights";
 import { CaseNotesPanel } from "./slots";
 
 const Loading = () => <RowsLoading label="Loading" />;
@@ -78,6 +79,14 @@ const timelineTool: CaseTool = {
   render: ({ caseId, go }) => <CaseChronology caseId={caseId} onOpenDocuments={() => go("files")} />,
 };
 
+const insightsTool: CaseTool = {
+  key: "insights",
+  label: "People and contradictions",
+  title: "Read across the files",
+  blurb: "Who is named in this case, and where its statements disagree, each quoted from the files.",
+  render: ({ caseId }) => <CaseInsights caseId={caseId} />,
+};
+
 const filesTool: CaseTool = {
   key: "files",
   label: "Files",
@@ -117,7 +126,7 @@ const searchTool = (group?: string): CaseTool => ({
 /** An investigating officer works from the record outward: evidence, limits, papers for court. */
 const POLICE_TABS: CaseTab[] = [
   { key: "overview", label: "Overview", icon: LayoutGrid, tools: [] },
-  { key: "timeline", label: "Timeline", icon: CalendarRange, tools: [timelineTool] },
+  { key: "timeline", label: "Timeline and people", icon: CalendarRange, tools: [timelineTool, insightsTool] },
   {
     key: "files",
     label: "Files and evidence",
@@ -167,7 +176,7 @@ const POLICE_TABS: CaseTab[] = [
 /** An advocate works towards the next date: papers, dates, the argument, authorities, then the filing. */
 const ADVOCATE_TABS: CaseTab[] = [
   { key: "overview", label: "Overview", icon: LayoutGrid, tools: [] },
-  { key: "timeline", label: "Timeline", icon: CalendarRange, tools: [timelineTool] },
+  { key: "timeline", label: "Timeline and people", icon: CalendarRange, tools: [timelineTool, insightsTool] },
   { key: "files", label: "Files", icon: FolderOpen, tools: [filesTool, reviewTool] },
   {
     key: "dates",

@@ -309,7 +309,6 @@ export default function ProApp({ user, route, navigate, chats, onCasesChange, on
             {route.section === "help" && <HelpScreen />}
           </div>
           <p className="pro-foot">Information for your professional review, not legal advice.</p>
-          {/* REMINDERS SLOT: browser reminders mount here, once, for the whole signed-in app. */}
         </div>
         {newCase && <NewCaseDialog onClose={() => setNewCase(false)} />}
       </div>

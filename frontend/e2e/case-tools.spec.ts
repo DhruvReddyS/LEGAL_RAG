@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page, type Route } from "@playwright/test";
-import { ANSWER, CASE_ID, json, mockApi, openApp } from "./mock-api";
+import { ANSWER, CASE_ID, json, mockApi, openApp, openPro } from "./mock-api";
 
 const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
 const WIDTHS = [375, 1280];
@@ -20,11 +20,12 @@ async function expectNoSidewaysScroll(page: Page) {
 const setTheme = (page: Page, theme: string) =>
   page.addInitScript((value) => window.localStorage.setItem("corpusil.site-theme", value), theme);
 
-async function openCaseTool(page: Page, workspace: string, tool: RegExp) {
-  const openNav = page.locator(".workspace-header .icon-button.lg\\:hidden");
-  if (await openNav.isVisible()) await openNav.click();
-  await page.locator(".feature-nav").getByRole("button", { name: workspace }).click();
-  await page.getByRole("navigation", { name: "Case tools" }).getByRole("button", { name: tool }).click();
+const CASE_PAGE = `/?s=case&case=${CASE_ID}`;
+
+/** From the case page: a tab, then a tool in its list when the tab has more than one. */
+async function openCaseTool(page: Page, tab: string, tool?: string) {
+  await page.getByRole("navigation", { name: "Case sections" }).getByRole("link", { name: tab, exact: true }).click();
+  if (tool) await page.getByRole("navigation", { name: `${tab} tools` }).getByRole("link", { name: tool, exact: true }).click();
 }
 
 const emptyLists = {
@@ -36,7 +37,7 @@ test.describe("adding many files to a case", () => {
   test("each file gets its own outcome, and one failure does not stop the rest", async ({ page }) => {
     const order: string[] = [];
     let objects = 0;
-    await openApp(page, "advocate", {
+    await openPro(page, "advocate", CASE_PAGE, {
       overrides: {
         ...emptyLists,
         [`POST /cases/${CASE_ID}/storage/objects`]: (route: Route) => {
@@ -55,7 +56,7 @@ test.describe("adding many files to a case", () => {
         },
       },
     });
-    await openCaseTool(page, "Your cases", /Add evidence/);
+    await openCaseTool(page, "Files");
     await page.locator('input[type="file"]').first().setInputFiles([
       { name: "first.pdf", mimeType: "application/pdf", buffer: Buffer.from("%PDF-1.4 a") },
       { name: "virus.exe", mimeType: "application/x-msdownload", buffer: Buffer.from("MZ") },
@@ -74,14 +75,14 @@ test.describe("adding many files to a case", () => {
   });
 
   test("files can be dropped, and the queue survives moving to another tool", async ({ page }) => {
-    await openApp(page, "advocate", {
+    await openPro(page, "advocate", CASE_PAGE, {
       overrides: {
         ...emptyLists,
         [`POST /cases/${CASE_ID}/storage/objects`]: (route: Route) => json(route, { id: "00000000-0000-4000-8000-000000000011" }, 201),
         [`POST /cases/${CASE_ID}/storage/objects/00000000-0000-4000-8000-000000000011/index`]: (route: Route) => json(route, { pages: 1, chunks: 1 }, 201),
       },
     });
-    await openCaseTool(page, "Your cases", /Add evidence/);
+    await openCaseTool(page, "Files");
     const transfer = await page.evaluateHandle(() => {
       const data = new DataTransfer();
       data.items.add(new File(["hello"], "dropped.txt", { type: "text/plain" }));
@@ -90,22 +91,22 @@ test.describe("adding many files to a case", () => {
     await page.locator(".evidence-drop").dispatchEvent("drop", { dataTransfer: transfer });
     const queue = page.getByRole("region", { name: "Files being added" });
     await expect(queue.locator("li", { hasText: "dropped.txt" })).toHaveAttribute("data-status", "done");
-    await page.getByRole("navigation", { name: "Case tools" }).getByRole("button", { name: /Case file/ }).click();
-    await page.getByRole("navigation", { name: "Case tools" }).getByRole("button", { name: /Add evidence/ }).click();
+    await openCaseTool(page, "Files", "Review documents");
+    await openCaseTool(page, "Files", "Files");
     await expect(page.getByRole("region", { name: "Files being added" }).locator("li", { hasText: "dropped.txt" })).toBeVisible();
   });
 });
 
 test("the police case file saves as a Word file with a valid package", async ({ page }) => {
   const html = "<!doctype html><html><head><title>t</title><style>p{}</style></head><body><h1>State v. A &amp; B</h1><h2>1. Facts</h2><p>Text.</p><table><thead><tr><th>When</th></tr></thead><tbody><tr><td>Today</td></tr></tbody></table></body></html>";
-  await openApp(page, "police", {
+  await openPro(page, "police", CASE_PAGE, {
     overrides: {
       ...emptyLists,
       [`GET /cases/${CASE_ID}/police/case-file`]: (route: Route) => json(route, { case_id: CASE_ID, generated_at: "2026-11-05T10:00:00Z", included_witness_contact: false, html, missing_sections: [] }),
       [`GET /cases/${CASE_ID}/police/access-log`]: (route: Route) => json(route, { entries: [] }),
     },
   });
-  await openCaseTool(page, "Investigations", /Court file/);
+  await openCaseTool(page, "Drafts", "Case file for court");
   await page.getByRole("button", { name: "Compile the case file" }).click();
   const [download] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: "Save as Word" }).click()]);
   expect(download.suggestedFilename()).toBe("case-file-2026-11-05.docx");
@@ -117,6 +118,50 @@ test("the police case file saves as a Word file with a valid package", async ({ 
   expect(text).toContain("<w:tbl>");
 });
 
+test("people and contradictions are read on request, each quoted from the files", async ({ page }) => {
+  const source = (quote: string, pageStart: number, pageEnd = pageStart) => ({ quote, title: "statement.pdf", page_start: pageStart, page_end: pageEnd });
+  let reads = 0;
+  let conflictCalls = 0;
+  await openPro(page, "advocate", CASE_PAGE, {
+    overrides: {
+      [`POST /cases/${CASE_ID}/insights/people`]: (route: Route) => {
+        reads += 1;
+        return json(route, { items: [{ name: "Asha Rao", role: "complainant", source: source("Asha Rao lodged the complaint.", 2) }], dropped: 1, files_read_in_full: false });
+      },
+      [`POST /cases/${CASE_ID}/insights/conflicts`]: (route: Route) => {
+        reads += 1;
+        conflictCalls += 1;
+        if (conflictCalls === 1) return json(route, { detail: "down" }, 500);
+        return json(route, { items: [{ topic: "Time of the incident", first: source("It happened at nine.", 3), second: source("It happened at noon.", 7, 8) }], dropped: 0, files_read_in_full: true });
+      },
+    },
+  });
+  await openCaseTool(page, "Timeline and people", "People and contradictions");
+  await expect(page).toHaveURL(/tab=timeline&tool=insights/);
+  const insights = page.getByRole("region", { name: "Case insights" });
+  await expect(insights.getByText("Treat these as leads to check, not findings.")).toBeVisible();
+  // Reading costs a minute of model time, so opening the tool must not start it.
+  expect(reads).toBe(0);
+
+  await insights.getByRole("button", { name: "Find people" }).click();
+  await expect(insights.getByText("Asha Rao · complainant")).toBeVisible();
+  await expect(insights.locator("blockquote")).toHaveText("Asha Rao lodged the complaint.");
+  await expect(insights.locator("figcaption")).toHaveText("statement.pdf, page 2");
+  await expect(insights.getByText("only the first part of its files was read")).toBeVisible();
+  await expect(insights.getByText("1 entry was left out because the quotation could not be found")).toBeVisible();
+  await expect(insights.getByRole("button", { name: "Read again" })).toBeVisible();
+
+  await insights.getByRole("button", { name: "Compare statements" }).click();
+  await expect(insights.getByRole("alert")).toContainText("could not be completed");
+  await insights.getByRole("button", { name: "Compare statements" }).click();
+  await expect(insights.getByText("Time of the incident")).toBeVisible();
+  await expect(insights.getByRole("alert")).toHaveCount(0);
+  await expect(insights.locator("blockquote")).toHaveText(["Asha Rao lodged the complaint.", "It happened at nine.", "It happened at noon."]);
+  await expect(insights.locator("figcaption").last()).toHaveText("statement.pdf, page 7–8");
+  expect(reads).toBe(3);
+  await expectAccessible(page);
+});
+
 test.describe("case notes", () => {
   for (const theme of THEMES) {
     for (const width of WIDTHS) {
@@ -125,7 +170,7 @@ test.describe("case notes", () => {
         await page.setViewportSize({ width, height: 800 });
         let notes: Record<string, unknown>[] = [];
         const NOTE_ID = "00000000-0000-4000-8000-000000000021";
-        await openApp(page, "advocate", {
+        await openPro(page, "advocate", CASE_PAGE, {
           overrides: {
             [`GET /cases/${CASE_ID}/documents/indexed`]: emptyLists[`GET /cases/${CASE_ID}/documents/indexed`],
             [`GET /cases/${CASE_ID}/notes`]: (route: Route) => json(route, { notes }),
@@ -143,7 +188,7 @@ test.describe("case notes", () => {
             [`DELETE /cases/${CASE_ID}/notes/${NOTE_ID}`]: (route: Route) => { notes = []; return route.fulfill({ status: 204, headers: { "Access-Control-Allow-Origin": route.request().headers().origin ?? "*", "Access-Control-Allow-Credentials": "true" } }); },
           },
         });
-        await openCaseTool(page, "Your cases", /Case file/);
+        await openCaseTool(page, "Notes");
         await expect(page.getByText("No notes on this case yet.")).toBeVisible();
         await page.getByLabel("New note").fill("Ask for the bail order copy");
         await page.getByRole("button", { name: "Add note" }).click();
@@ -260,7 +305,7 @@ test.describe("browsing an Act", () => {
 test.describe("follow-up questions", () => {
   test("choosing one fills the composer and sends nothing", async ({ page }) => {
     let queries = 0;
-    await openApp(page, "advocate", { overrides: { "POST /chat/query": (route: Route) => { queries += 1; return json(route, ANSWER); } } });
+    await openPro(page, "advocate", "/?s=research", { overrides: { "POST /chat/query": (route: Route) => { queries += 1; return json(route, ANSWER); } } });
     await page.getByLabel("Legal research question").fill("A question");
     await page.keyboard.press("Enter");
     const region = page.getByRole("region", { name: "You could ask next" });
@@ -327,7 +372,8 @@ test.describe("browser reminders", () => {
   test("permission is asked only from the button in Settings", async ({ page }) => {
     await page.addInitScript(fakeNotification, "default");
     let deadlineCalls = 0;
-    await openApp(page, "advocate", { overrides: { "GET /advocate/calendar": (route: Route) => { deadlineCalls += 1; return json(route, { today: "2026-11-05", events: [{ id: "e1", state: "due_today", completed: false }] }); } } });
+    // Help, because the dashboard reads this list for itself, and only the reminders are under test.
+    await openPro(page, "advocate", "/?s=help", { overrides: { "GET /advocate/calendar": (route: Route) => { deadlineCalls += 1; return json(route, { today: "2026-11-05", events: [{ id: "e1", state: "due_today", completed: false }] }); } } });
     await page.waitForTimeout(400);
     expect(await page.evaluate(() => (window as unknown as { __asked?: boolean }).__asked)).toBeUndefined();
     expect(deadlineCalls, "no request before permission").toBe(0);
@@ -344,7 +390,7 @@ test.describe("browser reminders", () => {
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
     let deadlineCalls = 0;
-    await openApp(page, "police", { overrides: { "GET /police/deadlines": (route: Route) => { deadlineCalls += 1; return json(route, { rows: [] }); } } });
+    await openPro(page, "police", "/?s=help", { overrides: { "GET /police/deadlines": (route: Route) => { deadlineCalls += 1; return json(route, { rows: [] }); } } });
     await page.getByRole("button", { name: "Settings" }).click();
     await expect(page.getByText("This browser cannot show them.")).toBeVisible();
     await expect(page.getByRole("button", { name: "Turn on" })).toHaveCount(0);
