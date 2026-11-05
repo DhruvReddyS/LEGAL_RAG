@@ -13,6 +13,7 @@ import {
   setMfaRequired,
   suspendUser,
 } from "@/lib/api-admin";
+import { rolePluralLabel } from "@/lib/admin-presentation";
 import type { ConsoleUser } from "@/lib/types-admin";
 import { ConfirmDialog, LoadState, messageOf, Notice, PanelHeading, Pager, Stat, StatusPill, useLoaded } from "./shared";
 
@@ -58,7 +59,7 @@ export default function UsersPanel() {
         <PanelHeading title="Users" description="Every account, citizens included. Each change here is audited, and a suspension or reset ends sessions at once." />
         {data && (
           <div className="admin-stats">
-            {["citizen", "police", "advocate", "admin"].map(name => <Stat key={name} label={`${name[0].toUpperCase()}${name.slice(1)}s`} value={(data.by_role[name] ?? 0).toLocaleString("en-IN")} />)}
+            {["citizen", "police", "advocate", "admin"].map(name => <Stat key={name} label={rolePluralLabel(name)} value={(data.by_role[name] ?? 0).toLocaleString("en-IN")} />)}
           </div>
         )}
         <div className="admin-filters">

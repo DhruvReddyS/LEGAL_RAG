@@ -14,6 +14,13 @@ vm.runInNewContext(
 );
 const p = moduleScope.exports;
 
+test('role counts are headed by real plurals', () => {
+  assert.equal(p.rolePluralLabel('police'), 'Police');
+  assert.equal(p.rolePluralLabel('citizen'), 'Citizens');
+  assert.equal(p.rolePluralLabel('advocate'), 'Advocates');
+  assert.equal(p.rolePluralLabel('admin'), 'Admins');
+});
+
 test('an unfinished gate is neither a pass nor a failure', () => {
   assert.equal(p.gateTone('passed'), 'ok');
   assert.equal(p.gateTone('failed'), 'bad');

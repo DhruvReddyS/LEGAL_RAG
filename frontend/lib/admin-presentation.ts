@@ -49,6 +49,11 @@ export function currencyTone(flag: string): Tone {
   return "warn";
 }
 
+/** "Police" is already plural: appending an s printed "Polices" on the Users tab. */
+export function rolePluralLabel(role: string): string {
+  return role === "police" ? "Police" : `${role[0].toUpperCase()}${role.slice(1)}s`;
+}
+
 /** An empty value leaves the key out, so a filter that was cleared stops filtering. */
 export function toQuery(filters: Record<string, unknown>): string {
   const parts: string[] = [];
