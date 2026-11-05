@@ -447,7 +447,7 @@ test("a supervisor reloading the unit screen sees the unit, not Not Found", asyn
       },
       "GET /police/supervision/units/unit-1": (route: Route) => {
         asked.push(route.request().url());
-        return json(route, { unit_name: "North Range", counts: { overdue: 2 }, compliance: {}, cases: [{ case_id: CASE_ID, title: "State v. Test", officer_name: "An Officer", has_facts: true, counts: { overdue: 1 }, compliance: {} }], officer_count: 3, imminent_hours: 48 });
+        return json(route, { unit_name: "North Range", counts: { overdue: 2 }, compliance: {}, cases: [{ case_id: CASE_ID, title: "State v. Test", officer_name: "An Officer", has_facts: true, counts: { overdue: 1 }, compliance: {}, attention: [] }], officer_count: 3, imminent_hours: 48 });
       },
     },
   });
