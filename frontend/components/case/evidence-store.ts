@@ -41,6 +41,8 @@ async function drain() {
         upload: () => uploadCaseEvidence(item.caseId, file),
         index: (objectId) => indexCaseEvidence(item.caseId, objectId, item.docType),
         isRateLimited: (error) => error instanceof ApiError && error.status === 429,
+        // The server judged the file itself. A session or rate problem can still clear.
+        isRefusal: (error) => error instanceof ApiError && [413, 415, 422].includes(error.status),
         errorText,
         wait: (ms) => new Promise((resolve) => window.setTimeout(resolve, ms)),
         onChange: (change) => patch(item.id, change),

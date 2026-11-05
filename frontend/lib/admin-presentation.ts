@@ -49,6 +49,16 @@ export function currencyTone(flag: string): Tone {
   return "warn";
 }
 
+/** "Police" is already plural: appending an s printed "Polices" on the Users tab. */
+export function rolePluralLabel(role: string): string {
+  return role === "police" ? "Police" : `${role[0].toUpperCase()}${role.slice(1)}s`;
+}
+
+/** "1 citation", "2 citations": the review and triage rows read one figure at a time. */
+export function countOf(value: number, noun: string): string {
+  return `${value.toLocaleString("en-IN")} ${noun}${value === 1 ? "" : "s"}`;
+}
+
 /** An empty value leaves the key out, so a filter that was cleared stops filtering. */
 export function toQuery(filters: Record<string, unknown>): string {
   const parts: string[] = [];

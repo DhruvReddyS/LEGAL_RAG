@@ -42,6 +42,7 @@ export interface EvidenceDeps {
   upload: () => Promise<{ id: string }>;
   index: (objectId: string) => Promise<{ pages: number; chunks: number }>;
   isRateLimited: (error: unknown) => boolean;
+  isRefusal?: (error: unknown) => boolean;
   errorText: (error: unknown) => string;
   wait: (ms: number) => Promise<void>;
   onChange: (change: Partial<EvidenceItem>) => void;
@@ -70,7 +71,9 @@ export async function processEvidenceItem(item: Pick<EvidenceItem, "objectId">, 
     }
   } catch (error) {
     const stored = objectId ? "Stored, but not indexed. " : "";
-    deps.onChange({ status: "failed", detail: `${stored}${deps.errorText(error)}`, retryable: true });
+    // Sending a damaged or refused file again gets the same answer, so offer Retry
+    // only where a second attempt could go differently.
+    deps.onChange({ status: "failed", detail: `${stored}${deps.errorText(error)}`, retryable: !deps.isRefusal?.(error) });
     return false;
   }
 }

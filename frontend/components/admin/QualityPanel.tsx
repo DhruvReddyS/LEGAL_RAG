@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { formatCount, formatDay, formatDuration, formatPercent } from "@/lib/admin-presentation";
+import { countOf, formatCount, formatDay, formatDuration, formatPercent } from "@/lib/admin-presentation";
 import { getQualityDashboard } from "@/lib/api-admin";
 import { getReviewQueue, recordClaimVerdict, sampleForReview, type ClaimVerdict, type ReviewClaim, type ReviewItem } from "@/lib/api-corpus-lifecycle";
 import { LineChart } from "./LineChart";
@@ -115,7 +115,7 @@ function ExpertReviewSection() {
             value={measure.claim_accuracy === null ? "Not measured" : formatPercent(measure.claim_accuracy)}
             hint={measure.interval_95 ? `95% interval ${formatPercent(measure.interval_95[0])} to ${formatPercent(measure.interval_95[1])}` : "No verdicts yet"}
           />
-          <Stat label="Sample size" value={formatCount(measure.sample_size)} hint={`Claims decided, across ${formatCount(measure.answers_reviewed)} answers`} />
+          <Stat label="Sample size" value={formatCount(measure.sample_size)} hint={`Claims decided, across ${countOf(measure.answers_reviewed, "answer")}`} />
           <Stat label="Incorrect" value={formatCount(measure.incorrect)} />
           <Stat label="Unsure" value={formatCount(measure.unsure)} hint="Reported here, not counted in the figure" />
           <Stat label="Awaiting review" value={formatCount(measure.unreviewed)} hint="Claims" />
