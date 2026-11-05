@@ -400,12 +400,42 @@ def publishable_hits(
 # Reading the question and passage together, on golden set v4 against v6, took the
 # governing section shown from 52 of 94 to 65, and from 32 to 39 of the 52 held out
 # from choosing the threshold, for 0.6 seconds a question on a GPU. Of 20 questions
-# about topics the corpus may not cover, 7 got a section instead of the word gate's
-# wrong Acts. Two of the seven were still wrong, so the brief stays labelled unverified.
+# about topics the corpus may not cover, 9 got a section. Most were the right Act
+# where the word gate found the wrong one, and some were still wrong, so the brief
+# stays labelled unverified.
 STATUTE_PLACES = 2
 STATUTES_READ_CLOSELY = 5
-STATUTE_RELEVANCE_FLOOR = 0.2
+STATUTE_RELEVANCE_FLOOR = 0.1
 _RELEVANCE_TEXT_CHARACTERS = 1800
+_GENERAL_LAW = re.compile(
+    r"nyaya sanhita|nagarik suraksha|sakshya adhiniyam|constitution of india", re.IGNORECASE
+)
+# Sections of one Act among this many results, for that Act to count as agreed on.
+_AGREEMENT_WINDOW = 8
+_AGREEMENT_SECTIONS = 3
+
+
+def act_the_results_agree_on(hits: list) -> list:
+    """The best sections of the Act most results come from, if one stands out.
+
+    "My boss has not paid my salary" shares few words with the Code on Wages, and a
+    close reading scores it low, yet three of the top eight results are from it, while
+    a question the corpus cannot answer scatters across unrelated Acts. This is a
+    weaker signal than the others, so only the Deep lane uses it, where every claim
+    is still verified against the passage.
+    """
+    primary = [hit for hit in hits if _is_primary_law(hit)][:_AGREEMENT_WINDOW]
+    by_act: dict[str, dict[str, Any]] = {}
+    for hit in primary:
+        name = re.sub(r"\W+", " ", str(hit.payload.get("act_name") or "").casefold())
+        name = re.sub(r"^the ", "", name).strip()
+        section = str(hit.payload.get("section") or "")
+        if name and section:
+            by_act.setdefault(name, {}).setdefault(section, hit)
+    agreed = [sections for sections in by_act.values() if len(sections) >= _AGREEMENT_SECTIONS]
+    if not agreed:
+        return []
+    return list(max(agreed, key=len).values())[:STATUTE_PLACES]
 
 
 def _is_primary_law(hit: object) -> bool:
@@ -423,15 +453,15 @@ async def governing_statutes(
     query: str,
     focus_tokens: set[str],
     distinctive_terms: set[str],
-) -> list:
-    """The primary law that answers the question: read closely, then the word gate.
+) -> tuple[list, frozenset[str]]:
+    """The primary law that answers the question, and the chunks read and ruled out.
 
     The word gate stays as the fallback, so losing the reranker returns this to what
     it did before rather than to nothing.
     """
     primary = [hit for hit in hits if _is_primary_law(hit)]
     if not primary or asks_about_foreign_law(query):
-        return []
+        return [], frozenset()
     by_words = publishable_hits(
         primary, query=query, focus_tokens=focus_tokens, distinctive_terms=distinctive_terms
     )
@@ -449,11 +479,27 @@ async def governing_statutes(
         )
         if score >= STATUTE_RELEVANCE_FLOOR
     ]
+    # General law before special law when both answer: s.35 of the BNSS is the
+    # arrest power, and the Ferries Act's own one is an exception to it.
+    confirmed.sort(key=lambda hit: not _GENERAL_LAW.search(str(hit.payload.get("title") or "")))
+    # A section that was read and did not answer stays out, however many words it
+    # shares with the question: "arrest without warrant" also describes s.202 of the
+    # Motor Vehicles Act.
+    ruled_out = frozenset(
+        str(hit.payload.get("chunk_id"))
+        for score, hit in zip(scores, closest)
+        if score < STATUTE_RELEVANCE_FLOOR
+    )
     chosen = {str(hit.payload.get("chunk_id")) for hit in confirmed}
-    return [
+    statutes = [
         *confirmed,
-        *(hit for hit in by_words if str(hit.payload.get("chunk_id")) not in chosen),
+        *(
+            hit
+            for hit in by_words
+            if str(hit.payload.get("chunk_id")) not in chosen | ruled_out
+        ),
     ][:STATUTE_PLACES]
+    return statutes, ruled_out
 
 
 async def _primary_law_search(service: Any, query: str, collection: str) -> list:
@@ -470,6 +516,7 @@ def shown_to_the_reader(
     statutes: list,
     *,
     limit: int,
+    ruled_out: frozenset[str] = frozenset(),
 ) -> list:
     """What the brief shows, in order. The evaluation harness calls this too.
 
@@ -492,7 +539,11 @@ def shown_to_the_reader(
             *bridged,
             *statutes,
             *forwarded,
-            *(hit for hit in ranked_relevant if str(hit.payload.get("chunk_id")) not in placed),
+            *(
+                hit
+                for hit in ranked_relevant
+                if str(hit.payload.get("chunk_id")) not in placed | ruled_out
+            ),
         ],
         limit,
     )
@@ -771,8 +822,8 @@ class FastLegalResearchService:
             distinctive_terms=distinctive_terms,
             domain_tokens=domain_tokens,
         )
-        statutes = (
-            []
+        statutes, ruled_out = (
+            ([], frozenset())
             if off_topic
             else await governing_statutes(
                 self.retrieval,
@@ -790,7 +841,11 @@ class FastLegalResearchService:
             []
             if off_topic or asks_about_foreign_law(query)
             else shown_to_the_reader(
-                ranked_relevant_hits, followed, statutes, limit=settings.fast_result_limit
+                ranked_relevant_hits,
+                followed,
+                statutes,
+                limit=settings.fast_result_limit,
+                ruled_out=ruled_out,
             )
         )
         relevant_hits = [*followed, *statutes, *ranked_relevant_hits]

@@ -67,6 +67,11 @@ export function safetyKind(message: Pick<ChatMessage, "routingReason"> & { safet
   return kind === "emergency" || kind === "refusal" ? kind : null;
 }
 
+/** Not a gap in the law held: the question is about something else, so nobody to refer to. */
+export function isOutOfScope(message: Pick<ChatMessage, "routingReason"> & { safetyKind?: string | null }): boolean {
+  return message.safetyKind === "out_of_scope" || message.routingReason === "safety_out_of_scope";
+}
+
 /** PLAT-09: an answer with no evidence routes to a person. */
 export function shouldOfferHuman(message: Pick<ChatMessage, "evidenceStrength" | "citations" | "error">): boolean {
   if (message.error) return false;

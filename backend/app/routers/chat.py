@@ -38,7 +38,8 @@ from app.schemas.chat import (
 from app.schemas.agents import AgentTraceEvent, QueryIntent
 from app.services.adaptive_routing import route_legal_query
 from app.services.audit_redaction import trace_for_audit
-from app.services.citizen_safety import EMERGENCY_CONTACTS, screen_citizen_query
+from app.services.citizen_safety import EMERGENCY_CONTACTS, SafetyIntervention, screen_citizen_query
+from app.services.question_scope import out_of_scope_answer
 from app.services.rate_limit import RateLimitExceeded, user_rate_limiter
 from app.services.jobs import append_job_event
 from app.services.privacy import purge_conversation_traces
@@ -227,6 +228,21 @@ async def query_chat(
     # otherwise be answered fluently from statute text and pass verification,
     # because every claim would be grounded. Grounding is not appropriateness.
     intervention = screen_citizen_query(request.query)
+    # Answered here, rather than after a search that cannot help and an escalation
+    # to a minute of Deep review. Only for a fresh question: case material, a document
+    # or earlier turns can make a question about Dubai a question of Indian law.
+    if (
+        intervention is None
+        and chat_session.case_id is None
+        and not request.documents
+        and not history
+        and (
+            refusal := await out_of_scope_answer(
+                request.query, http_request.app.state.retrieval_service
+            )
+        )
+    ):
+        intervention = SafetyIntervention(kind="out_of_scope", reason=refusal[0], answer=refusal[1])
     if intervention is not None:
         safety_routing_ms = (perf_counter() - safety_routing_started) * 1000
         persistence_started = perf_counter()

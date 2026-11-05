@@ -8,6 +8,7 @@ from app.services.retrieval import HybridRetrievalService, RetrievalFilters
 from app.services.retrieval import RetrievalTarget
 from app.services.legal_term_normalization import normalize_legal_terms
 from app.services.fast_research import (
+    act_the_results_agree_on,
     governing_statutes,
     _focus_tokens,
     _payload_windows,
@@ -96,12 +97,15 @@ async def _statutes_for(service, query: str, asked: str, hits: list, distinctive
     """Primary law not already in hand. Anything going wrong adds nothing."""
     try:
         found = await service.search_statutes(query, collection=GLOBAL_LEGAL_CORPUS)
-        statutes = await governing_statutes(
+        statutes, _ = await governing_statutes(
             service,
             found,
             query=asked,
             focus_tokens=_focus_tokens(asked),
             distinctive_terms=set(await distinctive_task),
+        )
+        statutes = statutes or (
+            [] if asks_about_foreign_law(asked) else act_the_results_agree_on(found)
         )
     except Exception:  # noqa: BLE001 - also covers services without this method
         return []

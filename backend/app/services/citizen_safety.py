@@ -23,7 +23,7 @@ import re
 from dataclasses import dataclass
 from typing import Literal
 
-InterventionKind = Literal["emergency", "refusal"]
+InterventionKind = Literal["emergency", "refusal", "out_of_scope"]
 
 
 @dataclass(frozen=True)

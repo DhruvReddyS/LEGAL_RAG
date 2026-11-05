@@ -212,3 +212,24 @@ def off_topic_check_for(service: Any) -> OffTopicCheck:
         check = OffTopicCheck(service)
         service._off_topic_check = check
     return check
+
+
+FOREIGN_LAW_ANSWER = (
+    "This looks like a question about the law of another country. Corpusil holds Indian law "
+    "only, so it cannot answer it reliably. If your question involves India, such as an Indian "
+    "court, an Indian contract or someone in India, please say so and ask again."
+)
+NOT_LEGAL_ANSWER = (
+    "This does not look like a question about the law. Corpusil answers questions about Indian "
+    "law from its sources, and cannot help reliably with anything else. If there is a legal "
+    "problem behind this, please describe what happened."
+)
+
+
+async def out_of_scope_answer(question: str, service: Any) -> tuple[str, str] | None:
+    """A reason and a reply when the corpus cannot be what this question needs."""
+    if asks_about_foreign_law(question):
+        return "foreign_law", FOREIGN_LAW_ANSWER
+    if await off_topic_check_for(service).is_off_topic(question):
+        return "not_legal", NOT_LEGAL_ANSWER
+    return None
