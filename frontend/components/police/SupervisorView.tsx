@@ -42,7 +42,7 @@ function UnitPanel({ unitId }: { unitId: string }) {
           <li key={item.case_id} className="police-card">
             <div className="police-card-head">
               <h4>{item.title}<small>{item.officer_name}{!item.has_facts ? ". No dates recorded, so nothing can be computed." : ""}</small></h4>
-              {sumCounts(item.counts, ["overdue", "imminent"]) > 0 && <Pill words={{ label: `${sumCounts(item.counts, ["overdue", "imminent"])} need attention`, tone: "bad" }} />}
+              {sumCounts(item.counts, ["overdue", "imminent"]) > 0 && <Pill words={{ label: `${sumCounts(item.counts, ["overdue", "imminent"])} ${sumCounts(item.counts, ["overdue", "imminent"]) === 1 ? "needs" : "need"} attention`, tone: "bad" }} />}
             </div>
             <dl className="police-facts">
               <div><dt>Breached</dt><dd>{item.counts.breached ?? 0}</dd></div>
@@ -74,9 +74,13 @@ function UnitPanel({ unitId }: { unitId: string }) {
   );
 }
 
-export function SupervisorView({ units }: { units: MyUnit[] }) {
-  const mine = supervisedUnits(units);
-  const [unitId, setUnitId] = useState(mine[0]?.unit_id ?? "");
+export function SupervisorView({ units }: { units: MyUnit[] | null }) {
+  const mine = supervisedUnits(units ?? []);
+  const [chosen, setChosen] = useState("");
+  // The units arrive after this mounts, on a reload or a shared link, so which one is
+  // open is worked out on each render rather than fixed at the first, empty one.
+  const unitId = mine.some((unit) => unit.unit_id === chosen) ? chosen : mine[0]?.unit_id ?? "";
+  if (!units) return <Loading label="Reading your units…" />;
   if (!mine.length) return <p className="police-empty">You do not supervise a unit. An administrator grants this.</p>;
   return (
     <div className="police-stack">
@@ -86,7 +90,7 @@ export function SupervisorView({ units }: { units: MyUnit[] }) {
       {mine.length > 1 && (
         <div className="police-tabs" role="tablist" aria-label="Units you supervise">
           {mine.map((unit) => (
-            <button key={unit.unit_id} type="button" role="tab" aria-selected={unit.unit_id === unitId} onClick={() => setUnitId(unit.unit_id)}>{unit.unit_name}</button>
+            <button key={unit.unit_id} type="button" role="tab" aria-selected={unit.unit_id === unitId} onClick={() => setChosen(unit.unit_id)}>{unit.unit_name}</button>
           ))}
         </div>
       )}
@@ -95,8 +99,9 @@ export function SupervisorView({ units }: { units: MyUnit[] }) {
   );
 }
 
-export function useMyUnits(enabled: boolean): MyUnit[] {
-  const [units, setUnits] = useState<MyUnit[]>([]);
+/** Null until read, so a supervisor is not told they supervise nothing while it loads. */
+export function useMyUnits(enabled: boolean): MyUnit[] | null {
+  const [units, setUnits] = useState<MyUnit[] | null>(null);
   useEffect(() => {
     if (!enabled) return;
     let cancelled = false;

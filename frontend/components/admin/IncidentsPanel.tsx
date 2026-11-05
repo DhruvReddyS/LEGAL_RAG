@@ -119,6 +119,7 @@ function TraceDialog({ feedbackId, onClose, onQuarantine }: { feedbackId: string
   const [status, setStatus] = useState<TriageStatus>("open");
   const [note, setNote] = useState("");
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -215,14 +216,15 @@ function TraceDialog({ feedbackId, onClose, onQuarantine }: { feedbackId: string
               <button
                 className="button-primary"
                 onClick={async () => {
-                  setError("");
+                  setSaveError("");
                   try { await updateTriage(feedbackId, status, note.trim() || null); setSaved(true); }
-                  catch (cause) { setError(messageOf(cause, "That was not saved.")); }
+                  catch (cause) { setSaved(false); setSaveError(messageOf(cause, "That was not saved.")); }
                 }}
               >
                 Save triage
               </button>
               {saved && <span role="status" className="admin-muted">Saved.</span>}
+              {saveError && <span role="alert" className="admin-note">{saveError}</span>}
             </div>
           </div>
         </div>

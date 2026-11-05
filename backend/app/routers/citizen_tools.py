@@ -10,12 +10,12 @@ from __future__ import annotations
 import asyncio
 import uuid
 from datetime import date, datetime, timezone
-from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.india_time import india_today
 from app.core.database import get_db_session
 from app.core.permissions import CHAT_USE
 from app.core.rbac import require_permission
@@ -37,7 +37,6 @@ router = APIRouter(prefix="/citizen", tags=["citizen-tools"])
 MAX_DEADLINES_PER_USER = 200
 PLAIN_LANGUAGE_TIMEOUT_SECONDS = 240
 # A deadline is a calendar date in the place the user lives.
-INDIA = ZoneInfo("Asia/Kolkata")
 
 
 def get_notice_llm() -> OllamaClient:
@@ -90,7 +89,7 @@ async def explain_a_notice(
 
 
 def _today() -> date:
-    return datetime.now(INDIA).date()
+    return india_today()
 
 
 def _present(row: CitizenDeadline, today: date) -> DeadlineResponse:

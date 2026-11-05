@@ -154,6 +154,44 @@ for (const role of ROLES) {
       await expect(page.locator("body")).not.toContainText("A case question");
     });
 
+    test("reloading a case's Ask tab keeps the open conversation, and only its own", async ({ page }) => {
+      const stored = (caseId: string | null) => ({
+        id: SESSION_ID, title: "A case question", case_id: caseId, pinned: false, created_at: "2026-11-05T09:00:00Z", updated_at: "2026-11-05T09:00:00Z",
+        messages: [
+          { id: "11111111-1111-4111-8111-111111111111", role: "user", content: "A case question", citations: [], created_at: "2026-11-05T09:00:00Z" },
+          { id: MESSAGE_ID, role: "assistant", content: "The stored answer survives a reload.", citations: [], created_at: "2026-11-05T09:00:01Z" },
+        ],
+      });
+      let scope: string | null = CASE_ID;
+      let missing = false;
+      await openPro(page, role, caseUrl(CASE_ID, "&tab=ask"), {
+        overrides: {
+          [`GET /chat/sessions/${SESSION_ID}`]: (route: Route) => missing ? json(route, { detail: "Not found" }, 404) : json(route, stored(scope)),
+        },
+      });
+      await page.getByLabel("Legal research question").fill("A case question");
+      await page.keyboard.press("Enter");
+      await expect(page.getByText("may be given to an officer")).toBeVisible();
+      await expect(page).toHaveURL(new RegExp(`chat=${SESSION_ID}`));
+
+      await page.reload();
+      await expect(page.getByText("The stored answer survives a reload.")).toBeVisible();
+      await expect(page.getByRole("heading", { level: 1, name: "State v. Test" })).toBeVisible();
+
+      // A conversation from elsewhere is not shown under this case.
+      scope = null;
+      await page.goto(caseUrl(SECOND_CASE_ID, `&tab=ask&chat=${SESSION_ID}`));
+      await expect(page.getByRole("heading", { name: "Ask about State v. Second" })).toBeVisible();
+      await expect(page.locator("body")).not.toContainText("The stored answer survives");
+      await expect(page).not.toHaveURL(/chat=/);
+
+      // Someone else's, or a deleted one, opens as an empty chat.
+      missing = true;
+      await page.goto(caseUrl(CASE_ID, `&tab=ask&chat=${SESSION_ID}`));
+      await expect(page.getByRole("heading", { name: "Ask about State v. Test" })).toBeVisible();
+      await expect(page).not.toHaveURL(/chat=/);
+    });
+
     test("nothing overflows a phone, and the drawer holds the navigation", async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 800 });
       await openPro(page, role);
@@ -395,4 +433,48 @@ test("accessibility: a new person's dashboard, and the new case dialog", async (
   await expectClean(page);
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toHaveCount(0);
+});
+
+test("a supervisor reloading the unit screen sees the unit, not Not Found", async ({ page }) => {
+  const asked: string[] = [];
+  let release: () => void = () => undefined;
+  const held = new Promise<void>((resolve) => { release = resolve; });
+  await openPro(page, "police", "/?s=unit", {
+    overrides: {
+      "GET /police/my-units": async (route: Route) => {
+        await held;
+        return json(route, { units: [{ unit_id: "unit-1", unit_name: "North Range", my_role: "supervisor", supervisors: [] }] });
+      },
+      "GET /police/supervision/units/unit-1": (route: Route) => {
+        asked.push(route.request().url());
+        return json(route, { unit_name: "North Range", counts: { overdue: 2 }, compliance: {}, cases: [{ case_id: CASE_ID, title: "State v. Test", officer_name: "An Officer", has_facts: true, counts: { overdue: 1 }, compliance: {}, attention: [] }], officer_count: 3, imminent_hours: 48 });
+      },
+    },
+  });
+  // Still reading: this must not claim they supervise nothing.
+  await expect(page.getByText("You do not supervise a unit")).toHaveCount(0);
+  release();
+  await expect(page.getByLabel("North Range at a glance")).toBeVisible();
+  await expect(page.getByText("Not Found")).toHaveCount(0);
+  await expect(page.getByText("1 needs attention")).toBeVisible();
+  expect(asked.length).toBeGreaterThan(0);
+});
+
+test("a changed law is announced on the dashboard, and goes once it is read", async ({ page }) => {
+  let read = false;
+  const notice = { id: "n-1", document_title: "An Old Act", previous_status: "in_force", current_status: "superseded", superseded_by: "A New Act", effective: "2024-07-01", basis: null, conversation_id: SESSION_ID, conversation_title: "A question", created_at: "2026-11-05T09:00:00Z", read_at: null };
+  await openPro(page, "advocate", "/", {
+    overrides: {
+      "GET /account/law-changes": (route: Route) => json(route, { unread: read ? 0 : 1, notices: read ? [] : [notice] }),
+      "POST /account/law-changes/n-1/read": (route: Route) => { read = true; return route.fulfill({ status: 204 }); },
+    },
+  });
+  const strip = page.getByRole("status").filter({ hasText: "The law behind a saved answer has changed" });
+  await expect(strip).toBeVisible();
+  await strip.getByRole("button", { name: "See what changed" }).click();
+  const dialog = page.getByRole("dialog", { name: "Account and privacy" });
+  await expect(dialog).toContainText("An Old Act");
+  await dialog.getByRole("button", { name: "Mark as read" }).click();
+  await dialog.getByRole("button", { name: "Close account and privacy" }).click();
+  await expect(page.getByText("The law behind a saved answer has changed")).toHaveCount(0);
 });

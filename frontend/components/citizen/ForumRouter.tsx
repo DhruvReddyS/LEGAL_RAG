@@ -1,4 +1,5 @@
 "use client";
+import { localDay } from "@/lib/local-day";
 import { ArrowLeft, ArrowRight, CalendarPlus, CircleAlert } from "lucide-react";
 import { useEffect, useState } from "react";
 import { computeDeadline, isPast, routeSituation, SITUATIONS, type Answer, type DeadlineRule } from "@/lib/citizen-law/forums";
@@ -12,7 +13,7 @@ function RuleCard({ rule, onRecord }: { rule: DeadlineRule; onRecord: (draft: De
   const { lang, t } = useCitizenLang();
   const [from, setFrom] = useState("");
   const due = from ? computeDeadline(rule, from) : null;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDay();
   const inputId = `from-${rule.id}`;
   return <li className="ctz-rule">
     <h4>{rule.label[lang]}</h4>

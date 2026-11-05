@@ -84,7 +84,7 @@ export function AuthorityCheck({ caseId }: { caseId: string }) {
           <div className="flex flex-wrap gap-2 text-xs">
             <span className="state-tally is-plain">{result.checked.length} citations found</span>
             {result.needs_attention > 0 && (
-              <span className="state-tally is-bad">{result.needs_attention} need attention</span>
+              <span className="state-tally is-bad">{result.needs_attention} {result.needs_attention === 1 ? "needs" : "need"} attention</span>
             )}
             {result.not_checked > 0 && (
               <span className="state-tally is-warn">{result.not_checked} outside the concordance</span>

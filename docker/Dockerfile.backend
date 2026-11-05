@@ -18,6 +18,7 @@ RUN pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
 RUN pip install --requirement requirements.txt
 
 COPY --chown=app:app backend/ .
+COPY --chown=app:app scripts/create_admin_account.py scripts/create_professional_account.py ./
 COPY scripts/backend-entrypoint.sh /usr/local/bin/backend-entrypoint
 RUN chmod 755 /usr/local/bin/backend-entrypoint
 

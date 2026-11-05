@@ -5,7 +5,8 @@ import { useCallback, useEffect, useState } from "react";
 import { DefenceAnalysisResult } from "@/components/advocate/DefenceAnalysisResult";
 import { ApiError, analyseDefence, draftFir, indexCaseEvidence, listGeneratedDocuments, listIndexedCaseDocuments, readGeneratedDocument, scopedSearch, uploadCaseEvidence } from "@/lib/api";
 import { plural, shortDate } from "@/lib/pro-presentation";
-import type { CaseDocumentSummary, DefenceAnalysisResponse, FIRDraftResponse, GeneratedDocumentSummary, RetrievalHit } from "@/lib/types";
+import { EVIDENCE_ACCEPT } from "@/lib/evidence-queue";
+import type { CaseDocumentListResponse, CaseDocumentSummary, DefenceAnalysisResponse, FIRDraftResponse, GeneratedDocumentSummary, RetrievalHit } from "@/lib/types";
 import { CaseBulkUpload } from "./slots";
 
 /**
@@ -222,8 +223,8 @@ function SingleUpload({ caseId, isPolice, onUploaded }: { caseId: string; isPoli
       <label className="pro-drop">
         {busy ? <Loader2 size={20} className="animate-spin" aria-hidden="true" /> : <UploadCloud size={20} aria-hidden="true" />}
         <strong>Choose a file to add</strong>
-        <span>PDF or text. Scanned pages are read by OCR. It stays inside this case.</span>
-        <input type="file" accept="application/pdf,text/plain" className="sr-only" disabled={busy} onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ""; void upload(file); }} />
+        <span>PDF, text, or a PNG, JPEG or WebP image. Scans and images are read by English OCR. It stays inside this case.</span>
+        <input type="file" accept={EVIDENCE_ACCEPT} className="sr-only" disabled={busy} onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ""; void upload(file); }} />
       </label>
       <Notice text={notice.text} failed={notice.failed} />
     </div>
@@ -233,12 +234,25 @@ function SingleUpload({ caseId, isPolice, onUploaded }: { caseId: string; isPoli
 /** The files in this case, and the way to add one. */
 export function CaseFilesPanel({ caseId, isPolice, refresh, onChanged, onReview }: { caseId: string; isPolice: boolean; refresh: number; onChanged: () => void; onReview: () => void }) {
   const [files, setFiles] = useState<CaseDocumentSummary[] | null>(null);
+  const [unindexed, setUnindexed] = useState<NonNullable<CaseDocumentListResponse["not_indexed"]>>([]);
   const [failed, setFailed] = useState(false);
+  const [retryNotice, setRetryNotice] = useState("");
+  const retryIndex = async (objectId: string) => {
+    setRetryNotice("");
+    try {
+      await indexCaseEvidence(caseId, objectId, "other");
+      onChanged();
+    } catch (error) {
+      setRetryNotice(errorText(error));
+      // A refusal removes the file, so the list has to be read again either way.
+      onChanged();
+    }
+  };
   useEffect(() => {
     let cancelled = false;
     setFailed(false);
     listIndexedCaseDocuments(caseId)
-      .then((response) => { if (!cancelled) setFiles(response.documents); })
+      .then((response) => { if (!cancelled) { setFiles(response.documents); setUnindexed(response.not_indexed ?? []); } })
       .catch(() => { if (!cancelled) { setFiles(null); setFailed(true); } });
     return () => { cancelled = true; };
   }, [caseId, refresh]);
@@ -249,7 +263,19 @@ export function CaseFilesPanel({ caseId, isPolice, refresh, onChanged, onReview 
       <section className="pro-subsection" aria-label="Files in this case">
         <h3>Added so far</h3>
         {failed && <p className="pro-quiet">The file list could not be read.</p>}
-        {files && !files.length && <p className="pro-quiet">No file has been added to this case yet.</p>}
+        {files && !files.length && !unindexed.length && <p className="pro-quiet">No file has been added to this case yet.</p>}
+        {retryNotice && <Notice text={retryNotice} failed />}
+        {unindexed.length > 0 && (
+          <ul className="pro-rows" aria-label="Stored but not searchable">
+            {unindexed.map((item) => (
+              <li key={item.storage_object_id} className="pro-activity">
+                <FileText size={15} aria-hidden="true" className="flex-none" />
+                <span className="pro-due-main"><strong>{item.filename}</strong><span>Stored, but not indexed, so it is not searchable yet.</span></span>
+                <button type="button" className="button-secondary" onClick={() => void retryIndex(item.storage_object_id)} aria-label={`Index ${item.filename} again`}>Try again</button>
+              </li>
+            ))}
+          </ul>
+        )}
         {!!files?.length && (
           <ul className="pro-rows">
             {files.map((item) => (

@@ -17,6 +17,8 @@ test('an address reads back as the screen it was written from', () => {
     { section: 'case', caseId: ID, tab: 'files', tool: 'witnesses' },
     { section: 'deadlines' },
     { section: 'research' },
+    { section: 'research', chat: ID },
+    { section: 'case', caseId: ID, tab: 'ask', chat: ID },
     { section: 'law' },
   ]) {
     assert.deepEqual(plain(route.parseProRoute(route.proHref(to).slice(1))), to);
@@ -30,6 +32,20 @@ test('an address that means nothing lands somewhere safe, never on a broken scre
   assert.deepEqual(plain(route.parseProRoute('?s=case')), { section: 'cases' });
   assert.deepEqual(plain(route.parseProRoute('?s=case&case=../../admin')), { section: 'cases' });
   assert.deepEqual(plain(route.parseProRoute(`?s=case&case=${ID}&tab=%3Cscript%3E`)), { section: 'case', caseId: ID });
+});
+
+test('today is the reader\'s own date, not the UTC one', () => {
+  const { localDay } = loadTs('lib/local-day.ts');
+  // 00:30 local on 5 Nov, in any zone. toISOString would say the 4th east of Greenwich.
+  assert.equal(localDay(new Date(2026, 10, 5, 0, 30)), '2026-11-05');
+  assert.equal(localDay(new Date(2026, 0, 9, 23, 59)), '2026-01-09');
+});
+
+test('an open conversation is held in the address only on a screen that shows one', () => {
+  assert.deepEqual(plain(route.parseProRoute(`?s=case&case=${ID}&tab=files&chat=${ID}`)), { section: 'case', caseId: ID, tab: 'files' });
+  assert.deepEqual(plain(route.parseProRoute(`?s=case&case=${ID}&tab=ask&chat=../../etc`)), { section: 'case', caseId: ID, tab: 'ask' });
+  assert.deepEqual(plain(route.parseProRoute(`?s=research&chat=nope`)), { section: 'research' });
+  assert.deepEqual(plain(route.parseProRoute(`?s=cases&chat=${ID}`)), { section: 'cases' });
 });
 
 test('a tool without a tab is dropped, and the law lookup keeps its own query', () => {

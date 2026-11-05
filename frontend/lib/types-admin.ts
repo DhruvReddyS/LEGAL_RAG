@@ -255,6 +255,8 @@ export interface ConsoleUser {
   last_login_at: string | null;
   sessions_valid_from: string | null;
   force_password_reset: boolean;
+  /** A provisioned account that has not yet replaced its first password. Clearing a reset leaves this. */
+  first_password_change_pending: boolean;
   mfa_required: boolean;
   suspended_reason: string | null;
   manageable: boolean;

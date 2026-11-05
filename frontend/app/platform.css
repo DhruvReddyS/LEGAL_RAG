@@ -418,3 +418,6 @@ html[data-low-bandwidth="on"] *,html[data-low-bandwidth="on"] *::before,html[dat
 .case-notes-actions .is-danger {color:var(--state-bad-text);}
 /* A settings section holding a single row keeps all four corners. */
 .settings-section>.setting-block:first-of-type:last-child {border-radius:12px;}
+
+.law-change-strip {display:flex;align-items:center;gap:10px;padding:9px 16px;background:var(--hover);color:var(--ink);font-size:13px;border-bottom:1px solid var(--border);}
+.law-change-strip button {font-weight:600;white-space:nowrap;text-decoration:underline;text-underline-offset:2px;}

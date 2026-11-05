@@ -15,6 +15,8 @@ from __future__ import annotations
 from datetime import date, datetime
 from html import escape
 
+from app.core.india_time import india_moment_text
+
 __all__ = ["render_case_file"]
 
 NOTE = (
@@ -52,7 +54,7 @@ def _text(value: object) -> str:
     if value is None or value == "":
         return "Not recorded"
     if isinstance(value, datetime):
-        return value.strftime("%d %b %Y, %H:%M")
+        return india_moment_text(value)
     if isinstance(value, date):
         return value.strftime("%d %b %Y")
     return str(value)

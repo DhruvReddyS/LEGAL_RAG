@@ -34,6 +34,27 @@ const emptyLists = {
 };
 
 test.describe("adding many files to a case", () => {
+  test("a file an outage stopped stays listed after a reload, with a way to try again", async ({ page }) => {
+    const objectId = "00000000-0000-4000-8000-000000000031";
+    let indexed = false;
+    const summary = { document_id: "00000000-0000-4000-8000-000000000032", storage_object_id: objectId, filename: "statement.txt", doc_type: "other", uploaded_at: "2026-11-05T09:00:00Z", sha256: null, page_count: 1, chunk_count: 2 };
+    await openPro(page, "advocate", `${CASE_PAGE}&tab=files&tool=files`, {
+      overrides: {
+        ...emptyLists,
+        [`GET /cases/${CASE_ID}/documents/indexed`]: (route: Route) => json(route, indexed
+          ? { documents: [summary], total: 1, not_indexed: [] }
+          : { documents: [], total: 0, not_indexed: [{ storage_object_id: objectId, filename: "statement.txt", uploaded_at: "2026-11-05T09:00:00Z" }] }),
+        [`POST /cases/${CASE_ID}/storage/objects/${objectId}/index`]: (route: Route) => { indexed = true; return json(route, { pages: 1, chunks: 2 }, 201); },
+      },
+    });
+    const listed = page.getByRole("region", { name: "Files in this case" }).last();
+    await expect(listed).toContainText("Stored, but not indexed");
+    await expect(listed).not.toContainText("No file has been added");
+    await listed.getByRole("button", { name: "Index statement.txt again" }).click();
+    await expect(listed).toContainText("2 passages");
+    await expect(listed).not.toContainText("Stored, but not indexed");
+  });
+
   test("each file gets its own outcome, and one failure does not stop the rest", async ({ page }) => {
     const order: string[] = [];
     let objects = 0;
@@ -66,7 +87,7 @@ test.describe("adding many files to a case", () => {
     const queue = page.getByRole("region", { name: "Files being added" });
     await expect(queue.getByRole("status")).toContainText("4 of 4 finished, 2 failed");
     await expect(queue.locator('li[data-status="done"]')).toHaveCount(2);
-    await expect(queue.locator("li", { hasText: "virus.exe" })).toContainText("Only PDF and TXT");
+    await expect(queue.locator("li", { hasText: "virus.exe" })).toContainText("Only PDF, TXT, PNG, JPEG and WebP");
     await expect(queue.locator("li", { hasText: "second.pdf" })).toContainText("25 MiB");
     expect(order).toEqual(["upload 1", "index first", "upload 2", "upload 3", "index third"]);
     await expect(queue.getByRole("button", { name: "Retry second.pdf" })).toBeVisible();

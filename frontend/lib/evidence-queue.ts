@@ -8,7 +8,8 @@
 // a dropped file does not pass through the input's `accept`, and refusing it now
 // saves sending 25 MiB only to hear no.
 export const MAX_EVIDENCE_BYTES = 25 * 1024 * 1024;
-export const EVIDENCE_TYPES = ["application/pdf", "text/plain"] as const;
+export const EVIDENCE_TYPES = ["application/pdf", "text/plain", "image/png", "image/jpeg", "image/webp"] as const;
+export const EVIDENCE_ACCEPT = EVIDENCE_TYPES.join(",");
 
 // The index route allows only a few calls a minute per user, and a sliding window
 // empties on its own, so a batch waits its turn rather than failing the fifth file.
@@ -33,7 +34,7 @@ export function evidenceRejection(file: { size: number; type: string }): string 
   if (file.size === 0) return "This file is empty.";
   if (file.size > MAX_EVIDENCE_BYTES) return "This file is larger than the 25 MiB limit.";
   if (!(EVIDENCE_TYPES as readonly string[]).includes(file.type.split(";")[0].trim().toLowerCase())) {
-    return "Only PDF and TXT files can be added here.";
+    return "Only PDF, TXT, PNG, JPEG and WebP files can be added here.";
   }
   return null;
 }
@@ -70,10 +71,12 @@ export async function processEvidenceItem(item: Pick<EvidenceItem, "objectId">, 
       }
     }
   } catch (error) {
-    const stored = objectId ? "Stored, but not indexed. " : "";
     // Sending a damaged or refused file again gets the same answer, so offer Retry
-    // only where a second attempt could go differently.
-    deps.onChange({ status: "failed", detail: `${stored}${deps.errorText(error)}`, retryable: !deps.isRefusal?.(error) });
+    // only where a second attempt could go differently. The server does not keep a
+    // file it refused, so that one is not "stored" either.
+    const refused = Boolean(deps.isRefusal?.(error));
+    const stored = objectId && !refused ? "Stored, but not indexed. " : "";
+    deps.onChange({ status: "failed", detail: `${stored}${deps.errorText(error)}`, retryable: !refused });
     return false;
   }
 }

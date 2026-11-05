@@ -12,6 +12,8 @@ export interface ProRoute {
   caseId?: string;
   tab?: string;
   tool?: string;
+  /** The open conversation, on the two screens that hold one. The server still checks it is yours. */
+  chat?: string;
 }
 
 const SECTIONS: readonly string[] = ["dashboard", "cases", "case", "deadlines", "drafts", "research", "law", "unit", "help"];
@@ -24,6 +26,9 @@ export function parseProRoute(search: string): ProRoute {
   // The law lookup writes its own ?q= in place, on the public page and here alike.
   if (!section && params.has("q")) return { section: "law" };
   if (!section || !SECTIONS.includes(section)) return { section: "dashboard" };
+  const chat = params.get("chat");
+  const openChat = chat && UUID.test(chat) ? chat : undefined;
+  if (section === "research") return openChat ? { section: "research", chat: openChat } : { section: "research" };
   if (section !== "case") return { section: section as ProSection };
   const caseId = params.get("case") ?? "";
   if (!UUID.test(caseId)) return { section: "cases" };
@@ -33,6 +38,7 @@ export function parseProRoute(search: string): ProRoute {
     route.tab = tab;
     const tool = params.get("tool");
     if (tool && SLUG.test(tool)) route.tool = tool;
+    if (tab === "ask" && openChat) route.chat = openChat;
   }
   return route;
 }
@@ -44,7 +50,9 @@ export function proHref(route: ProRoute): string {
     params.set("case", route.caseId);
     if (route.tab) params.set("tab", route.tab);
     if (route.tab && route.tool) params.set("tool", route.tool);
+    if (route.tab === "ask" && route.chat) params.set("chat", route.chat);
   }
+  if (route.section === "research" && route.chat) params.set("chat", route.chat);
   return `/?${params.toString()}`;
 }
 

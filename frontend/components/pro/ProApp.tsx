@@ -146,7 +146,7 @@ const SECTION_TITLES: Partial<Record<ProRoute["section"], string>> = {
  * one screen with one job at a time. The conversation stays in the page above this,
  * which is what lets a Deep review carry on while the person works elsewhere.
  */
-export default function ProApp({ user, route, navigate, chats, onCasesChange, onOpenChat, chatView, busyScope, onSettings, onSearchChats }: {
+export default function ProApp({ user, route, navigate, chats, onCasesChange, onOpenChat, chatView, busyScope, onSettings, onSearchChats, notice }: {
   user: User;
   route: ProRoute;
   navigate: ProContextValue["navigate"];
@@ -156,6 +156,7 @@ export default function ProApp({ user, route, navigate, chats, onCasesChange, on
   chatView: ChatView;
   /** A question still being answered, and which screen it belongs on. */
   busyScope: { caseId: string | null } | null;
+  notice?: ReactNode;
   onSettings: () => void;
   onSearchChats: () => void;
 }) {
@@ -208,7 +209,8 @@ export default function ProApp({ user, route, navigate, chats, onCasesChange, on
   }, [chats]);
 
   const [newCase, setNewCase] = useState(false);
-  const units = useMyUnits(isPolice);
+  const loadedUnits = useMyUnits(isPolice);
+  const units = useMemo(() => loadedUnits ?? [], [loadedUnits]);
   const supervises = supervisedUnits(units).length > 0;
   const value: ProContextValue = {
     user, isPolice, noun, nounPlural, route, navigate, cases, casesState, reloadCases, replaceCase,
@@ -240,7 +242,8 @@ export default function ProApp({ user, route, navigate, chats, onCasesChange, on
   }, [drawer]);
 
   // Arriving on a new screen moves the reader to its top, and the keyboard to its heading.
-  const href = proHref(route);
+  // The open conversation joins the address as its first answer arrives: not a new screen.
+  const href = proHref({ ...route, chat: undefined });
   const screenKey = `${route.section}:${route.caseId ?? ""}`;
   const shownHref = useRef(href);
   const shownScreen = useRef(screenKey);
@@ -295,6 +298,7 @@ export default function ProApp({ user, route, navigate, chats, onCasesChange, on
               <ProLink to={busyScope.caseId ? { section: "case", caseId: busyScope.caseId, tab: "ask" } : { section: "research" }}>Open it<ArrowRight size={13} aria-hidden="true" /></ProLink>
             </div>
           )}
+          {notice}
           <div id="pro-main" className="pro-main" tabIndex={-1} ref={mainRef}>
             {route.section === "dashboard" && <Dashboard />}
             {route.section === "cases" && <CasesScreen />}
@@ -305,7 +309,7 @@ export default function ProApp({ user, route, navigate, chats, onCasesChange, on
             {route.section === "drafts" && <DraftsScreen />}
             {route.section === "research" && <ResearchScreen chatView={chatView} />}
             {route.section === "law" && <LawScreen />}
-            {route.section === "unit" && <UnitScreen units={units} />}
+            {route.section === "unit" && <UnitScreen units={loadedUnits} />}
             {route.section === "help" && <HelpScreen />}
           </div>
           <p className="pro-foot">Information for your professional review, not legal advice.</p>

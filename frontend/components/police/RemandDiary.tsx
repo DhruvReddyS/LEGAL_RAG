@@ -5,6 +5,7 @@ import { type FormEvent, useCallback, useEffect, useState } from "react";
 
 import { errorText, ErrorNote, Field, Loading } from "@/components/police/shared";
 import { addDiaryEntry, addRemand, getDiary, getRemand, removeRemand } from "@/lib/api-police";
+import { localDay } from "@/lib/local-day";
 import { formatDay, formatMoment, fromLocalInput } from "@/lib/police-presentation";
 import type { DiaryResponse, RemandSummary } from "@/lib/types-police";
 
@@ -83,7 +84,7 @@ export function RemandTracker({ caseId }: { caseId: string }) {
   );
 }
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => localDay();
 
 export function CaseDiary({ caseId }: { caseId: string }) {
   const [data, setData] = useState<DiaryResponse | null>(null);

@@ -6,6 +6,21 @@
  * drawing a line through data that does not exist.
  */
 
+/** What the reset dialog promises. A provisioned account's first change is not the admin's to waive. */
+export function clearResetText(user: { force_password_reset: boolean; first_password_change_pending: boolean }): string {
+  if (!user.force_password_reset) return "They are signed out everywhere and must choose a new password at their next sign-in.";
+  return user.first_password_change_pending
+    ? "This clears the reset you required. They will still be asked to change their password, because this account has not yet replaced the first password it was given."
+    : "They will no longer be asked to change their password.";
+}
+
+export function resetDoneText(user: { name: string; force_password_reset: boolean; first_password_change_pending: boolean }): string {
+  if (!user.force_password_reset) return `${user.name} must choose a new password at their next sign-in.`;
+  return user.first_password_change_pending
+    ? `Reset cleared. ${user.name} must still replace the first password they were given.`
+    : `Reset cleared for ${user.name}.`;
+}
+
 export type Tone = "ok" | "warn" | "bad" | "neutral";
 
 const GATE_TONES: Record<string, Tone> = {

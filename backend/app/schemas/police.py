@@ -14,6 +14,7 @@ from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validato
 
 from app.services.investigation_compliance import ComplianceStatus, PoliceAction
 from app.services.police_offences import ElementState
+from app.schemas.plausible_dates import PlausibleDates
 
 TriState = Literal["yes", "no", "unknown"]
 
@@ -61,7 +62,7 @@ class RegisterResponse(BaseModel):
     cases_without_facts: list[CaseReference]
 
 
-class CompletionRequest(BaseModel):
+class CompletionRequest(PlausibleDates):
     completed_at: AwareDatetime
     note: str | None = Field(default=None, max_length=2000)
 
@@ -69,7 +70,7 @@ class CompletionRequest(BaseModel):
 # ---- Compliance as a record
 
 
-class ComplianceRecordRequest(BaseModel):
+class ComplianceRecordRequest(PlausibleDates):
     status: ComplianceStatus | None = None
     occurred_at: AwareDatetime | None = None
     evidence_note: str | None = Field(default=None, max_length=4000)
@@ -103,7 +104,7 @@ EvidenceCategory = Literal["physical", "document", "electronic", "biological", "
 EvidenceStatus = Literal["held", "sent_for_examination", "produced_in_court", "returned", "entered_in_error"]
 
 
-class EvidenceCreate(BaseModel):
+class EvidenceCreate(PlausibleDates):
     exhibit_label: str = Field(min_length=1, max_length=60)
     description: str = Field(min_length=3, max_length=4000)
     category: EvidenceCategory = "physical"
@@ -119,7 +120,7 @@ class EvidenceCreate(BaseModel):
     notes: str | None = Field(default=None, max_length=4000)
 
 
-class EvidenceUpdate(BaseModel):
+class EvidenceUpdate(PlausibleDates):
     description: str | None = Field(default=None, min_length=3, max_length=4000)
     category: EvidenceCategory | None = None
     seized_at: AwareDatetime | None = None
@@ -134,7 +135,7 @@ class EvidenceUpdate(BaseModel):
     notes: str | None = Field(default=None, max_length=4000)
 
 
-class CustodyEventCreate(BaseModel):
+class CustodyEventCreate(PlausibleDates):
     occurred_at: AwareDatetime
     from_person: str = Field(min_length=2, max_length=255)
     to_person: str = Field(min_length=2, max_length=255)
@@ -191,7 +192,7 @@ WitnessCategory = Literal["complainant", "victim", "eyewitness", "search_witness
 WitnessStatus = Literal["to_be_examined", "examined", "unavailable", "dropped", "entered_in_error"]
 
 
-class WitnessCreate(BaseModel):
+class WitnessCreate(PlausibleDates):
     name: str = Field(min_length=2, max_length=255)
     category: WitnessCategory = "other"
     contact: str | None = Field(default=None, max_length=2000)
@@ -207,7 +208,7 @@ class WitnessCreate(BaseModel):
     notes: str | None = Field(default=None, max_length=4000)
 
 
-class WitnessUpdate(BaseModel):
+class WitnessUpdate(PlausibleDates):
     name: str | None = Field(default=None, min_length=2, max_length=255)
     category: WitnessCategory | None = None
     contact: str | None = Field(default=None, max_length=2000)
@@ -256,7 +257,7 @@ class WitnessListResponse(BaseModel):
 # ---- Searches
 
 
-class SearchWrite(BaseModel):
+class SearchWrite(PlausibleDates):
     place: str = Field(min_length=2, max_length=2000)
     basis: Literal["warrant", "section_185", "unknown"] = "unknown"
     searched_at: AwareDatetime | None = None
@@ -350,7 +351,7 @@ class OffenceCatalogue(BaseModel):
 # ---- Remand
 
 
-class RemandCreate(BaseModel):
+class RemandCreate(PlausibleDates):
     custody_type: Literal["police", "judicial"]
     from_date: date
     to_date: date
@@ -389,7 +390,7 @@ class RemandResponse(BaseModel):
 # ---- Diary
 
 
-class DiaryCreate(BaseModel):
+class DiaryCreate(PlausibleDates):
     entry_date: date
     information_reached_at: AwareDatetime | None = None
     began_at: AwareDatetime | None = None

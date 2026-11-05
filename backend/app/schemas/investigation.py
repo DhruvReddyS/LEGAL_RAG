@@ -14,9 +14,10 @@ from pydantic import BaseModel, Field
 
 from app.models.enums import OffenceGravity
 from app.services.investigation_compliance import ComplianceStatus, PoliceAction
+from app.schemas.plausible_dates import PlausibleDates
 
 
-class InvestigationTimelineRequest(BaseModel):
+class InvestigationTimelineRequest(PlausibleDates):
     """Whatever is known. Everything is optional on purpose.
 
     A partially recorded investigation is the normal case, and the

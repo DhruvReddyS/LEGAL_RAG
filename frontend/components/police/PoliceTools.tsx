@@ -77,7 +77,7 @@ export function isPoliceView(view: string): view is PoliceViewKey {
 export function usePoliceTools(enabled: boolean): { tools: PoliceToolDef[]; units: ReturnType<typeof useMyUnits> } {
   const units = useMyUnits(enabled);
   if (!enabled) return { tools: [], units };
-  return { tools: supervisedUnits(units).length ? [...BASE, SUPERVISION] : BASE, units };
+  return { tools: supervisedUnits(units ?? []).length ? [...BASE, SUPERVISION] : BASE, units };
 }
 
 const TABS = [

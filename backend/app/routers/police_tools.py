@@ -27,6 +27,7 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.india_time import india_today
 from app.core.database import get_db_session
 from app.core.permissions import (
     ADMIN_USER_MANAGE,
@@ -182,6 +183,15 @@ def _audit(session: AsyncSession, user: User, action: str, case_id: uuid.UUID | 
             metadata_=metadata,
         )
     )
+
+
+def _refuse_future_witness_dates(values: dict) -> None:
+    for field, label in (
+        ("statement_recorded_at", "The statement time"),
+        ("magistrate_statement_at", "The Magistrate's statement time"),
+        ("bond_executed_at", "The bond time"),
+    ):
+        _refuse_future(values.get(field), label)
 
 
 def _refuse_future(moment: datetime | None, label: str) -> None:
@@ -663,6 +673,7 @@ async def list_witnesses(case_id: uuid.UUID, _: Owner, session: Session) -> Witn
 
 @router.post("/cases/{case_id}/police/witnesses", response_model=WitnessResponse, status_code=status.HTTP_201_CREATED)
 async def add_witness(case_id: uuid.UUID, request: WitnessCreate, user: Owner, session: Session) -> WitnessResponse:
+    _refuse_future_witness_dates(request.model_dump())
     witness = PoliceWitness(case_id=case_id, recorded_by=user.id, **request.model_dump())
     session.add(witness)
     await session.flush()
@@ -678,6 +689,7 @@ async def update_witness(
 ) -> WitnessResponse:
     witness = await _in_case(session, PoliceWitness, case_id, witness_id, "Witness")
     changes = request.model_dump(exclude_unset=True)
+    _refuse_future_witness_dates(changes)
     for field, value in changes.items():
         setattr(witness, field, value)
     _audit(session, user, "police.witness_updated", case_id, witness=str(witness.id), fields=sorted(changes))
@@ -886,7 +898,7 @@ async def _remand(session: AsyncSession, case_id: uuid.UUID) -> RemandResponse:
         [RemandPeriod(r.custody_type, r.from_date, r.to_date) for r in rows],
         first_remand_at=facts.first_remand_at if facts else None,
         gravity=facts.gravity if facts else OffenceGravity.UNKNOWN,
-        today=datetime.now(timezone.utc).date(),
+        today=india_today(),
     )
     return RemandResponse(
         periods=[RemandPeriodResponse.model_validate(r) for r in rows],
@@ -934,7 +946,7 @@ async def _diary(session: AsyncSession, case_id: uuid.UUID) -> DiaryResponse:
     )
     return DiaryResponse(
         entries=[DiaryEntryResponse.model_validate(r) for r in rows],
-        days_without_entry=diary_gaps([r.entry_date for r in rows], until=datetime.now(timezone.utc).date()),
+        days_without_entry=diary_gaps([r.entry_date for r in rows], until=india_today()),
     )
 
 
@@ -947,7 +959,7 @@ async def read_diary(case_id: uuid.UUID, _: Owner, session: Session) -> DiaryRes
 async def add_diary_entry(case_id: uuid.UUID, request: DiaryCreate, user: Owner, session: Session) -> DiaryResponse:
     """Appended, and numbered here. s.192(3) pagination is what makes a later insertion
     visible, so a caller does not get to choose the page."""
-    if request.entry_date > datetime.now(timezone.utc).date() + timedelta(days=1):
+    if request.entry_date > india_today() + timedelta(days=1):
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "A diary entry cannot be dated in the future")
     last = await session.scalar(select(func.max(PoliceDiaryEntry.page_no)).where(PoliceDiaryEntry.case_id == case_id))
     if request.corrects_page is not None and request.corrects_page > (last or 0):

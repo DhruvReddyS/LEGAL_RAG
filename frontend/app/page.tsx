@@ -40,6 +40,7 @@ const ProChatPane = dynamic(() => import("@/components/pro/ProChatPane"));
 const AdminWorkspace = dynamic(() => import("@/components/AdminWorkspace"), { loading: WorkspaceLoading });
 const CitizenWorkspace = dynamic(() => import("@/components/citizen/CitizenWorkspace"), { loading: WorkspaceLoading });
 const AccountDialog = dynamic(() => import("@/components/platform/AccountDialog"));
+const LawChangeStrip = dynamic(() => import("@/components/platform/LawChangeStrip"));
 const HistoryPanel = dynamic(() => import("@/components/platform/HistoryPanel"));
 const CitizenGuideDialog = dynamic(() => import("@/components/CitizenGuideDialog"));
 
@@ -506,11 +507,12 @@ export default function HomePage() {
   // still being answered is left to finish: its screen offers the way back to it.
   const chatScopeId = hasProfessionalWorkspace && proRoute.section === "research" ? null : hasProfessionalWorkspace && proRoute.section === "case" && proRoute.tab === "ask" ? proRoute.caseId ?? null : undefined;
   useEffect(() => {
-    if (chatScopeId === undefined || chatScopeId === chatCaseId || activeRequest.current) return;
+    // An address naming a conversation is restored below, which sets the scope itself.
+    if (chatScopeId === undefined || chatScopeId === chatCaseId || activeRequest.current || proRoute.chat) return;
     resetResearch(chatScopeId);
     // resetResearch only touches state setters and refs.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chatScopeId, chatCaseId, loading]);
+  }, [chatScopeId, chatCaseId, loading, proRoute.chat]);
   const openSavedChat = (item: SavedChat) => {
     if (hasProfessionalWorkspace) proNavigate(item.caseId ? { section: "case", caseId: item.caseId, tab: "ask" } : { section: "research" });
     leaveActiveRequest();
@@ -659,6 +661,53 @@ export default function HomePage() {
     // showJobProgress only touches state setters.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, historyReady]);
+  // Reload, back and a shared link land on the same conversation. After the resume above,
+  // so a job still running keeps the screen it already took.
+  const restoringChat = useRef<string | null>(null);
+  const shownSession = useRef<string | null>(null);
+  const routeChatId = proRoute.chat;
+  useEffect(() => {
+    if (!hasProfessionalWorkspace || !historyReady || !routeChatId || routeChatId === sessionId || activeRequest.current) return;
+    const leaveAddress = () => { const { chat: _chat, ...rest } = proRoute; proNavigate(rest, { replace: true }); };
+    const scope = chatScopeId ?? null;
+    restoringChat.current = routeChatId;
+    openingChat.current = routeChatId;
+    setMessages([{ id: crypto.randomUUID(), role: "assistant", content: "", timestamp: Date.now(), loading: true, requestedMode: "fast" }]);
+    void (async () => {
+      try {
+        const stored = await getChatSession(routeChatId);
+        if (openingChat.current !== routeChatId) return;
+        restoringChat.current = null;
+        // A conversation is only ever shown under its own scope.
+        if ((stored.case_id ?? null) !== scope) { setMessages([]); leaveAddress(); return; }
+        setChatCaseId(scope);
+        setSessionId(routeChatId);
+        setActiveChatId(routeChatId);
+        setMessages(restoreStoredMessages(stored.messages));
+      } catch (error) {
+        if (openingChat.current !== routeChatId) return;
+        restoringChat.current = null;
+        const status = error instanceof ApiError ? error.status : 0;
+        if (status === 403 || status === 404) { setMessages([]); leaveAddress(); return; }
+        setMessages([{ id: crypto.randomUUID(), role: "assistant", content: "", timestamp: Date.now(), error: citizenText("chatNotLoaded") }]);
+      }
+    })();
+    // Runs when the address names a different conversation, not on each change it causes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeChatId, hasProfessionalWorkspace, historyReady]);
+  useEffect(() => {
+    const changed = shownSession.current !== sessionId;
+    shownSession.current = sessionId;
+    if (!hasProfessionalWorkspace || chatScopeId === undefined || restoringChat.current) return;
+    if (sessionId && chatCaseId === chatScopeId) {
+      if (!proRoute.chat || (changed && proRoute.chat !== sessionId)) proNavigate({ ...proRoute, chat: sessionId }, { replace: true });
+    } else if (!sessionId && proRoute.chat && changed) {
+      const { chat: _chat, ...rest } = proRoute;
+      proNavigate(rest, { replace: true });
+    }
+    // proRoute is read for its current value; the address follows the session, not the reverse.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId, chatScopeId, chatCaseId, proRoute.chat, hasProfessionalWorkspace]);
 
   // The landing page owns a first visit on the web. The desktop app, an expired
   // session and anyone who asked to sign in go straight to the form.
@@ -666,6 +715,8 @@ export default function HomePage() {
     window.location.replace(SITE_ROUTES.welcome);
     return null;
   }
+  // Re-read as the account dialog closes, which is where a notice is marked read.
+  const lawChangeStrip = user && !accountOpen ? <LawChangeStrip text={citizenText("lawChanged")} action={citizenText("lawChangedAction")} refresh={accountOpen} onOpen={() => setAccountOpen(true)} /> : null;
   if (!authChecked) return <main className="grid min-h-screen place-items-center"><Scale size={24} className="text-[var(--ink-soft)]" aria-label="Loading workspace" /></main>;
   if (erasedReceipt) return <main className="erased-screen"><div><h1>Your account has been erased.</h1><p>Your account, conversations, case records and files have been removed from this installation. Backups, if the operator keeps any, leave as they age out.</p><p>Your receipt, should you need to quote it. It does not identify you:</p><code>{erasedReceipt}</code></div></main>;
   if (!user) return <>
@@ -765,6 +816,7 @@ export default function HomePage() {
         busyScope={loading ? { caseId: chatCaseId } : null}
         onSettings={() => setSettingsOpen(true)}
         onSearchChats={() => setHistoryPanelOpen(true)}
+        notice={lawChangeStrip}
       />
       {sharedDialogs}
     </main>;
@@ -785,6 +837,7 @@ export default function HomePage() {
     {historyNotice && <div className="history-toast" role="status"><span>{historyNotice}</span><button aria-label={citizenText("dismiss")} onClick={() => setHistoryNotice("")}><X size={13}/></button></div>}
     <div className="app-content" id="main-content" tabIndex={-1} ref={node => { if(node) node.inert = compactNavigation && mobileNav; }}>
       <header className="workspace-header"><button ref={openNavRef} className="icon-button lg:hidden" aria-label={citizenText("openNav")} onClick={() => setMobileNav(true)}><Menu size={20} /></button><span>{view === "workspace" ? role === "citizen" ? " " : role === "police" ? "Investigation workspace" : role === "advocate" ? "Your case workspace" : "Administration" : " "}</span>{role === "citizen" && view !== "workspace" && <LangSwitcher/>}{view === "workspace" && <button className="text-sm text-[var(--ink-soft)]" onClick={() => setView("research")}><MessageSquare size={16} className="mr-2 inline" />{citizenText("backToChat")}</button>}</header>
+      {lawChangeStrip}
       {view === "workspace" && role === "citizen" && <CitizenWorkspace requested={citizenTool} onAsk={(question) => { resetResearch(); void submit(question, [], false, undefined, true); }} />}
       {view === "workspace" && hasOperationsWorkspace ? <AdminWorkspace /> : view === "workspace" ? null :
       <section className={`chat-workspace ${messages.length ? "has-conversation" : ""}`}>

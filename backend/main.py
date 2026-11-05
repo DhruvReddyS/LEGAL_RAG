@@ -11,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 from qdrant_client.http.exceptions import ResponseHandlingException
+from sqlalchemy.exc import DBAPIError
 
 from app.services.llm import LLMUnavailableError
 
@@ -118,6 +119,17 @@ app.add_middleware(
     allowed_origins=settings.cors_origin_list,
     allow_private_network=settings.cors_allow_private_network,
 )
+
+
+@app.exception_handler(DBAPIError)
+async def _text_postgres_cannot_store(_request: Request, exc: DBAPIError) -> JSONResponse:
+    """A NUL character can arrive in any text field, and PostgreSQL text cannot hold one."""
+    if "CharacterNotInRepertoire" not in str(exc.orig):
+        raise exc
+    return JSONResponse(
+        status_code=422,
+        content={"detail": "This text contains a character that cannot be stored. Remove it and try again."},
+    )
 
 
 @app.exception_handler(ResponseHandlingException)

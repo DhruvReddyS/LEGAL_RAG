@@ -6,6 +6,11 @@
 # user and password that compose creates from them. Any values work provided
 # the password is at least 8 characters, so generating them beats asking
 # someone to invent four strings by hand on a first run.
+#
+# The database password is generated too, and DATABASE_URL is written to match it.
+# Compose pins its own URL for the containers, but the application's built-in
+# default is localhost:5432 with a fixed password, so without this line a tool run
+# natively would fail against this stack and would try any other Postgres on 5432.
 set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -25,12 +30,18 @@ cp "$PROJECT_ROOT/.env.example" "$ENV_FILE"
 python3 - "$ENV_FILE" <<'PY'
 import pathlib
 import secrets
+import socket
 import sys
 
 path = pathlib.Path(sys.argv[1])
 lines = []
+database = {"POSTGRES_DB": "legal_rag", "POSTGRES_USER": "legal_rag", "POSTGRES_PORT": "5432"}
 for line in path.read_text(encoding="utf-8").splitlines():
     key = line.split("=", 1)[0]
+    if key == "POSTGRES_PASSWORD":
+        line = f"{key}={secrets.token_urlsafe(24)}"
+    if key in database or key == "POSTGRES_PASSWORD":
+        database[key] = line.split("=", 1)[1]
     if line.endswith("=CHANGE_ME"):
         if key.startswith("JWT"):
             line = f"{key}={secrets.token_urlsafe(48)}"
@@ -39,6 +50,11 @@ for line in path.read_text(encoding="utf-8").splitlines():
         elif key == "S3_SECRET_ACCESS_KEY":
             line = f"{key}={secrets.token_urlsafe(24)}"
     lines.append(line)
+lines.append(
+    "DATABASE_URL=postgresql+asyncpg://"
+    f"{database['POSTGRES_USER']}:{database['POSTGRES_PASSWORD']}"
+    f"@localhost:{database['POSTGRES_PORT']}/{database['POSTGRES_DB']}"
+)
 path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 remaining = sum(1 for line in lines if "CHANGE_ME" in line)
@@ -51,6 +67,15 @@ if remaining:
             print(f"  {line.split('=', 1)[0]}")
     raise SystemExit(1)
 print("Wrote .env with generated local secrets.")
+
+port = int(database["POSTGRES_PORT"])
+with socket.socket() as probe:
+    probe.settimeout(0.5)
+    if probe.connect_ex(("127.0.0.1", port)) == 0:
+        print(
+            f"Port {port} is already in use, so another Postgres may be running. Before starting,\n"
+            "change the port in both POSTGRES_PORT and DATABASE_URL in .env to a free one."
+        )
 PY
 
 printf 'Next: open Docker Desktop, then run ./scripts/start_local.sh 3000\n'

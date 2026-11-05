@@ -43,9 +43,13 @@ printf 'Starting the API and data services...\n'
 CORS_ORIGINS="$local_origins" docker compose --env-file "$ENV_FILE" \
   -f "$COMPOSE_FILE" up -d --build
 
-printf 'Waiting for model warm-up and API readiness...\n'
+# The API answers only after warm-up, and the first run downloads the embedding and
+# reranking models (several GB) during it. Three minutes failed every fresh clone.
+wait_seconds="${STARTUP_WAIT_SECONDS:-1800}"
+printf 'Waiting for model warm-up and API readiness, up to %s seconds...\n' "$wait_seconds"
+printf 'The first run downloads the models, which can take many minutes.\n'
 ready=false
-for _ in $(seq 1 90); do
+for _ in $(seq 1 $((wait_seconds / 2))); do
   if curl --fail --silent --max-time 3 http://127.0.0.1:8000/health/ready >/dev/null; then
     ready=true
     break

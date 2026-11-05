@@ -83,9 +83,18 @@ class CaseDocumentSummary(BaseModel):
     chunk_count: int
 
 
+class UnindexedCaseFile(BaseModel):
+    """Stored in the case, but an outage stopped it being indexed: not searchable yet."""
+
+    storage_object_id: uuid.UUID
+    filename: str
+    uploaded_at: datetime
+
+
 class CaseDocumentListResponse(BaseModel):
     documents: list[CaseDocumentSummary]
     total: int
+    not_indexed: list[UnindexedCaseFile] = []
 
 
 class SourceInspectorResponse(BaseModel):

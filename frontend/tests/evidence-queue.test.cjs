@@ -24,8 +24,8 @@ test('a file the server would refuse is refused before it is sent', () => {
   assert.equal(evidenceRejection({ size: MAX_EVIDENCE_BYTES, type: 'text/plain' }), null);
   assert.match(evidenceRejection({ size: MAX_EVIDENCE_BYTES + 1, type: 'application/pdf' }), /25 MiB/);
   assert.match(evidenceRejection({ size: 0, type: 'application/pdf' }), /empty/);
-  assert.match(evidenceRejection({ size: 10, type: 'application/x-msdownload' }), /PDF and TXT/);
-  assert.match(evidenceRejection({ size: 10, type: '' }), /PDF and TXT/);
+  assert.match(evidenceRejection({ size: 10, type: 'application/x-msdownload' }), /PDF, TXT, PNG, JPEG and WebP/);
+  assert.match(evidenceRejection({ size: 10, type: '' }), /PDF, TXT, PNG, JPEG and WebP/);
 });
 
 test('a file moves through upload and indexing to done', async () => {
@@ -49,6 +49,17 @@ test('a file the server refused offers no retry, while a passing failure does', 
   const outage = deps({ index: async () => { const e = new Error('Down'); e.status = 503; throw e; }, isRefusal: error => error.status === 422 });
   assert.equal(await processEvidenceItem({}, outage), false);
   assert.equal(last(outage).retryable, true);
+});
+
+test('a file the server refused is not described as stored, because it was not kept', async () => {
+  const refused = deps({ index: async () => { const e = new Error('Damaged. The file was not kept.'); e.status = 422; throw e; }, isRefusal: error => error.status === 422 });
+  assert.equal(await processEvidenceItem({}, refused), false);
+  assert.equal(last(refused).detail, 'Damaged. The file was not kept.');
+});
+
+test('images the server reads by OCR are accepted, an executable still is not', () => {
+  for (const type of ['image/png', 'image/jpeg', 'image/webp']) assert.equal(evidenceRejection({ size: 10, type }), null);
+  assert.match(evidenceRejection({ size: 10, type: 'application/x-msdownload' }), /Only PDF, TXT, PNG, JPEG and WebP/);
 });
 
 test('a failed index says the file is stored, and a retry does not store it twice', async () => {
