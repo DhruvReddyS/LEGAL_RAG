@@ -402,3 +402,17 @@ html[data-low-bandwidth="on"] *,html[data-low-bandwidth="on"] *::before,html[dat
 .evidence-queue li button {display:inline-flex;align-items:center;gap:5px;min-height:32px;padding:0 9px;font-size:12px;border-radius:7px;color:var(--accent);grid-column:3;grid-row:1;}
 .evidence-queue li button:hover {background:var(--hover);}
 @media(max-width:560px) {.evidence-queue li {grid-template-columns:minmax(0,1fr) auto;}.evidence-row-status {grid-column:1;}.evidence-row-name {grid-column:1 / -1;grid-row:2;}.evidence-row-detail {grid-column:1 / -1;grid-row:3;}.evidence-queue li button {grid-column:2;}}
+/* Private notes on a case. */
+.case-notes {margin-top:26px;}
+.case-notes-form {display:grid;gap:8px;justify-items:start;}
+.case-notes-form label {font-size:12px;font-weight:500;color:var(--ink);}
+.case-notes-form textarea,.case-notes-list textarea {display:block;resize:vertical;}
+.case-notes-error {font-size:12px;color:var(--state-bad-text);}
+.case-notes-list {display:grid;gap:8px;margin:0;padding:0;list-style:none;}
+.case-notes-list>li {padding:12px 14px;border:1px solid var(--border);border-radius:11px;background:var(--card);}
+.case-notes-body {font-size:14px;line-height:1.65;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere;}
+.case-notes-actions {display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-top:8px;font-size:12px;color:var(--ink-soft);}
+.case-notes-actions small {margin-right:auto;font-size:12px;}
+.case-notes-actions button {display:inline-flex;align-items:center;gap:5px;min-height:32px;padding:0 9px;border-radius:7px;font-size:12px;color:var(--ink-soft);}
+.case-notes-actions button:hover {background:var(--hover);color:var(--ink);}
+.case-notes-actions .is-danger {color:var(--state-bad-text);}

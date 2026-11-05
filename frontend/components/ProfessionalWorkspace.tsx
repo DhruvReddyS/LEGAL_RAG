@@ -6,6 +6,7 @@ import { AuthorityCheck } from "@/components/AuthorityCheck";
 import { ComplianceChecklist } from "@/components/ComplianceChecklist";
 import CaseChronology from "@/components/CaseChronology";
 import BulkUpload from "@/components/case/BulkUpload";
+import CaseNotes from "@/components/case/CaseNotes";
 import { InvestigationTimeline } from "@/components/InvestigationTimeline";
 import { isPoliceView, PoliceToolView, usePoliceTools, type PoliceViewKey } from "@/components/police/PoliceTools";
 import { caseTimelineMessage, type CaseTimelineState } from "@/lib/police-presentation";
@@ -581,6 +582,7 @@ type ViewKey = "advocate" | "casefile" | "chronology" | "agent" | "deadlines" | 
                 </div>
               )}
 
+              {view === "casefile" && selected && <CaseNotes key={selectedId} caseId={selectedId} />}
               {view === "agent" && (
                 <div>
                   <textarea aria-label={isPolice ? "What is known so far" : "The case as you understand it"} value={scenario} onChange={(event) => setScenario(event.target.value)} placeholder={isPolice ? "Enter the complainant account, dates, location, property or person description, witnesses and known circumstances…" : "Describe allegations, evidence, disputed facts, procedural history and the client position…"} className="field min-h-44 w-full resize-y leading-6" />

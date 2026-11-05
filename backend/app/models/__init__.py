@@ -11,7 +11,7 @@ from app.models.admin_tools import (
 )
 from app.models.audit import AuditLog
 from app.models.base import Base
-from app.models.case import Case, CaseDocument, GeneratedDocument
+from app.models.case import Case, CaseDocument, CaseNote, GeneratedDocument
 from app.models.chat import ChatMessage, ChatSession, Feedback
 from app.models.corpus import Bookmark, CorpusIntake, CorpusSource
 from app.models.corpus_lifecycle import (
@@ -68,6 +68,7 @@ __all__ = [
     "LawChangeNotice",
     "Bookmark",
     "Case",
+    "CaseNote",
     "CaseDocument",
     "CaseRoleType",
     "ChatMessage",
