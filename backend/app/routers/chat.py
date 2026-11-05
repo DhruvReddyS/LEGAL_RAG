@@ -220,11 +220,11 @@ async def translate_message(
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Message not found")
     # Released before a model call that can take a minute. A pooled connection held
     # idle through it is how a few readers starve everyone else.
-    answer, published = message.content, bool(message.citations)
+    answer, published, user_id = message.content, bool(message.citations), user.id
     await session.rollback()
     if not published or len(answer) > MAX_CHARACTERS:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "This answer cannot be translated")
-    await enforce_llm_sync_limit(user.id)
+    await enforce_llm_sync_limit(user_id)
     try:
         text = await translate_answer(
             workflow.llm, message_id=str(message_id), answer=answer, language_code=request.language

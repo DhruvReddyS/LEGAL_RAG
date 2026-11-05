@@ -95,8 +95,10 @@ async def read_across_the_files(
     session: AsyncSession = Depends(get_db_session),
 ) -> dict:
     """Who is who, or where the statements disagree. See services/case_insights."""
+    # Read first: the helper below releases the session, which expires this object.
+    user_id = user.id
     chunks = await _owned_case_chunks(case_id, http_request, user, session)
-    await enforce_llm_sync_limit(user.id)
+    await enforce_llm_sync_limit(user_id)
     try:
         return await case_insights(http_request.app.state.legal_rag_workflow.llm, kind, chunks)
     except HTTPException:
