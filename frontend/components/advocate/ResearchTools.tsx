@@ -232,7 +232,7 @@ export function OpponentResultView({ result }: { result: OpponentResult }) {
       <div className="adv-strength">
         <Badge tone="neutral">{result.cases.length} case(s) cited</Badge>
         <Badge tone={result.repealed_provisions ? "bad" : "neutral"}>{result.repealed_provisions} citing a repealed code</Badge>
-        <Badge tone={result.needs_attention ? "warn" : "neutral"}>{result.needs_attention} provision(s) need attention</Badge>
+        <Badge tone={result.needs_attention ? "warn" : "neutral"}>{result.needs_attention} {result.needs_attention === 1 ? "provision needs" : "provisions need"} attention</Badge>
       </div>
       <section className="adv-section">
         <h4 className="adv-heading">Cases</h4>

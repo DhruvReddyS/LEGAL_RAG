@@ -42,7 +42,7 @@ function UnitPanel({ unitId }: { unitId: string }) {
           <li key={item.case_id} className="police-card">
             <div className="police-card-head">
               <h4>{item.title}<small>{item.officer_name}{!item.has_facts ? ". No dates recorded, so nothing can be computed." : ""}</small></h4>
-              {sumCounts(item.counts, ["overdue", "imminent"]) > 0 && <Pill words={{ label: `${sumCounts(item.counts, ["overdue", "imminent"])} need attention`, tone: "bad" }} />}
+              {sumCounts(item.counts, ["overdue", "imminent"]) > 0 && <Pill words={{ label: `${sumCounts(item.counts, ["overdue", "imminent"])} ${sumCounts(item.counts, ["overdue", "imminent"]) === 1 ? "needs" : "need"} attention`, tone: "bad" }} />}
             </div>
             <dl className="police-facts">
               <div><dt>Breached</dt><dd>{item.counts.breached ?? 0}</dd></div>

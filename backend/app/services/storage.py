@@ -19,7 +19,16 @@ from app.models import Case, StorageNamespace, StorageObject, User
 from app.models.enums import CaseRoleType, UserRole
 
 
+MAX_FILENAME_CHARS = 500
 _UNSAFE_FILENAME = re.compile(r"[^A-Za-z0-9._-]+")
+
+
+def storable_filename(filename: str) -> str:
+    """As given, cut to the column, keeping the extension that says what the file is."""
+    if len(filename) <= MAX_FILENAME_CHARS:
+        return filename
+    suffix = Path(filename).suffix[:20]
+    return filename[: MAX_FILENAME_CHARS - len(suffix)] + suffix
 
 
 def sanitize_filename(filename: str) -> str:
@@ -197,7 +206,7 @@ class DocumentStorageService:
             namespace=namespace,
             owner_id=user.id,
             case_id=case.id,
-            original_filename=filename,
+            original_filename=storable_filename(filename),
             content_type=content_type,
             file_size=len(content),
             sha256=digest,
@@ -246,7 +255,7 @@ class DocumentStorageService:
             namespace=StorageNamespace.LEGAL_CORPUS,
             owner_id=user.id,
             case_id=None,
-            original_filename=filename,
+            original_filename=storable_filename(filename),
             content_type=content_type,
             file_size=len(content),
             sha256=digest,

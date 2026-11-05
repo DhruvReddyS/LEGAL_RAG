@@ -185,6 +185,15 @@ def _audit(session: AsyncSession, user: User, action: str, case_id: uuid.UUID | 
     )
 
 
+def _refuse_future_witness_dates(values: dict) -> None:
+    for field, label in (
+        ("statement_recorded_at", "The statement time"),
+        ("magistrate_statement_at", "The Magistrate's statement time"),
+        ("bond_executed_at", "The bond time"),
+    ):
+        _refuse_future(values.get(field), label)
+
+
 def _refuse_future(moment: datetime | None, label: str) -> None:
     if moment is not None and moment > datetime.now(timezone.utc) + _FUTURE_TOLERANCE:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, f"{label} cannot be in the future")
@@ -664,6 +673,7 @@ async def list_witnesses(case_id: uuid.UUID, _: Owner, session: Session) -> Witn
 
 @router.post("/cases/{case_id}/police/witnesses", response_model=WitnessResponse, status_code=status.HTTP_201_CREATED)
 async def add_witness(case_id: uuid.UUID, request: WitnessCreate, user: Owner, session: Session) -> WitnessResponse:
+    _refuse_future_witness_dates(request.model_dump())
     witness = PoliceWitness(case_id=case_id, recorded_by=user.id, **request.model_dump())
     session.add(witness)
     await session.flush()
@@ -679,6 +689,7 @@ async def update_witness(
 ) -> WitnessResponse:
     witness = await _in_case(session, PoliceWitness, case_id, witness_id, "Witness")
     changes = request.model_dump(exclude_unset=True)
+    _refuse_future_witness_dates(changes)
     for field, value in changes.items():
         setattr(witness, field, value)
     _audit(session, user, "police.witness_updated", case_id, witness=str(witness.id), fields=sorted(changes))

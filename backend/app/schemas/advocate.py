@@ -8,9 +8,10 @@ from pydantic import BaseModel, Field, model_validator
 
 from app.models.enums import OffenceGravity
 from app.services.bail import BailRoute
+from app.schemas.plausible_dates import PlausibleDates
 
 
-class BailAssessmentRequest(BaseModel):
+class BailAssessmentRequest(PlausibleDates):
     routes: list[BailRoute] = Field(default_factory=list)
     as_of: date | None = None
     offence_description: str | None = Field(default=None, max_length=2000)
@@ -52,7 +53,7 @@ class DraftRequest(BaseModel):
         return self
 
 
-class CalendarEventCreate(BaseModel):
+class CalendarEventCreate(PlausibleDates):
     kind: Literal["hearing", "limitation", "filing", "other"] = "hearing"
     title: str = Field(min_length=2, max_length=255)
     due_on: date
@@ -60,14 +61,14 @@ class CalendarEventCreate(BaseModel):
     basis: dict = Field(default_factory=dict)
 
 
-class CalendarEventUpdate(BaseModel):
+class CalendarEventUpdate(PlausibleDates):
     title: str | None = Field(default=None, min_length=2, max_length=255)
     due_on: date | None = None
     notes: str | None = Field(default=None, max_length=4000)
     completed: bool | None = None
 
 
-class LimitationRequest(BaseModel):
+class LimitationRequest(PlausibleDates):
     article: str = Field(min_length=3, max_length=32)
     runs_from: date
     excluded_days: int = Field(default=0, ge=0, le=36500)
