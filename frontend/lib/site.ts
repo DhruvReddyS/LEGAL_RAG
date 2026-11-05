@@ -31,17 +31,17 @@ export const SOURCE_URL = "https://github.com/DhruvReddyS/LEGAL_RAG";
  * A corpus rebuild changes these: recount, and change them with the date.
  */
 export const CORPUS_FACTS = {
-  countedOn: "4 November 2026",
-  documents: 1570,
-  central: 1267,
+  countedOn: "5 November 2026",
+  documents: 1593,
+  central: 1290,
   andhraPradesh: 285,
   telangana: 18,
   judgments: 93,
   supremeCourtJudgments: 79,
   andhraHighCourtJudgments: 14,
-  acts: 784,
+  acts: 807,
   rules: 361,
-  pages: 55752,
+  pages: 56290,
 } as const;
 
 /** What an install needs. Measured figures from docs/04-OPERATIONS.md §1. */

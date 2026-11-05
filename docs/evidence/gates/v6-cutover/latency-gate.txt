@@ -1,1 +1,22 @@
-the benchmark itself failed; see latency-bench.log
+
+Latency gate FAILED:
+  - fast_p95_ms is 1,172 ms against a limit of 391 ms (contract 141 ms)
+  - deep_non_model_overhead_p95_ms is 2,584 ms against a limit of 488 ms (contract 238 ms)
+{
+  "context_deep_decode_tokens_per_second_p50": 24.05,
+  "context_deep_end_to_end_p50_ms": 47867.89,
+  "context_deep_end_to_end_p95_ms": 59140.54,
+  "deep_abstention_rate": 0.1429,
+  "deep_citations_per_query": 3.7143,
+  "deep_first_useful_output_p95_ms": 7144.75,
+  "deep_mean_verification_score": 0.797,
+  "deep_non_model_overhead_p95_ms": 2583.69,
+  "deep_runs": 21,
+  "deep_ungrounded_published_answers": 0,
+  "deep_unsupported_claims_per_query": 2.2857,
+  "fast_abstention_rate": 0.0,
+  "fast_citations_per_query": 3.4286,
+  "fast_p95_ms": 1171.81,
+  "fast_runs": 21,
+  "query_set_version": "latency-v1"
+}

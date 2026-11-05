@@ -13,8 +13,10 @@ tells you nothing about the second: **does retrieval find the right law**, and
 
 ### 1.1 Golden set
 
-`data/legal_kb/evaluation/golden_set_v3.json` — 61 items: 29 citizen, 25 police,
-7 advocate; 55 answerable and 6 expected abstentions.
+`data/legal_kb/evaluation/golden_set_v4.json`: 102 items, 94 answerable and 8 expected
+abstentions. An item names the Act and section that govern the question, and each is
+verified against the parsed text of that Act. This replaced v3, which matched any passage
+containing a phrase, so scores on the two sets cannot be compared.
 
 Design constraints:
 
@@ -77,15 +79,18 @@ that owed a disclosure.
 
 ### 1.4 Recorded baselines and the CI gates
 
-| baseline | value |
+| baseline (v6, golden set v4) | value |
 |---|---|
-| recall@5 | 0.927 |
-| citation accuracy@5 | 0.638 |
-| abstention correctness | 0.836 |
-| ground coverage | 0.474 (7 scored items) |
-| currency correctness | 0.632 |
+| recall@5 | 0.500 |
+| citation accuracy@5 | 0.288 |
+| abstention correctness | 0.931 |
+| ground coverage | 0.540 |
+| currency correctness | 1.000 |
 | unsupported claims | **0** |
-| latency p50 | 53.0 s |
+| Deep latency p50 | 47.9 s |
+
+Recall and citation accuracy here count only the governing section. Scored on v3's phrase
+predicates the same system read about 0.93 and 0.64. The stricter number is the honest one.
 
 `check_quality_gate.py` guards retrieval at ±0.02. `check_answer_gate.py` guards
 the answer metrics at ±0.05 — wider, because generation is sampled — and treats
@@ -113,8 +118,12 @@ not read" must not look the same.
 
 ## 2. Known limitations
 
-Each is measured, and each has a stated direction rather than a shrug. Measured
-6 September 2026 against `global_legal_corpus_v3`.
+Each is measured, and each has a stated direction rather than a shrug. Items 2 to 12 were
+measured 6 September 2026 against `global_legal_corpus_v3` and have not all been re-checked
+on v6: read them as history. On v6, ground coverage is 0.540 and Deep p50 is 47.9 s. The
+governing section is still missed for 27 of 94 questions, and a verified answer can still
+name a wrong forum or an inapplicable section, because verification checks support, not
+legal correctness. It needs review by a lawyer.
 
 1. **Ground coverage is 0.474.** Answers that do publish name under half the
    statutory grounds. On `arrest-current-law` the answer names six of the ten

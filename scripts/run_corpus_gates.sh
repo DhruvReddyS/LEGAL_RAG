@@ -57,7 +57,7 @@ PY="$ROOT/.venv-ingest/bin/python"
 # The version the haystack analysis compares against. Not a gate input: it
 # only decides which corpus the "did this item get easier" column is read
 # relative to.
-BASELINE_COLLECTION="${BASELINE_COLLECTION:-global_legal_corpus_v4}"
+BASELINE_COLLECTION="${BASELINE_COLLECTION:-global_legal_corpus_v6}"
 OUT="$ROOT/docs/evidence/gates/$LABEL"
 SUMMARY="$OUT/SUMMARY.md"
 

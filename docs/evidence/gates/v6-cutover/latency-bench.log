@@ -1,45 +1,343 @@
 [fast] warm-up (q01) ...
-[fast] q01 r0 ...    0.27 s  4 cites   450 words  strong
-[fast] q02 r0 ...    0.88 s  4 cites   485 words  strong
-[fast] q03 r0 ...    0.73 s  4 cites   494 words  moderate
-[fast] q04 r0 ...    0.61 s  4 cites   655 words  strong
-[fast] q05 r0 ...    1.76 s  0 cites    18 words  insufficient
-[fast] q06 r0 ...    0.53 s  4 cites   585 words  strong
-[fast] q07 r0 ...    1.36 s  4 cites   539 words  insufficient
-[fast] q01 r1 ...    0.38 s  4 cites   450 words  strong
-[fast] q02 r1 ...    0.55 s  4 cites   485 words  strong
-[fast] q03 r1 ...    0.66 s  4 cites   494 words  moderate
-[fast] q04 r1 ...    0.59 s  4 cites   655 words  strong
-[fast] q05 r1 ...    0.88 s  0 cites    18 words  insufficient
-[fast] q06 r1 ...    0.51 s  4 cites   585 words  strong
-[fast] q07 r1 ...    0.53 s  4 cites   539 words  insufficient
-[fast] q01 r2 ...    0.35 s  4 cites   450 words  strong
-[fast] q02 r2 ...    0.41 s  4 cites   485 words  strong
-[fast] q03 r2 ...    0.37 s  4 cites   494 words  moderate
-[fast] q04 r2 ...    0.30 s  4 cites   655 words  strong
-[fast] q05 r2 ...    2.16 s  0 cites    18 words  insufficient
-[fast] q06 r2 ...    1.05 s  4 cites   585 words  strong
-[fast] q07 r2 ...    0.93 s  4 cites   539 words  insufficient
+[fast] q01 r0 ...    0.29 s  4 cites   450 words  strong
+[fast] q02 r0 ...    0.78 s  4 cites   485 words  strong
+[fast] q03 r0 ...    0.66 s  4 cites   494 words  moderate
+[fast] q04 r0 ...    0.58 s  4 cites   655 words  strong
+[fast] q05 r0 ...    1.84 s  0 cites    18 words  insufficient
+[fast] q06 r0 ...    0.60 s  4 cites   585 words  strong
+[fast] q07 r0 ...    1.04 s  4 cites   539 words  insufficient
+[fast] q01 r1 ...    0.33 s  4 cites   450 words  strong
+[fast] q02 r1 ...    0.46 s  4 cites   485 words  strong
+[fast] q03 r1 ...    0.55 s  4 cites   494 words  moderate
+[fast] q04 r1 ...    0.47 s  4 cites   655 words  strong
+[fast] q05 r1 ...    0.82 s  0 cites    18 words  insufficient
+[fast] q06 r1 ...    0.41 s  4 cites   585 words  strong
+[fast] q07 r1 ...    0.46 s  4 cites   539 words  insufficient
+[fast] q01 r2 ...    0.29 s  4 cites   450 words  strong
+[fast] q02 r2 ...    0.44 s  4 cites   485 words  strong
+[fast] q03 r2 ...    0.47 s  4 cites   494 words  moderate
+[fast] q04 r2 ...    0.41 s  4 cites   655 words  strong
+[fast] q05 r2 ...    0.90 s  0 cites    18 words  insufficient
+[fast] q06 r2 ...    1.09 s  4 cites   585 words  strong
+[fast] q07 r2 ...    1.17 s  4 cites   539 words  insufficient
 [fast] drained escalated jobs: {'cancelled_jobs': 6, 'queue_depth_after_drain': 0}
 [deep] warm-up (q01) ...
-Traceback (most recent call last):
-  File "/Users/sripathidhruvreddy/Documents/MAJOR PROJECT/scripts/latency_benchmark.py", line 859, in <module>
-    report = asyncio.run(run(arguments))
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/sripathidhruvreddy/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py", line 195, in run
-    return runner.run(main)
-           ^^^^^^^^^^^^^^^^
-  File "/Users/sripathidhruvreddy/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py", line 118, in run
-    return self._loop.run_until_complete(task)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/sripathidhruvreddy/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
-    return future.result()
-           ^^^^^^^^^^^^^^^
-  File "/Users/sripathidhruvreddy/Documents/MAJOR PROJECT/scripts/latency_benchmark.py", line 718, in run
-    await run_deep(client, credentials_by_role[warm["role"]], warm, -1, args.poll_interval)
-  File "/Users/sripathidhruvreddy/Documents/MAJOR PROJECT/scripts/latency_benchmark.py", line 555, in run_deep
-    enqueue.raise_for_status()
-  File "/Users/sripathidhruvreddy/Documents/MAJOR PROJECT/.venv-ingest/lib/python3.12/site-packages/httpx/_models.py", line 829, in raise_for_status
-    raise HTTPStatusError(message, request=request, response=self)
-httpx.HTTPStatusError: Client error '429 Too Many Requests' for url 'http://127.0.0.1:8000/jobs/deep-review'
-For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/429
+[deep] q01 r0 ...   30.61 s  7 cites   457 words  strong
+[deep] q02 r0 ...   52.05 s  5 cites   373 words  moderate
+[deep] q03 r0 ...   59.14 s  5 cites   311 words  moderate
+[deep] q04 r0 ...   45.91 s  4 cites   340 words  strong
+[deep] q05 r0 ...   47.87 s  0 cites    15 words  insufficient
+[deep] q06 r0 ...   44.91 s  2 cites   230 words  moderate
+[deep] q07 r0 ...   46.99 s  3 cites   361 words  moderate
+[deep] q01 r1 ...   57.21 s  7 cites   457 words  strong
+[deep] q02 r1 ...   58.16 s  5 cites   373 words  moderate
+[deep] q03 r1 ...   51.98 s  5 cites   311 words  moderate
+[deep] q04 r1 ...   45.15 s  4 cites   340 words  strong
+[deep] q05 r1 ...   49.93 s  0 cites    15 words  insufficient
+[deep] q06 r1 ...   46.98 s  2 cites   230 words  moderate
+[deep] q07 r1 ...   45.92 s  3 cites   361 words  moderate
+[deep] q01 r2 ...   54.11 s  7 cites   457 words  strong
+[deep] q02 r2 ...   56.14 s  5 cites   373 words  moderate
+[deep] q03 r2 ...   59.50 s  5 cites   311 words  moderate
+[deep] q04 r2 ...   43.89 s  4 cites   340 words  strong
+[deep] q05 r2 ...   47.92 s  0 cites    15 words  insufficient
+[deep] q06 r2 ...   43.76 s  2 cites   230 words  moderate
+[deep] q07 r2 ...   45.88 s  3 cites   361 words  moderate
+
+Wrote docs/evidence/gates/v6-cutover/latency.json
+{
+  "deep": {
+    "end_to_end_ms": {
+      "count": 21,
+      "max": 59501.83,
+      "mean": 49239.19,
+      "min": 30606.83,
+      "p50": 47867.89,
+      "p95": 59140.54
+    },
+    "llm_calls_per_query": {
+      "count": 21,
+      "max": 4.0,
+      "mean": 2.86,
+      "min": 2.0,
+      "p50": 3.0,
+      "p95": 4.0
+    },
+    "llm_decode_ms": {
+      "count": 21,
+      "max": 32002.47,
+      "mean": 28584.37,
+      "min": 25985.23,
+      "p50": 28138.1,
+      "p95": 31952.47
+    },
+    "llm_decode_tokens_per_second": {
+      "count": 21,
+      "max": 25.91,
+      "mean": 24.05,
+      "min": 22.65,
+      "p50": 24.05,
+      "p95": 25.38
+    },
+    "llm_output_tokens_per_query": {
+      "count": 21,
+      "max": 747.0,
+      "mean": 686.86,
+      "min": 630.0,
+      "p50": 682.0,
+      "p95": 747.0
+    },
+    "llm_prefill_ms": {
+      "count": 21,
+      "max": 21747.89,
+      "mean": 14557.28,
+      "min": 136.67,
+      "p50": 13268.74,
+      "p95": 20930.41
+    },
+    "llm_prompt_tokens_per_query": {
+      "count": 21,
+      "max": 11662.0,
+      "mean": 8715.57,
+      "min": 6629.0,
+      "p50": 7628.0,
+      "p95": 11662.0
+    },
+    "quality": {
+      "abstention_rate": 0.1429,
+      "answer_words": {
+        "count": 21,
+        "max": 457.0,
+        "mean": 298.14,
+        "min": 15.0,
+        "p50": 340.0,
+        "p95": 457.0
+      },
+      "citations_per_query": {
+        "count": 21,
+        "max": 7.0,
+        "mean": 3.71,
+        "min": 0.0,
+        "p50": 4.0,
+        "p95": 7.0
+      },
+      "distinct_source_titles_per_query": {
+        "count": 21,
+        "max": 6.0,
+        "mean": 2.71,
+        "min": 0.0,
+        "p50": 3.0,
+        "p95": 6.0
+      },
+      "published_but_graded_insufficient_rate": 0.0,
+      "unsupported_claims_per_query": {
+        "count": 21,
+        "max": 5.0,
+        "mean": 2.29,
+        "min": 1.0,
+        "p50": 2.0,
+        "p95": 5.0
+      },
+      "verification_score": {
+        "count": 21,
+        "max": 0.94,
+        "mean": 0.77,
+        "min": 0.6,
+        "p50": 0.8,
+        "p95": 0.94
+      }
+    },
+    "stage_p50_ms": {
+      "query_understanding": 0.19,
+      "reasoning": 34257.17,
+      "response_generation": 0.97,
+      "retrieval": 373.82,
+      "retrieval_enrichment": 1154.68,
+      "role_context": 0.07,
+      "timing:query_understanding_ms": 6.26,
+      "timing:reasoning_0_ms": 34266.13,
+      "timing:response_generation_ms": 7.76,
+      "timing:verification_0_ms": 9675.59,
+      "timing:workflow_total_ms": 46474.92,
+      "verification": 9664.26
+    },
+    "stage_p95_ms": {
+      "query_understanding": 4908.76,
+      "reasoning": 40013.58,
+      "response_generation": 2.25,
+      "retrieval": 676.56,
+      "retrieval_enrichment": 1704.43,
+      "role_context": 0.1,
+      "timing:query_understanding_ms": 4916.39,
+      "timing:reasoning_0_ms": 40025.11,
+      "timing:response_generation_ms": 11.08,
+      "timing:verification_0_ms": 18239.37,
+      "timing:workflow_total_ms": 57862.14,
+      "verification": 18228.66
+    },
+    "time_to_first_final_output_ms": {
+      "count": 21,
+      "max": 59585.76,
+      "mean": 48904.0,
+      "min": 30055.35,
+      "p50": 47288.57,
+      "p95": 58628.86
+    },
+    "time_to_first_useful_output_ms": {
+      "count": 21,
+      "max": 7182.91,
+      "mean": 3096.2,
+      "min": 1076.91,
+      "p50": 2191.86,
+      "p95": 7144.75
+    }
+  },
+  "fast": {
+    "end_to_end_ms": {
+      "count": 21,
+      "max": 1843.71,
+      "mean": 670.5,
+      "min": 291.18,
+      "p50": 549.09,
+      "p95": 1171.81
+    },
+    "llm_calls_per_query": {
+      "count": 21,
+      "max": 0.0,
+      "mean": 0.0,
+      "min": 0.0,
+      "p50": 0.0,
+      "p95": 0.0
+    },
+    "llm_decode_ms": {
+      "count": 21,
+      "max": 0.0,
+      "mean": 0.0,
+      "min": 0.0,
+      "p50": 0.0,
+      "p95": 0.0
+    },
+    "llm_decode_tokens_per_second": {
+      "count": 0,
+      "max": null,
+      "mean": null,
+      "min": null,
+      "p50": null,
+      "p95": null
+    },
+    "llm_output_tokens_per_query": {
+      "count": 21,
+      "max": 0.0,
+      "mean": 0.0,
+      "min": 0.0,
+      "p50": 0.0,
+      "p95": 0.0
+    },
+    "llm_prefill_ms": {
+      "count": 21,
+      "max": 0.0,
+      "mean": 0.0,
+      "min": 0.0,
+      "p50": 0.0,
+      "p95": 0.0
+    },
+    "llm_prompt_tokens_per_query": {
+      "count": 21,
+      "max": 0.0,
+      "mean": 0.0,
+      "min": 0.0,
+      "p50": 0.0,
+      "p95": 0.0
+    },
+    "quality": {
+      "abstention_rate": 0.0,
+      "answer_words": {
+        "count": 21,
+        "max": 655.0,
+        "mean": 460.86,
+        "min": 18.0,
+        "p50": 494.0,
+        "p95": 655.0
+      },
+      "citations_per_query": {
+        "count": 21,
+        "max": 4.0,
+        "mean": 3.43,
+        "min": 0.0,
+        "p50": 4.0,
+        "p95": 4.0
+      },
+      "distinct_source_titles_per_query": {
+        "count": 21,
+        "max": 4.0,
+        "mean": 3.43,
+        "min": 0.0,
+        "p50": 4.0,
+        "p95": 4.0
+      },
+      "published_but_graded_insufficient_rate": 0.2857,
+      "unsupported_claims_per_query": {
+        "count": 0,
+        "max": null,
+        "mean": null,
+        "min": null,
+        "p50": null,
+        "p95": null
+      },
+      "verification_score": {
+        "count": 0,
+        "max": null,
+        "mean": null,
+        "min": null,
+        "p50": null,
+        "p95": null
+      }
+    },
+    "stage_p50_ms": {
+      "timing:api_overhead_ms": 0.01,
+      "timing:api_total_ms": 537.41,
+      "timing:embedding_ms": 0.02,
+      "timing:followed_chunk_count": 1.0,
+      "timing:persistence_ms": 10.22,
+      "timing:qdrant_ms": 33.37,
+      "timing:rag_service_ms": 524.87,
+      "timing:request_setup_ms": 2.64,
+      "timing:reranking_ms": 0.0,
+      "timing:retrieval_enrichment_ms": 0.44,
+      "timing:retrieval_total_ms": 33.74,
+      "timing:safety_routing_ms": 0.08,
+      "timing:workflow_total_ms": 524.64
+    },
+    "stage_p95_ms": {
+      "timing:api_overhead_ms": 0.02,
+      "timing:api_total_ms": 1162.31,
+      "timing:embedding_ms": 229.73,
+      "timing:followed_chunk_count": 4.0,
+      "timing:persistence_ms": 16.17,
+      "timing:qdrant_ms": 150.04,
+      "timing:rag_service_ms": 1059.64,
+      "timing:request_setup_ms": 3.7,
+      "timing:reranking_ms": 0.0,
+      "timing:retrieval_enrichment_ms": 91.55,
+      "timing:retrieval_total_ms": 311.0,
+      "timing:safety_routing_ms": 258.05,
+      "timing:workflow_total_ms": 1059.47
+    },
+    "time_to_first_final_output_ms": {
+      "count": 0,
+      "max": null,
+      "mean": null,
+      "min": null,
+      "p50": null,
+      "p95": null
+    },
+    "time_to_first_useful_output_ms": {
+      "count": 21,
+      "max": 1843.71,
+      "mean": 670.5,
+      "min": 291.18,
+      "p50": 549.09,
+      "p95": 1171.81
+    }
+  }
+}

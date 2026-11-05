@@ -8,7 +8,7 @@
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-COLLECTION="${1:-global_legal_corpus_v4}"
+COLLECTION="${1:-global_legal_corpus_v6}"
 LEDGER="$ROOT/data/legal_kb/logs/ingestion_checkpoint.$COLLECTION.json"
 LOG="$ROOT/data/legal_kb/logs/rebuild.$COLLECTION.log"
 # One document per canonical content object -- the same count the pipeline

@@ -16,7 +16,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # silently report on global_legal_corpus_v4 while a v5 build was running, and
 # printing a stale v4 ledger next to a live v5 one is how a reader concludes
 # that two rebuilds are in flight.
-COLLECTION="${2:-global_legal_corpus_v4}"
+COLLECTION="${2:-global_legal_corpus_v6}"
 if [ -z "${2:-}" ] && [ "${1:-start}" = "start" ]; then
   # With no argument this started writing into the collection that serves users.
   printf 'refusing to start: name the collection to build\n' >&2

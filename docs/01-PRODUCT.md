@@ -37,33 +37,39 @@ set**, backed by automatic abstention and visible uncertainty outside it.
 
 | | |
 |---|---|
-| Backend tests | **2,635** passing on the isolated stack, 5 November 2026 (red team run separately) |
-| Frontend tests | 289 unit, 64 browser (Playwright, mocked backend) |
+| Backend tests | **2,785** plus 37 red team, passing on the isolated stack, 5 November 2026 |
+| Frontend tests | 334 unit, 149 browser (Playwright, mocked backend) |
 | API endpoints | 58 across 16 routers |
-| Corpus manifest | 1,566 rows / **1,563 unique documents** / 55,382 pages |
+| Corpus | 1,596 rows / **1,593 unique documents** / 56,290 pages / 86,127 passages |
 | Judgments | **93** (79 Supreme Court, 14 AP High Court) |
-| Jurisdictions | 1,260 Central · 288 Andhra Pradesh · 18 Telangana |
+| Jurisdictions | 1,290 Central · 285 Andhra Pradesh · 18 Telangana |
 | Source URLs missing | 0 · not verified official: 0 · OCR outstanding: 0 |
-| Serving | `global_legal_corpus_v4` until v6 passes its gates |
-| Building | `global_legal_corpus_v6`, into which v5's section parsing fixes and the recovered Acts go |
+| Serving | `global_legal_corpus_v6` |
 | Release gates | 7 in one command, plus a volume-vs-ranking analysis |
 | Desktop | Tauri, three targets, signed updater |
 | Public website | landing, install, privacy, terms and help pages |
 
 ### 2.1 Measured performance
 
+On v6, 5 November 2026, on an M-series host with the 14B model:
+
 | | Fast | Deep |
 |---|---|---|
-| p50 | **0.03 s** | 64.95 s |
-| p95 | 0.18 s | 142.47 s |
-| Time to first useful output | 0.03 s | **0.57 s** (was 64.66 s) |
+| p50 | **0.55 s** | 47.9 s |
+| p95 | 1.17 s | 59.1 s |
+| First useful output, p95 | as above | 7.1 s |
 
-Deep latency is **97% language model**. Orchestration is 0.1 s of 65 s: no
-queue, no idle wait, no cold start to remove. With a model downgrade ruled out
-on quality grounds, the honest lever was perceived latency — Deep now publishes
-located authorities in half a second instead of showing nothing for a minute.
-The 142 s p95 is the verification retry pass, which fires on roughly one query
-in seven.
+Fast takes longer than it did because it now reads the top Acts closely. That took the
+governing section shown from 39 to 67 of 94 questions, which was worth the half second.
+
+| Golden set v4, on v6 | |
+|---|---|
+| Governing section shown, Fast | 67 of 94 |
+| Should-refuse questions refused | 8 of 8 |
+| Currency correct, Deep | 1.000 |
+| Abstention correct, Deep | 0.931 |
+| Ground coverage, Deep | 0.540 |
+| Unsupported published claims | 0 |
 
 ---
 
@@ -91,7 +97,9 @@ States: **built** · **to build** · **blocked** (waiting on something named) ·
 | PLAT-11 | Accessibility and low bandwidth | built |
 | PLAT-12 | Information-not-advice framing; Bar Council constraints respected | built |
 
-| PLAT-13 | Open a provision by citation, with its old or new counterpart | built |
+| PLAT-13 | Open a provision by citation, with its old or new counterpart, and browse an Act | built |
+| PLAT-14 | Refuse foreign-law and non-legal questions at once | built |
+| PLAT-15 | Machine translation of verified answers, withheld if a number or source changed | built |
 
 ### 3.2 Website — WEB
 
@@ -182,6 +190,8 @@ A-06 to A-09 state the number of judgments searched in every result. Against the
 
 Admin deliberately **cannot** reach private case material through a general
 search, and that stays true.
+
+Police and advocates also have: a case timeline read from the files · who's who and possible contradictions, each quoted from the files · many files at once · private case notes · Word export.
 
 ### 3.7 Corpus — CORP
 
