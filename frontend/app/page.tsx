@@ -40,6 +40,7 @@ const ProChatPane = dynamic(() => import("@/components/pro/ProChatPane"));
 const AdminWorkspace = dynamic(() => import("@/components/AdminWorkspace"), { loading: WorkspaceLoading });
 const CitizenWorkspace = dynamic(() => import("@/components/citizen/CitizenWorkspace"), { loading: WorkspaceLoading });
 const AccountDialog = dynamic(() => import("@/components/platform/AccountDialog"));
+const LawChangeStrip = dynamic(() => import("@/components/platform/LawChangeStrip"));
 const HistoryPanel = dynamic(() => import("@/components/platform/HistoryPanel"));
 const CitizenGuideDialog = dynamic(() => import("@/components/CitizenGuideDialog"));
 
@@ -714,6 +715,8 @@ export default function HomePage() {
     window.location.replace(SITE_ROUTES.welcome);
     return null;
   }
+  // Re-read as the account dialog closes, which is where a notice is marked read.
+  const lawChangeStrip = user && !accountOpen ? <LawChangeStrip text={citizenText("lawChanged")} action={citizenText("lawChangedAction")} refresh={accountOpen} onOpen={() => setAccountOpen(true)} /> : null;
   if (!authChecked) return <main className="grid min-h-screen place-items-center"><Scale size={24} className="text-[var(--ink-soft)]" aria-label="Loading workspace" /></main>;
   if (erasedReceipt) return <main className="erased-screen"><div><h1>Your account has been erased.</h1><p>Your account, conversations, case records and files have been removed from this installation. Backups, if the operator keeps any, leave as they age out.</p><p>Your receipt, should you need to quote it. It does not identify you:</p><code>{erasedReceipt}</code></div></main>;
   if (!user) return <>
@@ -813,6 +816,7 @@ export default function HomePage() {
         busyScope={loading ? { caseId: chatCaseId } : null}
         onSettings={() => setSettingsOpen(true)}
         onSearchChats={() => setHistoryPanelOpen(true)}
+        notice={lawChangeStrip}
       />
       {sharedDialogs}
     </main>;
@@ -833,6 +837,7 @@ export default function HomePage() {
     {historyNotice && <div className="history-toast" role="status"><span>{historyNotice}</span><button aria-label={citizenText("dismiss")} onClick={() => setHistoryNotice("")}><X size={13}/></button></div>}
     <div className="app-content" id="main-content" tabIndex={-1} ref={node => { if(node) node.inert = compactNavigation && mobileNav; }}>
       <header className="workspace-header"><button ref={openNavRef} className="icon-button lg:hidden" aria-label={citizenText("openNav")} onClick={() => setMobileNav(true)}><Menu size={20} /></button><span>{view === "workspace" ? role === "citizen" ? " " : role === "police" ? "Investigation workspace" : role === "advocate" ? "Your case workspace" : "Administration" : " "}</span>{role === "citizen" && view !== "workspace" && <LangSwitcher/>}{view === "workspace" && <button className="text-sm text-[var(--ink-soft)]" onClick={() => setView("research")}><MessageSquare size={16} className="mr-2 inline" />{citizenText("backToChat")}</button>}</header>
+      {lawChangeStrip}
       {view === "workspace" && role === "citizen" && <CitizenWorkspace requested={citizenTool} onAsk={(question) => { resetResearch(); void submit(question, [], false, undefined, true); }} />}
       {view === "workspace" && hasOperationsWorkspace ? <AdminWorkspace /> : view === "workspace" ? null :
       <section className={`chat-workspace ${messages.length ? "has-conversation" : ""}`}>

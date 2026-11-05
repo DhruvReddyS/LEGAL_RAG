@@ -434,3 +434,46 @@ test("accessibility: a new person's dashboard, and the new case dialog", async (
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toHaveCount(0);
 });
+
+test("a supervisor reloading the unit screen sees the unit, not Not Found", async ({ page }) => {
+  const asked: string[] = [];
+  let release: () => void = () => undefined;
+  const held = new Promise<void>((resolve) => { release = resolve; });
+  await openPro(page, "police", "/?s=unit", {
+    overrides: {
+      "GET /police/my-units": async (route: Route) => {
+        await held;
+        return json(route, { units: [{ unit_id: "unit-1", unit_name: "North Range", my_role: "supervisor", supervisors: [] }] });
+      },
+      "GET /police/supervision/units/unit-1": (route: Route) => {
+        asked.push(route.request().url());
+        return json(route, { unit_name: "North Range", counts: { overdue: 2 }, compliance: {}, cases: [], officer_count: 3, imminent_hours: 48 });
+      },
+    },
+  });
+  // Still reading: this must not claim they supervise nothing.
+  await expect(page.getByText("You do not supervise a unit")).toHaveCount(0);
+  release();
+  await expect(page.getByLabel("North Range at a glance")).toBeVisible();
+  await expect(page.getByText("Not Found")).toHaveCount(0);
+  expect(asked.length).toBeGreaterThan(0);
+});
+
+test("a changed law is announced on the dashboard, and goes once it is read", async ({ page }) => {
+  let read = false;
+  const notice = { id: "n-1", document_title: "An Old Act", previous_status: "in_force", current_status: "superseded", superseded_by: "A New Act", effective: "2024-07-01", basis: null, conversation_id: SESSION_ID, conversation_title: "A question", created_at: "2026-11-05T09:00:00Z", read_at: null };
+  await openPro(page, "advocate", "/", {
+    overrides: {
+      "GET /account/law-changes": (route: Route) => json(route, { unread: read ? 0 : 1, notices: read ? [] : [notice] }),
+      "POST /account/law-changes/n-1/read": (route: Route) => { read = true; return route.fulfill({ status: 204 }); },
+    },
+  });
+  const strip = page.getByRole("status").filter({ hasText: "The law behind a saved answer has changed" });
+  await expect(strip).toBeVisible();
+  await strip.getByRole("button", { name: "See what changed" }).click();
+  const dialog = page.getByRole("dialog", { name: "Account and privacy" });
+  await expect(dialog).toContainText("An Old Act");
+  await dialog.getByRole("button", { name: "Mark as read" }).click();
+  await dialog.getByRole("button", { name: "Close account and privacy" }).click();
+  await expect(page.getByText("The law behind a saved answer has changed")).toHaveCount(0);
+});

@@ -224,6 +224,8 @@ export const UI = {
   composerWelcome: l("Describe your legal question in your own words…", "अपना क़ानूनी प्रश्न अपने शब्दों में लिखें…", "మీ న్యాయ ప్రశ్నను మీ మాటల్లో రాయండి…"),
   composerFollowUp: l("Ask a follow-up…", "आगे का प्रश्न पूछें…", "తదుపరి ప్రశ్న అడగండి…"),
   questionLabel: l("Legal research question", "क़ानूनी प्रश्न", "న్యాయ ప్రశ్న"),
+  lawChanged: l("The law behind a saved answer has changed. Check that answer again before relying on it.", "एक सहेजे गए उत्तर का आधार रहा क़ानून बदल गया है। उस पर भरोसा करने से पहले उत्तर दोबारा जाँचें।", "సేవ్ చేసిన ఒక సమాధానానికి ఆధారమైన చట్టం మారింది. దానిపై ఆధారపడే ముందు ఆ సమాధానాన్ని మళ్లీ చూడండి."),
+  lawChangedAction: l("See what changed", "क्या बदला देखें", "ఏమి మారిందో చూడండి"),
   attachLabel: l("Attach a document or image", "दस्तावेज़ या तस्वीर जोड़ें", "పత్రం లేదా చిత్రం జత చేయండి"),
   chooseDocument: l("Choose document", "दस्तावेज़ चुनें", "పత్రం ఎంచుకోండి"),
   sendQuestion: l("Send question", "प्रश्न भेजें", "ప్రశ్న పంపండి"),

@@ -131,3 +131,20 @@ test("a console section that fails says so and can retry", async ({ page }) => {
   await page.getByRole("tabpanel").getByRole("button", { name: /Try again|Retry/ }).click();
   await expect(page.getByRole("tabpanel")).not.toContainText("The audit store is unavailable.");
 });
+
+test("AD-13: a triage save that fails says so beside the button, and never says Saved", async ({ page }) => {
+  const id = uuid(60);
+  await openApp(page, "admin", {
+    overrides: {
+      "GET /admin/console/feedback": (route: Route) => json(route, { total: 1, page: 1, page_size: 25, items: [{ id, message_id: uuid(61), rating: "down", has_correction: false, status: "open", confidence_score: null, citation_count: 0, answered_at: "2026-11-05T09:00:00Z", case_linked: false, role: "citizen" }] }),
+      [`GET /admin/console/feedback/${id}/trace`]: (route: Route) => json(route, { id, message_id: uuid(61), rating: "down", status: "open", note: null, confidence_score: null, answered_at: "2026-11-05T09:00:00Z", case_linked: false, corpus_checked: true, answer: "An answer", correction: null, citations: [], citations_withheld: 0 }),
+      [`PUT /admin/console/feedback/${id}/triage`]: (route: Route) => json(route, { detail: "The database is unavailable." }, 503),
+    },
+  });
+  await openTab(page, "Incidents");
+  await page.getByRole("button", { name: "Trace to chunks" }).click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByRole("button", { name: "Save triage" }).click();
+  await expect(dialog.getByRole("alert")).toContainText("database is unavailable");
+  await expect(dialog.getByText("Saved.")).toHaveCount(0);
+});

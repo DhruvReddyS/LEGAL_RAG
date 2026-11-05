@@ -35,3 +35,10 @@ test.describe("public site", () => {
     await expect(page.locator("html")).toHaveAttribute("data-theme", chosen!);
   });
 });
+
+test("the rights page keeps the theme a person chose, over the system's", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.addInitScript(() => localStorage.setItem("corpusil.site-theme", "ink"));
+  await page.goto("/rights");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "ink");
+});

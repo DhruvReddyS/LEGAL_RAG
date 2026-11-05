@@ -1,4 +1,5 @@
 "use client";
+import { readTheme } from "@/lib/preferences";
 import { useEffect, useState } from "react";
 import RightsCard from "@/components/citizen/RightsCard";
 import { LangSwitcher } from "@/components/citizen/shared";
@@ -14,7 +15,7 @@ export default function RightsPage() {
   const { t } = useCitizenLang();
   const [offlineReady, setOfflineReady] = useState(false);
   useEffect(() => {
-    document.documentElement.dataset.theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "ink" : "paper";
+    document.documentElement.dataset.theme = readTheme();
     const desktop = "__TAURI_INTERNALS__" in window || window.location.protocol === "tauri:";
     // The desktop app already holds this page on disk.
     if (desktop) { setOfflineReady(true); return; }
