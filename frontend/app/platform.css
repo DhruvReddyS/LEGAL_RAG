@@ -19,8 +19,8 @@
 .site {min-height:100dvh;display:flex;flex-direction:column;background:var(--paper);color:var(--ink);overflow-x:clip;}
 .site main {flex:1 0 auto;}
 .site-header {display:flex;align-items:center;gap:20px;padding:16px clamp(16px,4vw,48px);border-bottom:1px solid var(--border);background:var(--paper);}
-.site-brand {display:block;width:128px;color:var(--accent);flex:none;}
-.site-brand .corpusil-wordmark {width:100%;}
+.site-brand {display:block;flex:none;}
+.site-brand .corpusil-wordmark {font-size:21px;}
 .site-nav {display:flex;gap:4px;margin-left:auto;font-size:14px;}
 .site-nav a {padding:8px 10px;border-radius:7px;color:var(--ink-soft);}
 .site-nav a:hover {background:var(--hover);color:var(--ink);}
@@ -30,14 +30,14 @@
 .site-open-app {padding:9px 14px;border-radius:9px;background:var(--ink);color:var(--paper);font-size:14px;font-weight:500;white-space:nowrap;}
 .site-open-app:hover {opacity:.86;}
 .site[data-header-tone="cover"] .site-header {background:var(--cover-bg);border-bottom-color:var(--cover-line);}
-.site[data-header-tone="cover"] .site-brand {color:var(--cover-ink);}
+.site[data-header-tone="cover"] .corpusil-wordmark {color:var(--cover-ink);}
+.site[data-header-tone="cover"] .corpusil-mark {color:var(--cover-accent);}
 .site[data-header-tone="cover"] .site-nav a,.site[data-header-tone="cover"] .site-theme {color:var(--cover-soft);}
 .site[data-header-tone="cover"] .site-nav a:hover,.site[data-header-tone="cover"] .site-theme:hover {background:#ffffff14;color:var(--cover-ink);}
 .site[data-header-tone="cover"] .site-open-app {background:var(--cover-ink);color:var(--cover-bg);}
 .site[data-header-tone="cover"] :focus-visible {outline-color:var(--cover-accent);}
 @media (max-width:640px) {
   .site-header {flex-wrap:wrap;gap:6px 10px;padding:12px 16px;}
-  .site-brand {width:104px;}
   .site-header-end {margin-left:auto;}
   .site-nav {order:3;width:100%;margin:0 -10px;font-size:13px;}
   .site-nav a {padding:7px 10px;}
@@ -53,84 +53,21 @@
 /* --------------------------------------------------------------- the cover */
 
 .cover {background:var(--cover-bg);color:var(--cover-ink);}
+.cover-note {margin-top:14px;font-size:13px;color:var(--cover-soft);}
 .cover-inner {display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:clamp(32px,5vw,72px);align-items:center;max-width:1240px;margin:0 auto;padding:clamp(40px,7vw,96px) clamp(16px,4vw,48px);}
 .cover-kicker {font-size:14px;color:var(--cover-soft);letter-spacing:.01em;}
 .cover h1 {margin-top:18px;font-family:var(--serif);font-weight:400;font-size:clamp(42px,6.2vw,84px);line-height:1.02;letter-spacing:-.025em;text-wrap:balance;color:var(--cover-ink);}
 .cover h1 em {display:block;margin-top:.14em;font-style:italic;color:var(--cover-accent);}
 .cover-lede {margin-top:26px;max-width:36rem;font-size:clamp(16px,1.3vw,19px);line-height:1.6;color:#cbd9d2;}
 .cover-actions {display:flex;flex-wrap:wrap;gap:10px;margin-top:30px;}
-.cover-primary,.cover-secondary {display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 20px;border-radius:10px;font-size:15px;font-weight:500;}
+.cover-primary,.cover-secondary {display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border-radius:10px;font-size:15px;font-weight:500;}
 .cover-primary {background:var(--cover-ink);color:var(--cover-bg);}
 .cover-primary:hover {background:#fff;}
 .cover-secondary {border:1px solid #ffffff40;color:var(--cover-ink);}
 .cover-secondary:hover {background:#ffffff14;}
 .cover :focus-visible,.closing :focus-visible {outline-color:var(--cover-accent);}
 
-/* A specimen answer: a sheet of the product's own surface on the cover. */
-.specimen {margin:0;padding:clamp(18px,2.2vw,26px);border-radius:14px;background:var(--paper);color:var(--ink);box-shadow:0 30px 70px #00000052;font-size:15px;line-height:1.65;min-width:0;}
-.specimen figcaption {padding-bottom:12px;margin-bottom:14px;border-bottom:1px solid var(--border);font-size:13px;line-height:1.5;color:var(--ink-soft);}
-.specimen-question {margin-left:auto;width:fit-content;max-width:88%;padding:9px 14px;border-radius:14px;background:var(--hover);}
-.specimen-answer {margin-top:14px;}
-.specimen-mark {display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:19px;margin:0 2px;padding:0 5px;border-radius:5px;background:var(--hover);color:var(--ink-soft);font-size:12px;font-weight:500;vertical-align:baseline;}
-a.specimen-mark:hover {background:var(--border);color:var(--ink);}
-.specimen-source {margin-top:14px;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--card);font-size:14px;}
-.specimen-source summary {cursor:pointer;line-height:1.5;}
-.specimen-source summary .specimen-mark {margin-left:0;margin-right:6px;}
-.specimen-source blockquote {margin-top:10px;padding-left:12px;border-left:2px solid var(--accent);line-height:1.6;color:var(--ink-soft);}
-.specimen-currency {margin-top:12px;padding:10px 12px;border-radius:9px;border:1px solid var(--state-warn-line);background:var(--state-warn-bg);font-size:14px;line-height:1.5;}
 @media (max-width:960px) {.cover-inner {grid-template-columns:minmax(0,1fr);}}
-
-/* --------------------------------------------- arrangement of sections, and
-   the body, set the way Indian Bare Acts are set: a marginal note beside each
-   numbered section. Readers of this product know that page. */
-
-.arrangement {max-width:1240px;margin:0 auto;padding:clamp(28px,4vw,48px) clamp(16px,4vw,48px) 0;}
-.arrangement h2 {font-size:13px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);}
-.arrangement ol {margin-top:14px;columns:3 240px;column-gap:32px;padding:0;list-style:none;counter-reset:arrangement;font-size:15px;}
-.arrangement li {counter-increment:arrangement;break-inside:avoid;display:flex;gap:10px;padding:6px 0;}
-.arrangement li::before {content:counter(arrangement) ".";flex:none;width:18px;color:var(--ink-soft);font-variant-numeric:tabular-nums;}
-.arrangement a {text-decoration:underline;text-decoration-color:var(--border);text-underline-offset:4px;}
-.arrangement a:hover {text-decoration-color:var(--accent);}
-
-.act {max-width:1240px;margin:0 auto;padding:clamp(20px,3vw,32px) clamp(16px,4vw,48px) clamp(40px,6vw,72px);}
-.act-section {display:grid;grid-template-columns:minmax(130px,190px) minmax(0,46rem);gap:0 clamp(20px,3vw,40px);padding:clamp(28px,4vw,44px) 0;border-top:1px solid var(--border);scroll-margin-top:16px;}
-.act-note {padding-top:8px;font-family:var(--serif);font-style:italic;font-size:16px;line-height:1.35;color:var(--ink-soft);}
-.act-body {min-width:0;font-size:16px;line-height:1.7;}
-.act-body h2 {font-family:var(--serif);font-weight:400;font-size:clamp(27px,3.1vw,38px);line-height:1.14;letter-spacing:-.012em;text-wrap:balance;}
-.act-number {font-variant-numeric:lining-nums;color:var(--accent);}
-.act-body > p {margin-top:14px;}
-.act-lead {font-size:clamp(17px,1.5vw,19px);line-height:1.6;}
-.act-caution {padding:14px 16px;border-left:2px solid var(--accent);background:color-mix(in srgb,var(--accent-soft) 62%,transparent);border-radius:0 10px 10px 0;}
-.act-link {color:var(--accent);text-decoration:underline;text-underline-offset:4px;font-weight:500;}
-.act-links {display:flex;flex-wrap:wrap;gap:6px 22px;}
-@media (max-width:760px) {
-  .act-section {grid-template-columns:minmax(0,1fr);}
-  .act-note {padding:0 0 8px;font-size:15px;}
-}
-
-/* (a), (b), (c), as a section's clauses are set. */
-.clauses {margin-top:16px;padding:0;list-style:none;counter-reset:clause;}
-.clauses li {counter-increment:clause;position:relative;padding:7px 0 7px 2.1em;}
-.clauses li::before {content:"(" counter(clause, lower-alpha) ")";position:absolute;left:0;color:var(--ink-soft);}
-.clauses a {text-decoration:underline;text-underline-offset:3px;}
-
-.refusal {margin:20px 0 0;padding:20px;border:1px solid var(--border);border-radius:12px;background:var(--card);}
-.refusal-question {font-size:14px;color:var(--ink-soft);}
-.refusal-answer {margin:4px 0 16px;font-family:var(--serif);font-size:clamp(19px,2vw,23px);line-height:1.3;letter-spacing:-.005em;}
-.refusal figcaption {padding-top:12px;border-top:1px solid var(--border);font-size:14px;line-height:1.5;color:var(--ink-soft);}
-
-.roles {margin:18px 0 0;}
-.roles > div {display:grid;grid-template-columns:minmax(0,10.5rem) minmax(0,1fr);gap:4px 20px;padding:14px 0;border-top:1px solid var(--border);}
-.roles > div:first-child {border-top:0;padding-top:0;}
-.roles dt {font-family:var(--serif);font-size:19px;line-height:1.35;}
-.roles dd {margin:0;}
-@media (max-width:560px) {.roles > div {grid-template-columns:minmax(0,1fr);}}
-
-.steps {margin-top:16px;padding:0;list-style:none;counter-reset:step;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
-.steps li {counter-increment:step;padding:14px 16px;border:1px solid var(--border);border-radius:10px;background:var(--card);font-size:15px;line-height:1.55;}
-.steps li::before {content:counter(step);display:block;margin-bottom:4px;font-family:var(--serif);font-size:24px;line-height:1;color:var(--accent);}
-.steps strong {display:block;font-weight:600;}
-@media (max-width:560px) {.steps {grid-template-columns:minmax(0,1fr);}}
 
 .coverage-bar {display:flex;height:14px;margin-top:20px;border-radius:7px;overflow:hidden;background:var(--hover);gap:2px;}
 .coverage-bar span {display:block;min-width:4px;}
@@ -149,6 +86,7 @@ a.specimen-mark:hover {background:var(--border);color:var(--ink);}
 .needs span {color:var(--ink-soft);}
 @media (max-width:640px) {.needs {grid-template-columns:minmax(0,1fr);}}
 
+/* The landing page continues in landing.css. */
 .closing {padding:clamp(44px,7vw,84px) clamp(16px,4vw,48px);background:var(--cover-bg);color:var(--cover-ink);text-align:center;}
 .closing h2 {font-family:var(--serif);font-weight:400;font-size:clamp(30px,4.4vw,52px);line-height:1.1;letter-spacing:-.018em;text-wrap:balance;}
 .closing .cover-actions {justify-content:center;}
@@ -373,7 +311,6 @@ html[data-low-bandwidth="on"] *,html[data-low-bandwidth="on"] *::before,html[dat
   .cover,.closing {background:#fff;color:#111;}
   .cover h1,.cover-lede,.cover h1 em {color:#111;}
   .cover-actions {display:none;}
-  .specimen {box-shadow:none;border:1px solid #999;}
 }
 .mfa-required-notice {position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:10px;max-width:min(560px,calc(100vw - 32px));padding:10px 14px;border:1px solid var(--state-warn-line);border-radius:10px;background:var(--state-warn-bg);color:var(--ink);font-size:13px;line-height:1.45;}
 .mfa-required-notice button {flex:none;min-height:36px;padding:0 12px;border-radius:8px;border:1px solid var(--border);font-weight:600;}
