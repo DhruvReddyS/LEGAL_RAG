@@ -1,0 +1,1641 @@
+{
+  "version": 4,
+  "created": "2026-11-04",
+  "notes": [
+    "Items name the Act and section that govern the question. Each is verified against that section's text by scripts/build_golden_set_v4.py.",
+    "A passage that merely mentions a provision does not count. Repealed-code equivalents do not count, since the question is what the law is.",
+    "Written from the statutes, not from retrieval output. Do not edit an item to suit a result."
+  ],
+  "items": [
+    {
+      "id": "art19-speech",
+      "question": "What limits can the government place on freedom of speech?",
+      "role": "citizen",
+      "topic": "constitutional",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "constitution of india",
+          "section": "19"
+        }
+      ]
+    },
+    {
+      "id": "art14-equality",
+      "question": "Does the Constitution guarantee equal treatment by the State?",
+      "role": "citizen",
+      "topic": "constitutional",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "constitution of india",
+          "section": "14"
+        }
+      ]
+    },
+    {
+      "id": "art21-life",
+      "question": "Can the State take away my life or liberty without following law?",
+      "role": "citizen",
+      "topic": "constitutional",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "constitution of india",
+          "section": "21"
+        }
+      ]
+    },
+    {
+      "id": "art22-detention",
+      "question": "What protection does a person have if they are detained without trial?",
+      "role": "citizen",
+      "topic": "constitutional",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "constitution of india",
+          "section": "22"
+        }
+      ]
+    },
+    {
+      "id": "art17-untouchability",
+      "question": "Is untouchability prohibited by law?",
+      "role": "citizen",
+      "topic": "constitutional",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "constitution of india",
+          "section": "17"
+        }
+      ]
+    },
+    {
+      "id": "art21a-education",
+      "question": "Do children have a right to free education?",
+      "role": "citizen",
+      "topic": "constitutional",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "constitution of india",
+          "section": "21A"
+        }
+      ]
+    },
+    {
+      "id": "art32-remedy",
+      "question": "Which constitutional provision lets a person approach the Supreme Court to enforce a fundamental right?",
+      "role": "advocate",
+      "topic": "constitutional",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "constitution of india",
+          "section": "32"
+        }
+      ]
+    },
+    {
+      "id": "art226-writ",
+      "question": "What is the power of High Courts to issue writs?",
+      "role": "advocate",
+      "topic": "constitutional",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "constitution of india",
+          "section": "226"
+        }
+      ]
+    },
+    {
+      "id": "bns-theft",
+      "question": "Someone took my phone without asking. What offence is that?",
+      "role": "citizen",
+      "topic": "criminal",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nyaya sanhita",
+          "section": "303"
+        }
+      ]
+    },
+    {
+      "id": "bns-theft-current",
+      "question": "Which law now governs the offence of theft?",
+      "role": "citizen",
+      "topic": "currency",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nyaya sanhita",
+          "section": "303"
+        }
+      ],
+      "grounds": [
+        {
+          "name": "names the BNS as the governing Act",
+          "any_of": [
+            "Bharatiya Nyaya Sanhita",
+            "BNS"
+          ]
+        },
+        {
+          "name": "says the IPC no longer governs",
+          "any_of": [
+            "Indian Penal Code",
+            "IPC"
+          ]
+        },
+        {
+          "name": "gives the operative element: dishonest taking without consent",
+          "any_of": [
+            "dishonestly",
+            "without that person's consent",
+            "without consent"
+          ]
+        },
+        {
+          "name": "movable property",
+          "any_of": [
+            "movable property"
+          ]
+        }
+      ],
+      "grounds_source": "BNS s.303 (definition of theft); IPC ss.378/379 succession"
+    },
+    {
+      "id": "bns-cheating",
+      "question": "A person tricked me into paying money for something false. Which offence covers that?",
+      "role": "citizen",
+      "topic": "criminal",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nyaya sanhita",
+          "section": "318"
+        }
+      ]
+    },
+    {
+      "id": "bns-murder-punishment",
+      "question": "What is the punishment for murder?",
+      "role": "citizen",
+      "topic": "criminal",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nyaya sanhita",
+          "section": "103"
+        }
+      ]
+    },
+    {
+      "id": "bns-stalking",
+      "question": "A man keeps following a woman and contacting her against her wishes. Is that an offence?",
+      "role": "citizen",
+      "topic": "criminal",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nyaya sanhita",
+          "section": "78"
+        }
+      ]
+    },
+    {
+      "id": "bns-sexual-harassment",
+      "question": "What counts as sexual harassment under the criminal law?",
+      "role": "citizen",
+      "topic": "criminal",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nyaya sanhita",
+          "section": "75"
+        }
+      ]
+    },
+    {
+      "id": "bns-cruelty",
+      "question": "Is cruelty by a husband or his relatives a crime?",
+      "role": "citizen",
+      "topic": "criminal",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nyaya sanhita",
+          "section": "85"
+        }
+      ]
+    },
+    {
+      "id": "bns-dowry-death",
+      "question": "What is dowry death?",
+      "role": "citizen",
+      "topic": "criminal",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nyaya sanhita",
+          "section": "80"
+        }
+      ]
+    },
+    {
+      "id": "bns-intimidation",
+      "question": "Someone threatens to harm me unless I do what they say. Which offence is that?",
+      "role": "citizen",
+      "topic": "criminal",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nyaya sanhita",
+          "section": "351"
+        }
+      ]
+    },
+    {
+      "id": "bns-defamation",
+      "question": "Is spreading false statements that damage my reputation an offence?",
+      "role": "citizen",
+      "topic": "criminal",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nyaya sanhita",
+          "section": "356"
+        }
+      ]
+    },
+    {
+      "id": "bns-community-service",
+      "question": "Is community service available as a punishment under the new criminal law?",
+      "role": "citizen",
+      "topic": "criminal",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nyaya sanhita",
+          "section": "4"
+        }
+      ]
+    },
+    {
+      "id": "bns-abetment-suicide",
+      "question": "What is the offence of abetment of suicide?",
+      "role": "advocate",
+      "topic": "criminal",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nyaya sanhita",
+          "section": "108"
+        }
+      ]
+    },
+    {
+      "id": "bns-organised-crime",
+      "question": "How does the law define organised crime?",
+      "role": "advocate",
+      "topic": "criminal",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nyaya sanhita",
+          "section": "111"
+        }
+      ]
+    },
+    {
+      "id": "bns-snatching",
+      "question": "Which provision covers snatching?",
+      "role": "police",
+      "topic": "criminal",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nyaya sanhita",
+          "section": "304"
+        }
+      ]
+    },
+    {
+      "id": "bns-robbery",
+      "question": "When does theft become robbery?",
+      "role": "police",
+      "topic": "criminal",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nyaya sanhita",
+          "section": "309"
+        }
+      ]
+    },
+    {
+      "id": "bns-kidnapping",
+      "question": "How is kidnapping defined?",
+      "role": "police",
+      "topic": "criminal",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nyaya sanhita",
+          "section": "137"
+        }
+      ]
+    },
+    {
+      "id": "bnss-arrest-no-warrant",
+      "question": "When can police arrest a person without a warrant?",
+      "role": "police",
+      "topic": "procedure",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha",
+          "section": "35"
+        }
+      ]
+    },
+    {
+      "id": "bnss-arrest-current",
+      "question": "Which law now governs arrest without a warrant?",
+      "role": "police",
+      "topic": "currency",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha",
+          "section": "35"
+        }
+      ],
+      "grounds": [
+        {
+          "name": "names the BNSS as the governing Act",
+          "any_of": [
+            "Bharatiya Nagarik Suraksha Sanhita",
+            "BNSS"
+          ]
+        },
+        {
+          "name": "identifies section 35",
+          "any_of": [
+            "section 35",
+            "s.35",
+            "s. 35"
+          ]
+        },
+        {
+          "name": "says it replaced the CrPC provision",
+          "any_of": [
+            "Code of Criminal Procedure",
+            "CrPC",
+            "Cr.P.C"
+          ]
+        },
+        {
+          "name": "(a) cognizable offence in an officer's presence",
+          "any_of": [
+            "cognizable offence",
+            "cognisable offence"
+          ]
+        },
+        {
+          "name": "(b) reasonable complaint, credible information or reasonable suspicion",
+          "any_of": [
+            "reasonable complaint",
+            "credible information",
+            "reasonable suspicion"
+          ]
+        },
+        {
+          "name": "(b) the necessity conditions and recorded reasons",
+          "any_of": [
+            "reasons in writing",
+            "record the reasons"
+          ]
+        },
+        {
+          "name": "(d) proclaimed offender",
+          "any_of": [
+            "proclaimed offender",
+            "proclaimed as an offender"
+          ]
+        },
+        {
+          "name": "(e) possession of suspected stolen property",
+          "any_of": [
+            "stolen property"
+          ]
+        },
+        {
+          "name": "(f) obstructing an officer or escaping lawful custody",
+          "any_of": [
+            "obstructs",
+            "escaped from lawful custody"
+          ]
+        },
+        {
+          "name": "(g) deserter from the Armed Forces",
+          "any_of": [
+            "deserter"
+          ]
+        }
+      ],
+      "grounds_source": "BNSS s.35(1)(a)-(j); the CrPC s.41 -> BNSS s.35 succession"
+    },
+    {
+      "id": "bnss-arrest-woman",
+      "question": "What safeguards apply when a woman is arrested?",
+      "role": "police",
+      "topic": "procedure",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha",
+          "section": "43"
+        }
+      ],
+      "grounds": [
+        {
+          "name": "her submission to custody is presumed on oral intimation",
+          "any_of": [
+            "oral intimation",
+            "submission to custody"
+          ]
+        },
+        {
+          "name": "a male officer shall not touch her to make the arrest",
+          "any_of": [
+            "shall not touch",
+            "not touch the person of the woman"
+          ]
+        },
+        {
+          "name": "the exception is where the officer is female",
+          "any_of": [
+            "police officer is a female",
+            "woman police officer",
+            "female police officer"
+          ]
+        }
+      ],
+      "grounds_source": "BNSS s.43(1) proviso"
+    },
+    {
+      "id": "bnss-handcuff",
+      "question": "Are the police allowed to handcuff a person?",
+      "role": "citizen",
+      "topic": "procedure",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha",
+          "section": "43"
+        }
+      ],
+      "grounds": [
+        {
+          "name": "handcuffs are permitted, but only in listed cases",
+          "any_of": [
+            "handcuff"
+          ]
+        },
+        {
+          "name": "the nature and gravity of the offence must be considered",
+          "any_of": [
+            "nature and gravity",
+            "nature of the offence"
+          ]
+        },
+        {
+          "name": "habitual or repeat offender",
+          "any_of": [
+            "habitual",
+            "repeat offender"
+          ]
+        },
+        {
+          "name": "one who escaped from custody",
+          "any_of": [
+            "escaped from custody",
+            "escaped"
+          ]
+        },
+        {
+          "name": "the enumerated grave offences",
+          "any_of": [
+            "organised crime",
+            "organized crime",
+            "terrorist act",
+            "murder",
+            "rape"
+          ]
+        }
+      ],
+      "grounds_source": "BNSS s.43(3)"
+    },
+    {
+      "id": "bnss-grounds",
+      "question": "Must the grounds of arrest be communicated to the arrested person?",
+      "role": "police",
+      "topic": "procedure",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha",
+          "section": "47"
+        }
+      ],
+      "grounds": [
+        {
+          "name": "answers yes, it is mandatory",
+          "any_of": [
+            "shall",
+            "must",
+            "required"
+          ]
+        },
+        {
+          "name": "forthwith, not at some later stage",
+          "any_of": [
+            "forthwith",
+            "immediately",
+            "without delay"
+          ]
+        },
+        {
+          "name": "full particulars of the offence",
+          "any_of": [
+            "full particulars",
+            "particulars of the offence",
+            "grounds for such arrest"
+          ]
+        },
+        {
+          "name": "s.47(2): the right to bail must also be told, for a bailable offence",
+          "any_of": [
+            "entitled to be released on bail",
+            "right to bail",
+            "released on bail"
+          ]
+        }
+      ],
+      "grounds_source": "BNSS s.47(1) and s.47(2)"
+    },
+    {
+      "id": "bnss-inform-relative",
+      "question": "My brother was arrested. Do the police have to tell our family?",
+      "role": "citizen",
+      "topic": "procedure",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha",
+          "section": "48"
+        }
+      ]
+    },
+    {
+      "id": "bnss-produce-24h",
+      "question": "How long can police hold someone before taking them to a magistrate?",
+      "role": "citizen",
+      "topic": "procedure",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha",
+          "section": "58"
+        }
+      ]
+    },
+    {
+      "id": "bnss-medical-exam",
+      "question": "When may an accused person be medically examined?",
+      "role": "police",
+      "topic": "procedure",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha",
+          "section": "51"
+        }
+      ]
+    },
+    {
+      "id": "bnss-identification",
+      "question": "How should a test identification parade be conducted?",
+      "role": "police",
+      "topic": "procedure",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha",
+          "section": "54"
+        }
+      ]
+    },
+    {
+      "id": "bnss-remand",
+      "question": "What is the difference between police custody and judicial custody during remand?",
+      "role": "police",
+      "topic": "procedure",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha",
+          "section": "187"
+        }
+      ],
+      "grounds": [
+        {
+          "name": "distinguishes custody of the police from judicial custody",
+          "any_of": [
+            "police custody",
+            "judicial custody"
+          ]
+        },
+        {
+          "name": "a Magistrate authorises the detention",
+          "any_of": [
+            "Magistrate"
+          ]
+        },
+        {
+          "name": "the accused must be produced before the Magistrate in person",
+          "any_of": [
+            "produced before",
+            "in person",
+            "production"
+          ]
+        }
+      ],
+      "grounds_source": "BNSS s.187(4)-(5): who authorises, and the production requirement"
+    },
+    {
+      "id": "bnss-fir",
+      "question": "How do I file an FIR?",
+      "role": "citizen",
+      "topic": "procedure",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha",
+          "section": "173"
+        }
+      ]
+    },
+    {
+      "id": "bnss-fir-refused",
+      "question": "The police refuse to register my FIR. What can I do?",
+      "role": "citizen",
+      "topic": "procedure",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha",
+          "section": "173"
+        }
+      ]
+    },
+    {
+      "id": "bnss-case-diary",
+      "question": "How must a case diary be maintained during an investigation?",
+      "role": "police",
+      "topic": "procedure",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha",
+          "section": "192"
+        }
+      ]
+    },
+    {
+      "id": "bnss-final-report",
+      "question": "What does a final report to the magistrate contain?",
+      "role": "police",
+      "topic": "procedure",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha",
+          "section": "193"
+        }
+      ]
+    },
+    {
+      "id": "bnss-inquest",
+      "question": "What is the procedure for an inquest into an unnatural death?",
+      "role": "police",
+      "topic": "procedure",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha",
+          "section": "194"
+        }
+      ]
+    },
+    {
+      "id": "bnss-custody-death",
+      "question": "What must happen after a death in police custody?",
+      "role": "police",
+      "topic": "procedure",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha",
+          "section": "196"
+        }
+      ]
+    },
+    {
+      "id": "bnss-search-record",
+      "question": "When must a search or seizure be videographed?",
+      "role": "police",
+      "topic": "procedure",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha",
+          "section": "105"
+        }
+      ]
+    },
+    {
+      "id": "bnss-search-officer",
+      "question": "When may a police officer search without a warrant during an investigation?",
+      "role": "police",
+      "topic": "procedure",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha",
+          "section": "185"
+        }
+      ]
+    },
+    {
+      "id": "bnss-seizure",
+      "question": "When may police seize property?",
+      "role": "police",
+      "topic": "procedure",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha",
+          "section": "106"
+        }
+      ]
+    },
+    {
+      "id": "bnss-produce-document",
+      "question": "How can police require someone to produce a document or a phone?",
+      "role": "police",
+      "topic": "procedure",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha",
+          "section": "94"
+        }
+      ]
+    },
+    {
+      "id": "bnss-victim-compensation",
+      "question": "Can a victim of crime receive compensation?",
+      "role": "citizen",
+      "topic": "procedure",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha",
+          "section": "396"
+        }
+      ]
+    },
+    {
+      "id": "bnss-default-bail",
+      "question": "What is default bail?",
+      "role": "citizen",
+      "topic": "bail",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha",
+          "section": "187"
+        }
+      ],
+      "grounds": [
+        {
+          "name": "it arises when investigation is not completed in time",
+          "any_of": [
+            "not completed",
+            "fails to complete",
+            "expiry"
+          ]
+        },
+        {
+          "name": "90 days for offences punishable with death, life, or 10 years or more",
+          "any_of": [
+            "ninety days",
+            "90 days"
+          ]
+        },
+        {
+          "name": "60 days for any other offence",
+          "any_of": [
+            "sixty days",
+            "60 days"
+          ]
+        },
+        {
+          "name": "the accused must be prepared to and does furnish bail",
+          "any_of": [
+            "furnish bail",
+            "prepared to",
+            "willing to furnish"
+          ]
+        }
+      ],
+      "grounds_source": "BNSS s.187(3)(i)-(ii)"
+    },
+    {
+      "id": "bnss-anticipatory",
+      "question": "On what grounds may anticipatory bail be granted?",
+      "role": "citizen",
+      "topic": "bail",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha",
+          "section": "482"
+        }
+      ],
+      "grounds": [
+        {
+          "name": "reason to believe he may be arrested",
+          "any_of": [
+            "reason to believe",
+            "apprehending arrest",
+            "apprehension of arrest"
+          ]
+        },
+        {
+          "name": "the accusation must be of a non-bailable offence",
+          "any_of": [
+            "non-bailable offence",
+            "non bailable"
+          ]
+        },
+        {
+          "name": "the forum is the High Court or Court of Session",
+          "any_of": [
+            "High Court",
+            "Court of Session",
+            "Sessions Court"
+          ]
+        },
+        {
+          "name": "conditions may be attached",
+          "any_of": [
+            "condition"
+          ]
+        },
+        {
+          "name": "s.482(2)(i): availability for interrogation",
+          "any_of": [
+            "available for interrogation",
+            "interrogation"
+          ]
+        },
+        {
+          "name": "s.482(2)(iii): not to leave India without permission",
+          "any_of": [
+            "leave India",
+            "not leave the country"
+          ]
+        }
+      ],
+      "grounds_source": "BNSS s.482(1) and s.482(2)(i)-(iv)"
+    },
+    {
+      "id": "bnss-bail-non-bailable",
+      "question": "When may a person accused of a non-bailable offence be released on bail?",
+      "role": "advocate",
+      "topic": "bail",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha",
+          "section": "480"
+        }
+      ]
+    },
+    {
+      "id": "bnss-bail-high-court",
+      "question": "What are the special powers of the High Court regarding bail?",
+      "role": "advocate",
+      "topic": "bail",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha",
+          "section": "483"
+        }
+      ]
+    },
+    {
+      "id": "bnss-undertrial",
+      "question": "How long can an undertrial be detained before release?",
+      "role": "advocate",
+      "topic": "bail",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha",
+          "section": "479"
+        }
+      ]
+    },
+    {
+      "id": "bnss-bailable",
+      "question": "Do I have a right to bail for a bailable offence?",
+      "role": "citizen",
+      "topic": "bail",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "nagarik suraksha",
+          "section": "478"
+        }
+      ]
+    },
+    {
+      "id": "bsa-current",
+      "question": "Which law now governs evidence in criminal trials?",
+      "role": "advocate",
+      "topic": "currency",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "sakshya adhiniyam"
+        }
+      ],
+      "grounds": [
+        {
+          "name": "names the BSA as the governing Act",
+          "any_of": [
+            "Bharatiya Sakshya Adhiniyam",
+            "BSA"
+          ]
+        },
+        {
+          "name": "says the Indian Evidence Act no longer governs",
+          "any_of": [
+            "Indian Evidence Act",
+            "Evidence Act, 1872"
+          ]
+        }
+      ],
+      "grounds_source": "BSA 2023 replacing the Indian Evidence Act 1872"
+    },
+    {
+      "id": "bsa-dying-declaration",
+      "question": "Is a statement made by a dying person accepted as evidence?",
+      "role": "citizen",
+      "topic": "evidence",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "sakshya adhiniyam",
+          "section": "26"
+        }
+      ],
+      "grounds": [
+        {
+          "name": "answers yes, such a statement is relevant",
+          "any_of": [
+            "relevant",
+            "admissible"
+          ]
+        },
+        {
+          "name": "it concerns the cause of death or the circumstances of the transaction",
+          "any_of": [
+            "cause of his death",
+            "cause of death",
+            "circumstances of the transaction"
+          ]
+        },
+        {
+          "name": "expectation of death is NOT required in India",
+          "any_of": [
+            "whether or not",
+            "was or was not",
+            "need not",
+            "not necessary",
+            "expectation of death"
+          ]
+        },
+        {
+          "name": "it applies whatever the nature of the proceeding",
+          "any_of": [
+            "nature of the proceeding",
+            "any proceeding",
+            "civil or criminal"
+          ]
+        }
+      ],
+      "grounds_source": "BSA s.26(a)"
+    },
+    {
+      "id": "bsa-confession-police",
+      "question": "Is a confession made to a police officer admissible?",
+      "role": "police",
+      "topic": "evidence",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "sakshya adhiniyam",
+          "section": "23"
+        }
+      ]
+    },
+    {
+      "id": "bsa-electronic",
+      "question": "How is evidence held on a phone or computer proved in court?",
+      "role": "citizen",
+      "topic": "evidence",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "sakshya adhiniyam",
+          "section": "63"
+        }
+      ]
+    },
+    {
+      "id": "bsa-certificate",
+      "question": "Is a certificate mandatory to prove an electronic record?",
+      "role": "advocate",
+      "topic": "evidence",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "sakshya adhiniyam",
+          "section": "63"
+        }
+      ]
+    },
+    {
+      "id": "bsa-expert",
+      "question": "When may a court rely on an expert's opinion?",
+      "role": "citizen",
+      "topic": "evidence",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "sakshya adhiniyam",
+          "section": "39"
+        }
+      ]
+    },
+    {
+      "id": "bsa-burden",
+      "question": "Who bears the burden of proof?",
+      "role": "advocate",
+      "topic": "evidence",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "sakshya adhiniyam",
+          "section": "104"
+        }
+      ]
+    },
+    {
+      "id": "pocso-reporting",
+      "question": "Who must report a sexual offence against a child?",
+      "role": "police",
+      "topic": "children",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "sexual offences",
+          "section": "19"
+        }
+      ]
+    },
+    {
+      "id": "pocso-assault",
+      "question": "What is sexual assault against a child under the law?",
+      "role": "citizen",
+      "topic": "children",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "sexual offences",
+          "section": "7"
+        }
+      ]
+    },
+    {
+      "id": "sc-st-atrocity",
+      "question": "What protection does the law give Scheduled Castes against atrocities?",
+      "role": "citizen",
+      "topic": "protective",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "atrocities",
+          "section": "3"
+        }
+      ]
+    },
+    {
+      "id": "sc-st-court",
+      "question": "Which court tries offences under the atrocities law?",
+      "role": "police",
+      "topic": "protective",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "atrocities",
+          "section": "14"
+        }
+      ]
+    },
+    {
+      "id": "arms-licence",
+      "question": "How is a licence for a firearm obtained?",
+      "role": "citizen",
+      "topic": "regulatory",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "arms act",
+          "section": "13"
+        }
+      ]
+    },
+    {
+      "id": "jj-child-care",
+      "question": "What happens to a child who needs care and protection?",
+      "role": "citizen",
+      "topic": "children",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "juvenile justice",
+          "section": "31"
+        }
+      ]
+    },
+    {
+      "id": "it-identity-theft",
+      "question": "Someone used my password and OTP to pretend to be me online. Which provision applies?",
+      "role": "citizen",
+      "topic": "cyber",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "information technology act",
+          "section": "66C"
+        }
+      ]
+    },
+    {
+      "id": "it-impersonation",
+      "question": "What is the offence of cheating by personation using a computer resource?",
+      "role": "police",
+      "topic": "cyber",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "information technology act",
+          "section": "66D"
+        }
+      ]
+    },
+    {
+      "id": "dowry-prohibition",
+      "question": "Is giving or taking dowry an offence?",
+      "role": "citizen",
+      "topic": "family",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "dowry prohibition",
+          "section": "3"
+        }
+      ]
+    },
+    {
+      "id": "contract-valid",
+      "question": "What are the essential elements of a valid contract?",
+      "role": "citizen",
+      "topic": "civil",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "contract act",
+          "section": "10"
+        }
+      ]
+    },
+    {
+      "id": "contract-breach",
+      "question": "What compensation is available for breach of contract?",
+      "role": "advocate",
+      "topic": "civil",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "contract act",
+          "section": "73"
+        }
+      ]
+    },
+    {
+      "id": "consumer-complaint",
+      "question": "A shop sold defective goods and refuses a refund. What remedy exists?",
+      "role": "citizen",
+      "topic": "consumer",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "consumer protection act, 2019",
+          "section": "35"
+        }
+      ]
+    },
+    {
+      "id": "consumer-forum",
+      "question": "Where do I file a consumer complaint worth a small amount?",
+      "role": "citizen",
+      "topic": "consumer",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "consumer protection act, 2019",
+          "section": "34"
+        }
+      ]
+    },
+    {
+      "id": "rti-apply",
+      "question": "How do I ask a government office for information?",
+      "role": "citizen",
+      "topic": "rights",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "right to information act",
+          "section": "6"
+        }
+      ]
+    },
+    {
+      "id": "rti-time",
+      "question": "How long does a public authority have to answer my information request?",
+      "role": "citizen",
+      "topic": "rights",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "right to information act",
+          "section": "7"
+        }
+      ]
+    },
+    {
+      "id": "rti-appeal",
+      "question": "What can I do if my information request is refused?",
+      "role": "citizen",
+      "topic": "rights",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "right to information act",
+          "section": "19"
+        }
+      ]
+    },
+    {
+      "id": "dv-residence",
+      "question": "Can a woman be thrown out of the shared home by her husband?",
+      "role": "citizen",
+      "topic": "family",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "domestic violence act",
+          "section": "17"
+        }
+      ]
+    },
+    {
+      "id": "dv-protection",
+      "question": "What protection orders can a magistrate give for domestic violence?",
+      "role": "citizen",
+      "topic": "family",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "domestic violence act",
+          "section": "18"
+        }
+      ]
+    },
+    {
+      "id": "posh-complaint",
+      "question": "What is the process for a sexual harassment complaint at work?",
+      "role": "citizen",
+      "topic": "workplace",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "sexual harassment of women at workplace",
+          "section": "9"
+        }
+      ]
+    },
+    {
+      "id": "hma-divorce",
+      "question": "On what grounds can a Hindu marriage be dissolved?",
+      "role": "citizen",
+      "topic": "family",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "hindu marriage",
+          "section": "13"
+        }
+      ]
+    },
+    {
+      "id": "hma-maintenance",
+      "question": "Can a spouse claim maintenance while a divorce case is running?",
+      "role": "citizen",
+      "topic": "family",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "hindu marriage",
+          "section": "24"
+        }
+      ]
+    },
+    {
+      "id": "mv-claim",
+      "question": "How do I claim compensation after a road accident?",
+      "role": "citizen",
+      "topic": "civil",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "motor vehicles act",
+          "section": "166"
+        }
+      ]
+    },
+    {
+      "id": "mv-insurance",
+      "question": "Is third party insurance compulsory for vehicles?",
+      "role": "citizen",
+      "topic": "civil",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "motor vehicles act",
+          "section": "146"
+        }
+      ]
+    },
+    {
+      "id": "ni-cheque",
+      "question": "A cheque given to me has bounced. What can I do?",
+      "role": "citizen",
+      "topic": "civil",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "negotiable instruments",
+          "section": "138"
+        }
+      ]
+    },
+    {
+      "id": "limitation-bar",
+      "question": "What happens to a suit filed after the limitation period?",
+      "role": "advocate",
+      "topic": "civil",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "limitation act",
+          "section": "3"
+        }
+      ]
+    },
+    {
+      "id": "cpc-jurisdiction",
+      "question": "Which suits may civil courts try?",
+      "role": "advocate",
+      "topic": "civil",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "code of civil procedure",
+          "section": "9"
+        }
+      ]
+    },
+    {
+      "id": "tpa-lease",
+      "question": "What is a lease of immovable property?",
+      "role": "citizen",
+      "topic": "property",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "transfer of property",
+          "section": "105"
+        }
+      ]
+    },
+    {
+      "id": "legal-aid",
+      "question": "Can a person who cannot afford a lawyer get one free?",
+      "role": "citizen",
+      "topic": "rights",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "act": "legal services authorities",
+          "section": "12"
+        }
+      ]
+    },
+    {
+      "id": "case-puttaswamy",
+      "question": "What did the Supreme Court hold about privacy in Puttaswamy?",
+      "role": "advocate",
+      "topic": "precedent",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "title_contains": "PUTTASWAMY"
+        }
+      ]
+    },
+    {
+      "id": "case-kaushal",
+      "question": "Can a minister's statement be attributed to the State?",
+      "role": "advocate",
+      "topic": "precedent",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "title_contains": "Kaushal"
+        }
+      ]
+    },
+    {
+      "id": "case-joseph-shine",
+      "question": "What did the Supreme Court decide about adultery in Joseph Shine?",
+      "role": "advocate",
+      "topic": "precedent",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "title_contains": "Joseph Shine"
+        }
+      ]
+    },
+    {
+      "id": "case-sita-soren",
+      "question": "Does parliamentary privilege protect a legislator who takes a bribe?",
+      "role": "advocate",
+      "topic": "precedent",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "title_contains": "Sita Soren"
+        }
+      ]
+    },
+    {
+      "id": "case-arjun-khotkar",
+      "question": "What did Arjun Panditrao Khotkar decide about electronic evidence?",
+      "role": "advocate",
+      "topic": "precedent",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "title_contains": "Arjun Panditrao"
+        }
+      ]
+    },
+    {
+      "id": "sop-chain-custody",
+      "question": "How must chain of custody be maintained for seized material?",
+      "role": "police",
+      "topic": "guidance",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "chain of custody"
+        }
+      ]
+    },
+    {
+      "id": "sop-electronic-device",
+      "question": "How should an electronic device be seized and preserved?",
+      "role": "police",
+      "topic": "guidance",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "contains": "hash value"
+        }
+      ]
+    },
+    {
+      "id": "sop-audio-video",
+      "question": "What is the procedure for audio-video recording of evidence?",
+      "role": "police",
+      "topic": "guidance",
+      "expectation": "answer",
+      "relevant": [
+        {
+          "title_contains": "Audio-Video"
+        }
+      ]
+    },
+    {
+      "id": "foreign-visa",
+      "question": "What are the visa requirements for studying in Canada?",
+      "role": "citizen",
+      "topic": "out_of_scope",
+      "expectation": "abstain"
+    },
+    {
+      "id": "foreign-green-card",
+      "question": "How do I apply for a United States green card?",
+      "role": "citizen",
+      "topic": "out_of_scope",
+      "expectation": "abstain"
+    },
+    {
+      "id": "foreign-uk-divorce",
+      "question": "How do I get a divorce in England?",
+      "role": "citizen",
+      "topic": "out_of_scope",
+      "expectation": "abstain"
+    },
+    {
+      "id": "foreign-dubai-labour",
+      "question": "What notice period applies to my job in Dubai?",
+      "role": "citizen",
+      "topic": "out_of_scope",
+      "expectation": "abstain"
+    },
+    {
+      "id": "off-topic-recipe",
+      "question": "What is a good recipe for biryani?",
+      "role": "citizen",
+      "topic": "out_of_scope",
+      "expectation": "abstain"
+    },
+    {
+      "id": "off-topic-medical",
+      "question": "What dose of paracetamol should I give a child with fever?",
+      "role": "citizen",
+      "topic": "out_of_scope",
+      "expectation": "abstain"
+    },
+    {
+      "id": "off-topic-stocks",
+      "question": "Which shares should I buy this month?",
+      "role": "citizen",
+      "topic": "out_of_scope",
+      "expectation": "abstain"
+    },
+    {
+      "id": "off-topic-cricket",
+      "question": "Who won the last cricket world cup?",
+      "role": "citizen",
+      "topic": "out_of_scope",
+      "expectation": "abstain"
+    }
+  ]
+}
