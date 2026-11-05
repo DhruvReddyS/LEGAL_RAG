@@ -1,8 +1,9 @@
 "use client";
 
 import { CheckCircle2, Clock3, Loader2, RotateCcw, UploadCloud, XCircle } from "lucide-react";
-import { useState, type DragEvent } from "react";
-import { queueSummary, type EvidenceItem, type EvidenceStatus } from "@/lib/evidence-queue";
+import { useEffect, useState, useSyncExternalStore, type DragEvent } from "react";
+import { queueSummary, type EvidenceStatus } from "@/lib/evidence-queue";
+import { evidenceStore } from "./evidence-store";
 
 const STATUS_TEXT: Record<EvidenceStatus, string> = {
   queued: "Waiting",
@@ -21,18 +22,17 @@ function StatusIcon({ status }: { status: EvidenceStatus }) {
 }
 
 /** The drop area and a row per file, so one bad file is visibly one bad file. */
-export default function EvidenceIntake({ items, onFiles, onRetry, onClear }: {
-  items: EvidenceItem[];
-  onFiles: (files: File[]) => void;
-  onRetry: (id: string) => void;
-  onClear: () => void;
-}) {
+export default function BulkUpload({ caseId, docType, onIndexed }: { caseId: string; docType: string; onIndexed?: () => void }) {
+  const all = useSyncExternalStore(evidenceStore.subscribe, evidenceStore.snapshot, evidenceStore.serverSnapshot);
+  const items = all.filter((item) => item.caseId === caseId);
   const [dragging, setDragging] = useState(false);
   const summary = queueSummary(items);
+  useEffect(() => { evidenceStore.setOnIndexed(onIndexed); }, [onIndexed]);
+
   const drop = (event: DragEvent<HTMLLabelElement>) => {
     event.preventDefault();
     setDragging(false);
-    onFiles(Array.from(event.dataTransfer.files));
+    evidenceStore.enqueue(Array.from(event.dataTransfer.files), caseId, docType);
   };
   return (
     <>
@@ -53,7 +53,7 @@ export default function EvidenceIntake({ items, onFiles, onRetry, onClear }: {
           multiple
           accept="application/pdf,text/plain"
           className="sr-only"
-          onChange={(event) => { const chosen = Array.from(event.target.files ?? []); event.target.value = ""; onFiles(chosen); }}
+          onChange={(event) => { const chosen = Array.from(event.target.files ?? []); event.target.value = ""; evidenceStore.enqueue(chosen, caseId, docType); }}
         />
       </label>
       {items.length > 0 && (
@@ -61,9 +61,9 @@ export default function EvidenceIntake({ items, onFiles, onRetry, onClear }: {
           <div className="evidence-queue-head">
             <p role="status">
               {summary.finished} of {summary.total} finished{summary.failed ? `, ${summary.failed} failed` : ""}.
-              {summary.active ? " Keep this workspace open until the rest are done." : ""}
+              {summary.active ? " Keep this page open until the rest are done." : ""}
             </p>
-            {summary.finished > 0 && <button type="button" onClick={onClear}>Clear finished</button>}
+            {summary.finished > 0 && <button type="button" onClick={() => evidenceStore.clearFinished(caseId)}>Clear finished</button>}
           </div>
           <progress value={summary.finished} max={summary.total} aria-label="Files finished" />
           <ul>
@@ -73,7 +73,7 @@ export default function EvidenceIntake({ items, onFiles, onRetry, onClear }: {
                 <span className="evidence-row-name" title={item.name}>{item.name}</span>
                 {item.detail && <span className="evidence-row-detail">{item.detail}</span>}
                 {item.status === "failed" && item.retryable && (
-                  <button type="button" onClick={() => onRetry(item.id)} aria-label={`Retry ${item.name}`}>
+                  <button type="button" onClick={() => evidenceStore.retry(item.id)} aria-label={`Retry ${item.name}`}>
                     <RotateCcw size={13} aria-hidden="true" />Retry
                   </button>
                 )}

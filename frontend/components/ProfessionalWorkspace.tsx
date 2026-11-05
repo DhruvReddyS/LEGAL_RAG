@@ -5,12 +5,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { AuthorityCheck } from "@/components/AuthorityCheck";
 import { ComplianceChecklist } from "@/components/ComplianceChecklist";
 import CaseChronology from "@/components/CaseChronology";
-import EvidenceIntake from "@/components/EvidenceIntake";
-import { useEvidenceQueue } from "@/components/useEvidenceQueue";
+import BulkUpload from "@/components/case/BulkUpload";
 import { InvestigationTimeline } from "@/components/InvestigationTimeline";
 import { isPoliceView, PoliceToolView, usePoliceTools, type PoliceViewKey } from "@/components/police/PoliceTools";
 import { caseTimelineMessage, type CaseTimelineState } from "@/lib/police-presentation";
-import { ApiError, analyseDefence, createCase, draftFir, getInvestigationTimeline, listCases, listGeneratedDocuments, listIndexedCaseDocuments, readGeneratedDocument, scopedSearch, updateCase } from "@/lib/api";
+import { ApiError, analyseDefence, createCase, draftFir, getInvestigationTimeline, indexCaseEvidence, listCases, listGeneratedDocuments, listIndexedCaseDocuments, readGeneratedDocument, scopedSearch, updateCase, uploadCaseEvidence } from "@/lib/api";
 import type { CaseDocumentSummary, DefenceAnalysisResponse, FIRDraftResponse, GeneratedDocumentSummary, InvestigationTimeline as InvestigationTimelineData, LegalCase, RetrievalHit, User } from "@/lib/types";
 import DocumentAnalyzerWorkspace from "@/components/DocumentAnalyzerWorkspace";
 import AdvocateDesk from "@/components/advocate/AdvocateDesk";
@@ -65,7 +64,6 @@ export default function ProfessionalWorkspace({
   const [draft, setDraft] = useState<FIRDraftResponse | null>(null);
   const [analysis, setAnalysis] = useState<DefenceAnalysisResponse | null>(null);
   const [documentRefresh, setDocumentRefresh] = useState(0);
-  const evidence = useEvidenceQueue(() => setDocumentRefresh((value) => value + 1));
   const [view, setViewState] = useState<ViewKey>("casefile");
   // Below this width the rail sits above the tool, so choosing one has to bring it into view.
   const featureView = useRef<HTMLDivElement>(null);
@@ -194,6 +192,11 @@ export default function ProfessionalWorkspace({
   const search = async () => {
     if (!searchQuery.trim() || (searchMode === "case_specific" && !selectedId)) return; setBusy("search"); setNotice(""); setFailed(false);
     try { const response = await scopedSearch(searchQuery.trim(), searchMode, selectedId); setSearchResults(response.results); setNotice(`Retrieved ${response.results.length} authorised public and private results.`); }
+    catch (error) { fail(errorText(error)); } finally { setBusy(null); }
+  };
+  const upload = async (file?: File) => {
+    if (!file || !selectedId) return; setBusy("upload"); setNotice(""); setFailed(false);
+    try { const stored = await uploadCaseEvidence(selectedId, file); const indexed = await indexCaseEvidence(selectedId, stored.id, docType); setDocumentRefresh((value) => value + 1); setNotice(`Indexed ${file.name}: ${indexed.pages} page(s), ${indexed.chunks} private passage(s). It is ready in Document Analyzer.`); }
     catch (error) { fail(errorText(error)); } finally { setBusy(null); }
   };
   const runProfessionalTool = async () => {
@@ -647,12 +650,7 @@ type ViewKey = "advocate" | "casefile" | "chronology" | "agent" | "deadlines" | 
                       <option value="other">Other evidence</option>
                     </select>
                   </label>
-                  <EvidenceIntake
-                    items={evidence.items.filter((item) => item.caseId === selectedId)}
-                    onFiles={(files) => evidence.enqueue(files, selectedId, docType)}
-                    onRetry={evidence.retry}
-                    onClear={() => evidence.clearFinished(selectedId)}
-                  />
+                  <BulkUpload caseId={selectedId} docType={docType} onIndexed={() => setDocumentRefresh((value) => value + 1)} />
                 </div>
               )}
 
