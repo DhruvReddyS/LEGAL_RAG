@@ -230,6 +230,8 @@ async def out_of_scope_answer(question: str, service: Any) -> tuple[str, str] | 
     """A reason and a reply when the corpus cannot be what this question needs."""
     if asks_about_foreign_law(question):
         return "foreign_law", FOREIGN_LAW_ANSWER
-    if await off_topic_check_for(service).is_off_topic(question):
-        return "not_legal", NOT_LEGAL_ANSWER
-    return None
+    try:
+        off_topic = await off_topic_check_for(service).is_off_topic(question)
+    except Exception:  # noqa: BLE001 - this check must never cost an answer
+        return None
+    return ("not_legal", NOT_LEGAL_ANSWER) if off_topic else None

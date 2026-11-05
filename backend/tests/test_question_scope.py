@@ -7,7 +7,7 @@ from types import SimpleNamespace
 import pytest
 
 from app.services.fast_research import publishable_hits
-from app.services.question_scope import OffTopicCheck, asks_about_foreign_law
+from app.services.question_scope import OffTopicCheck, asks_about_foreign_law, out_of_scope_answer
 
 
 @pytest.mark.parametrize(
@@ -107,3 +107,11 @@ async def test_a_legal_word_keeps_the_question_without_asking_the_encoder() -> N
 
 async def test_a_failure_never_costs_an_answer() -> None:
     assert not await OffTopicCheck(_Encoder([1.0, 0.0], broken=True)).is_off_topic("What should I cook?")
+
+
+async def test_with_no_encoder_a_question_is_answered_not_lost() -> None:
+    assert await out_of_scope_answer("What should I cook?", None) is None
+
+
+async def test_with_no_encoder_foreign_law_is_still_refused() -> None:
+    assert (await out_of_scope_answer("How do I get a divorce in England?", None))[0] == "foreign_law"

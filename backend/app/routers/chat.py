@@ -285,7 +285,7 @@ async def query_chat(
         and not history
         and (
             refusal := await out_of_scope_answer(
-                request.query, http_request.app.state.retrieval_service
+                request.query, getattr(http_request.app.state, "retrieval_service", None)
             )
         )
     ):
