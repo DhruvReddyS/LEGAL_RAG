@@ -113,11 +113,13 @@ def format_evidence(hits: list[RetrievalHit]) -> str:
     limits = character_limits(hits)
     for hit in hits:
         payload = hit.payload
+        governs = payload.get("retrieval_enrichment_relation") == "implementation_bridge"
         blocks.append(
-            "SOURCE: {chunk_id}\nTITLE: {title}\nSOURCE_TYPE: {source_type}\n"
+            "SOURCE: {chunk_id}\n{governs}TITLE: {title}\nSOURCE_TYPE: {source_type}\n"
             "ACT_NAME: {act_name}\nSECTION: {section}\nIS_CURRENT: {is_current}\n"
             "CURRENCY: {currency}\nPAGES: {start}-{end}\nTEXT:\n{text}".format(
                 chunk_id=labels.get(str(payload.get("chunk_id")), "S?"),
+                governs="GOVERNS_THIS_QUESTION: yes\n" if governs else "",
                 title=payload.get("title") or "Unknown",
                 source_type=payload.get("source_type") or "unknown",
                 act_name=payload.get("act_name") or "not stated",
@@ -177,6 +179,8 @@ Writing requirements:
   for it ("shall not", "forthwith", "reason to believe"), and explain them in plain language afterwards.
   Do not soften them: "shall not touch" is not "should avoid touching".
 - Name the governing provision in force first, by its Act and section. When it replaced an older law, say so.
+- A source marked GOVERNS_THIS_QUESTION is the provision the question is about. Answer from its text first and
+  give its conditions and time limits; use other sources only to add to it, never in its place.
 - Put practical steps in a sensible action order and make clear when a step depends on missing facts.
 - State a material uncertainty as a limit; never hide it behind confident wording.
 - Do not describe an authority as current unless its CURRENCY is in_force. A source whose CURRENCY is

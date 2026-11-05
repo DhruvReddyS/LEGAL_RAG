@@ -94,7 +94,12 @@ async def _distinctive_terms(service, focus_tokens, target) -> list[str]:
 
 
 async def _statutes_for(service, query: str, asked: str, hits: list, distinctive_task) -> list:
-    """Primary law not already in hand. Anything going wrong adds nothing."""
+    """Primary law not already in hand, and whether any was confirmed at all.
+
+    The second value is separate because a confirmed section is often in hand already.
+    Reading "nothing new" as "nothing confirmed" refused verified answers to plain
+    questions such as "someone took my phone": measured, 7 of 94.
+    """
     try:
         found = await service.search_statutes(query, collection=GLOBAL_LEGAL_CORPUS)
         statutes, _ = await governing_statutes(
@@ -108,9 +113,9 @@ async def _statutes_for(service, query: str, asked: str, hits: list, distinctive
             [] if asks_about_foreign_law(asked) else act_the_results_agree_on(found)
         )
     except Exception:  # noqa: BLE001 - also covers services without this method
-        return []
+        return [], False
     held = {str(hit.payload.get("chunk_id")) for hit in hits}
-    return [hit for hit in statutes if str(hit.payload.get("chunk_id")) not in held]
+    return [hit for hit in statutes if str(hit.payload.get("chunk_id")) not in held], bool(statutes)
 
 
 async def _is_off_topic(service, asked: str) -> bool:
@@ -448,7 +453,9 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
         hits = hits + followed
     # Primary law for the question, which the mixed list can rank out of reach.
     # Appended like followed provisions, and for the same reason.
-    statutes = await _statutes_for(service, query, asked, hits, distinctive_terms_task)
+    statutes, primary_law_confirmed = await _statutes_for(
+        service, query, asked, hits, distinctive_terms_task
+    )
     # First, because the model reads in order and the budget serves earlier passages
     # first. A provision the question itself points at leads: "default bail" appears in
     # no statute, and the Contract Act's "default" outranked s.187 for that question.
@@ -501,7 +508,11 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
         # mismatch this project keeps repeating.
         # Primary law confirmed for this question addresses it, in whatever words.
         "evidence_addresses_question": (
-            (bool(statutes) or evidence_addresses_the_question(asked, hits, set(distinctive)))
+            (
+                primary_law_confirmed
+                or bool(bridged)
+                or evidence_addresses_the_question(asked, hits, set(distinctive))
+            )
             and not asks_about_foreign_law(asked)
             and not await _is_off_topic(service, asked)
         ),

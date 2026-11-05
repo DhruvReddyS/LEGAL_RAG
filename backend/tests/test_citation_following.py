@@ -351,3 +351,27 @@ def test_common_names_reach_the_section_that_never_uses_them(question, code, sec
     from app.services.citation_following import implementation_provisions_for_query
 
     assert (code, section) in {(p.code, p.section) for p in implementation_provisions_for_query(question)}
+
+
+@pytest.mark.parametrize(
+    "question",
+    ["How must chain of custody be maintained for seized material?", "How is seized property recorded by the police?"],
+)
+def test_seizure_questions_reach_the_search_and_seizure_record(question: str) -> None:
+    assert ("BNSS", "105") in [p.key for p in implementation_provisions_for_query(question)]
+
+
+def test_a_tax_seizure_is_not_sent_to_the_criminal_procedure_section() -> None:
+    question = "How is seized property recorded in an income tax search and seizure?"
+    assert ("BNSS", "105") not in [p.key for p in implementation_provisions_for_query(question)]
+
+
+@pytest.mark.parametrize(
+    ("question", "expected"),
+    [
+        ("Someone took my phone without asking. What offence is that?", ("BNS", "303")),
+        ("A shop sold defective goods and refuses a refund. What remedy exists?", ("CPA", "35")),
+    ],
+)
+def test_plain_words_reach_the_offence_or_remedy(question: str, expected: tuple[str, str]) -> None:
+    assert expected in [p.key for p in implementation_provisions_for_query(question)]

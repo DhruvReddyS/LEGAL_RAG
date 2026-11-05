@@ -150,7 +150,7 @@ async def test_deep_workflow_records_retries_input_sizes_and_actual_prompt_token
         InstrumentedFakeRetrieval(),  # type: ignore[arg-type]
         llm,  # type: ignore[arg-type]
     ).run(
-        query="Compare section 154 CrPC and section 173 BNSS",
+        query="Must an FIR be registered when information discloses a cognizable offence?",
         role="citizen",
         case_id=None,
         history=[],
@@ -225,7 +225,7 @@ async def test_failed_node_and_workflow_emit_sanitized_metrics() -> None:
                 InstrumentedFakeRetrieval(),  # type: ignore[arg-type]
                 FailingGenerateLLM(),  # type: ignore[arg-type]
             ).run(
-                query="Synthetic failure query",
+                query="Must an FIR be registered when information discloses a cognizable offence?",
                 role="citizen",
                 case_id=None,
                 history=[],

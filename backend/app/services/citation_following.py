@@ -149,12 +149,29 @@ _CONCEPTS: tuple[_Concept, ...] = (
     _Concept("BNSS", "482", "anticipatory-bail implementation", all_of=(("anticipatory bail", "advance bail", "pre-arrest bail"),)),
     _Concept("BNSS", "193", "final-report implementation", all_of=(("chargesheet", "charge sheet", "final report", "police report"),), none_of=(("bail",),)),
     _Concept("BNSS", "192", "case-diary implementation", all_of=(("case diary", "police diary"),)),
-    _Concept("BNSS", "194", "inquest implementation", all_of=(("inquest",),)),
+    _Concept(
+        "BNSS", "105", "search-and-seizure record implementation",
+        all_of=(("chain of custody", "search and seizure", "seized material", "seized evidence", "seized propert"),),
+        none_of=(("income tax", "income-tax", "customs", "gst"),),
+    ),
+    _Concept("BNSS", "194", "inquest implementation",all_of=(("inquest",),)),
     _Concept("BNSS", "196", "custodial-death implementation", all_of=(("custodial death", "death in custody", "death in police custody", "died in custody", "died in police custody"),)),
     _Concept("BNSS", "54", "identification-parade implementation", all_of=(("identification parade", "test identification", "tip parade"),)),
     _Concept("BSA", "26", "dying-declaration implementation", all_of=(("dying declaration", "dying person", "statement before death"),)),
     _Concept("BSA", "63", "electronic-record implementation", all_of=(("electronic record", "electronic evidence", "digital evidence", "whatsapp", "cctv"),)),
     _Concept("BSA", "104", "burden-of-proof implementation", all_of=(("burden of proof",),)),
+    _Concept(
+        "BNS", "303", "theft implementation",
+        all_of=(("theft", "stole", "stolen", "steal", "took my", "taken my", "pickpocket"),),
+        none_of=(("identity", "stolen property", "electricity"),),
+    ),
+    _Concept(
+        "CPA", "35", "consumer-complaint implementation",
+        all_of=(
+            ("defect", "faulty", "deficien", "refund", "replace", "consumer complaint"),
+            ("shop", "seller", "goods", "product", "bought", "purchas", "service", "consumer"),
+        ),
+    ),
     _Concept("BNS", "356", "defamation implementation", all_of=(("defam",),)),
     _Concept("BNS", "318", "cheating implementation", all_of=(("cheat", "tricked me", "duped"),), none_of=(("exam",),)),
     # Special Acts each have their own "search without warrant" power and outrank the

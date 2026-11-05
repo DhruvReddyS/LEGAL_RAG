@@ -228,6 +228,10 @@ class LegalRAGWorkflow:
         state and remains valid, because it was computed over this same
         evidence.
         """
+        # Refused whatever the model writes, so it is not asked to write. This spent 40 to
+        # 100 seconds drafting and verifying answers that were then discarded.
+        if state.get("evidence_addresses_question") is False:
+            return "skip"
         if not int(state.get("retry_count", 0)):
             return "reason"
         if state.get("verification_result") is None:

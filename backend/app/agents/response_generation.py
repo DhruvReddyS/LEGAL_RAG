@@ -69,9 +69,19 @@ CLAIMS_PRESENT_FORCE_RE = re.compile(
 )
 
 
+# A long list of every provision a judgment happens to cite took a quarter of the answer.
+MAX_RENUMBERED_SHOWN = 3
+# The model wrote the Sanhita's name wrongly in 30 of 52 mentions, in claims that verified.
+_MISSPELT_BNSS = re.compile(r"\bBharatiya\s+Nag\w*\s+Suraksha\s+Sanhita\b", re.I)
+
+
+def _correct_act_names(text: str) -> str:
+    return _MISSPELT_BNSS.sub("Bharatiya Nagarik Suraksha Sanhita", text)
+
+
 def response_generation_node(state: dict) -> dict:
     started_ns = perf_counter_ns()
-    result = state["verification_result"]
+    result = state.get("verification_result")
     hits = list(state.get("retrieved_chunks", []))
     hit_by_id = {str(hit.payload.get("chunk_id")): hit for hit in hits}
     section_grades: list[dict] = []
@@ -159,7 +169,7 @@ def response_generation_node(state: dict) -> dict:
             else:
                 body = "\n".join(f"- {claim}" for claim in claims)
             sections.append(f"## {label}\n\n{body}")
-        answer = "\n\n".join(sections) or INSUFFICIENT_EVIDENCE
+        answer = _correct_act_names("\n\n".join(sections)) or INSUFFICIENT_EVIDENCE
         cited_ids = list(dict.fromkeys(MARKER_RE.findall(answer)))
         payload_by_chunk_id = {
             chunk_id: hit.payload for chunk_id, hit in hit_by_id.items()
@@ -186,7 +196,8 @@ def response_generation_node(state: dict) -> dict:
 
     verdict_priority = {"no": 0, "partial": 1, "yes": 2}
     verdict_by_id: dict[str, str] = {}
-    for item in result.claims:
+    # No result when retrieval already found nothing that addresses the question.
+    for item in result.claims if result is not None else []:
         current = verdict_by_id.get(item.chunk_id, "no")
         if verdict_priority[item.verdict] > verdict_priority[current]:
             verdict_by_id[item.chunk_id] = item.verdict
@@ -329,9 +340,13 @@ def response_generation_node(state: dict) -> dict:
                 "One or more sources above is no longer in force:\n\n" + lines + "\n\n"
             )
         if renumbered:
+            # Ones whose elements changed first: those are the ones a reader must not assume.
+            ordered = sorted(renumbered.items(), key=lambda item: ("changed" not in " ".join(item[1]), item[0]))
             moved = "\n".join(
-                f"- {old} is now {' and '.join(new)}." for old, new in sorted(renumbered.items())
+                f"- {old} is now {' and '.join(new)}." for old, new in ordered[:MAX_RENUMBERED_SHOWN]
             )
+            if len(ordered) > MAX_RENUMBERED_SHOWN:
+                moved += f"\n- And {len(ordered) - MAX_RENUMBERED_SHOWN} more in the same sources."
             answer += (
                 "The sources above remain in force, but they cite provisions that were "
                 "renumbered when the 2023 Sanhitas commenced on 1 July 2024:\n\n"
@@ -405,7 +420,7 @@ def response_generation_node(state: dict) -> dict:
         inputs={
             "draft": text_size(str(state.get("draft_answer") or "")),
             "retrieved_chunk_count": len(hits),
-            "verified_claim_count": len(result.claims),
+            "verified_claim_count": len(result.claims) if result is not None else 0,
         },
         outputs={
             "answer": text_size(answer),

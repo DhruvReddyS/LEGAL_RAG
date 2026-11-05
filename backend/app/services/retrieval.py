@@ -303,6 +303,8 @@ _ACT_NAME_FRAGMENTS = {
     "BNSS": "NAGARIK SURAKSHA",
     "BNS": "NYAYA SANHITA",
     "BSA": "SAKSHYA ADHINIYAM",
+    # The vector store matches this text case-sensitively.
+    "CPA": "Consumer Protection Act",
 }
 
 

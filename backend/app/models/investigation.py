@@ -12,7 +12,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, String, func
+from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, String, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -30,6 +30,8 @@ class InvestigationFacts(Base):
     """
 
     __tablename__ = "investigation_facts"
+    # As the migration made it: a named constraint and a plain index, so alembic check stays clean.
+    __table_args__ = (UniqueConstraint("case_id", name="uq_investigation_facts_case_id"),)
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
@@ -37,7 +39,6 @@ class InvestigationFacts(Base):
     case_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("cases.id", ondelete="CASCADE"),
-        unique=True,
         index=True,
         nullable=False,
     )
