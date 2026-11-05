@@ -383,3 +383,13 @@
 .error-screen h1 {font-family:var(--serif);font-size:30px;line-height:1.25;font-weight:400;}
 .error-screen p {margin:12px 0 22px;color:var(--ink-soft);font-size:15px;line-height:1.7;}
 .error-screen-actions {display:flex;flex-wrap:wrap;gap:10px;}
+
+/* Phones: the composer's controls wrap instead of pushing the page sideways, and a
+   chosen tool is not buried under the path that leads to it. */
+@media(max-width:640px) {
+  .composer-toolbar {flex-wrap:wrap;gap:4px 12px;}
+  .composer-toolbar>span {flex:1 1 100%;text-align:left;}
+  .composer-toolbar .mode-picker {min-width:0;max-width:100%;}
+  .composer-toolbar .mode-picker select {max-width:100%;text-overflow:ellipsis;}
+  .professional-path {display:none;}
+}

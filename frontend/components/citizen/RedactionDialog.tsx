@@ -21,7 +21,7 @@ export function splitPages(document: CitizenDocument, masked: string): CitizenDo
 /** C-02 on the chat attachment path: masking sits between extraction and the question. */
 export default function RedactionDialog({ document, onConfirm, onCancel }: { document: CitizenDocument | null; onConfirm: (masked: CitizenDocument) => void; onCancel: () => void }) {
   const ref = useDialogFocus(Boolean(document), onCancel);
-  const { t } = useCitizenLang();
+  const { t } = useCitizenLang(Boolean(document));
   if (!document) return null;
   return createPortal(<div className="modal-backdrop" onMouseDown={onCancel}>
     <div ref={ref} className="ctz-redact-dialog" role="dialog" aria-modal="true" aria-label={t("redactionTitle")} onMouseDown={event => event.stopPropagation()}>

@@ -58,6 +58,23 @@ test("the chat shell follows the chosen language; the answer stays in English", 
   await expect(page.getByText("स्रोत", { exact: true })).toBeVisible();
 });
 
+test("settings and the conversation finder follow the language too", async ({ page }) => {
+  await openApp(page, "citizen");
+  await page.getByRole("button", { name: "తెలుగు" }).click();
+  await page.getByRole("button", { name: "సెట్టింగ్‌లు" }).click();
+  await expect(page.getByRole("dialog", { name: "సెట్టింగ్‌లు" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "చాట్‌లు వెతకండి" }).click();
+  await expect(page.getByRole("dialog", { name: "మీ సంభాషణలు" })).toBeVisible();
+});
+
+test("a professional keeps English whatever was left in this browser", async ({ page }) => {
+  await page.addInitScript(() => window.localStorage.setItem("corpusil-language", "hi"));
+  await openApp(page, "advocate");
+  await expect(page.getByRole("button", { name: "Search chats" })).toBeVisible();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+});
+
 test.describe("a Deep review", () => {
   const job = (status: string) => ({
     id: JOB_ID,

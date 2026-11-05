@@ -24,7 +24,7 @@ for (const theme of ["paper", "ink"] as const) {
       await page.addInitScript((value) => window.localStorage.setItem("corpusil.site-theme", value), theme);
     });
 
-    for (const path of ["/welcome", "/help", "/rights", "/?signin"]) {
+    for (const path of ["/welcome", "/help", "/rights", "/law", "/?signin"]) {
       test(`public ${path}`, async ({ page }) => {
         await mockApi(page, { role: null });
         await page.goto(path);

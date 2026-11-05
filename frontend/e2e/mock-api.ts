@@ -130,6 +130,14 @@ const ADMIN: Record<string, unknown> = {
     audit_events: 40,
   },
   "/admin/corpus/intakes": { intakes: [], total: 0 },
+  "/admin/console/corpus/amendments": { has_run: false, findings: [], open_findings: 0, watch: [], watch_total: 0, page: 1, page_size: 25 },
+  "/admin/console/quality/review": {
+    measure: { claim_accuracy: null, interval_95: null, sample_size: 0, correct: 0, incorrect: 0, unsure: 0, unreviewed: 0, answers_reviewed: 0 },
+    total: 0,
+    page: 1,
+    page_size: 10,
+    items: [],
+  },
   "/admin/console/release": {
     serving_collection: "legal_kb_v5",
     collections: { reachable: true, collections: [{ name: "legal_kb_v5", points: 120000, status: "green" }, { name: "legal_kb_v6", points: 130000, status: "green" }] },
@@ -288,6 +296,7 @@ export async function mockApi(page: Page, options: MockOptions) {
       consentRequired = false;
       return json(route, accountStatus(false).consent);
     }
+    if (path === "/account/law-changes") return json(route, { unread: 0, notices: [] });
     if (path === "/history/sessions") return json(route, { items: [], next_cursor: null });
     if (path === "/history/matters") return json(route, { items: [] });
     if (path === "/citizen/matter/deadlines") return json(route, { items: [], today: "2026-11-05" });

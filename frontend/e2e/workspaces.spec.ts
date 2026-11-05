@@ -50,6 +50,18 @@ test("admin: tabs answer the arrow keys", async ({ page }) => {
   await expect(tabs.getByRole("tab", { name: "Release" })).toHaveAttribute("aria-selected", "true");
 });
 
+test("a phone brings a chosen tool into view, and nothing overflows with a case to choose", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 800 });
+  await mockApi(page, { role: "police" });
+  await page.goto("/");
+  await page.getByLabel("Legal research question").waitFor();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  await page.getByRole("button", { name: "Open navigation" }).click();
+  await page.locator(".feature-nav").getByRole("button", { name: "Investigations" }).click();
+  await page.getByRole("navigation", { name: "Case tools" }).getByRole("button", { name: /Compliance/ }).click();
+  await expect(page.locator(".feature-view")).toBeInViewport();
+});
+
 test("citizens are not asked for corpus status, which the server refuses them", async ({ page }) => {
   const asked: string[] = [];
   page.on("request", (request) => { if (request.url().includes("/ingestion/progress")) asked.push(request.url()); });

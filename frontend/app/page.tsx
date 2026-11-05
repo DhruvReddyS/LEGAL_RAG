@@ -519,9 +519,9 @@ export default function HomePage() {
     try {
       await setSessionPinned(item.sessionId, !item.pinned);
       setHistory(current => current.map(chat => chat.id === item.id ? { ...chat, pinned: !chat.pinned } : chat));
-      setHistoryNotice(item.pinned ? "Chat moved back to recent." : "Chat pinned for quick access.");
+      setHistoryNotice(item.pinned ? citizenText("noticeUnpinned") : citizenText("noticePinned"));
     } catch (error) {
-      setHistoryNotice(error instanceof ApiError ? error.message : "That could not be saved.");
+      setHistoryNotice(error instanceof ApiError ? error.message : citizenText("historySaveFailed"));
     }
   };
   const loadOlderChats = async () => {
@@ -531,7 +531,7 @@ export default function HomePage() {
       setHistory(current => mergeById(current, page.items.map(savedChatFrom)));
       setHistoryCursor(page.next_cursor);
     } catch {
-      setHistoryNotice("Older conversations could not be loaded.");
+      setHistoryNotice(citizenText("noticeOlderFailed"));
     }
   };
   const openFromPanel = (item: HistorySession) => {
@@ -542,7 +542,7 @@ export default function HomePage() {
     const title = renameDraft.trim().slice(0, 90);
     if (title) {
       setHistory(current => current.map(chat => chat.id === item.id ? { ...chat, title, customTitle: true } : chat));
-      if (item.sessionId) void renameChatSession(item.sessionId, title).catch(() => setHistoryNotice("The new name could not be saved."));
+      if (item.sessionId) void renameChatSession(item.sessionId, title).catch(() => setHistoryNotice(citizenText("noticeRenameFailed")));
     }
     setRenamingChatId(null);
     setChatMenuId(null);
@@ -553,10 +553,10 @@ export default function HomePage() {
     try {
       if (item.sessionId) await deleteChatSession(item.sessionId);
       setHistory(current => current.filter(chat => chat.id !== item.id));
-      setHistoryNotice("Chat deleted.");
+      setHistoryNotice(citizenText("noticeDeleted"));
       if (activeChatId === item.id) resetResearch();
     } catch {
-      setHistoryNotice("The chat could not be deleted. Please try again.");
+      setHistoryNotice(citizenText("noticeDeleteFailed"));
     }
   };
   // The nonce matters: clicking the same sidebar link twice must reopen
@@ -667,7 +667,7 @@ export default function HomePage() {
   const publicChats = hasProfessionalWorkspace ? recentChats.filter(item => !item.caseId) : recentChats;
   const matterChats = hasProfessionalWorkspace ? recentChats.filter(item => item.caseId) : [];
   const chatRow = (item: SavedChat) => <div className={`chat-history-row ${item.id === activeChatId ? "selected" : ""}`} key={item.id}>
-    {renamingChatId === item.id ? <form className="chat-rename" onSubmit={event => { event.preventDefault(); saveChatTitle(item); }}><input autoFocus aria-label="Rename chat" value={renameDraft} maxLength={90} onChange={event => setRenameDraft(event.target.value)} onKeyDown={event => { if (event.key === "Escape") setRenamingChatId(null); }}/><button aria-label="Save chat name" disabled={!renameDraft.trim()}><Check size={13}/></button></form> : <button disabled={loading} className="chat-open" aria-current={item.id === activeChatId ? "page" : undefined} title={item.title} onClick={() => openSavedChat(item)}>{item.pinned ? <Pin size={13}/> : <MessageSquare size={14}/>}<span>{item.title}</span></button>}
+    {renamingChatId === item.id ? <form className="chat-rename" onSubmit={event => { event.preventDefault(); saveChatTitle(item); }}><input autoFocus aria-label={citizenText("renameChat")} value={renameDraft} maxLength={90} onChange={event => setRenameDraft(event.target.value)} onKeyDown={event => { if (event.key === "Escape") setRenamingChatId(null); }}/><button aria-label="Save chat name" disabled={!renameDraft.trim()}><Check size={13}/></button></form> : <button disabled={loading} className="chat-open" aria-current={item.id === activeChatId ? "page" : undefined} title={item.title} onClick={() => openSavedChat(item)}>{item.pinned ? <Pin size={13}/> : <MessageSquare size={14}/>}<span>{item.title}</span></button>}
     {item.matter && <span className="chat-scope-tag" title={`Matter: ${item.matter}`}>{item.matter}</span>}
     {item.caseId && <span className="chat-scope-tag" title={`Reads the law and the files in ${caseTitle(item.caseId)}`}>{caseTitle(item.caseId)}</span>}
     {renamingChatId !== item.id && <button className="chat-menu-trigger" aria-label={`${citizenText("chatOptions")} ${item.title}`} aria-expanded={chatMenuId === item.id} onClick={() => setChatMenuId(current => current === item.id ? null : item.id)}><MoreHorizontal size={15}/></button>}
@@ -675,9 +675,9 @@ export default function HomePage() {
   </div>;
 
   return <main data-role={role} data-motion={animate ? "on" : "off"} className="app-shell">
-    <a className="skip-link" href="#main-content">Skip to content</a>
+    <a className="skip-link" href="#main-content">{citizenText("skipToContent")}</a>
     <aside aria-label="Main navigation" aria-hidden={compactNavigation && !mobileNav} ref={node => { if(node) node.inert = compactNavigation && !mobileNav; }} className={`app-sidebar ${mobileNav ? "is-open" : ""}`}>
-      <div className="sidebar-brand"><BrandLogo /><button ref={closeNavRef} className="icon-button lg:hidden" onClick={() => setMobileNav(false)} aria-label="Close navigation"><X size={18} /></button></div>
+      <div className="sidebar-brand"><BrandLogo /><button ref={closeNavRef} className="icon-button lg:hidden" onClick={() => setMobileNav(false)} aria-label={citizenText("closeNav")}><X size={18} /></button></div>
       <button disabled={loading} className="new-chat-button" onClick={() => { resetResearch(); setMobileNav(false); }}><Plus size={18} />{citizenText("newChat")}</button>
       <button className="sidebar-search" onClick={() => { setMobileNav(false); setHistoryPanelOpen(true); }}><Search size={15} aria-hidden="true" />{citizenText("searchChats")}</button>
       <nav className="feature-nav" aria-label="Features">{tools.map(tool => <button key={tool.title} onClick={() => { if (tool.citizenTool) openCitizenTool(tool.citizenTool); else openTool(tool.target); }}><tool.icon size={18} strokeWidth={1.65} /><span>{tool.title}</span></button>)}</nav>
@@ -685,9 +685,9 @@ export default function HomePage() {
       <div className="sidebar-bottom"><button onClick={() => { setMobileNav(false); role === "citizen" ? setCitizenGuideSlide(0) : setGuideOpen(true); }}><HelpCircle size={17} />{citizenText("gettingStarted")}</button><button onClick={() => { setMobileNav(false); setSettingsOpen(true); }}><Settings size={17} />{citizenText("settings")}<span className="ml-auto text-xs capitalize text-[var(--ink-soft)]">{role}</span></button></div>
     </aside>
     {mobileNav && <button aria-label="Dismiss navigation" className="sidebar-scrim" onClick={() => setMobileNav(false)} />}
-    {historyNotice && <div className="history-toast" role="status"><span>{historyNotice}</span><button aria-label="Dismiss notification" onClick={() => setHistoryNotice("")}><X size={13}/></button></div>}
+    {historyNotice && <div className="history-toast" role="status"><span>{historyNotice}</span><button aria-label={citizenText("dismiss")} onClick={() => setHistoryNotice("")}><X size={13}/></button></div>}
     <div className="app-content" id="main-content" tabIndex={-1} ref={node => { if(node) node.inert = compactNavigation && mobileNav; }}>
-      <header className="workspace-header"><button ref={openNavRef} className="icon-button lg:hidden" aria-label="Open navigation" onClick={() => setMobileNav(true)}><Menu size={20} /></button><span>{view === "workspace" ? role === "citizen" ? " " : role === "police" ? "Investigation workspace" : role === "advocate" ? "Your case workspace" : "Administration" : " "}</span>{role === "citizen" && view !== "workspace" && <LangSwitcher/>}{view === "workspace" && <button className="text-sm text-[var(--ink-soft)]" onClick={() => setView("research")}><MessageSquare size={16} className="mr-2 inline" />{citizenText("backToChat")}</button>}</header>
+      <header className="workspace-header"><button ref={openNavRef} className="icon-button lg:hidden" aria-label={citizenText("openNav")} onClick={() => setMobileNav(true)}><Menu size={20} /></button><span>{view === "workspace" ? role === "citizen" ? " " : role === "police" ? "Investigation workspace" : role === "advocate" ? "Your case workspace" : "Administration" : " "}</span>{role === "citizen" && view !== "workspace" && <LangSwitcher/>}{view === "workspace" && <button className="text-sm text-[var(--ink-soft)]" onClick={() => setView("research")}><MessageSquare size={16} className="mr-2 inline" />{citizenText("backToChat")}</button>}</header>
       {view === "workspace" && role === "citizen" && <CitizenWorkspace requested={citizenTool} onAsk={(question) => { resetResearch(); void submit(question, [], false, undefined, true); }} />}
       {/* Stays mounted once opened: going back to chat must not lose an unsaved
           narrative or the selected case. */}
@@ -718,25 +718,25 @@ export default function HomePage() {
         </>}
       </section>}
     </div>
-    {historyPanelOpen && <HistoryPanel onClose={() => setHistoryPanelOpen(false)} onOpen={openFromPanel} onChanged={() => setHistoryVersion(value => value + 1)} />}
+    {historyPanelOpen && <HistoryPanel citizen={role === "citizen"} onClose={() => setHistoryPanelOpen(false)} onOpen={openFromPanel} onChanged={() => setHistoryVersion(value => value + 1)} />}
     {accountOpen && <AccountDialog user={user} onClose={() => setAccountOpen(false)} onUserChange={setUser} onSignOut={() => { setAccountOpen(false); void signOut(); }} onErased={(receipt) => { setAccountOpen(false); setUser(null); setErasedReceipt(receipt); }} />}
     <AccountGate user={user} onCleared={() => setHistoryVersion(value => value + 1)} onSignOut={() => void signOut()} onOpenAccount={() => setAccountOpen(true)} />
     {citizenGuideSlide !== null && <CitizenGuideDialog open initialSlide={citizenGuideSlide} onClose={() => setCitizenGuideSlide(null)} onStart={(prompt) => { setCitizenGuideSlide(null); void submit(prompt); }}/>}
-    {settingsOpen && <div className="modal-backdrop" onMouseDown={() => setSettingsOpen(false)}><div ref={settingsRef} role="dialog" aria-modal="true" aria-label="Settings" className="settings-dialog" onMouseDown={event => event.stopPropagation()}>
-      <div className="dialog-heading settings-heading"><div><h2>Settings</h2><p>Make the workspace feel right for you.</p></div><button aria-label="Close settings" className="icon-button" onClick={() => setSettingsOpen(false)}><X size={18} /></button></div>
+    {settingsOpen && <div className="modal-backdrop" onMouseDown={() => setSettingsOpen(false)}><div ref={settingsRef} role="dialog" aria-modal="true" aria-label={citizenText("settings")} className="settings-dialog" onMouseDown={event => event.stopPropagation()}>
+      <div className="dialog-heading settings-heading"><div><h2>{citizenText("settings")}</h2><p>{citizenText("settingsLead")}</p></div><button aria-label={citizenText("closeSettings")} className="icon-button" onClick={() => setSettingsOpen(false)}><X size={18} /></button></div>
       <div className="settings-account"><div><strong>{user.name}</strong><span>{user.email}</span></div><b>{role}</b></div>
-      <button className="settings-account-link" onClick={() => { setSettingsOpen(false); setAccountOpen(true); }}><span>Account and privacy<small>Password, two-step sign-in, devices, your data, text size</small></span><ChevronRight size={16} aria-hidden="true" /></button>
-      <section className="settings-section"><h3>Experience</h3>
-        <div className="setting-block"><div className="setting-copy"><strong>Appearance</strong><small>A calm palette for daytime or low light.</small></div><div className="theme-choice" role="group" aria-label="Appearance"><button aria-pressed={theme === "paper"} onClick={() => setTheme("paper")}><i className="paper-swatch"/>Light</button><button aria-pressed={theme === "ink"} onClick={() => setTheme("ink")}><i className="ink-swatch"/>Dark</button></div></div>
-        <div className="setting-block setting-stack"><div className="setting-copy"><strong>Default research depth</strong><small>You can still change this beside any question.</small></div><div className="mode-choice" role="group" aria-label="Default response mode">{(["auto","fast","deep"] as RequestedResponseMode[]).map(mode => <button key={mode} aria-pressed={responseMode === mode} onClick={() => setResponseMode(mode)}>{mode === "auto" ? "Auto" : mode === "fast" ? "Fast" : "Deep review"}</button>)}</div></div>
-        <label className="setting-block"><span className="setting-copy"><strong>Motion</strong><small>Includes the scales shown while an answer is prepared.</small></span><span className="premium-switch"><input type="checkbox" checked={animate} onChange={event => setAnimate(event.target.checked)} /><i/></span></label>
+      <button className="settings-account-link" onClick={() => { setSettingsOpen(false); setAccountOpen(true); }}><span>{citizenText("accountPrivacy")}<small>{citizenText("accountPrivacyHint")}</small></span><ChevronRight size={16} aria-hidden="true" /></button>
+      <section className="settings-section"><h3>{citizenText("experience")}</h3>
+        <div className="setting-block"><div className="setting-copy"><strong>{citizenText("appearance")}</strong><small>{citizenText("appearanceHint")}</small></div><div className="theme-choice" role="group" aria-label={citizenText("appearance")}><button aria-pressed={theme === "paper"} onClick={() => setTheme("paper")}><i className="paper-swatch"/>{citizenText("themeLight")}</button><button aria-pressed={theme === "ink"} onClick={() => setTheme("ink")}><i className="ink-swatch"/>{citizenText("themeDark")}</button></div></div>
+        <div className="setting-block setting-stack"><div className="setting-copy"><strong>{citizenText("researchDepth")}</strong><small>{citizenText("researchDepthHint")}</small></div><div className="mode-choice" role="group" aria-label={citizenText("researchDepth")}>{(["auto","fast","deep"] as RequestedResponseMode[]).map(mode => <button key={mode} aria-pressed={responseMode === mode} onClick={() => setResponseMode(mode)}>{mode === "auto" ? citizenText("modeAuto") : mode === "fast" ? citizenText("modeFast") : citizenText("modeDeep")}</button>)}</div></div>
+        <label className="setting-block"><span className="setting-copy"><strong>{citizenText("motion")}</strong><small>{citizenText("motionHint")}</small></span><span className="premium-switch"><input type="checkbox" checked={animate} onChange={event => setAnimate(event.target.checked)} /><i/></span></label>
       </section>
-      <section className="settings-section"><h3>History & privacy</h3>
-        <label className="setting-block"><span className="setting-copy"><strong>Show recent chats</strong><small>Your conversations are stored on the server for your account. Delete one from its menu to erase it.</small></span><span className="premium-switch"><input type="checkbox" checked={rememberHistory} onChange={event => setRememberHistory(event.target.checked)} /><i/></span></label>
-        <details className="settings-privacy"><summary>Documents, voice & retention<span>View details</span></summary><UploadPrivacy/><p>Voice uses your browser’s recognition service. English is currently validated; transcripts remain editable and never send automatically.</p></details>
+      <section className="settings-section"><h3>{citizenText("historyPrivacy")}</h3>
+        <label className="setting-block"><span className="setting-copy"><strong>{citizenText("showRecent")}</strong><small>{citizenText("showRecentHint")}</small></span><span className="premium-switch"><input type="checkbox" checked={rememberHistory} onChange={event => setRememberHistory(event.target.checked)} /><i/></span></label>
+        <details className="settings-privacy"><summary>{citizenText("privacyDetails")}<span>{citizenText("viewDetails")}</span></summary><UploadPrivacy citizen={role === "citizen"}/><p>{citizenText("voiceSettingsNote")}</p></details>
       </section>
       {role === "admin" && <section className="settings-section"><h3>Corpus connection</h3><div className="corpus-status"><span className={progress?.validation_status === "pass" ? "is-online" : ""}/><div><strong>{progress?.validation_status === "pass" ? "Verified corpus ready" : "Corpus status unavailable"}</strong><small>{progress ? `${progress.canonical_documents.toLocaleString()} sources · ${(progress.global_points ?? progress.qdrant_points).toLocaleString()} searchable passages` : "Reconnect to check source availability."}</small></div></div></section>}
-      <div className="settings-actions"><button disabled={loading} onClick={() => { setHistory([]); setMessages([]); setSessionId(null); setActiveChatId(crypto.randomUUID()); setDraftVersion(value => value + 1); }}>Clear this tab’s history</button><button disabled={loading} onClick={() => { setSettingsOpen(false); void signOut(); }}><LogOut size={15} />Sign out</button></div>
+      <div className="settings-actions"><button disabled={loading} onClick={() => { setHistory([]); setMessages([]); setSessionId(null); setActiveChatId(crypto.randomUUID()); setDraftVersion(value => value + 1); }}>{citizenText("clearTab")}</button><button disabled={loading} onClick={() => { setSettingsOpen(false); void signOut(); }}><LogOut size={15} />{citizenText("signOut")}</button></div>
     </div></div>}
     {guideOpen && <div className="modal-backdrop" onMouseDown={() => setGuideOpen(false)}><div ref={guideRef} role="dialog" aria-modal="true" aria-label="Getting started" className="guide-dialog" onMouseDown={event=>event.stopPropagation()}>
       <div className="dialog-heading"><div><p className="text-xs text-[var(--ink-soft)]">A quick introduction</p><h2>From question to clarity.</h2></div><button className="icon-button" aria-label="Close guide" onClick={() => setGuideOpen(false)}><X size={18} /></button></div>

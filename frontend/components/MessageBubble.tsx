@@ -212,7 +212,7 @@ export default function MessageBubble({ message, onRegenerate, onForgetDocuments
   if (message.stopped) return <div className="stopped-answer"><span>{message.content}</span>{onRegenerate && <button onClick={onRegenerate}><RotateCcw size={13}/>{text("tryAgain")}</button>}</div>;
   if (message.error) return <article className="answer-error" role="alert">{message.error}{onRegenerate && <button onClick={onRegenerate}>{text("tryAgain")}</button>}</article>;
   return <article className="assistant-message" ref={articleRef}>
-    <div className="answer-byline"><span className="corpus-signature">Corpus</span><span>{message.category || "Legal research"}</span></div>
+    <div className="answer-byline"><span className="corpus-signature">Corpusil</span><span>{message.category || "Legal research"}</span></div>
     <div className="answer-lead legal-answer" lang="en">{!(safety && presentation.explanation === NO_LEAD) && markdown(presentation.explanation)}</div>
     <div className="trust-row" aria-label={text("evidenceAndSources")}>
       <details className="confidence-help"><summary className="confidence-pill">{safety === "emergency" ? text("safetyLabel") : safety === "refusal" ? text("refusalLabel") : message.responseMode === "fast" ? text("gradeFast") : message.evidenceStrength === "strong" ? text("gradeStrong") : message.evidenceStrength === "moderate" ? text("gradeModerate") : message.evidenceStrength === "insufficient" ? text("gradeLimited") : text("gradeNotKept")}</summary><p>{safety === "emergency" ? text("safetyHelp") : safety === "refusal" ? text("refusalHelp") : message.responseMode === "fast" ? text("gradeFastHelp") : text("gradeHelp")}</p></details>

@@ -63,6 +63,14 @@ export default function ProfessionalWorkspace({
   const [analysis, setAnalysis] = useState<DefenceAnalysisResponse | null>(null);
   const [documentRefresh, setDocumentRefresh] = useState(0);
   const [view, setViewState] = useState<ViewKey>("casefile");
+  // Below this width the rail sits above the tool, so choosing one has to bring it into view.
+  const featureView = useRef<HTMLDivElement>(null);
+  const viewShown = useRef(view);
+  useEffect(() => {
+    if (viewShown.current === view) return;
+    viewShown.current = view;
+    if (window.matchMedia("(max-width: 1100px)").matches) featureView.current?.scrollIntoView({ block: "start" });
+  }, [view]);
   const setView = (next: ViewKey) => { setNotice(""); setFailed(false); setViewState(next); };
   const fail = (message: string) => { setFailed(true); setNotice(message); };
   const selected = useMemo(() => cases.find((item) => item.id === selectedId), [cases, selectedId]);
@@ -382,7 +390,7 @@ type ViewKey = "advocate" | "casefile" | "agent" | "deadlines" | "compliance" | 
           </nav>
         </aside>
 
-        <div className="feature-view">
+        <div className="feature-view" ref={featureView}>
           <div className="feature-head">
             <div>
               <span className="feature-location">{selected ? selected.title : "No case selected"} / {current.label}</span>
