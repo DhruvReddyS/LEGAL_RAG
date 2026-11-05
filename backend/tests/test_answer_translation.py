@@ -59,6 +59,17 @@ async def test_an_unfaithful_one_is_refused_and_not_kept() -> None:
     for _ in range(2):
         with pytest.raises(TranslationRejected):
             await translate_answer(model, message_id="m", answer=ANSWER, language_code="hi")
+    assert model.calls == 4
+
+
+async def test_a_second_try_can_succeed() -> None:
+    class _SecondTime(_Model):
+        async def generate_with_metrics(self, prompt, *, num_predict=900):
+            self.calls += 1
+            return (GOOD.replace("30", "60") if self.calls == 1 else GOOD), {}
+
+    model = _SecondTime(GOOD)
+    assert await translate_answer(model, message_id="m", answer=ANSWER, language_code="hi") == GOOD
     assert model.calls == 2
 
 

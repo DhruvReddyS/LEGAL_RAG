@@ -18,6 +18,7 @@ LANGUAGES = {"hi": ("Hindi", re.compile(r"[ऀ-ॿ]")), "te": ("Telugu", re.comp
 
 MAX_CHARACTERS = 8000
 _PREDICT_LIMIT = 2400
+_ATTEMPTS = 2
 _CACHE_SIZE = 256
 _MARKER = re.compile(r"\[Source\s+\d+\]", re.IGNORECASE)
 _NUMBER = re.compile(r"\d+")
@@ -62,9 +63,14 @@ async def translate_answer(llm: Any, *, message_id: str, answer: str, language_c
         _cache.move_to_end(key)
         return _cache[key]
     language, _ = LANGUAGES[language_code]
-    text, _ = await llm.generate_with_metrics(_prompt(answer, language), num_predict=_PREDICT_LIMIT)
-    translated = text.strip()
-    if not is_faithful(answer, translated, language_code):
+    # A dropped marker is often a one-off, so it gets a second try before the reader
+    # is told no translation is available. Both must pass the same check.
+    for _ in range(_ATTEMPTS):
+        text, _metrics = await llm.generate_with_metrics(_prompt(answer, language), num_predict=_PREDICT_LIMIT)
+        translated = text.strip()
+        if is_faithful(answer, translated, language_code):
+            break
+    else:
         raise TranslationRejected(language_code)
     _cache[key] = translated
     while len(_cache) > _CACHE_SIZE:
