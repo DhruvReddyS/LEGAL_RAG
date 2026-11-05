@@ -274,6 +274,26 @@ def test_the_real_runner_names_the_collection_and_corpus(tmp_path) -> None:
     ]
 
 
+def test_the_real_runner_passes_the_environment_and_reports_failure(tmp_path, monkeypatch) -> None:
+    """A real child process, standing in for the pipeline so the model stays unloaded."""
+    seen = tmp_path / "seen.json"
+    script = (
+        "import json, os, sys; "
+        f"json.dump({{k: os.environ[k] for k in ('QDRANT_GLOBAL_COLLECTION', 'LEGAL_KB_ROOT')}}, open({str(seen)!r}, 'w')); "
+        "sys.exit(int(sys.argv[1]))"
+    )
+    monkeypatch.setattr(lifecycle, "pipeline_command", lambda _cid: [sys.executable, "-c", script, "3"])
+    with pytest.raises(LifecycleRefused, match="exited 3"):
+        lifecycle.run_pipeline_subprocess(tmp_path, "some_collection", "abc")
+    assert json.loads(seen.read_text()) == {
+        "QDRANT_GLOBAL_COLLECTION": "some_collection",
+        "LEGAL_KB_ROOT": str(tmp_path),
+    }
+
+    monkeypatch.setattr(lifecycle, "pipeline_command", lambda _cid: [sys.executable, "-c", script, "0"])
+    lifecycle.run_pipeline_subprocess(tmp_path, "some_collection", "abc")
+
+
 async def test_pending_lists_only_what_this_collection_has_not_completed(tmp_path, qdrant, collection, real_pipeline):
     alpha, beta = _row(tmp_path, "alpha"), _row(tmp_path, "beta")
     _write_manifest(tmp_path, [alpha, beta])
@@ -546,6 +566,38 @@ async def test_retire_dry_run_prints_the_plan_and_changes_nothing(tmp_path, qdra
     assert manifest.read_text() == before
     assert _ledger(tmp_path, collection) == ledger_before
     assert await _points(qdrant, collection, cid) == points
+
+
+async def test_the_cli_retires_when_told_to(tmp_path, qdrant, collection, real_pipeline, monkeypatch, capsys):
+    row = _row(tmp_path, "alpha")
+    manifest = _write_manifest(tmp_path, [row])
+    cid = row["canonical_document_id"]
+    await lifecycle.execute_add(tmp_path, collection, cid, qdrant, runner=real_pipeline, lister=no_processes)
+    monkeypatch.setattr(lifecycle, "list_ingestion_processes", no_processes)
+    monkeypatch.setattr(lifecycle.execute_retire, "__kwdefaults__", {"lister": no_processes})
+    cli = _load_cli()
+
+    code = await cli.run(
+        cli.parse_args(["retire", "--collection", collection, "--document-id", cid, "--yes", "--kb-root", str(tmp_path)])
+    )
+
+    assert code == 0, capsys.readouterr().err
+    assert await _points(qdrant, collection, cid) == 0
+    assert manifest.read_text() == ""
+
+
+async def test_pending_dry_run_lists_without_running(tmp_path, qdrant, collection, capsys):
+    row = _row(tmp_path, "alpha")
+    _write_manifest(tmp_path, [row])
+    cli = _load_cli()
+    code = await cli.run(
+        cli.parse_args(["add", "--collection", collection, "--pending", "--dry-run", "--kb-root", str(tmp_path)])
+    )
+    output = capsys.readouterr().out
+    assert code == 0
+    assert "1 document(s) pending" in output and row["canonical_document_id"] in output
+    assert "dry run: nothing changed" in output
+    assert await _points(qdrant, collection, row["canonical_document_id"]) == 0
 
 
 async def test_the_cli_will_not_retire_without_being_told_to(tmp_path, qdrant, collection, real_pipeline, monkeypatch):
