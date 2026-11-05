@@ -16,6 +16,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import date, datetime
 
+from app.core.india_time import india_moment_text
+
 __all__ = ["DRAFT_TYPES", "DraftContext", "RenderedDraft", "render_draft"]
 
 DISCLAIMER = (
@@ -67,7 +69,7 @@ class _Filler:
 
 def _when(value: object) -> str | None:
     if isinstance(value, datetime):
-        return value.strftime("%d %b %Y, %H:%M")
+        return india_moment_text(value)
     if isinstance(value, date):
         return value.strftime("%d %b %Y")
     return str(value) if value else None

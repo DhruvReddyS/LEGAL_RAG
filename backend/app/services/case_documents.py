@@ -218,7 +218,7 @@ class CaseDocumentIndexingService:
                 )
             raise EvidenceRefused(
                 status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-                detail="Evidence contains no extractable text",
+                detail="Evidence contains no extractable text.",
             )
 
         file_url = f"s3://{stored.bucket}/{stored.object_key}"

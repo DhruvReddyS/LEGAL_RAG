@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from enum import StrEnum
 
+from app.core.india_time import india_date
 from app.models.enums import OffenceGravity
 
 __all__ = [
@@ -142,7 +143,7 @@ def remand_summary(
     judicial = [p for p in periods if p.custody_type == "judicial"]
     used = sum(_days(p) for p in police)
     earliest = min((p.from_date for p in periods), default=None)
-    first = first_remand_at.date() if first_remand_at else earliest
+    first = india_date(first_remand_at) if first_remand_at else earliest
 
     findings: list[str] = []
     if used > POLICE_CUSTODY_LIMIT_DAYS:

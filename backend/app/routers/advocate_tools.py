@@ -19,6 +19,7 @@ from qdrant_client import models
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.india_time import india_today
 from app.agents.advocate_agents import build_verified_brief, compare_on_facts, with_user_facts
 from app.core.database import get_db_session
 from app.core.permissions import ADVOCATE_DEBATE_OWN, ADVOCATE_STRATEGY_OWN
@@ -128,7 +129,7 @@ async def assess_bail_routes(
 ) -> dict[str, Any]:
     routes = body.routes or list(BailRoute)
     facts = BailFacts(
-        as_of=body.as_of or datetime.now(timezone.utc).date(),
+        as_of=body.as_of or india_today(),
         **body.model_dump(
             exclude={"routes", "as_of", "offence_description", "include_authorities", "save"}
         ),
@@ -229,7 +230,7 @@ def _event_row(event: MatterCalendarEvent, today: date, case_title: str | None =
 @router.get("/advocate/calendar")
 async def calendar_across_cases(user: Advocate, session: Session) -> dict[str, Any]:
     """Every date in this advocate's own cases. Filtered by owner, not by role."""
-    today = datetime.now(timezone.utc).date()
+    today = india_today()
     rows = (
         await session.execute(
             select(MatterCalendarEvent, Case.title)
@@ -255,7 +256,7 @@ async def limitation_articles(_: Advocate) -> dict[str, Any]:
 
 @router.get("/cases/{case_id}/advocate/calendar")
 async def list_case_calendar(case_id: uuid.UUID, _: CaseOwner, session: Session) -> dict[str, Any]:
-    today = datetime.now(timezone.utc).date()
+    today = india_today()
     events = (
         await session.scalars(
             select(MatterCalendarEvent)
@@ -275,7 +276,7 @@ async def create_calendar_event(
     await session.flush()
     _audit(session, user, "calendar.create", case_id, event_id=str(event.id), kind=event.kind)
     await session.commit()
-    return _event_row(event, datetime.now(timezone.utc).date())
+    return _event_row(event, india_today())
 
 
 async def _case_event(session: AsyncSession, case_id: uuid.UUID, event_id: uuid.UUID) -> MatterCalendarEvent:
@@ -299,7 +300,7 @@ async def update_calendar_event(
     _audit(session, user, "calendar.update", case_id, event_id=str(event.id))
     await session.commit()
     await session.refresh(event)
-    return _event_row(event, datetime.now(timezone.utc).date())
+    return _event_row(event, india_today())
 
 
 @router.delete("/cases/{case_id}/advocate/calendar/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -340,7 +341,7 @@ async def calculate_limitation(
         )
         session.add(event)
         await session.flush()
-        event_payload = _event_row(event, datetime.now(timezone.utc).date())
+        event_payload = _event_row(event, india_today())
     _audit(session, user, "limitation.compute", case_id, article=body.article, saved=body.add_to_calendar)
     await session.commit()
     return {**result, "event": event_payload}

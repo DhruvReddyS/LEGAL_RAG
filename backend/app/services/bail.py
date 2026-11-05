@@ -24,6 +24,7 @@ from datetime import date, datetime, timedelta, timezone
 from enum import StrEnum
 from typing import Any
 
+from app.core.india_time import india_date
 from app.models.enums import OffenceGravity
 from app.services.advocate_provisions import PROVISIONS, provision_sources
 from app.services.investigation_timeline import (
@@ -300,7 +301,7 @@ def _default(facts: BailFacts) -> RouteFinding:
             provisions, forum=forum,
             missing=[deadline.undetermined_because],
         )
-    due = deadline.due_at.date()
+    due = india_date(deadline.due_at)
     days = 90 if gravity is OffenceGravity.DEATH_LIFE_OR_TEN_YEARS_OR_MORE else 60
     finding = RouteFinding(
         BailRoute.DEFAULT, label, RouteStatus.NOT_YET, "", provisions, forum=forum,

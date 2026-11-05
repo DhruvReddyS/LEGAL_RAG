@@ -27,6 +27,7 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.india_time import india_today
 from app.core.database import get_db_session
 from app.core.permissions import (
     ADMIN_USER_MANAGE,
@@ -886,7 +887,7 @@ async def _remand(session: AsyncSession, case_id: uuid.UUID) -> RemandResponse:
         [RemandPeriod(r.custody_type, r.from_date, r.to_date) for r in rows],
         first_remand_at=facts.first_remand_at if facts else None,
         gravity=facts.gravity if facts else OffenceGravity.UNKNOWN,
-        today=datetime.now(timezone.utc).date(),
+        today=india_today(),
     )
     return RemandResponse(
         periods=[RemandPeriodResponse.model_validate(r) for r in rows],
@@ -934,7 +935,7 @@ async def _diary(session: AsyncSession, case_id: uuid.UUID) -> DiaryResponse:
     )
     return DiaryResponse(
         entries=[DiaryEntryResponse.model_validate(r) for r in rows],
-        days_without_entry=diary_gaps([r.entry_date for r in rows], until=datetime.now(timezone.utc).date()),
+        days_without_entry=diary_gaps([r.entry_date for r in rows], until=india_today()),
     )
 
 
@@ -947,7 +948,7 @@ async def read_diary(case_id: uuid.UUID, _: Owner, session: Session) -> DiaryRes
 async def add_diary_entry(case_id: uuid.UUID, request: DiaryCreate, user: Owner, session: Session) -> DiaryResponse:
     """Appended, and numbered here. s.192(3) pagination is what makes a later insertion
     visible, so a caller does not get to choose the page."""
-    if request.entry_date > datetime.now(timezone.utc).date() + timedelta(days=1):
+    if request.entry_date > india_today() + timedelta(days=1):
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "A diary entry cannot be dated in the future")
     last = await session.scalar(select(func.max(PoliceDiaryEntry.page_no)).where(PoliceDiaryEntry.case_id == case_id))
     if request.corrects_page is not None and request.corrects_page > (last or 0):
