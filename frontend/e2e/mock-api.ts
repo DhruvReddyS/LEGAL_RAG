@@ -122,18 +122,17 @@ const ADMIN: Record<string, unknown> = {
   },
   "/admin/overview": {
     users_total: 5,
-    users_by_role: { citizen: 3, police: 1, advocate: 1 },
-    cases_total: 2,
-    indexed_documents: 1570,
-    collections: [],
-    recent_audit: [],
-    global_points: 120000,
-    canonical_documents: 1570,
-    validation_status: "pass",
+    police_active: 1,
+    advocates_active: 1,
+    staged_intakes: 0,
+    validated_intakes: 0,
+    published_intakes: 2,
+    audit_events: 40,
   },
+  "/admin/corpus/intakes": { intakes: [], total: 0 },
   "/admin/console/release": {
     serving_collection: "legal_kb_v5",
-    collections: { reachable: true, collections: [{ name: "legal_kb_v5", points: 120000, status: "green" }] },
+    collections: { reachable: true, collections: [{ name: "legal_kb_v5", points: 120000, status: "green" }, { name: "legal_kb_v6", points: 130000, status: "green" }] },
     evidence: [{ label: "v5", gates: [GATE], counts, all_passed: false, has_summary: true, updated_at: NOW, documents: ["SUMMARY.md"] }],
     decisions: [{
       id: uuid(20),
@@ -307,5 +306,5 @@ export async function mockApi(page: Page, options: MockOptions) {
 export async function openApp(page: Page, role: Role, extra: Partial<MockOptions> = {}) {
   await mockApi(page, { role, ...extra });
   await page.goto("/");
-  await page.getByRole("button", { name: "Settings" }).waitFor();
+  await page.getByLabel("Legal research question").waitFor();
 }

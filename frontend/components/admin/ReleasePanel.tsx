@@ -242,6 +242,7 @@ function DecisionCard({ state, evidence, onDone }: { state: ReleaseState; eviden
           <span>Collection</span>
           {candidates.length ? (
             <select className="field" value={target} onChange={event => setCollection(event.target.value)}>
+              {!target && <option value="">Nothing but the serving collection</option>}
               {candidates.map(name => <option key={name} value={name}>{name}</option>)}
             </select>
           ) : (

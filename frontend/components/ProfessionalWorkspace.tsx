@@ -168,7 +168,7 @@ export default function ProfessionalWorkspace({
   };
   const docLabel = (type: string) => type.split(/[_-]/).map((word) => word.toUpperCase() === "FIR" ? "FIR" : word).join(" ").replace(/^./, (c) => c.toUpperCase());
 
-  useEffect(() => { listCases().then((response) => { setCases(response.cases); setSelectedId(response.cases[0]?.id ?? ""); }).catch((error) => fail(errorText(error)));
+  useEffect(() => { listCases().then((response) => { setCases((current) => [...current.filter((item) => !response.cases.some((row) => row.id === item.id)), ...response.cases]); setSelectedId((current) => current || (response.cases[0]?.id ?? "")); }).catch((error) => fail(errorText(error)));
   // Loaded once per mount. onCasesChange is a setter and is deliberately not
   // a dependency: including it would refetch on every parent render.
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -176,7 +176,7 @@ export default function ProfessionalWorkspace({
 
   const makeCase = async () => {
     if (newTitle.trim().length < 3) return; setBusy("case"); setNotice(""); setFailed(false);
-    try { const created = await createCase(newTitle.trim()); setCases((current) => [created, ...current]); keepNoticeFor.current = created.id; setSelectedId(created.id); setNewTitle(""); setViewState("casefile"); setNotice("Case created. Only you can read the files you add to it."); }
+    try { const created = await createCase(newTitle.trim()); setCases((current) => [created, ...current.filter((item) => item.id !== created.id)]); keepNoticeFor.current = created.id; setSelectedId(created.id); setNewTitle(""); setViewState("casefile"); setNotice("Case created. Only you can read the files you add to it."); }
     catch (error) { fail(errorText(error)); } finally { setBusy(null); }
   };
   const search = async () => {
