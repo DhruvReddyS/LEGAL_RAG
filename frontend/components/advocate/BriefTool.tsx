@@ -4,7 +4,9 @@ import { FileText, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { listIndexedCaseDocuments } from "@/lib/api";
+import { briefBlocks } from "@/lib/advocate-presentation";
 import { createBrief } from "@/lib/api-advocate";
+import { docxFilename, saveDocx } from "@/lib/docx";
 import type { CaseDocumentSummary } from "@/lib/types";
 import type { BriefContent, WorkDetail } from "@/lib/types-advocate";
 import { CheckRows, ClaimList, ErrorLine, errorText, Notes } from "./shared";
@@ -15,6 +17,9 @@ export function BriefView({ work }: { work: WorkDetail<BriefContent> }) {
   return (
     <div className="adv-section">
       <h4 className="adv-heading">{content.kind === "synopsis" ? "Synopsis" : "Brief"}, version {work.version}</h4>
+      <div className="adv-actions">
+        <button type="button" className="draft-action" onClick={() => saveDocx(docxFilename(content.kind, work.version), briefBlocks(content, work.version))}><FileText size={13} aria-hidden="true" />Save as Word</button>
+      </div>
       <Notes items={[content.note, content.disclaimer]} />
       {content.partial_review && (
         <div className="adv-notice" role="note">

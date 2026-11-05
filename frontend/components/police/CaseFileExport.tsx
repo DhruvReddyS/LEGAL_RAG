@@ -1,10 +1,11 @@
 "use client";
 
-import { Download, FileOutput, Loader2, Printer } from "lucide-react";
+import { Download, FileOutput, FileText, Loader2, Printer } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { errorText, ErrorNote } from "@/components/police/shared";
 import { getAccessLog, getCaseFile } from "@/lib/api-police";
+import { htmlToBlocks, saveDocx } from "@/lib/docx";
 import { formatMoment } from "@/lib/police-presentation";
 import type { CaseFile } from "@/lib/types-police";
 
@@ -54,6 +55,7 @@ export function CaseFileExport({ caseId }: { caseId: string }) {
           <div className="police-row-actions">
             <button type="button" className="police-mini" onClick={print}><Printer size={13} aria-hidden="true" />Print or save as PDF</button>
             <button type="button" className="police-mini" onClick={save}><Download size={13} aria-hidden="true" />Save the HTML</button>
+            <button type="button" className="police-mini" onClick={() => saveDocx(`case-file-${file.generated_at.slice(0, 10)}.docx`, htmlToBlocks(file.html))}><FileText size={13} aria-hidden="true" />Save as Word</button>
             <span className="police-note">Compiled {formatMoment(file.generated_at)}.</span>
           </div>
           {file.missing_sections.length > 0 && (

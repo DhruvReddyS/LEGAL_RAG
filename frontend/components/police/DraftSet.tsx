@@ -5,6 +5,7 @@ import { type FormEvent, useCallback, useEffect, useState } from "react";
 
 import { errorText, ErrorNote, Field, Loading } from "@/components/police/shared";
 import { createDraft, listDrafts, listSearches, readDraft } from "@/lib/api-police";
+import { docxFilename, saveDocx, textToBlocks } from "@/lib/docx";
 import { DRAFT_FIELDS, DRAFT_TITLES, draftForClipboard, formatMoment } from "@/lib/police-presentation";
 import type { DraftSummary, DraftType, PoliceDraft, SearchRecordRow } from "@/lib/types-police";
 
@@ -33,6 +34,7 @@ function DraftView({ draft }: { draft: PoliceDraft }) {
         <span className="ml-auto flex flex-wrap gap-1.5">
           <button type="button" className="police-mini" onClick={() => void copy()}>{copied ? <Check size={13} aria-hidden="true" /> : <ClipboardCopy size={13} aria-hidden="true" />}{copied ? "Copied" : "Copy"}</button>
           <button type="button" className="police-mini" onClick={save}><Download size={13} aria-hidden="true" />Save</button>
+          <button type="button" className="police-mini" onClick={() => saveDocx(docxFilename(`DRAFT-${draft.draft_type}`, draft.version), textToBlocks(text))}><FileText size={13} aria-hidden="true" />Save as Word</button>
         </span>
       </div>
       <ErrorNote message={error} />
