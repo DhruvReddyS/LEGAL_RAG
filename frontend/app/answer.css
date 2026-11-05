@@ -53,6 +53,17 @@
 .legal-note {max-width:none;margin-top:18px;padding:12px 14px;border:1px solid var(--border);border-left:1px solid var(--border);border-radius:10px;background:transparent;}
 .section-grading {max-width:none;margin:0 0 18px;}
 
+/* Boxes take the column's width; running text keeps its measure. */
+.answer-body {max-width:none;}
+.answer-body > p,.answer-body > ul,.answer-body > ol {max-width:68ch;}
+.theme-choice i {border-color:var(--ink-soft);}
+.confidence-pill::after {content:"ⓘ";margin-left:4px;opacity:.65;}
+.section-grading > summary {display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:38px;}
+.section-grading > summary::after {content:"";flex:none;width:7px;height:7px;margin-right:3px;border-right:1.5px solid var(--ink-soft);border-bottom:1.5px solid var(--ink-soft);transform:rotate(45deg) translate(-2px,-2px);transition:transform .15s;}
+.section-grading[open] > summary::after {transform:rotate(225deg) translate(-2px,-2px);}
+.answer-error {padding:12px 15px;border:1px solid var(--state-bad-line);border-radius:10px;background:var(--state-bad-bg);color:var(--ink);}
+.answer-error button {min-height:32px;margin-top:6px;color:var(--state-bad-text);text-underline-offset:3px;}
+
 /* ------------------------------------------------------------- the source panel */
 .source-preview {position:fixed;z-index:70;top:0;right:0;bottom:0;width:min(440px,100%);max-height:none;margin:0;padding:22px 24px 28px;overflow:auto;border:0;border-left:1px solid var(--border);border-radius:0;background:var(--card);box-shadow:-18px 0 50px #00000018;font-size:14px;line-height:1.7;animation:panel-in .18s ease-out;}
 .source-preview .preview-close {position:absolute;right:12px;top:12px;}
