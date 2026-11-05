@@ -173,7 +173,7 @@ const ADVOCATE_TABS: CaseTab[] = [
     key: "dates",
     label: "Dates",
     icon: CalendarClock,
-    tools: [{ key: "calendar", label: "Dates", title: "Hearings and limitation", blurb: "Hearings, limitation and filing dates for this case, and a limitation calculator. A wrong date can lose a case, so check what it computes.", render: ({ caseId, caseTitle }) => <CalendarTool caseId={caseId} caseTitle={caseTitle} /> }],
+    tools: [{ key: "calendar", label: "Dates", title: "Hearings and limitation", blurb: "Hearings, limitation and filing dates for this case, and a limitation calculator. A wrong date can lose a case, so check what it computes.", render: ({ caseId, caseTitle }) => <CalendarTool caseId={caseId} caseTitle={caseTitle} showAcross={false} /> }],
   },
   {
     key: "strategy",

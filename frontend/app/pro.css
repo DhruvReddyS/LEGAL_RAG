@@ -212,8 +212,8 @@
 .pro-steps li.is-done a strong { color: var(--ink-soft); }
 /* The older case blocks, when they sit inside the overview. They keep their actions, but
    the screen keeps one primary, so theirs read as ordinary buttons here. */
-.pro-overview-main .case-block .button-primary { border: 1px solid var(--border); background: var(--card); color: var(--ink); font-weight: 500; padding: 7px 13px; border-radius: 8px; }
-.pro-overview-main .case-block .button-primary:hover { background: var(--hover); opacity: 1; }
+.pro-app .pro-overview-main .case-block .button-primary { border: 1px solid var(--border); background: var(--card); color: var(--ink); font-weight: 500; padding: 7px 13px; border-radius: 8px; }
+.pro-app .pro-overview-main .case-block .button-primary:hover { background: var(--hover); opacity: 1; }
 .pro-overview-main .case-block { padding: 16px 18px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); margin: 0; }
 
 /* Tool panels */
@@ -277,6 +277,8 @@
 .pro-law { padding: 30px 24px 56px; min-width: 0; }
 .pro-law .law-back { display: none; }
 
+.pro-foot { max-width: 1160px; margin: 0 auto; padding: 0 40px 24px; color: var(--ink-soft); font-size: 12px; }
+
 /* Dialog */
 .pro-dialog { width: 100%; max-width: 460px; padding: 20px 22px; border: 1px solid var(--border); border-radius: 12px; background: var(--paper); box-shadow: 0 18px 60px #00000033; }
 .pro-dialog-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
@@ -295,6 +297,7 @@
   .pro-topbar .pro-role-chip { align-self: center; margin: 0; }
   .pro-page { padding: 20px 16px 44px; }
   .pro-strip { padding: 9px 16px; }
+  .pro-foot { padding: 0 16px 20px; }
   .pro-case-head { padding: 8px 16px 0; }
   .pro-case-body { padding: 16px 16px 44px; }
   .pro-case-body.has-tools { grid-template-columns: minmax(0, 1fr); gap: 14px; }
@@ -335,3 +338,8 @@
   .pro-select { flex: 1 1 140px; }
   .pro-select select { flex: 1; max-width: none; }
 }
+
+/* The tool panels' own primary buttons take the role's colour, so a screen reads as one piece. */
+.pro-app .button-primary { background: var(--pro-accent); color: var(--paper); }
+:root[data-theme="ink"] .pro-app .button-primary { color: #1a1b1a; }
+:root[data-theme="ink"] .pro-app .pro-overview-main .case-block .button-primary { color: var(--ink); }

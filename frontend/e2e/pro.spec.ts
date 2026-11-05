@@ -210,6 +210,32 @@ test("the advocate tools are all reachable, and each names itself", async ({ pag
   await expect(page.getByRole("heading", { level: 2, name: "Hearings and limitation" })).toBeVisible();
 });
 
+test("a case's Dates tab shows that case's dates and no other's", async ({ page }) => {
+  await openPro(page, "advocate", caseUrl(CASE_ID, "&tab=dates"));
+  await expect(page.getByRole("heading", { level: 2, name: "Hearings and limitation" })).toBeVisible();
+  await expect(page.getByText("Arguments on bail")).toBeVisible();
+  await expect(page.locator("body")).not.toContainText("Framing of charges");
+});
+
+test("each chat is listed under its own scope, and opens there", async ({ page }) => {
+  const row = (id: string, title: string, caseId: string | null) => ({ id, title, updated_at: "2026-11-05T09:00:00Z", last_message_preview: null, message_count: 2, case_id: caseId, pinned: false, matter: null });
+  const lawChat = row(SESSION_ID, "A law-only chat", null);
+  const caseChat = row(MESSAGE_ID, "A chat about the case", CASE_ID);
+  await openPro(page, "police", "/?s=research", {
+    overrides: {
+      "GET /history/sessions": (route: Route) => json(route, { items: [lawChat, caseChat], next_cursor: null }),
+      [`GET /chat/sessions/${MESSAGE_ID}`]: (route: Route) => json(route, { id: MESSAGE_ID, title: caseChat.title, case_id: CASE_ID, messages: [{ id: "00000000-0000-4000-8000-000000000098", role: "user", content: "Asked inside the case", citations: [], confidence_score: null, created_at: "2026-11-05T09:00:00Z" }] }),
+    },
+  });
+  await expect(page.getByRole("button", { name: "A law-only chat", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "A chat about the case", exact: true })).toHaveCount(0);
+  await page.goto(caseUrl(CASE_ID));
+  await page.locator("[aria-labelledby='ov-chats']").getByRole("button", { name: /A chat about the case/ }).click();
+  await expect(page).toHaveURL(/tab=ask/);
+  await expect(page.getByText("Asked inside the case")).toBeVisible();
+  await expect(page.getByRole("button", { name: "A law-only chat", exact: true })).toHaveCount(0);
+});
+
 test("a supervisor gets the unit, and an officer does not", async ({ page }) => {
   await openPro(page, "police");
   await expect(nav(page).getByRole("link", { name: "Dashboard" })).toBeVisible();
@@ -245,8 +271,10 @@ test("the keyboard moves through the navigation and into a case", async ({ page 
   await expect(page.getByRole("heading", { level: 1, name: "State v. Test" })).toBeVisible();
   // Arriving moves the keyboard to the new screen.
   await expect(page.locator("#pro-main")).toBeFocused();
-  const ring = await page.getByRole("link", { name: "Timeline" }).evaluate((node) => { (node as HTMLElement).focus(); return getComputedStyle(node).outlineStyle; });
-  expect(ring).toBeTruthy();
+  await page.keyboard.press("Tab");
+  const focused = page.locator(":focus");
+  await expect(focused).toHaveRole("link");
+  expect(await focused.evaluate((node) => getComputedStyle(node).outlineStyle)).toBe("solid");
 });
 
 test.describe("a Deep review keeps its place", () => {

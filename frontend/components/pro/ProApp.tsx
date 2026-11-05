@@ -75,6 +75,17 @@ function NewCaseDialog({ onClose }: { onClose: () => void }) {
   );
 }
 
+function NavItem({ to, icon: Icon, label, badge, onClose }: { to: ProRoute; icon: typeof Search; label: string; badge?: number; onClose: () => void }) {
+  const { route } = usePro();
+  return (
+    <ProLink to={to} className="pro-nav-item" current={route.section === to.section || (to.section === "cases" && route.section === "case")} onNavigate={onClose}>
+      <Icon size={17} strokeWidth={1.7} aria-hidden="true" />
+      <span className="min-w-0 flex-1 truncate">{label}</span>
+      {!!badge && <b className="pro-nav-badge" aria-label={`${badge} overdue`}>{badge}</b>}
+    </ProLink>
+  );
+}
+
 function Navigation({ onSettings, onSearchChats, onClose, closeRef, supervises }: {
   onSettings: () => void;
   onSearchChats: () => void;
@@ -86,13 +97,6 @@ function Navigation({ onSettings, onSearchChats, onClose, closeRef, supervises }
   const counts = useMemo(() => countBuckets(due), [due]);
   const urgent = counts.act_now;
   const openCase = route.section === "case" ? cases.find((item) => item.id === route.caseId) : undefined;
-  const Item = ({ to, icon: Icon, label, badge }: { to: ProRoute; icon: typeof Search; label: string; badge?: number }) => (
-    <ProLink to={to} className="pro-nav-item" current={route.section === to.section || (to.section === "cases" && route.section === "case")} onNavigate={onClose}>
-      <Icon size={17} strokeWidth={1.7} aria-hidden="true" />
-      <span className="min-w-0 flex-1 truncate">{label}</span>
-      {!!badge && <b className="pro-nav-badge" aria-label={`${badge} overdue`}>{badge}</b>}
-    </ProLink>
-  );
   return (
     <>
       <div className="pro-brand">
@@ -101,22 +105,22 @@ function Navigation({ onSettings, onSearchChats, onClose, closeRef, supervises }
       </div>
       <p className="pro-role-chip">{isPolice ? "Police" : "Advocate"}</p>
       <nav aria-label="Main sections" className="pro-nav">
-        <Item to={{ section: "dashboard" }} icon={LayoutDashboard} label="Dashboard" />
-        <Item to={{ section: "cases" }} icon={isPolice ? Fingerprint : BriefcaseBusiness} label={nounPlural} />
+        <NavItem onClose={onClose} to={{ section: "dashboard" }} icon={LayoutDashboard} label="Dashboard" />
+        <NavItem onClose={onClose} to={{ section: "cases" }} icon={isPolice ? Fingerprint : BriefcaseBusiness} label={nounPlural} />
         {openCase && (
           <ProLink to={{ section: "case", caseId: openCase.id, tab: route.tab, tool: route.tool }} className="pro-nav-open" current onNavigate={onClose}>
             <span className="truncate">{openCase.title}</span>
           </ProLink>
         )}
-        <Item to={{ section: "deadlines" }} icon={CalendarClock} label={isPolice ? "Deadlines" : "Calendar"} badge={urgent} />
-        <Item to={{ section: "drafts" }} icon={FileText} label="Drafts" />
-        <Item to={{ section: "research" }} icon={MessageSquare} label="Research" />
-        <Item to={{ section: "law" }} icon={BookOpenText} label="Law lookup" />
-        {supervises && <Item to={{ section: "unit" }} icon={Eye} label="Unit supervision" />}
+        <NavItem onClose={onClose} to={{ section: "deadlines" }} icon={CalendarClock} label={isPolice ? "Deadlines" : "Calendar"} badge={urgent} />
+        <NavItem onClose={onClose} to={{ section: "drafts" }} icon={FileText} label="Drafts" />
+        <NavItem onClose={onClose} to={{ section: "research" }} icon={MessageSquare} label="Research" />
+        <NavItem onClose={onClose} to={{ section: "law" }} icon={BookOpenText} label="Law lookup" />
+        {supervises && <NavItem onClose={onClose} to={{ section: "unit" }} icon={Eye} label="Unit supervision" />}
       </nav>
       <div className="pro-nav-bottom">
         <button type="button" className="pro-nav-item" onClick={() => { onClose(); onSearchChats(); }}><Search size={17} strokeWidth={1.7} aria-hidden="true" /><span>Search chats</span></button>
-        <Item to={{ section: "help" }} icon={CircleHelp} label="Help" />
+        <NavItem onClose={onClose} to={{ section: "help" }} icon={CircleHelp} label="Help" />
         <button type="button" className="pro-nav-item" onClick={() => { onClose(); onSettings(); }}>
           <Settings size={17} strokeWidth={1.7} aria-hidden="true" />
           <span className="min-w-0 flex-1 truncate">Settings</span>
@@ -304,6 +308,7 @@ export default function ProApp({ user, route, navigate, chats, onCasesChange, on
             {route.section === "unit" && <UnitScreen units={units} />}
             {route.section === "help" && <HelpScreen />}
           </div>
+          <p className="pro-foot">Information for your professional review, not legal advice.</p>
           {/* REMINDERS SLOT: browser reminders mount here, once, for the whole signed-in app. */}
         </div>
         {newCase && <NewCaseDialog onClose={() => setNewCase(false)} />}
