@@ -46,6 +46,89 @@ test.describe("a Fast answer", () => {
   });
 });
 
+test.describe("a Fast source list", () => {
+  const LONG = "Every information relating to the commission of a cognizable offence may be given orally. ".repeat(6).trim();
+  const BRIEF = {
+    ...ANSWER,
+    answer: "Fast evidence brief — the following governed corpus passages are the closest authorities located. This mode prioritises source inspection and does not synthesise a final legal opinion.\n\n1. A passage [Source 1]",
+    citations: [
+      { ...CITATION, act_name: "Bharatiya Nagarik Suraksha Sanhita, 2023", excerpt: LONG, source_url: "https://example.test/bnss.pdf", verification_status: "unverified" },
+      { ...CITATION, number: 2, chunk_id: "chunk-2", title: "The Code of Criminal Procedure, 1973", section: "154", page_start: 88, page_end: 88, current_status: "repealed", repeal_label: "no_longer_in_force", replaced_by: "Bharatiya Nagarik Suraksha Sanhita, 2023", verification_status: "unverified" },
+    ],
+  };
+
+  test("sets out sources from the citations, without the preamble, and says they are unverified", async ({ page }) => {
+    await openApp(page, "citizen", { overrides: { "POST /chat/query": (route: Route) => json(route, BRIEF) } });
+    await ask(page, "A question");
+    const answer = page.locator(".assistant-message");
+    await expect(answer.getByText("Quick source lookup")).toBeVisible();
+    await expect(answer.getByText("Not verified")).toBeVisible();
+    await expect(answer).not.toContainText("Fast evidence brief");
+    await expect(answer.getByText("Verified against sources")).toHaveCount(0);
+
+    const cards = answer.locator(".fast-card");
+    await expect(cards).toHaveCount(2);
+    await expect(cards.nth(0).getByRole("heading")).toContainText("Section 173");
+    await expect(cards.nth(0).getByRole("heading")).toContainText("Bharatiya Nagarik Suraksha Sanhita, 2023");
+    await expect(cards.nth(0).getByText("Marked current")).toBeVisible();
+    await expect(cards.nth(1).locator(".answer-badge")).toHaveText("No longer in force");
+    await expect(cards.nth(1)).toContainText("Replaced by Bharatiya Nagarik Suraksha Sanhita, 2023");
+    await expect(cards.nth(1)).toContainText("Page 88");
+    await expect(cards.nth(0).getByRole("link", { name: "Open source" })).toHaveAttribute("href", "https://example.test/bnss.pdf");
+  });
+
+  test("collapses a long passage until asked, and opens the source panel by keyboard", async ({ page }) => {
+    await openApp(page, "citizen", { overrides: { "POST /chat/query": (route: Route) => json(route, BRIEF) } });
+    await ask(page, "A question");
+    const card = page.locator(".fast-card").first();
+    const toggle = card.getByRole("button", { name: "Show full passage" });
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await expect(card.locator(".fast-excerpt")).toHaveClass(/is-collapsed/);
+    await toggle.click();
+    await expect(card.locator(".fast-excerpt")).not.toHaveClass(/is-collapsed/);
+
+    const details = card.getByRole("button", { name: /Preview source 1/ });
+    await details.focus();
+    await page.keyboard.press("Enter");
+    const panel = page.getByRole("region", { name: "Source preview" });
+    await expect(panel).toContainText("Pages 52–53");
+    await expect(page.getByRole("button", { name: "Close source preview" })).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(panel).toHaveCount(0);
+    await expect(details).toBeFocused();
+  });
+
+  test("asks for a full verified answer in one click, leaving the mode picker alone", async ({ page }) => {
+    const modes: string[] = [];
+    await openApp(page, "citizen", {
+      overrides: {
+        "POST /chat/query": (route: Route) => {
+          const mode = route.request().postDataJSON().response_mode as string;
+          modes.push(mode);
+          return json(route, mode === "deep" ? { ...ANSWER, answer: "The verified review. [Source 1]", response_mode: "deep" } : BRIEF);
+        },
+      },
+    });
+    await ask(page, "A question");
+    await page.getByRole("button", { name: "Get a full verified answer" }).click();
+    await expect(page.getByText("Verified against sources")).toBeVisible();
+    await expect(page.locator(".assistant-message").last()).toContainText("The verified review.");
+    expect(modes).toEqual(["auto", "deep"]);
+    await expect(page.locator(".user-message").last()).toContainText("A question");
+  });
+});
+
+test("a refusal is set out as a decision, with the system's own words", async ({ page }) => {
+  const words = "I could not find enough reliable support in the indexed legal corpus for this answer.";
+  await openApp(page, "citizen", { overrides: { "POST /chat/query": (route: Route) => json(route, { ...ANSWER, answer: words, citations: [], evidence_strength: "insufficient", confidence_score: 0 }) } });
+  await ask(page, "A question");
+  const card = page.locator(".decline-card");
+  await expect(card.getByRole("heading")).toHaveText("More evidence is needed.");
+  await expect(card).toContainText(words);
+  await expect(card).toContainText("not advice");
+  await expect(page.locator("main, .auth-shell").getByRole("alert")).toHaveCount(0);
+});
+
 test("the chat shell follows the chosen language; the answer stays in English", async ({ page }) => {
   await openApp(page, "citizen");
   await page.getByRole("button", { name: "हिन्दी" }).click();

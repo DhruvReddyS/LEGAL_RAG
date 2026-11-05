@@ -368,7 +368,7 @@ html[data-low-bandwidth="on"] *,html[data-low-bandwidth="on"] *::before,html[dat
   body[data-printing="answer"] * {visibility:hidden;}
   body[data-printing="answer"] .print-target,body[data-printing="answer"] .print-target * {visibility:visible;}
   body[data-printing="answer"] .print-target {position:absolute;left:0;top:0;width:100%;}
-  body[data-printing="answer"] .print-target .answer-byline .corpus-signature::after {content:"il research note";}
+  body[data-printing="answer"] .print-target .answer-byline .corpus-signature::after {content:" research note";}
   .doc {max-width:none;padding:0;}
   .cover,.closing {background:#fff;color:#111;}
   .cover h1,.cover-lede,.cover h1 em {color:#111;}

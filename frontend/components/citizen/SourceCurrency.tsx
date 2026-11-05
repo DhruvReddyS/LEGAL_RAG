@@ -5,7 +5,7 @@ import type { AgentCitation } from "@/lib/types";
 import { useCitizenLang } from "./useCitizenLang";
 
 /** F11: what replaced this source, shown where the legal note sends the reader. */
-export default function SourceCurrency({ source, citizen = false }: { source: AgentCitation; citizen?: boolean }) {
+export default function SourceCurrency({ source, citizen = false, link = true }: { source: AgentCitation; citizen?: boolean; link?: boolean }) {
   const { t } = useCitizenLang(citizen);
   const view = currencyView(source);
   const url = safeSourceUrl(source.source_url);
@@ -29,6 +29,6 @@ export default function SourceCurrency({ source, citizen = false }: { source: Ag
         {view.pendingReview && <p>{t("sourcePendingReview")}</p>}
       </div>
     </div>}
-    {url && <a className="ctz-source-link" href={url} target="_blank" rel="noreferrer">{t("openOfficialSource")}<ArrowUpRight size={13} aria-hidden="true"/></a>}
+    {link && url && <a className="ctz-source-link" href={url} target="_blank" rel="noreferrer">{t("openOfficialSource")}<ArrowUpRight size={13} aria-hidden="true"/></a>}
   </>;
 }

@@ -5,7 +5,7 @@ const ts = require('typescript');
 const vm = require('node:vm');
 const moduleScope = { exports: {} };
 vm.runInNewContext(ts.transpileModule(fs.readFileSync('lib/answer-presentation.ts', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText, moduleScope);
-const { presentAnswer, legalCategory } = moduleScope.exports;
+const { presentAnswer, legalCategory, isFastBrief, sourceHeading, sourceStanding, deepStageIndex } = moduleScope.exports;
 
 test('no verdict is inferred from the wording of the answer', () => {
   // The renderer must not promote the model's first word to a legal finding.
@@ -125,4 +125,41 @@ test('legal category routing', () => {
   assert.equal(legalCategory('explain Article 14'), 'Constitutional law');
   assert.equal(legalCategory('what is a valid agreement'), 'Contract law');
   assert.equal(legalCategory('how do I read a statute'), 'Legal research');
+});
+
+test('a Fast brief is recognised by its opening sentence, and only by it', () => {
+  assert.equal(isFastBrief('Fast evidence brief — the following governed corpus passages'), true);
+  assert.equal(isFastBrief('Information may be given orally [Source 1].'), false);
+});
+
+test('a source is named by Act and section, without doubling the label', () => {
+  const base = { title: 'The Code of Criminal Procedure, 1973', act_name: 'Code of Criminal Procedure, 1973' };
+  assert.equal(sourceHeading({ ...base, section: 'Section 154' }).section, '154');
+  assert.equal(sourceHeading({ ...base, section: '154' }).sectionIsNumber, true);
+  assert.equal(sourceHeading({ ...base, section: 'Article 14' }).sectionIsNumber, false);
+  assert.equal(sourceHeading({ ...base, section: null }).section, null);
+  assert.equal(sourceHeading(base).detail, null);
+  assert.equal(sourceHeading({ title: 'A circular', act_name: 'Some Act, 1999' }).detail, 'A circular');
+});
+
+test('where a source stands comes from its labels, and an unknown is not a pass', () => {
+  assert.equal(sourceStanding({ title: 'x', current_status: 'current' }).tone, 'ok');
+  assert.equal(sourceStanding({ title: 'x', current_status: 'current', repeal_label: 'no_longer_in_force' }).tone, 'bad');
+  // An operative document citing a moved section is still in force: a warning, not a repeal.
+  assert.equal(sourceStanding({ title: 'x', current_status: 'current', repeal_label: 'concerns_repealed_provision' }).tone, 'warn');
+  assert.equal(sourceStanding({ title: 'x', current_status: 'status_unverified' }).tone, 'plain');
+  assert.equal(sourceStanding({ title: 'x' }).tone, 'plain');
+});
+
+test('each stage the job reports lands on its step of the wait', () => {
+  // Mirrors DEEP_STAGE_LABELS in backend/app/services/job_worker.py.
+  assert.equal(deepStageIndex(null), 0);
+  assert.equal(deepStageIndex('Preparing your question'), 0);
+  assert.equal(deepStageIndex('Understanding your question'), 0);
+  assert.equal(deepStageIndex('Searching the legal corpus'), 0);
+  assert.equal(deepStageIndex('Searching again for better authority'), 0);
+  assert.equal(deepStageIndex('Working through the law that applies'), 1);
+  assert.equal(deepStageIndex('Checking every statement against its source'), 2);
+  assert.equal(deepStageIndex('Writing your answer'), 3);
+  assert.equal(deepStageIndex('Waiting in line, position 2'), -1);
 });

@@ -283,6 +283,39 @@ export const UI = {
   chatNotLoaded: l("This conversation could not be loaded. Check your connection and try again.", "यह बातचीत लोड नहीं हुई। कनेक्शन जाँचकर फिर कोशिश करें।", "ఈ సంభాషణ లోడ్ కాలేదు. కనెక్షన్ చూసి మళ్లీ ప్రయత్నించండి."),
   jobNotFollowed: l("Progress on this review could not be followed. It may still finish: reopen this chat shortly.", "इस समीक्षा की प्रगति नहीं देखी जा सकी। यह फिर भी पूरी हो सकती है: थोड़ी देर बाद यह चैट खोलें।", "ఈ సమీక్ష పురోగతిని చూడలేకపోయాం. అయినా ఇది పూర్తి కావచ్చు: కొద్దిసేపటి తర్వాత ఈ చాట్ తెరవండి."),
 
+  // Chat: a Fast source list
+  fastKicker: l("Quick source lookup", "त्वरित स्रोत खोज", "త్వరిత మూలాల శోధన"),
+  fastUnverified: l("Not verified", "जाँचा नहीं गया", "సరిచూడలేదు"),
+  fastNote: l("The closest passages a quick search found. No statement has been checked against them, so treat this as a place to start reading, not as an answer.", "त्वरित खोज में मिले सबसे नज़दीकी अंश। किसी भी कथन को इनसे जाँचा नहीं गया है, इसलिए इन्हें उत्तर नहीं, पढ़ने की शुरुआत मानें।", "త్వరిత శోధనలో దొరికిన దగ్గరి భాగాలు. ఏ వాక్యాన్నీ వీటితో సరిచూడలేదు, కాబట్టి వీటిని సమాధానంగా కాక చదవడానికి ఆరంభంగా చూడండి."),
+  fastAskDeep: l("Get a full verified answer", "पूरा जाँचा हुआ उत्तर लें", "పూర్తి, సరిచూసిన సమాధానం పొందండి"),
+  fastAskDeepHint: l("Checks each claim against its source. Usually a minute or more.", "हर कथन को उसके स्रोत से जाँचता है। आमतौर पर एक मिनट या अधिक।", "ప్రతి వాక్యాన్ని దాని మూలంతో సరిచూస్తుంది. సాధారణంగా ఒక నిమిషం లేదా ఎక్కువ."),
+  fastShowMore: l("Show full passage", "पूरा अंश दिखाएँ", "పూర్తి భాగం చూపండి"),
+  fastShowLess: l("Show less", "कम दिखाएँ", "తక్కువ చూపండి"),
+  singlePage: l("Page", "पृष्ठ", "పేజీ"),
+  fastDetails: l("Details", "विवरण", "వివరాలు"),
+  fastOpenSource: l("Open source", "स्रोत खोलें", "మూలం తెరవండి"),
+  // Chat: where a source stands
+  currencyCurrent: l("Marked current", "वर्तमान के रूप में दर्ज", "ప్రస్తుతమైనదిగా నమోదు"),
+  currencyMoved: l("Cites moved provisions", "बदली धाराओं का हवाला", "మారిన సెక్షన్ల ప్రస్తావన"),
+  currencyRepealed: l("Repealed", "निरस्त", "రద్దయింది"),
+  currencySuperseded: l("Superseded", "प्रतिस्थापित", "భర్తీ అయింది"),
+  currencyUnknown: l("Status not confirmed", "स्थिति की पुष्टि नहीं", "స్థితి నిర్ధారణ కాలేదు"),
+  // Chat: a verified answer
+  verifiedTitle: l("Verified against sources", "स्रोतों से जाँचा गया", "మూలాలతో సరిచూశారు"),
+  verifiedDetail: l("Each statement was checked by the system against the passage it cites. Open a source to read it yourself.", "हर कथन को सिस्टम ने उसके उद्धृत अंश से जाँचा है। स्वयं पढ़ने के लिए स्रोत खोलें।", "ప్రతి వాక్యాన్ని వ్యవస్థ అది ఉదహరించిన భాగంతో సరిచూసింది. మీరే చదవడానికి మూలం తెరవండి."),
+  sourceChecked: l("Source checked", "स्रोत जाँचा गया", "మూలం సరిచూశారు"),
+  sourcePartial: l("Partly checked", "आंशिक रूप से जाँचा गया", "పాక్షికంగా సరిచూశారు"),
+  // Chat: declining to answer
+  declinedEvidenceTitle: l("More evidence is needed.", "और प्रमाण चाहिए।", "మరిన్ని ఆధారాలు అవసరం."),
+  declinedEvidenceWhy: l("Corpusil answers only when the law it holds supports the answer, and it would rather say so than guess. Naming the Act or section, or adding facts, can help.", "Corpusil तभी उत्तर देता है जब उसके पास मौजूद क़ानून उत्तर का समर्थन करे, और अनुमान लगाने के बजाय यह बता देता है। अधिनियम या धारा का नाम, या और तथ्य जोड़ने से मदद मिल सकती है।", "Corpusil తన దగ్గర ఉన్న చట్టం సమాధానానికి ఆధారం ఇచ్చినప్పుడే జవాబిస్తుంది, ఊహించడం కంటే ఆ విషయం చెప్పేస్తుంది. చట్టం లేదా సెక్షన్ పేరు, లేదా మరిన్ని వివరాలు చెప్పడం సహాయపడవచ్చు."),
+  declinedScopeTitle: l("Outside what Corpusil covers", "Corpusil के दायरे से बाहर", "Corpusil పరిధికి వెలుపల"),
+  declinedScopeWhy: l("Corpusil answers questions about Indian law from the documents it holds, so it has nothing to cite here.", "Corpusil अपने पास मौजूद दस्तावेज़ों से भारतीय क़ानून के प्रश्नों का उत्तर देता है, इसलिए यहाँ उद्धृत करने को कुछ नहीं है।", "Corpusil తన దగ్గర ఉన్న పత్రాల నుంచి భారతీయ చట్టం గురించిన ప్రశ్నలకు జవాబిస్తుంది, కాబట్టి ఇక్కడ ఉదహరించడానికి ఏమీ లేదు."),
+  // Chat: the stages of the wait
+  stageSearch: l("Searching the legal corpus", "क़ानूनी संग्रह में खोज", "న్యాయ సేకరణలో శోధన"),
+  stageRead: l("Reading what it found", "मिले हुए अंश पढ़ना", "దొరికిన భాగాలు చదవడం"),
+  stageCheck: l("Checking each claim against its source", "हर कथन को उसके स्रोत से जाँचना", "ప్రతి వాక్యాన్ని దాని మూలంతో సరిచూడడం"),
+  stageWrite: l("Writing the answer", "उत्तर लिखना", "సమాధానం రాయడం"),
+
   // Chat: an answer
   tryAgain: l("Try again", "फिर कोशिश करें", "మళ్లీ ప్రయత్నించండి"),
   sourcesLabel: l("Sources", "स्रोत", "మూలాలు"),

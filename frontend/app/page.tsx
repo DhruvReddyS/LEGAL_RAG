@@ -402,7 +402,7 @@ export default function HomePage() {
     jobProgress: view.progress,
   } : message));
 
-  const submit = async (query: string, documents: CitizenDocument[] = [], regenerate = false, editIndex?: number, fresh = false) => {
+  const submit = async (query: string, documents: CitizenDocument[] = [], regenerate = false, editIndex?: number, fresh = false, modeOverride?: RequestedResponseMode) => {
     // `fresh` starts a new conversation in the same tick as resetResearch, whose state
     // updates this closure cannot see yet: it must not append to the old conversation.
     if (!query.trim() || (loading && activeRequest.current) || !user) return;
@@ -420,14 +420,14 @@ export default function HomePage() {
     if (branchIndex >= 0) setSessionId(null);
     const agentLabel = user.role === "police" ? "Police Procedure Research Agent" : user.role === "advocate" ? "Advocate Authority Research Agent" : "Citizen Legal Navigator";
     const availableDocuments = documents.filter(document => document.pages.length > 0);
-    setMessages([...baseMessages, { ...newMessage("user", query.trim()), documents: availableDocuments }, { id: assistantId, role: "assistant", content: "", timestamp: Date.now(), loading: true, requestedMode: availableDocuments.length ? "deep" : responseMode, agentLabel, documents: availableDocuments, category: legalCategory(query) }]);
+    setMessages([...baseMessages, { ...newMessage("user", query.trim()), documents: availableDocuments }, { id: assistantId, role: "assistant", content: "", timestamp: Date.now(), loading: true, requestedMode: availableDocuments.length ? "deep" : modeOverride ?? responseMode, agentLabel, documents: availableDocuments, category: legalCategory(query) }]);
     setLoading(true);
     // Not awaited: the notice should appear at once, while the answer is still being written.
     if (user.role === "citizen") void checkForHelplines(query.trim()).then(contacts => {
       if (contacts.length) setMessages(current => current.map(message => message.id === assistantId ? { ...message, helplines: contacts } : message));
     });
     try {
-      const response = await chatWithCorpus(query.trim(), targetSession, availableDocuments.length ? "deep" : responseMode, availableDocuments, operation.controller.signal, priorMessages, chatCaseId);
+      const response = await chatWithCorpus(query.trim(), targetSession, availableDocuments.length ? "deep" : modeOverride ?? responseMode, availableDocuments, operation.controller.signal, priorMessages, chatCaseId);
       if (operation.controller.signal.aborted) return;
       setSessionId(response.session_id);
       if (response.delivery_state === "searching_more_thoroughly" && response.job_id) {
@@ -696,7 +696,7 @@ export default function HomePage() {
   </div>;
 
   const conversationView = (composerCases: LegalCase[], composerPlaceholder: string | undefined) => <>
-          <div className="conversation">{messages.map((message,index) => <div key={message.id} ref={index === messages.length-1 ? latestMessage : undefined}>{!!message.helplines?.length && <HelplineNotice contacts={message.helplines}/>}<MessageBubble message={message} citizen={role === "citizen"} onLegalAid={role === "citizen" ? () => openCitizenTool("legal-aid") : undefined} role={role} question={message.role === "assistant" ? messages.slice(0, index).reverse().find(item => item.role === "user")?.content : undefined} onEdit={!loading && !message.documents?.some(document => !document.pages.length) ? (text) => void submit(text, message.documents, false, index) : undefined} onForgetDocuments={() => { const ids = new Set(message.documents?.map(document => document.id)); const clear = (items: ChatMessage[]) => items.map(item => ({...item, documents: item.documents?.map(document => ids.has(document.id) ? {...document, pages: []} : document)})); setMessages(clear); setHistory(current => current.map(item => ({...item, messages: clear(item.messages)}))); }} onRegenerate={!loading && message.role === "assistant" && index === messages.length-1 ? () => { const question=messages.slice(0,index).reverse().find(item=>item.role==="user"); if(question) void submit(question.content, question.documents, true); } : undefined} /></div>)}</div>
+          <div className="conversation">{messages.map((message,index) => <div key={message.id} ref={index === messages.length-1 ? latestMessage : undefined}>{!!message.helplines?.length && <HelplineNotice contacts={message.helplines}/>}<MessageBubble message={message} citizen={role === "citizen"} onAskDeep={!loading && message.role === "assistant" ? () => { const asked = messages.slice(0, index).reverse().find(item => item.role === "user"); if (asked) void submit(asked.content, asked.documents, false, undefined, false, "deep"); } : undefined} onLegalAid={role === "citizen" ? () => openCitizenTool("legal-aid") : undefined} role={role} question={message.role === "assistant" ? messages.slice(0, index).reverse().find(item => item.role === "user")?.content : undefined} onEdit={!loading && !message.documents?.some(document => !document.pages.length) ? (text) => void submit(text, message.documents, false, index) : undefined} onForgetDocuments={() => { const ids = new Set(message.documents?.map(document => document.id)); const clear = (items: ChatMessage[]) => items.map(item => ({...item, documents: item.documents?.map(document => ids.has(document.id) ? {...document, pages: []} : document)})); setMessages(clear); setHistory(current => current.map(item => ({...item, messages: clear(item.messages)}))); }} onRegenerate={!loading && message.role === "assistant" && index === messages.length-1 ? () => { const question=messages.slice(0,index).reverse().find(item=>item.role==="user"); if(question) void submit(question.content, question.documents, true); } : undefined} /></div>)}</div>
           {awayFromLatest && <button className="jump-latest" aria-label="Jump to latest message" onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: animate && !window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "smooth" : "auto" })}><ArrowDown size={17}/></button>}
           <div className="conversation-composer"><ChatInput key={`${sessionId}:${draftVersion}`} onSend={submit} onStop={stopResearch} loading={loading} mode={responseMode} onModeChange={setResponseMode} cases={composerCases} caseId={chatCaseId} onCaseChange={setChatCaseId} scopeLockedReason={scopeLockedReason(sessionId)} placeholder={composerPlaceholder} redactBeforeAttach={role === "citizen"} initialDraft={restoredDraft} /></div>
   </>;
