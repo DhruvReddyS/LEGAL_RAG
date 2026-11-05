@@ -68,3 +68,6 @@ data/legal_kb/logs/app_start.out
 .claude/
 PORTFOLIO_REF/
 data/legal_kb/logs/
+
+# Local backups hold private case material.
+backups/
