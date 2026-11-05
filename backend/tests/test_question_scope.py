@@ -115,3 +115,10 @@ async def test_with_no_encoder_a_question_is_answered_not_lost() -> None:
 
 async def test_with_no_encoder_foreign_law_is_still_refused() -> None:
     assert (await out_of_scope_answer("How do I get a divorce in England?", None))[0] == "foreign_law"
+
+
+@pytest.mark.parametrize("greeting", ["hi", "Hello!", "thanks", "namaste"])
+async def test_a_greeting_is_not_searched_for_law(greeting: str) -> None:
+    encoder = _Encoder([0.0, 1.0])
+    assert await OffTopicCheck(encoder).is_off_topic(greeting)
+    assert encoder.document_calls == 0

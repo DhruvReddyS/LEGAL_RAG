@@ -155,9 +155,11 @@ _LEGAL_WORD = re.compile(
     r"bns|bnss|bsa|ipc|crpc|cpc|rti|pocso|sebi|rbi|government|constitution\w*)\b",
     re.IGNORECASE,
 )
-# Measured: refused 12 of 14 unseen off-topic questions, and none of 16 lay legal
+# Measured: refused 13 of 14 unseen off-topic questions, and none of 16 lay legal
 # questions or the 94 answerable golden questions, the highest of which scored 0.022.
-_NOT_LEGAL_MARGIN = 0.05
+# 0.05 let through a rewording of a question it refused, at 0.047.
+_NOT_LEGAL_MARGIN = 0.03
+_GREETING = re.compile(r"^\W*(?:hi|hii+|hello|hey|namaste|thanks|thank you|ok|okay|test)\W*$", re.IGNORECASE)
 
 
 def _cosine(left: Sequence[float], right: Sequence[float]) -> float:
@@ -196,6 +198,8 @@ class OffTopicCheck:
         )
 
     async def is_off_topic(self, question: str) -> bool:
+        if _GREETING.match(question):
+            return True
         if _LEGAL_WORD.search(question):
             return False
         try:

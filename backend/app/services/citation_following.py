@@ -137,6 +137,15 @@ _CONCEPTS: tuple[_Concept, ...] = (
             ("without warrant", "without a warrant", "warrantless", "warrant less", "no warrant"),
         ),
     ),
+    # Special Acts each have their own "search without warrant" power and outrank the
+    # general one, so a person asking about their house got the Immoral Traffic Act.
+    _Concept(
+        "BNSS", "185", "warrantless-search implementation",
+        all_of=(
+            ("search",),
+            ("without warrant", "without a warrant", "warrantless", "no warrant"),
+        ),
+    ),
     # Asking which evidence law applies is answered by the Act itself, whose
     # first section brings it into force in place of the 1872 Act.
     _Concept(

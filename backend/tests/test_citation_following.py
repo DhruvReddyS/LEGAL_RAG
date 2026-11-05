@@ -327,3 +327,10 @@ class TestTheLaneUsesIt:
             "the followed-provision fetch is not guarded; a Qdrant hiccup "
             "would turn a working answer into an error"
         )
+
+
+def test_a_search_without_a_warrant_points_at_the_general_power() -> None:
+    from app.services.citation_following import implementation_provisions_for_query
+
+    found = {(p.code, p.section) for p in implementation_provisions_for_query("Can police search my house without a warrant?")}
+    assert ("BNSS", "185") in found
