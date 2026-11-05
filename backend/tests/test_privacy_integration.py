@@ -588,6 +588,24 @@ async def test_retention_erases_only_what_is_past_its_period() -> None:
     assert await _row_count(ChatSession, ChatSession.id == recent) == 1
 
 
+async def test_retention_leaves_case_conversations_alone() -> None:
+    account = await _account()
+    conversation = await _seed_conversation(account["id"])
+    case_id = uuid.uuid4()
+    async with AsyncSessionLocal() as session:
+        session.add(Case(id=case_id, owner_id=account["id"], role_type=CaseRoleType.ADVOCATE, title="Matter", status="open"))
+        await session.flush()
+        await session.execute(
+            update(ChatSession).where(ChatSession.id == conversation).values(case_id=case_id)
+        )
+        await session.commit()
+    await _age_conversation(conversation, 4000)
+    async with AsyncSessionLocal() as session:
+        await privacy.apply_retention(session, days=30)
+        await session.commit()
+    assert await _row_count(ChatSession, ChatSession.id == conversation) == 1
+
+
 async def test_a_retention_period_of_zero_keeps_everything() -> None:
     account = await _account()
     old = await _seed_conversation(account["id"])

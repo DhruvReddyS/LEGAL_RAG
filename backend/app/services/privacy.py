@@ -374,6 +374,9 @@ async def expired_conversation_ids(
     rows = await session.execute(
         select(ChatSession.id)
         .outerjoin(ChatMessage, ChatMessage.session_id == ChatSession.id)
+        # Case work can carry legal holds this system cannot judge, and a period
+        # set for general chats says nothing about it. Its owner still can erase it.
+        .where(ChatSession.case_id.is_(None))
         .group_by(ChatSession.id)
         .having(last_activity < cutoff)
     )
