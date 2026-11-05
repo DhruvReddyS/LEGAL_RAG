@@ -98,7 +98,7 @@ async def _shown_to_the_reader(
         )
     except Exception:  # noqa: BLE001 - mirrors the lane's fail-open enrichment
         followed = []
-    statutes = await governing_statutes(
+    statutes, ruled_out = await governing_statutes(
         service,
         await service.search_statutes(question, collection=collection),
         query=question,
@@ -107,7 +107,9 @@ async def _shown_to_the_reader(
     )
     if asks_about_foreign_law(question) or await off_topic_check_for(service).is_off_topic(question):
         return []
-    selected = shown_to_the_reader(relevant, followed, statutes, limit=settings.fast_result_limit)
+    selected = shown_to_the_reader(
+        relevant, followed, statutes, limit=settings.fast_result_limit, ruled_out=ruled_out
+    )
     return [hit.payload for hit in selected]
 
 
