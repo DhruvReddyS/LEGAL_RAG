@@ -25,6 +25,7 @@ from app.routers.storage import router as storage_router
 from app.routers.retrieval import router as retrieval_router
 from app.routers.admin import router as admin_router
 from app.routers.admin_tools import router as admin_tools_router
+from app.routers.law_changes import router as law_changes_router
 from app.routers.document_analysis import router as document_analysis_router
 from app.routers.jobs import router as jobs_router
 from app.routers.citizen_intake import router as citizen_intake_router
@@ -36,8 +37,9 @@ from app.routers.police_tools import router as police_tools_router
 from app.routers.account import router as account_router
 from app.routers.history import router as history_router
 from app.routers.citizen_tools import router as citizen_tools_router
+from app.routers.law import router as law_router
 from app.services.crisis_similarity import CrisisSimilarity
-from app.services import quarantine
+from app.services import quarantine, scheduled_passes
 from app.services.retrieval import HybridRetrievalService
 from app.services.fast_research import FastLegalResearchService
 from app.services.job_worker import DurableJobWorker
@@ -79,9 +81,11 @@ async def lifespan(app: FastAPI):
         )
     if settings.job_worker_enabled:
         await app.state.job_worker.start()
+    await scheduled_passes.start()
     try:
         yield
     finally:
+        await scheduled_passes.stop()
         await quarantine.stop()
         if settings.job_worker_enabled:
             await app.state.job_worker.stop()
@@ -209,10 +213,12 @@ app.include_router(feedback_router)
 app.include_router(investigation_router)
 app.include_router(police_tools_router)
 app.include_router(account_router)
+app.include_router(law_changes_router)
 app.include_router(history_router)
 app.include_router(authorities_router)
 app.include_router(advocate_tools_router)
 app.include_router(citizen_tools_router)
+app.include_router(law_router)
 
 
 @app.get("/health/live", tags=["system"])

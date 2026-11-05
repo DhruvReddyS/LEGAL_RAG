@@ -43,7 +43,7 @@ from typing import Any, Iterator
 
 ROOT = Path(__file__).resolve().parents[1]
 CHUNK_ROOT = ROOT / "data" / "legal_kb" / "processed"
-GOLDEN = ROOT / "data" / "legal_kb" / "evaluation" / "golden_set_v3.json"
+GOLDEN = ROOT / "data" / "legal_kb" / "evaluation" / "golden_set_v4.json"
 
 # Above this, the item's phrase is so much easier to hit that a recall change
 # on it cannot be read as a ranking change. Not tuned: the point is to

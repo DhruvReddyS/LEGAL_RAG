@@ -49,6 +49,8 @@ class Settings(BaseSettings):
     qdrant_dense_vector_name: str = "dense"
     qdrant_sparse_vector_name: str = "sparse"
     query_embedding_cache_size: int = Field(default=256, ge=0, le=4096)
+    # Verified Deep answers kept for repeat questions. 0 turns reuse off.
+    answer_cache_size: int = Field(default=128, ge=0, le=4096)
     # How many rank places a repealed provision must beat an in-force one by to
     # still outrank it. Expressed in ranks, not score: the ordering key is an
     # RRF score in the Fast lane and a cross-encoder logit in Deep, which are

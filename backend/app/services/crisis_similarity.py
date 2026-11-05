@@ -10,7 +10,9 @@ This compares the question's meaning to worded examples, using the query encoder
 retrieval already holds, so it needs no model call and no second model. At 0.65
 it caught 28 of 28 held-out crisis messages and also flagged 10 of 86 ordinary
 legal questions. The threshold was chosen on that same set, so 28 of 28 is
-optimistic.
+optimistic. Hindi and Telugu, in both scripts, caught 10 of 13 held-out messages
+with no false alarm on 15 ordinary questions, before the last four examples were
+added for the kinds it missed.
 
 That false-alarm rate is why this never replaces an answer. It only shows
 helplines beside one: a false alarm costs a small notice, and a miss costs far
@@ -52,6 +54,34 @@ CRISIS_EXAMPLES: tuple[str, ...] = (
     "money was taken from my bank account by fraud",
     "I shared my OTP and my account was emptied",
     "a caller pretending to be an officer made me pay money",
+    # People in crisis write in their own language, and often in Latin script.
+    # Awaiting review by a native speaker with crisis training. A wrong example
+    # costs a notice beside an answer, so these ship rather than wait.
+    "मैं अपनी जान देना चाहता हूँ",
+    "मैं आत्महत्या करना चाहती हूँ",
+    "अब जीने का मन नहीं है",
+    "मेरा पति मुझे मार रहा है",
+    "कोई मुझे जान से मारने की धमकी दे रहा है",
+    "मेरे साथ बलात्कार हुआ है",
+    "मेरा बच्चा लापता हो गया है",
+    "मेरे खाते से धोखे से पैसे निकल गए",
+    "main apni jaan dena chahta hoon",
+    "mujhe ab jeena nahi hai",
+    "mera pati mujhe maar raha hai",
+    "mere saath balatkar hua hai",
+    "నేను ఆత్మహత్య చేసుకోవాలనుకుంటున్నాను",
+    "నాకు బతకాలని లేదు",
+    "నా భర్త నన్ను కొడుతున్నాడు",
+    "నన్ను చంపేస్తానని బెదిరిస్తున్నారు",
+    "నాపై అత్యాచారం జరిగింది",
+    "నా బిడ్డ కనిపించడం లేదు",
+    "నా ఖాతా నుండి మోసంతో డబ్బు తీసేశారు",
+    "naaku bathakalani ledu",
+    "naa bhartha nannu kodutunnadu",
+    "main khudkushi kar lunga",
+    "wo mujhe maar dalega",
+    "maine bahut saari goliyan kha li hain",
+    "మాత్రలు మింగి చనిపోతాను",
 )
 
 

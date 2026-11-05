@@ -45,6 +45,7 @@ from app.models import (
 )
 from app.models.advocate import AdvocateWorkProduct, MatterCalendarEvent
 from app.models.citizen import CitizenDeadline
+from app.models.corpus_lifecycle import LawChangeNotice
 from app.models.enums import UserRole
 from app.models.police import (
     PoliceComplianceRecord,
@@ -311,6 +312,12 @@ async def build_export(session: AsyncSession, user: User) -> dict[str, Any]:
                 await session.scalars(select(CitizenDeadline).where(CitizenDeadline.user_id == user.id))
             ).all()
         ],
+        "law_change_notices": [
+            _row_dict(row)
+            for row in (
+                await session.scalars(select(LawChangeNotice).where(LawChangeNotice.user_id == user.id))
+            ).all()
+        ],
         "stored_files": [_row_dict(row) for row in storage],
         "activity": [
             {
@@ -367,6 +374,9 @@ async def expired_conversation_ids(
     rows = await session.execute(
         select(ChatSession.id)
         .outerjoin(ChatMessage, ChatMessage.session_id == ChatSession.id)
+        # Case work can carry legal holds this system cannot judge, and a period
+        # set for general chats says nothing about it. Its owner still can erase it.
+        .where(ChatSession.case_id.is_(None))
         .group_by(ChatSession.id)
         .having(last_activity < cutoff)
     )

@@ -29,6 +29,7 @@ import { readPreferences, savePreferences, TEXT_SIZES, type ReadingPreferences }
 import { SITE_ROUTES } from "@/lib/site";
 import type { AccountStatus, AdminResetCode, DeviceSession, RetentionStatus } from "@/lib/types-platform";
 import type { User } from "@/lib/types";
+import LawChangeNotices from "./LawChangeNotices";
 
 const ERASE_PHRASE = "ERASE MY ACCOUNT";
 const ADMIN_ERASE_PHRASE = "ERASE THIS ACCOUNT";
@@ -526,6 +527,7 @@ export default function AccountDialog({ user, onClose, onUserChange, onSignOut, 
           <h2 id="acct-title">Account and privacy</h2>
           <button type="button" className="icon-button" aria-label="Close account and privacy" onClick={onClose}><X size={18} /></button>
         </div>
+        <LawChangeNotices />
         <div className="acct-tabs" role="tablist" aria-label="Account sections">
           {tabs.map(item => (
             <button key={item.id} type="button" role="tab" aria-selected={tab === item.id} onClick={() => setTab(item.id)}>

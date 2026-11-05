@@ -29,19 +29,6 @@ class PresignedDownloadResponse(BaseModel):
     expires_seconds: int
 
 
-class PresignedUploadRequest(BaseModel):
-    filename: str = Field(min_length=1, max_length=500)
-    content_type: str = Field(default="application/octet-stream", max_length=255)
-    expires_seconds: int = Field(default=900, ge=60, le=3600)
-
-
-class PresignedUploadResponse(BaseModel):
-    url: str
-    bucket: str
-    object_key: str
-    expires_seconds: int
-
-
 class CaseDocumentIndexRequest(BaseModel):
     doc_type: str = Field(min_length=2, max_length=100)
 

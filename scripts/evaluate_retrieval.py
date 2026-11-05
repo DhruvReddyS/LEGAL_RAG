@@ -35,7 +35,7 @@ sys.path.insert(0, str(ROOT / "backend"))
 
 from app.core.config import settings  # noqa: E402
 
-DEFAULT_GOLDEN = ROOT / "data" / "legal_kb" / "evaluation" / "golden_set_v3.json"
+DEFAULT_GOLDEN = ROOT / "data" / "legal_kb" / "evaluation" / "golden_set_v4.json"
 
 CONFIGS = ("dense", "sparse", "hybrid", "reranked")
 
