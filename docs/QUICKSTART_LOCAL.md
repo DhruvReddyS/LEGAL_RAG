@@ -52,6 +52,18 @@ stop them with `docker compose --env-file .env -f docker/docker-compose.yml stop
 Do not use `down -v` unless the database, vector and object data are
 intentionally being deleted.
 
+## 4. Accounts
+
+Anyone can register a citizen account from the sign-in screen. Police and advocate
+accounts are created by an administrator, so create the administrator first:
+
+```bash
+.venv-ingest/bin/python scripts/create_admin_account.py --name "Your Name" --email you@example.com
+```
+
+It asks for a password and refuses to create a second administrator. Sign in, open
+the admin console and add the other accounts under Users.
+
 ## When startup fails
 
 The script names the failed check. For a readiness failure the cause is in the
@@ -77,6 +89,12 @@ scripts/run_backend_tests.sh
 This starts a throwaway stack with its own volumes and ports, so it cannot reach
 your live database, corpus or object store. Remove it afterwards with
 `scripts/run_backend_tests.sh --down`.
+
+Frontend tests need no services:
+
+```bash
+cd frontend && npm test && npx playwright install chromium && npm run test:e2e
+```
 
 Plain `pytest` from `backend/` needs nothing running: tests that need services
 skip. The suite refuses any database whose name does not end in `_test`.
