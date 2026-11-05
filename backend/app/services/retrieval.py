@@ -985,6 +985,30 @@ class HybridRetrievalService:
                 )
         return found
 
+    async def search_statutes(self, query: str, *, collection: str, limit: int = 30) -> list[RetrievalHit]:
+        """The same query against Acts and the Constitution in force, nothing else.
+
+        Judgments, circulars and handbooks outnumber the section they discuss, so
+        the governing provision was often ranked out of a mixed list. One more
+        Qdrant call on a query vector already cached. A failure returns nothing,
+        which leaves the ordinary search as it was.
+        """
+        target = RetrievalTarget(
+            collection_name=collection,
+            filters=RetrievalFilters(
+                corpus_tiers=["gold", "extended"],
+                source_types=["ACT", "CONSTITUTION"],
+                exclude_superseded=True,
+            ),
+        )
+        try:
+            hits, _ = await self.search_across_collections_with_timings(
+                query, targets=[target], candidate_limit=limit, result_limit=limit, rerank=False
+            )
+        except Exception:  # noqa: BLE001 - see the docstring
+            return []
+        return hits
+
     async def distinctive_query_terms(
         self,
         terms: set[str],

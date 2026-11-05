@@ -17,7 +17,9 @@ other gate, while a question it wrongly catches gets no answer at all.
 
 from __future__ import annotations
 
+import asyncio
 import re
+from typing import Any, Sequence
 
 _PLACES = (
     r"afghanistan|america|argentina|australia|austria|bahrain|bangladesh|belgium|"
@@ -88,3 +90,125 @@ def asks_about_foreign_law(question: str) -> bool:
                 continue
             return True
     return False
+
+
+# ---------------------------------------------------------------- off topic
+#
+# "Which shares should I buy this month?" passed the relevance floor, because SEBI
+# circulars say "shares" and "buy". The words are in the corpus and the question is
+# not about law, which matching words cannot see, so this compares meaning.
+
+_NOT_LEGAL_EXAMPLES: tuple[str, ...] = (
+    "How do I make chicken curry at home?",
+    "What should I cook for dinner tonight?",
+    "What medicine should I take for a headache?",
+    "How much ibuprofen can an adult take?",
+    "What are the symptoms of diabetes?",
+    "What diet helps me lose weight quickly?",
+    "Which mutual fund will give the best returns?",
+    "Is gold a good investment right now?",
+    "Which stock will go up next week?",
+    "Who won the football match yesterday?",
+    "Who is the best batsman in the world?",
+    "When is the next Olympic games?",
+    "How do I fix a bug in my JavaScript code?",
+    "Write a program that reverses a string",
+    "What is the tallest mountain in the world?",
+    "How far is the moon from the earth?",
+    "What is the weather forecast for tomorrow?",
+    "What are the best places to visit on holiday?",
+    "Which phone should I buy under twenty thousand rupees?",
+    "Recommend a good movie to watch this weekend",
+    "Solve this equation for x",
+    "How do I grow tomatoes in my garden?",
+    "How can I become more confident when speaking?",
+    "Write me a poem about the rain",
+)
+_LEGAL_EXAMPLES: tuple[str, ...] = (
+    "Can my landlord keep my deposit when I move out?",
+    "My employer has not paid my salary for two months",
+    "The seller refuses to refund a defective phone",
+    "What can I do if someone cheats me of money?",
+    "My neighbour has built a wall on my land",
+    "Can my husband take the children away from me?",
+    "Someone is harassing me online with fake photos",
+    "How do I get a copy of my father's property papers?",
+    "What happens if I do not pay a loan back?",
+    "Can the police take my phone without asking?",
+    "What can I do about a loud factory next to my house?",
+    "How do I claim money after a road accident?",
+    "My shop was sealed by the municipality without notice",
+    "Do I have to pay tax on money from selling my house?",
+    "A hospital refused to give me my medical records",
+    "A company sold me shares by misleading me",
+    "My son was expelled from school without any hearing",
+    "What should I do when I receive a notice from a bank?",
+)
+# Any of these and the question stays in, whatever its meaning scores: refusing a
+# real legal question costs far more than one more evidence check.
+_LEGAL_WORD = re.compile(
+    r"\b(?:law|laws|legal|illegal|lawful|unlawful|legally|act|section|article|rule|rules|"
+    r"court|judge|magistrate|police|fir|arrest\w*|bail|custody|offen[cs]e\w*|crime\w*|"
+    r"criminal|punish\w*|penalty|fine|sue|suing|complaint|petition|appeal|rights?|"
+    r"contract|licen[cs]e|permit\w*|notice|summons|warrant|lawyer|advocate|tenant|landlord|"
+    r"divorce|maintenance|custody|dowry|inherit\w*|will|property|consumer|compensation|"
+    r"bns|bnss|bsa|ipc|crpc|cpc|rti|pocso|sebi|rbi|government|constitution\w*)\b",
+    re.IGNORECASE,
+)
+# Measured: refused 12 of 14 unseen off-topic questions, and none of 16 lay legal
+# questions or the 94 answerable golden questions, the highest of which scored 0.022.
+_NOT_LEGAL_MARGIN = 0.05
+
+
+def _cosine(left: Sequence[float], right: Sequence[float]) -> float:
+    dot = sum(a * b for a, b in zip(left, right, strict=True))
+    norms = sum(a * a for a in left) ** 0.5 * sum(b * b for b in right) ** 0.5
+    return dot / norms if norms else 0.0
+
+
+class OffTopicCheck:
+    """Whether a question is closer to everyday non-legal asks than to legal ones.
+
+    Uses the query encoder retrieval already holds, and the query's own vector is
+    cached there, so the search itself pays for it. Any failure answers "not off
+    topic": the other gates still apply, and this one must never cost an answer.
+    """
+
+    def __init__(self, encoder: Any, *, margin: float = _NOT_LEGAL_MARGIN) -> None:
+        self._encoder = encoder
+        self._margin = margin
+        self._examples: asyncio.Task[tuple[list, list]] | None = None
+
+    async def _embed_examples(self) -> tuple[list, list]:
+        count = len(_NOT_LEGAL_EXAMPLES)
+        embedded = await self._encoder.embed_documents([*_NOT_LEGAL_EXAMPLES, *_LEGAL_EXAMPLES])
+        vectors = [item.dense for item in embedded]
+        return vectors[:count], vectors[count:]
+
+    async def scores(self, question: str) -> tuple[float, float]:
+        if self._examples is None or (self._examples.done() and self._examples.exception()):
+            self._examples = asyncio.create_task(self._embed_examples())
+        not_legal, legal = await asyncio.shield(self._examples)
+        vector = await self._encoder.embed_query(question)
+        return (
+            max(_cosine(vector, example) for example in not_legal),
+            max(_cosine(vector, example) for example in legal),
+        )
+
+    async def is_off_topic(self, question: str) -> bool:
+        if _LEGAL_WORD.search(question):
+            return False
+        try:
+            not_legal, legal = await self.scores(question)
+        except Exception:  # noqa: BLE001 - see the class docstring
+            return False
+        return not_legal - legal >= self._margin
+
+
+def off_topic_check_for(service: Any) -> OffTopicCheck:
+    """One per encoder, so the examples are embedded once whichever lane asks first."""
+    check = getattr(service, "_off_topic_check", None)
+    if not isinstance(check, OffTopicCheck):
+        check = OffTopicCheck(service)
+        service._off_topic_check = check
+    return check

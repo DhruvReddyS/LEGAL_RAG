@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from app.services.judgment_index import JUDGMENT_SOURCE_TYPES
+
 import pytest
 
 from app.services.held_material import check_opponent_authorities, check_treatment, search_precedents
@@ -107,7 +109,7 @@ class TestPrecedentSearch:
 
     async def test_only_judgments_are_searched(self):
         _, retrieval = await self.search(query="bail")
-        assert retrieval.calls[0]["filters"].source_types == ["judgment"]
+        assert retrieval.calls[0]["filters"].source_types == list(JUDGMENT_SOURCE_TYPES)
 
     async def test_nothing_found_is_not_reported_as_nothing_existing(self):
         result, _ = await self.search(query="bail", year_from=1900, year_to=1901)

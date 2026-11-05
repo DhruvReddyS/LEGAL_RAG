@@ -8,11 +8,13 @@ from app.services.retrieval import HybridRetrievalService, RetrievalFilters
 from app.services.retrieval import RetrievalTarget
 from app.services.legal_term_normalization import normalize_legal_terms
 from app.services.fast_research import (
+    governing_statutes,
     _focus_tokens,
     _payload_windows,
 )
 from app.ingestion.init_qdrant import ADVOCATE_CASE_DATA, GLOBAL_LEGAL_CORPUS, POLICE_CASE_DATA
 from app.agents.publication import evidence_addresses_the_question
+from app.services.question_scope import off_topic_check_for
 from app.core.config import settings
 from app.services.pipeline_telemetry import append_stage_metric, text_size
 
@@ -88,6 +90,29 @@ async def _distinctive_terms(service, focus_tokens, target) -> list[str]:
         return list(distinctive)
     except Exception:  # noqa: BLE001 - see above
         return []
+
+
+async def _statutes_for(service, query: str, asked: str, hits: list, distinctive_task) -> list:
+    """Primary law not already in hand. Anything going wrong adds nothing."""
+    try:
+        found = await service.search_statutes(query, collection=GLOBAL_LEGAL_CORPUS)
+        statutes = governing_statutes(
+            found,
+            query=asked,
+            focus_tokens=_focus_tokens(asked),
+            distinctive_terms=set(await distinctive_task),
+        )
+    except Exception:  # noqa: BLE001 - also covers services without this method
+        return []
+    held = {str(hit.payload.get("chunk_id")) for hit in hits}
+    return [hit for hit in statutes if str(hit.payload.get("chunk_id")) not in held]
+
+
+async def _is_off_topic(service, asked: str) -> bool:
+    try:
+        return await off_topic_check_for(service).is_off_topic(asked)
+    except Exception:  # noqa: BLE001 - this check must never cost an answer
+        return False
 
 
 async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
@@ -416,6 +441,11 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
         followed = []
     if followed:
         hits = hits + followed
+    # Primary law for the question, which the mixed list can rank out of reach.
+    # Appended like followed provisions, and for the same reason.
+    statutes = await _statutes_for(service, query, asked, hits, distinctive_terms_task)
+    if statutes:
+        hits = hits + statutes
 
     # Collected, not computed: the lookup was dispatched before the search
     # and has been running throughout it. The publication gate needs these
@@ -457,8 +487,9 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
         # refusal. The offline probe passed that question because it used
         # the original wording, which is precisely the harness/lane
         # mismatch this project keeps repeating.
-        "evidence_addresses_question": evidence_addresses_the_question(
-            asked, hits, set(distinctive)
+        "evidence_addresses_question": (
+            evidence_addresses_the_question(asked, hits, set(distinctive))
+            and not await _is_off_topic(service, asked)
         ),
         "retrieved_chunks": hits,
         # Identity of the evidence this pass found. Generation is deterministic

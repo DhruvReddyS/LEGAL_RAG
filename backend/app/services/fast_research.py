@@ -18,7 +18,7 @@ from app.services.retrieval import (
     _base_forms,
 )
 from app.services.lay_vocabulary import domain_vocabulary
-from app.services.question_scope import asks_about_foreign_law
+from app.services.question_scope import asks_about_foreign_law, off_topic_check_for
 from app.services.legal_term_normalization import (
     LEGAL_ACRONYM_EXPANSIONS,
     normalize_legal_terms,
@@ -392,6 +392,74 @@ def publishable_hits(
     return relevant
 
 
+# How many places in the brief are held for primary law. Measured on golden set v4:
+# the governing section was shown for 39 of 94 questions, and 48 with two places
+# (held-out half 23 of 52 to 29). A cross-encoder over the same list added 2-3 more
+# for about 20 seconds per question on a loaded CPU, so it is not used here.
+STATUTE_PLACES = 2
+
+
+def governing_statutes(
+    hits: list,
+    *,
+    query: str,
+    focus_tokens: set[str],
+    distinctive_terms: set[str],
+) -> list:
+    """The best primary law from `search_statutes`, through the same relevance gate."""
+    primary = [
+        hit
+        for hit in hits
+        if str(hit.payload.get("document_type")) == "bare_act"
+        or str(hit.payload.get("source_type")) == "CONSTITUTION"
+    ]
+    return publishable_hits(
+        primary, query=query, focus_tokens=focus_tokens, distinctive_terms=distinctive_terms
+    )[:STATUTE_PLACES]
+
+
+async def _primary_law_search(service: Any, query: str, collection: str) -> list:
+    """Enrichment, so a service without it or a failed call costs nothing."""
+    try:
+        return await service.search_statutes(query, collection=collection)
+    except Exception:  # noqa: BLE001 - see the docstring
+        return []
+
+
+def shown_to_the_reader(
+    ranked_relevant: list,
+    followed: list,
+    statutes: list,
+    *,
+    limit: int,
+) -> list:
+    """What the brief shows, in order. The evaluation harness calls this too.
+
+    A provision the question itself points at comes first, then primary law found
+    for it, then law its sources rely on, then whatever else earned its place.
+    """
+    bridged = [
+        hit
+        for hit in followed
+        if hit.payload.get("retrieval_enrichment_relation") == "implementation_bridge"
+    ]
+    forwarded = [
+        hit
+        for hit in followed
+        if hit.payload.get("retrieval_enrichment_relation") != "implementation_bridge"
+    ]
+    placed = {str(hit.payload.get("chunk_id")) for hit in [*followed, *statutes]}
+    return _select_diverse_hits(
+        [
+            *bridged,
+            *statutes,
+            *forwarded,
+            *(hit for hit in ranked_relevant if str(hit.payload.get("chunk_id")) not in placed),
+        ],
+        limit,
+    )
+
+
 def _select_diverse_hits(hits: list, limit: int) -> list:
     """Return the best passage from each distinct authority, without padding duplicates."""
     selected: list = []
@@ -610,8 +678,11 @@ class FastLegalResearchService:
             focus_tokens,
             target=corpus_target,
         )
-        (hits, retrieval_timings), (term_counts, distinctive) = await asyncio.gather(
-            search, term_frequencies
+        (hits, retrieval_timings), (term_counts, distinctive), statute_hits, off_topic = await asyncio.gather(
+            search,
+            term_frequencies,
+            _primary_law_search(self.retrieval, query, corpus_target.collection_name),
+            off_topic_check_for(self.retrieval).is_off_topic(query),
         )
         raw_result_count = len(hits)
         enrichment_started = perf_counter()
@@ -662,39 +733,24 @@ class FastLegalResearchService:
             distinctive_terms=distinctive_terms,
             domain_tokens=domain_tokens,
         )
+        statutes = governing_statutes(
+            statute_hits,
+            query=query,
+            focus_tokens=focus_tokens,
+            distinctive_terms=distinctive_terms,
+        )
         # An implementation bridge points to an exact, current provision in
         # the corpus whose statutory wording differs from the citizen's words.
-        # Put only that primary law first. Broader provisions discovered from
-        # cited predecessors remain corroboration after the ranked evidence.
-        followed_ids = {str(hit.payload.get("chunk_id")) for hit in followed}
-        implementation_hits = [
-            hit
-            for hit in followed
-            if hit.payload.get("retrieval_enrichment_relation")
-            == "implementation_bridge"
-        ]
-        citation_followed_hits = [
-            hit
-            for hit in followed
-            if hit.payload.get("retrieval_enrichment_relation")
-            != "implementation_bridge"
-        ]
-        relevant_hits = [
-            *implementation_hits,
-            *(
-                hit
-                for hit in ranked_relevant_hits
-                if str(hit.payload.get("chunk_id")) not in followed_ids
-            ),
-            *citation_followed_hits,
-        ]
-        # Followed provisions join after the gate, so the scope rule is applied
-        # to the final list as well as inside it.
+        # Followed provisions and statutes join after the gate, so the scope
+        # rules apply to the final list as well as inside it.
         hits = (
             []
-            if asks_about_foreign_law(query)
-            else _select_diverse_hits(relevant_hits, settings.fast_result_limit)
+            if off_topic or asks_about_foreign_law(query)
+            else shown_to_the_reader(
+                ranked_relevant_hits, followed, statutes, limit=settings.fast_result_limit
+            )
         )
+        relevant_hits = [*followed, *statutes, *ranked_relevant_hits]
         if not hits:
             answer = INSUFFICIENT_EVIDENCE
             citations: list[AgentCitation] = []

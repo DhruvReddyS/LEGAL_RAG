@@ -40,7 +40,8 @@ def test_the_harness_uses_the_lane_selection_rather_than_its_own(harness_source:
     """`publishable_hits` is the lane's gate. Reimplementing it is how three of
     the four drifts happened."""
     assert "publishable_hits" in harness_source
-    assert "_select_diverse_hits" in harness_source
+    assert "shown_to_the_reader" in harness_source
+    assert "governing_statutes" in harness_source
 
 
 def test_it_takes_the_result_limit_from_settings(harness_source: str) -> None:
@@ -52,8 +53,7 @@ def test_it_takes_the_result_limit_from_settings(harness_source: str) -> None:
 
 def test_it_includes_the_lane_exact_law_enrichment(harness_source: str) -> None:
     assert "fetch_followed_provisions" in harness_source
-    assert "implementation_bridge" in harness_source
-    assert "citation_followed_hits" in harness_source
+    assert "search_statutes" in harness_source
 
 
 def test_no_hardcoded_slot_count_survives(harness_source: str) -> None:

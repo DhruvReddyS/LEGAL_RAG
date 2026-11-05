@@ -64,9 +64,11 @@ async def _shown_to_the_reader(
     from app.services.fast_research import (
         MIN_FAST_CANDIDATES,
         _focus_tokens,
-        _select_diverse_hits,
+        governing_statutes,
         publishable_hits,
+        shown_to_the_reader,
     )
+    from app.services.question_scope import asks_about_foreign_law, off_topic_check_for
     from app.services.retrieval import RetrievalFilters, RetrievalTarget
 
     # The lane's own broad candidate window followed by its narrow display
@@ -96,31 +98,15 @@ async def _shown_to_the_reader(
         )
     except Exception:  # noqa: BLE001 - mirrors the lane's fail-open enrichment
         followed = []
-    followed_ids = {str(hit.payload.get("chunk_id")) for hit in followed}
-    implementation_hits = [
-        hit
-        for hit in followed
-        if hit.payload.get("retrieval_enrichment_relation")
-        == "implementation_bridge"
-    ]
-    citation_followed_hits = [
-        hit
-        for hit in followed
-        if hit.payload.get("retrieval_enrichment_relation")
-        != "implementation_bridge"
-    ]
-    selected = _select_diverse_hits(
-        [
-            *implementation_hits,
-            *(
-                hit
-                for hit in relevant
-                if str(hit.payload.get("chunk_id")) not in followed_ids
-            ),
-            *citation_followed_hits,
-        ],
-        settings.fast_result_limit,
+    statutes = governing_statutes(
+        await service.search_statutes(question, collection=collection),
+        query=question,
+        focus_tokens=focus,
+        distinctive_terms=set(distinctive),
     )
+    if asks_about_foreign_law(question) or await off_topic_check_for(service).is_off_topic(question):
+        return []
+    selected = shown_to_the_reader(relevant, followed, statutes, limit=settings.fast_result_limit)
     return [hit.payload for hit in selected]
 
 
@@ -194,7 +180,11 @@ async def _abstained(
         _locally_matched_focus_terms,
         _mandatory_focus_match,
     )
+    from app.services.question_scope import asks_about_foreign_law, off_topic_check_for
     from app.services.retrieval import RetrievalFilters, RetrievalTarget
+
+    if asks_about_foreign_law(question) or await off_topic_check_for(service).is_off_topic(question):
+        return True
 
     if not payloads:
         return True

@@ -7,7 +7,7 @@ from types import SimpleNamespace
 import pytest
 
 from app.services.fast_research import publishable_hits
-from app.services.question_scope import asks_about_foreign_law
+from app.services.question_scope import OffTopicCheck, asks_about_foreign_law
 
 
 @pytest.mark.parametrize(
@@ -66,3 +66,44 @@ def test_no_passage_can_be_published_for_a_foreign_law_question() -> None:
         )
         == []
     )
+
+
+class _Encoder:
+    """Examples and the query as fixed points, so only the comparison is under test."""
+
+    def __init__(self, query_vector: list[float], *, broken: bool = False) -> None:
+        self.query_vector = query_vector
+        self.broken = broken
+        self.document_calls = 0
+
+    async def embed_documents(self, texts, *, batch_size=8):
+        self.document_calls += 1
+        if self.broken:
+            raise RuntimeError("encoder unavailable")
+        from app.services.question_scope import _NOT_LEGAL_EXAMPLES
+
+        return [
+            SimpleNamespace(dense=[1.0, 0.0] if text in _NOT_LEGAL_EXAMPLES else [0.0, 1.0])
+            for text in texts
+        ]
+
+    async def embed_query(self, query):
+        return self.query_vector
+
+
+async def test_closer_to_everyday_questions_is_off_topic() -> None:
+    assert await OffTopicCheck(_Encoder([1.0, 0.0])).is_off_topic("Which shares should I buy?")
+
+
+async def test_closer_to_legal_questions_is_not() -> None:
+    assert not await OffTopicCheck(_Encoder([0.0, 1.0])).is_off_topic("My boss has not paid me")
+
+
+async def test_a_legal_word_keeps_the_question_without_asking_the_encoder() -> None:
+    encoder = _Encoder([1.0, 0.0])
+    assert not await OffTopicCheck(encoder).is_off_topic("Is it illegal to sell shares this way?")
+    assert encoder.document_calls == 0
+
+
+async def test_a_failure_never_costs_an_answer() -> None:
+    assert not await OffTopicCheck(_Encoder([1.0, 0.0], broken=True)).is_off_topic("What should I cook?")
