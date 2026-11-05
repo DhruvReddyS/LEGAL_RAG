@@ -1,9 +1,10 @@
 "use client";
 
-import { AlertTriangle, ArrowRight, BriefcaseBusiness, CalendarClock, Check, ClipboardCheck, ClipboardCopy, ScanText, CheckCircle2, Download, FilePlus2, FileSearch, FileText, FolderPlus, Loader2, MessageSquare, MessageSquarePlus, Pencil, Plus, Scale, ScanSearch, ShieldCheck, UploadCloud } from "lucide-react";
+import { CalendarRange, AlertTriangle, ArrowRight, BriefcaseBusiness, CalendarClock, Check, ClipboardCheck, ClipboardCopy, ScanText, CheckCircle2, Download, FilePlus2, FileSearch, FileText, FolderPlus, Loader2, MessageSquare, MessageSquarePlus, Pencil, Plus, Scale, ScanSearch, ShieldCheck, UploadCloud } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AuthorityCheck } from "@/components/AuthorityCheck";
 import { ComplianceChecklist } from "@/components/ComplianceChecklist";
+import CaseChronology from "@/components/CaseChronology";
 import { InvestigationTimeline } from "@/components/InvestigationTimeline";
 import { isPoliceView, PoliceToolView, usePoliceTools, type PoliceViewKey } from "@/components/police/PoliceTools";
 import { caseTimelineMessage, type CaseTimelineState } from "@/lib/police-presentation";
@@ -206,7 +207,7 @@ export default function ProfessionalWorkspace({
   };
 
 
-type ViewKey = "advocate" | "casefile" | "agent" | "deadlines" | "compliance" | "citations" | "search" | "evidence" | "documents" | PoliceViewKey;
+type ViewKey = "advocate" | "casefile" | "chronology" | "agent" | "deadlines" | "compliance" | "citations" | "search" | "evidence" | "documents" | PoliceViewKey;
 
   const police = usePoliceTools(isPolice);
   const tools: { key: ViewKey; label: string; icon: typeof Scale; title: string; blurb: string; needsMatter: boolean }[] = [
@@ -276,6 +277,14 @@ type ViewKey = "advocate" | "casefile" | "agent" | "deadlines" | "compliance" | 
       title: roleCopy.search,
       blurb: "Search the law, and the files in the case you have selected. Results never cross into another case or another role.",
       needsMatter: false,
+    },
+    {
+      key: "chronology",
+      label: "Case timeline",
+      icon: CalendarRange,
+      title: "What happened when",
+      blurb: "Every date stated in this case's files, in order, each with its file and page.",
+      needsMatter: true,
     },
     {
       key: "evidence",
@@ -597,6 +606,7 @@ type ViewKey = "advocate" | "casefile" | "agent" | "deadlines" | "compliance" | 
 
               {view === "advocate" && !isPolice && <AdvocateDesk key={selectedId} caseId={selectedId} caseTitle={selected?.title} />}
               {/* Keyed by case: nothing typed or fetched for one case may stand under another. */}
+              {view === "chronology" && <CaseChronology key={selectedId} caseId={selectedId} onOpenDocuments={() => setView("evidence")} />}
               {view === "deadlines" && <InvestigationTimeline key={selectedId} caseId={selectedId} onSaved={() => setTimelineRefresh((value) => value + 1)} />}
               {view === "compliance" && <ComplianceChecklist key={selectedId} caseId={selectedId} />}
               {view === "citations" && <AuthorityCheck key={selectedId} caseId={selectedId} />}
