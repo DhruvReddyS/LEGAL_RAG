@@ -32,3 +32,19 @@
 .law-status[data-status="superseded"] { color: var(--state-bad-text); background: var(--state-bad-bg); border-color: var(--state-bad-line); }
 .law-superseded { font-size: 14px; color: var(--state-bad-text); margin: 10px 0 0; }
 .law-note { font-size: 13px; color: var(--ink-soft); margin: 8px 0 0; }
+.law[data-comparing] { max-width: 1160px; }
+.law-counterparts .law-compare-toggle { min-height: 32px; padding: 0 8px; font-size: 13px; font-weight: 500; color: var(--ink-soft); border: 1px solid var(--border); border-radius: 6px; }
+.law-counterparts .law-compare-toggle:hover { text-decoration: none; background: var(--card); color: var(--ink); }
+.law-counterparts .law-compare-toggle[aria-pressed="true"] { color: var(--ink); background: var(--card); border-color: var(--accent); }
+.law-compare { margin-bottom: 12px; }
+.law-compare-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 8px 16px; margin-bottom: 12px; font-size: 14px; color: var(--ink-soft); }
+.law-compare-head p { margin: 0; flex: 1 1 280px; }
+.law-compare-head strong { color: var(--ink); font-weight: 600; }
+.law-compare-head button { display: inline-flex; align-items: center; gap: 4px; min-height: 32px; padding: 0 10px; font-size: 13px; color: var(--ink-soft); background: transparent; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; }
+.law-compare-head button:hover { background: var(--hover); color: var(--ink); }
+.law-inline-icon { display: inline; margin-right: 6px; vertical-align: -2px; }
+.law-compare-sides { display: grid; grid-template-columns: 1fr; gap: 16px; }
+.law-compare-side { min-width: 0; }
+.law-compare-side h4 { font-size: 14px; font-weight: 600; margin: 0 0 8px; }
+.law-compare-side .law-provision { margin-bottom: 0; }
+@media (min-width: 900px) { .law-compare-sides { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
