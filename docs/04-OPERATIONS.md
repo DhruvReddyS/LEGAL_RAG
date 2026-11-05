@@ -316,3 +316,10 @@ uploaded document.
 
 The corpus can be rebuilt from `data/legal_kb/` and the manifest. Case documents
 and user accounts cannot.
+
+## Rebuilds reuse embeddings
+
+`data/legal_kb/cache/content_embeddings.sqlite` keeps every vector by model and exact
+text, so a rebuild only embeds text that changed, and an interrupted run keeps every
+finished batch. Deleting the file is safe and costs only time. `--force` ignores it.
+A new embedding model starts empty, since the model is part of the key.

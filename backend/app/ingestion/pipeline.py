@@ -19,6 +19,7 @@ from app.core.config import settings
 from app.core.qdrant import create_qdrant_client
 from app.ingestion.chunker import LegalChunk, chunk_structural_units
 from app.ingestion.dedup import verify_document_checksum
+from app.ingestion.content_embeddings import ContentEmbeddingStore, ReusingEmbedder
 from app.ingestion.embedder import BGEM3Embedder, EmbeddedText, EmbeddingCache
 from app.ingestion.extract import ExtractedDocument, extract_pdf
 from app.ingestion.init_qdrant import initialize_qdrant
@@ -276,6 +277,10 @@ async def run_pipeline(options: PipelineOptions, *, corpus_root: Path | None = N
     checkpoint = CheckpointStore(checkpoint_path_for(root))
     cache = EmbeddingCache(embedding_cache_dir_for(root))
     embedder = None if options.dry_run else BGEM3Embedder()
+    # Keyed on the text itself, so it holds across a re-chunk. --force asks for
+    # every vector to be computed again, so that alone goes without it.
+    if embedder is not None and not options.force:
+        embedder = ReusingEmbedder(embedder, ContentEmbeddingStore(root / "cache/content_embeddings.sqlite"))
     qdrant = None
     if not options.dry_run:
         await initialize_qdrant()
