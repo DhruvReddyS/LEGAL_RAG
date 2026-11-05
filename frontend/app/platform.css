@@ -354,4 +354,4 @@ html[data-low-bandwidth="on"] *,html[data-low-bandwidth="on"] *::before,html[dat
 .case-notes-actions button:hover {background:var(--hover);color:var(--ink);}
 .case-notes-actions .is-danger {color:var(--state-bad-text);}
 /* A settings section holding a single row keeps all four corners. */
-.settings-section>.setting-block:first-of-type:last-child {border-radius:12px;}
+.settings-section>h3+.setting-block:last-child {border-radius:12px;}
