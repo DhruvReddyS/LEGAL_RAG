@@ -108,7 +108,7 @@ async def _extract_pages(stored: StorageObject, content: bytes) -> list[Extracte
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail=f"Unable to extract PDF evidence: {type(exc).__name__}",
+            detail="This PDF could not be read. It may be damaged. Try saving or exporting it again.",
         ) from exc
 
 
