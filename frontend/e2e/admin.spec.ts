@@ -34,6 +34,29 @@ test("AD-06: a suspension needs a reason, and shows on the row afterwards", asyn
   expect(listed).toBeGreaterThan(1);
 });
 
+test("AD-12: clearing a reset says the first password change that remains", async ({ page }) => {
+  let forced = true;
+  const row = () => ({ id: uuid(51), name: "New Officer", email: "n@example.test", role: "police", is_active: true, created_at: "2026-11-05T09:00:00Z", case_count: 0, last_login_at: null, sessions_valid_from: null, force_password_reset: forced, first_password_change_pending: true, mfa_required: false, suspended_reason: null, manageable: true });
+  await openApp(page, "admin", {
+    overrides: {
+      "GET /admin/console/users": (route: Route) => json(route, { total: 1, page: 1, page_size: 25, by_role: { police: 1 }, users: [row()] }),
+      [`POST /admin/console/users/${uuid(51)}/force-password-reset`]: (route: Route) => {
+        forced = route.request().postDataJSON().required;
+        return json(route, row());
+      },
+    },
+  });
+  await openTab(page, "Users");
+  await expect(page.getByText("First password not changed")).toBeVisible();
+  await page.getByRole("button", { name: "Clear reset" }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toContainText("will still be asked to change their password");
+  await dialog.getByRole("button", { name: "Clear it" }).click();
+  await expect(page.getByText("must still replace the first password")).toBeVisible();
+  await expect(page.getByText("Reset required")).toHaveCount(0);
+  await expect(page.getByText("First password not changed")).toBeVisible();
+});
+
 test("AD-07: a purge runs only from a dry run, with the phrase typed", async ({ page }) => {
   const purged: unknown[] = [];
   await openApp(page, "admin", {

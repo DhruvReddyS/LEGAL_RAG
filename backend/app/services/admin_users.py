@@ -15,7 +15,7 @@ from fastapi import HTTPException
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import AuditLog, Case, User
+from app.models import AuditLog, Case, User, UserSecurity
 from app.models.admin_tools import AccountFlag
 from app.models.enums import UserRole
 
@@ -58,10 +58,11 @@ async def list_users(
     )
     rows = (
         await session.execute(
-            select(User, func.coalesce(case_counts.c.cases, 0), last_login.c.at, AccountFlag)
+            select(User, func.coalesce(case_counts.c.cases, 0), last_login.c.at, AccountFlag, UserSecurity)
             .outerjoin(case_counts, case_counts.c.owner_id == User.id)
             .outerjoin(last_login, last_login.c.user_id == User.id)
             .outerjoin(AccountFlag, AccountFlag.user_id == User.id)
+            .outerjoin(UserSecurity, UserSecurity.user_id == User.id)
             .where(*filters)
             .order_by(User.created_at.desc(), User.id)
             .offset((page - 1) * page_size)
@@ -74,11 +75,20 @@ async def list_users(
         "page": page,
         "page_size": page_size,
         "by_role": {row[0].value: int(row[1]) for row in role_rows},
-        "users": [_user(user, int(cases), login, flag) for user, cases, login, flag in rows],
+        "users": [
+            _user(user, int(cases), login, flag, security)
+            for user, cases, login, flag, security in rows
+        ],
     }
 
 
-def _user(user: User, cases: int, last_login: datetime | None, flag: AccountFlag | None) -> dict[str, Any]:
+def _user(
+    user: User,
+    cases: int,
+    last_login: datetime | None,
+    flag: AccountFlag | None,
+    security: UserSecurity | None,
+) -> dict[str, Any]:
     return {
         "id": str(user.id),
         "name": user.name,
@@ -90,6 +100,9 @@ def _user(user: User, cases: int, last_login: datetime | None, flag: AccountFlag
         "last_login_at": last_login.isoformat() if last_login else None,
         "sessions_valid_from": user.sessions_valid_from.isoformat() if user.sessions_valid_from else None,
         "force_password_reset": bool(flag and flag.force_password_reset),
+        # Separate from the reset above, and not lifted by clearing it: a provisioned
+        # account's temporary password is known to whoever created it.
+        "first_password_change_pending": bool(security and security.must_change_password),
         "mfa_required": bool(flag and flag.mfa_required),
         "suspended_reason": flag.suspended_reason if flag else None,
         "manageable": user.role is not UserRole.ADMIN,
@@ -131,7 +144,8 @@ async def _finish(
     await session.refresh(target)
     flag = await session.get(AccountFlag, target.id)
     cases = int(await session.scalar(select(func.count(Case.id)).where(Case.owner_id == target.id)) or 0)
-    return _user(target, cases, None, flag)
+    security = await session.get(UserSecurity, target.id)
+    return _user(target, cases, None, flag, security)
 
 
 def _end_sessions(target: User) -> None:

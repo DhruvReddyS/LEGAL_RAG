@@ -12,6 +12,7 @@ from types import SimpleNamespace
 
 import pytest
 import pytest_asyncio
+from fastapi import HTTPException
 from fastapi.routing import APIRoute
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import delete, select, text
@@ -35,6 +36,7 @@ from app.models import (
     RetentionRun,
     StorageObject,
     User,
+    UserSecurity,
 )
 from app.models.enums import (
     CaseRoleType,
@@ -47,6 +49,7 @@ from app.models.enums import (
 from app.models.storage import StorageNamespace
 from app.routers.admin_tools import get_corpus_client
 from app.services import admin_release, quarantine
+from app.services.account_gate import PASSWORD_CHANGE_REQUIRED, assert_account_may_proceed
 from app.services.admin_incidents import point_id_for_chunk
 from main import app
 from tests.helpers import provision_test_user, unique_email
@@ -872,6 +875,61 @@ async def test_a_forced_reset_flags_the_account_and_ends_its_sessions(console) -
     async with AsyncSessionLocal() as session:
         flag = await session.get(AccountFlag, uuid.UUID(user_id))
     assert flag.force_password_reset is True
+
+
+@pytest.mark.asyncio
+async def test_clearing_a_reset_shows_the_first_password_change_that_remains(console) -> None:
+    """"Clear reset" read as done while the account stayed locked out of the product."""
+    created = await console.client.post(
+        "/admin/users",
+        json={
+            "name": "Provisioned Officer",
+            "email": unique_email("provisioned"),
+            "password": PASSWORD,
+            "role": "police",
+        },
+        headers=_bearer(console.admin),
+    )
+    assert created.status_code == 201, created.text
+    user_id = created.json()["id"]
+    url = f"/admin/console/users/{user_id}/force-password-reset"
+    try:
+        forced = await console.client.post(url, json={"required": True}, headers=_bearer(console.admin))
+        assert forced.json()["force_password_reset"] is True
+        assert forced.json()["first_password_change_pending"] is True
+
+        cleared = await console.client.post(url, json={"required": False}, headers=_bearer(console.admin))
+        assert cleared.json()["force_password_reset"] is False
+        assert cleared.json()["first_password_change_pending"] is True
+
+        listed = await console.client.get(
+            "/admin/console/users", params={"q": created.json()["email"]}, headers=_bearer(console.admin)
+        )
+        row = next(item for item in listed.json()["users"] if item["id"] == user_id)
+        assert row["force_password_reset"] is False
+        assert row["first_password_change_pending"] is True
+
+        # The screen is telling the truth: this account is still held at the gate.
+        async with AsyncSessionLocal() as session:
+            user = await session.get(User, uuid.UUID(user_id))
+            with pytest.raises(HTTPException) as held:
+                await assert_account_may_proceed(session, user)
+        assert held.value.detail == PASSWORD_CHANGE_REQUIRED
+
+        # An ordinary account, which never had a first password to replace, shows nothing.
+        ordinary = await console.client.post(
+            f"/admin/console/users/{console.citizen['user']['id']}/force-password-reset",
+            json={"required": False},
+            headers=_bearer(console.admin),
+        )
+        assert ordinary.json()["first_password_change_pending"] is False
+    finally:
+        async with AsyncSessionLocal() as session:
+            await session.execute(delete(AccountFlag).where(AccountFlag.user_id == uuid.UUID(user_id)))
+            await session.execute(delete(UserSecurity).where(UserSecurity.user_id == uuid.UUID(user_id)))
+            await session.execute(delete(AuditLog).where(AuditLog.resource_id == uuid.UUID(user_id)))
+            await session.execute(delete(User).where(User.id == uuid.UUID(user_id)))
+            await session.commit()
 
 
 @pytest.mark.asyncio

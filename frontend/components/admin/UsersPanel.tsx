@@ -3,7 +3,7 @@
 import { KeyRound, Loader2, LogOut, Search, Shield, ShieldCheck, ShieldOff, UserPlus } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 import { createAdminUser } from "@/lib/api";
-import { formatWhen, toQuery } from "@/lib/admin-presentation";
+import { clearResetText, formatWhen, resetDoneText, toQuery } from "@/lib/admin-presentation";
 import {
   changeUserRole,
   listConsoleUsers,
@@ -100,6 +100,7 @@ export default function UsersPanel() {
                       <StatusPill tone="neutral">{user.role}</StatusPill>
                       <StatusPill tone={user.is_active ? "ok" : "bad"}>{user.is_active ? "Active" : "Suspended"}</StatusPill>
                       {user.force_password_reset && <StatusPill tone="warn">Reset required</StatusPill>}
+                      {user.first_password_change_pending && <StatusPill tone="warn">First password not changed</StatusPill>}
                       {user.mfa_required && <StatusPill tone="warn">MFA required</StatusPill>}
                     </div>
                   </div>
@@ -178,9 +179,9 @@ export default function UsersPanel() {
         <ConfirmDialog
           title={pending.user.force_password_reset ? "Clear the required reset" : `Force a password reset for ${pending.user.name}`}
           confirmLabel={pending.user.force_password_reset ? "Clear it" : "Require a reset"}
-          body={<p>{pending.user.force_password_reset ? "They will no longer be asked to change their password." : "They are signed out everywhere and must choose a new password at their next sign-in."}</p>}
+          body={<p>{clearResetText(pending.user)}</p>}
           onClose={() => setPending(null)}
-          onConfirm={async () => { await setForcePasswordReset(pending.user.id, !pending.user.force_password_reset); reload(); }}
+          onConfirm={async () => { await setForcePasswordReset(pending.user.id, !pending.user.force_password_reset); setNotice({ tone: "ok", text: resetDoneText(pending.user) }); reload(); }}
         />
       )}
       {pending?.kind === "role" && (
