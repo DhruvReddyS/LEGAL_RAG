@@ -8,6 +8,19 @@ import { l, LANGS, type L, type Lang } from "./citizen-law/law";
 export const LANG_LABELS: Record<Lang, string> = { en: "English", hi: "हिन्दी", te: "తెలుగు" };
 
 export const UI = {
+  followUpsLabel: l("You could ask next", "आप आगे यह पूछ सकते हैं", "మీరు తర్వాత ఇది అడగవచ్చు"),
+  fuNextSteps: l("What steps can I take next, and who do I go to?", "मैं आगे क्या कदम उठा सकता हूँ, और किसके पास जाऊँ?", "నేను తర్వాత ఏ చర్యలు తీసుకోవచ్చు, ఎవరి దగ్గరకు వెళ్లాలి?"),
+  fuDocuments: l("What documents should I keep ready?", "मुझे कौन से दस्तावेज़ तैयार रखने चाहिए?", "నేను ఏ పత్రాలు సిద్ధంగా ఉంచుకోవాలి?"),
+  fuTimeLimits: l("Are there time limits I should know about?", "क्या कोई समय-सीमा है जो मुझे पता होनी चाहिए?", "నేను తెలుసుకోవలసిన గడువులు ఏమైనా ఉన్నాయా?"),
+  fuWhatMustShow: l("What does this provision say has to be shown?", "इस प्रावधान के अनुसार क्या दिखाना ज़रूरी है?", "ఈ నిబంధన ప్రకారం ఏమి చూపించాలి?"),
+  fuHowReport: l("How do I report this, and to whom?", "मैं इसकी शिकायत कैसे और किससे करूँ?", "దీన్ని ఎలా, ఎవరికి ఫిర్యాదు చేయాలి?"),
+  fuFreeHelp: l("Where can I get free legal help?", "मुझे मुफ़्त क़ानूनी मदद कहाँ मिल सकती है?", "నాకు ఉచిత న్యాయ సహాయం ఎక్కడ దొరుకుతుంది?"),
+  fuProofKeep: l("What records are useful to keep?", "कौन से रिकॉर्ड संभालकर रखना उपयोगी है?", "ఏ రికార్డులు దాచుకోవడం ఉపయోగం?"),
+  fuCopies: l("How do I get copies of documents?", "मुझे दस्तावेज़ों की प्रतियाँ कैसे मिलेंगी?", "పత్రాల నకళ్లు నాకు ఎలా లభిస్తాయి?"),
+  fuUseRight: l("How do people use this right in practice?", "लोग इस अधिकार का व्यवहार में उपयोग कैसे करते हैं?", "ఈ హక్కును ఆచరణలో ఎలా ఉపయోగిస్తారు?"),
+  fuComplainWhere: l("Where can I complain if this right is ignored?", "इस अधिकार की अनदेखी हो तो मैं कहाँ शिकायत करूँ?", "ఈ హక్కును పట్టించుకోకపోతే నేను ఎక్కడ ఫిర్యాదు చేయాలి?"),
+  fuConsumerFile: l("How do I file a consumer complaint?", "मैं उपभोक्ता शिकायत कैसे दर्ज करूँ?", "వినియోగదారు ఫిర్యాదు ఎలా దాఖలు చేయాలి?"),
+  fuSimpler: l("Can you explain this in simpler words?", "क्या आप इसे आसान शब्दों में समझा सकते हैं?", "దీన్ని సులభమైన మాటల్లో వివరించగలరా?"),
   // Shell
   toolsTitle: l("Help for your situation", "आपकी स्थिति के लिए मदद", "మీ పరిస్థితికి సహాయం"),
   toolsIntro: l("Tools that work from the law itself. They explain, cite and point you to the right door. They do not decide your case.", "ये उपकरण सीधे क़ानून पर आधारित हैं। ये समझाते हैं, स्रोत बताते हैं और सही रास्ता दिखाते हैं। ये आपके मामले का फ़ैसला नहीं करते।", "ఈ సాధనాలు నేరుగా చట్టం ఆధారంగా పనిచేస్తాయి. వివరిస్తాయి, మూలాలు చూపిస్తాయి, సరైన దారి చూపిస్తాయి. మీ కేసును నిర్ణయించవు."),

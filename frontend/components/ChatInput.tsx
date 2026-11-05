@@ -1,4 +1,5 @@
 "use client";
+import { FILL_COMPOSER_EVENT } from "@/lib/follow-ups";
 import { ArrowUp, ChevronDown, FileText, Image as ImageIcon, Mic, Paperclip, Square, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { extractCitizenDocument } from "@/lib/api";
@@ -37,6 +38,18 @@ export default function ChatInput({ scopeLockedReason = null, onSend, onStop, di
   const [recording, setRecording] = useState(false);
   const [voiceSupported, setVoiceSupported] = useState(false);
   const input = useRef<HTMLTextAreaElement>(null);
+  // A suggested question lands here for the reader to change or send. It never sends itself.
+  useEffect(() => {
+    const fill = (event: Event) => {
+      const text = (event as CustomEvent<unknown>).detail;
+      if (typeof text !== "string") return;
+      setValueState(text);
+      saveDraft(window.sessionStorage, text);
+      input.current?.focus();
+    };
+    window.addEventListener(FILL_COMPOSER_EVENT, fill);
+    return () => window.removeEventListener(FILL_COMPOSER_EVENT, fill);
+  }, []);
   const fileInput = useRef<HTMLInputElement>(null);
   const recognition = useRef<Recognition | null>(null);
   const mounted = useRef(true);
