@@ -158,3 +158,17 @@ async def test_general_law_comes_before_special_law_when_both_answer() -> None:
     bnss = _unrelated("bnss", "ANSWER")
     bnss.payload["title"] = "The Bharatiya Nagarik Suraksha Sanhita, 2023"
     assert [hit.payload["chunk_id"] for hit in await _statutes([ferries, bnss])] == ["bnss", "ferries"]
+
+
+async def test_deep_puts_a_provision_the_question_points_at_ahead_of_other_law() -> None:
+    """Read in order, and the budget serves earlier passages first."""
+    from app.agents.evidence_budget import PRIMARY_LAW_TOTAL_CHARACTERS, character_limits
+
+    bridge = _hit("s187", "s187", relation="implementation_bridge")
+    bridge.payload["text"] = "x" * 5000
+    others = [_hit(f"act{n}", f"act{n}") for n in range(3)]
+    for hit in others:
+        hit.payload["text"] = "x" * 6000
+    limits = character_limits([bridge, *others])
+    assert limits["s187"] == 5000
+    assert sum(limits.values()) <= PRIMARY_LAW_TOTAL_CHARACTERS + 1200 * 3

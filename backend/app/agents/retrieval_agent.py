@@ -449,10 +449,15 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
     # Primary law for the question, which the mixed list can rank out of reach.
     # Appended like followed provisions, and for the same reason.
     statutes = await _statutes_for(service, query, asked, hits, distinctive_terms_task)
-    if statutes:
-        # First, because the model reads in order and the budget serves earlier
-        # passages first. Judgments that quote a section came before the section.
-        hits = statutes + hits
+    # First, because the model reads in order and the budget serves earlier passages
+    # first. A provision the question itself points at leads: "default bail" appears in
+    # no statute, and the Contract Act's "default" outranked s.187 for that question.
+    bridged = [
+        hit for hit in hits if hit.payload.get("retrieval_enrichment_relation") == "implementation_bridge"
+    ]
+    if bridged or statutes:
+        placed = {id(hit) for hit in bridged}
+        hits = [*bridged, *statutes, *(hit for hit in hits if id(hit) not in placed)]
 
     # Collected, not computed: the lookup was dispatched before the search
     # and has been running throughout it. The publication gate needs these
