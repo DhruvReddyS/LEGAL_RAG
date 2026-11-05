@@ -42,6 +42,15 @@ test('a failed upload is reported on the row and does not throw', async () => {
   assert.equal(last(run).detail, 'Too big');
 });
 
+test('a file the server refused offers no retry, while a passing failure does', async () => {
+  const refused = deps({ index: async () => { const e = new Error('Damaged'); e.status = 422; throw e; }, isRefusal: error => error.status === 422 });
+  assert.equal(await processEvidenceItem({}, refused), false);
+  assert.equal(last(refused).retryable, false);
+  const outage = deps({ index: async () => { const e = new Error('Down'); e.status = 503; throw e; }, isRefusal: error => error.status === 422 });
+  assert.equal(await processEvidenceItem({}, outage), false);
+  assert.equal(last(outage).retryable, true);
+});
+
 test('a failed index says the file is stored, and a retry does not store it twice', async () => {
   let uploads = 0;
   const failing = deps({ upload: async () => { uploads += 1; return { id: 'object-9' }; }, index: async () => { throw new Error('No text'); } });
