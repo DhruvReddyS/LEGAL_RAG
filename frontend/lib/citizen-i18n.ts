@@ -8,6 +8,15 @@ import { l, LANGS, type L, type Lang } from "./citizen-law/law";
 export const LANG_LABELS: Record<Lang, string> = { en: "English", hi: "हिन्दी", te: "తెలుగు" };
 
 export const UI = {
+  reminderOne: l("1 deadline needs attention.", "1 समय-सीमा पर ध्यान देना है।", "1 గడువును గమనించాలి."),
+  reminderMany: l("{n} deadlines need attention.", "{n} समय-सीमाओं पर ध्यान देना है।", "{n} గడువులను గమనించాలి."),
+  remindersTitle: l("Reminders", "याद दिलाना", "గుర్తుచేయడం"),
+  remindersLabel: l("Browser reminders for due deadlines", "नियत समय-सीमाओं के लिए ब्राउज़र रिमाइंडर", "గడువుల కోసం బ్రౌజర్ రిమైండర్లు"),
+  remindersHint: l("While this app is open, your browser can show how many deadlines are due. It shows a count and no details.", "जब यह ऐप खुला हो, ब्राउज़र दिखा सकता है कि कितनी समय-सीमाएँ नियत हैं। इसमें केवल संख्या होती है, कोई विवरण नहीं।", "ఈ యాప్ తెరిచి ఉన్నప్పుడు, ఎన్ని గడువులు ఉన్నాయో బ్రౌజర్ చూపగలదు. ఇది సంఖ్య మాత్రమే చూపిస్తుంది, వివరాలు కాదు."),
+  remindersEnable: l("Turn on", "चालू करें", "ఆన్ చేయండి"),
+  remindersOn: l("On. A count is shown while this app is open, at most once a day for each item. To stop, use your browser's site settings.", "चालू है। ऐप खुला होने पर संख्या दिखती है, हर मद के लिए दिन में अधिकतम एक बार। बंद करने के लिए ब्राउज़र की साइट सेटिंग देखें।", "ఆన్‌లో ఉంది. యాప్ తెరిచి ఉన్నప్పుడు సంఖ్య కనిపిస్తుంది, ప్రతి అంశానికి రోజుకు ఒక్కసారి మాత్రమే. ఆపడానికి బ్రౌజర్ సైట్ సెట్టింగులు చూడండి."),
+  remindersBlocked: l("Blocked in this browser. To allow them, change this site's notification setting in your browser.", "इस ब्राउज़र में अवरुद्ध हैं। अनुमति देने के लिए ब्राउज़र में इस साइट की सूचना सेटिंग बदलें।", "ఈ బ్రౌజర్‌లో నిరోధించబడ్డాయి. అనుమతించడానికి బ్రౌజర్‌లో ఈ సైట్ నోటిఫికేషన్ సెట్టింగ్ మార్చండి."),
+  remindersUnsupported: l("This browser cannot show them. Due dates are still shown inside the app.", "यह ब्राउज़र इन्हें नहीं दिखा सकता। नियत तारीखें ऐप के भीतर दिखती रहेंगी।", "ఈ బ్రౌజర్ వీటిని చూపలేదు. గడువు తేదీలు యాప్‌లో కనిపిస్తూనే ఉంటాయి."),
   followUpsLabel: l("You could ask next", "आप आगे यह पूछ सकते हैं", "మీరు తర్వాత ఇది అడగవచ్చు"),
   fuNextSteps: l("What steps can I take next, and who do I go to?", "मैं आगे क्या कदम उठा सकता हूँ, और किसके पास जाऊँ?", "నేను తర్వాత ఏ చర్యలు తీసుకోవచ్చు, ఎవరి దగ్గరకు వెళ్లాలి?"),
   fuDocuments: l("What documents should I keep ready?", "मुझे कौन से दस्तावेज़ तैयार रखने चाहिए?", "నేను ఏ పత్రాలు సిద్ధంగా ఉంచుకోవాలి?"),

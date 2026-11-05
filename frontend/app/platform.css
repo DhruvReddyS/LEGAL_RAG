@@ -416,3 +416,5 @@ html[data-low-bandwidth="on"] *,html[data-low-bandwidth="on"] *::before,html[dat
 .case-notes-actions button {display:inline-flex;align-items:center;gap:5px;min-height:32px;padding:0 9px;border-radius:7px;font-size:12px;color:var(--ink-soft);}
 .case-notes-actions button:hover {background:var(--hover);color:var(--ink);}
 .case-notes-actions .is-danger {color:var(--state-bad-text);}
+/* A settings section holding a single row keeps all four corners. */
+.settings-section>.setting-block:first-of-type:last-child {border-radius:12px;}
