@@ -9,6 +9,7 @@ import "./police.css";
 import "./platform.css";
 import "./admin.css";
 import "./citizen.css";
+import "./pro.css";
 const uiFont = DM_Sans({ subsets: ["latin"], variable: "--font-ui", display: "swap" });
 const editorialFont = Newsreader({ subsets: ["latin"], variable: "--font-editorial", display: "swap", adjustFontFallback: false });
 

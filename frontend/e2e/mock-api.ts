@@ -14,6 +14,7 @@ export const SESSION_ID = uuid(1);
 export const MESSAGE_ID = uuid(2);
 export const JOB_ID = uuid(3);
 export const CASE_ID = uuid(4);
+export const SECOND_CASE_ID = uuid(5);
 
 export function userFor(role: Role) {
   return { id: uuid(10), name: `Test ${role}`, email: `${role}@example.test`, role, is_active: true, created_at: NOW };
@@ -98,6 +99,74 @@ function accountStatus(consentRequired: boolean) {
 }
 
 const LEGAL_CASE = { id: CASE_ID, title: "State v. Test", status: "open", role_type: "advocate", created_at: NOW, updated_at: NOW };
+const SECOND_CASE = { id: SECOND_CASE_ID, title: "State v. Second", status: "open", role_type: "advocate", created_at: "2026-10-20T09:00:00Z", updated_at: NOW };
+
+const registerRow = (caseId: string, caseTitle: string, key: string, obligation: string, provision: string, state: string, dueAt: string | null, imminent = false) => ({
+  case_id: caseId, case_title: caseTitle, key, obligation, provision, actor: "officer", is_officer_duty: true, consequence: "", computed_from: "",
+  due_at: dueAt, state, state_reason: "From the dates recorded.", is_earliest_possible: false, is_imminent: imminent, completed_at: null,
+  completion_note: "", completion_is_derived: false, notes: [],
+});
+
+const REGISTER = {
+  evaluated_at: NOW,
+  imminent_hours: 48,
+  rows: [
+    registerRow(CASE_ID, LEGAL_CASE.title, "production", "Produce the arrested person before the Magistrate", "s.58 BNSS", "overdue", "2026-11-04T09:00:00Z"),
+    registerRow(CASE_ID, LEGAL_CASE.title, "report", "File the final report", "s.193 BNSS", "due", "2026-11-06T09:00:00Z", true),
+    registerRow(SECOND_CASE_ID, SECOND_CASE.title, "diary", "Send the case diary", "s.192 BNSS", "due", "2026-12-20T09:00:00Z"),
+  ],
+  counts: { overdue: 1, due: 2, imminent: 1 },
+  cases_without_facts: [],
+};
+
+const calendarEvent = (id: number, caseId: string, caseTitle: string, kind: string, title: string, dueOn: string, state: string, days: number) => ({
+  id: uuid(id), case_id: caseId, case_title: caseTitle, kind, title, due_on: dueOn, notes: null, basis: {}, completed: state === "done", state, days_from_today: days,
+});
+
+const CALENDAR = {
+  today: "2026-11-05",
+  events: [
+    calendarEvent(80, CASE_ID, LEGAL_CASE.title, "limitation", "File the appeal", "2026-11-02", "overdue", -3),
+    calendarEvent(81, CASE_ID, LEGAL_CASE.title, "hearing", "Arguments on bail", "2026-11-07", "due_soon", 2),
+    calendarEvent(82, SECOND_CASE_ID, SECOND_CASE.title, "hearing", "Framing of charges", "2026-12-01", "upcoming", 26),
+    calendarEvent(83, SECOND_CASE_ID, SECOND_CASE.title, "limitation", "Revision petition", "2027-01-15", "upcoming", 71),
+  ],
+};
+
+/** Each case answers with its own file, so a test can see one case's content leave. */
+const caseFile = (caseId: string) => ({
+  document_id: uuid(caseId === CASE_ID ? 90 : 91),
+  storage_object_id: null,
+  filename: caseId === CASE_ID ? "first-case-statement.pdf" : "second-case-order.pdf",
+  doc_type: "other",
+  uploaded_at: NOW,
+  sha256: null,
+  page_count: 4,
+  chunk_count: 12,
+});
+
+/** What an empty, working case answers, keyed by the part after /cases/{id}/. */
+function caseFixture(caseId: string, rest: string): unknown {
+  const table: Record<string, unknown> = {
+    "documents/indexed": { documents: [caseFile(caseId)] },
+    "documents/generated": { documents: [] },
+    chronology: { events: [{ date: "2026-10-01", precision: "day", text: `An event in ${caseId === CASE_ID ? "the first case" : "the second case"}.`, document_id: uuid(90), title: caseFile(caseId).filename, page_start: 1, page_end: 1 }], total_events: 1, documents_read: 1 },
+    "investigation/facts": {},
+    "investigation/timeline": { evaluated_at: NOW, deadlines: [], breached: [], undetermined: [] },
+    "police/evidence": { items: [] },
+    "police/witnesses": { witnesses: [] },
+    "police/searches": { searches: [] },
+    "police/offences": { assessments: [] },
+    "police/remand": { periods: [], police_days_used: 0, police_days_left: 0 },
+    "police/diary": { entries: [], days_without_entry: [] },
+    "police/drafts": { drafts: [] },
+    "advocate/calendar": { today: "2026-11-05", events: CALENDAR.events.filter((event) => event.case_id === caseId) },
+    "advocate/work": { work: [] },
+    "advocate/debates": { debates: [] },
+    "strategy/defence-analyses": { analyses: [] },
+  };
+  return table[rest];
+}
 
 const counts = { passed: 3, failed: 1, skipped: 0, incomplete: 0, not_run: 1 };
 const GATE = { key: "retrieval", name: "Retrieval gate", checks: "Recall at five", status: "failed", excerpt: "Recall below the bar." };
@@ -253,6 +322,8 @@ export interface MockOptions {
   consentRequired?: boolean;
   /** Who a successful sign-in becomes. */
   signsInAs?: Role;
+  /** A professional who has not opened a case yet. */
+  noCases?: boolean;
   /** Keyed "METHOD /path". Wins over everything below. */
   overrides?: Record<string, (route: Route) => unknown>;
 }
@@ -303,8 +374,18 @@ export async function mockApi(page: Page, options: MockOptions) {
     if (path === "/chat/safety-check") return json(route, { contacts: [] });
     if (path === "/chat/query") return json(route, ANSWER);
     if (path === "/feedback") return json(route, { ok: true });
-    if (path === "/cases") return json(route, { cases: role === "citizen" || role === "admin" ? [] : [{ ...LEGAL_CASE, role_type: role }] });
+    if (path === "/cases") {
+      const cases = role === "citizen" || role === "admin" || options.noCases ? [] : [{ ...LEGAL_CASE, role_type: role }, { ...SECOND_CASE, role_type: role }];
+      return json(route, { cases, total: cases.length });
+    }
     if (path === "/police/my-units") return json(route, { units: [] });
+    if (path === "/police/deadlines" && role === "police") return json(route, options.noCases ? { ...REGISTER, rows: [], counts: {} } : REGISTER);
+    if (path === "/advocate/calendar" && role === "advocate") return json(route, options.noCases ? { ...CALENDAR, events: [] } : CALENDAR);
+    const inCase = path.match(/^\/cases\/([0-9a-f-]{36})\/(.+)$/);
+    if (inCase && (role === "police" || role === "advocate")) {
+      const body = caseFixture(inCase[1], inCase[2]);
+      if (body !== undefined) return json(route, body);
+    }
     const fixture = ADMIN[path];
     if (fixture && role === "admin") return json(route, fixture);
     return json(route, { detail: "Not found" }, 404);
@@ -316,4 +397,11 @@ export async function openApp(page: Page, role: Role, extra: Partial<MockOptions
   await mockApi(page, { role, ...extra });
   await page.goto("/");
   await page.getByLabel("Legal research question").waitFor();
+}
+
+/** Opens the police or advocate application at a screen, and waits for its navigation. */
+export async function openPro(page: Page, role: "police" | "advocate", path = "/", extra: Partial<MockOptions> = {}) {
+  await mockApi(page, { role, ...extra });
+  await page.goto(path);
+  await page.locator(".pro-app").waitFor();
 }

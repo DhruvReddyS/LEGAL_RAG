@@ -1,8 +1,8 @@
 "use client";
 
-import { ArrowDown, BookOpenText, ChevronRight, Search, BriefcaseBusiness, Check, FilePenLine, Fingerprint, HelpCircle, History, LogOut, Menu, MessageSquare, MoreHorizontal, Pencil, Pin, PinOff, Plus, Scale, ScanSearch, Settings, ShieldCheck, Trash2, Undo2, X, Zap } from "lucide-react";
+import { ArrowDown, BookOpenText, ChevronRight, Search, BriefcaseBusiness, Check, FilePenLine, HelpCircle, History, LogOut, Menu, MessageSquare, MoreHorizontal, Pencil, Pin, PinOff, Plus, Scale, ScanSearch, Settings, ShieldCheck, Trash2, Undo2, X, Zap } from "lucide-react";
 import dynamic from "next/dynamic";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import AuthModal from "@/components/AuthModal";
 import BrandLogo from "@/components/BrandLogo";
 import ChatInput from "@/components/ChatInput";
@@ -28,13 +28,15 @@ import { useCitizenLang } from "@/components/citizen/useCitizenLang";
 import { readDraft, restoreStoredMessages, syncHistoryRow } from "@/lib/citizen-chat";
 import type { UiKey } from "@/lib/citizen-i18n";
 import { onSessionExpired } from "@/lib/session-expiry";
-import { ApiError, apiUrl, cancelDeepReviewJob, chatWithCorpus, checkForHelplines, deleteChatSession, getChatSession, renameChatSession, getDeepReviewJob, getIngestionProgress, getMe, logout, refreshSession, listCases } from "@/lib/api";
+import { parseProRoute, proHref, sameRoute, type ProRoute } from "@/lib/pro-route";
+import { ApiError, apiUrl, cancelDeepReviewJob, chatWithCorpus, checkForHelplines, deleteChatSession, getChatSession, renameChatSession, getDeepReviewJob, getIngestionProgress, getMe, logout, refreshSession } from "@/lib/api";
 import type { ChatMessage, CitizenDocument, IngestionProgress, RequestedResponseMode, User, LegalCase } from "@/lib/types";
 
 // Each person uses one workspace and rarely opens the dialogs, so none of them is
 // paid for up front.
 const WorkspaceLoading = () => <p className="workspace-loading" role="status">Loading…</p>;
-const ProfessionalWorkspace = dynamic(() => import("@/components/ProfessionalWorkspace"), { loading: WorkspaceLoading });
+const ProApp = dynamic(() => import("@/components/pro/ProApp"), { loading: WorkspaceLoading });
+const ProChatPane = dynamic(() => import("@/components/pro/ProChatPane"));
 const AdminWorkspace = dynamic(() => import("@/components/AdminWorkspace"), { loading: WorkspaceLoading });
 const CitizenWorkspace = dynamic(() => import("@/components/citizen/CitizenWorkspace"), { loading: WorkspaceLoading });
 const AccountDialog = dynamic(() => import("@/components/platform/AccountDialog"));
@@ -131,6 +133,13 @@ function jobFollower() {
 const jobStore = () => window.localStorage;
 const jobTabs = browserTabCoordinator();
 
+/** Questions any case can start from. They ask about the files, and state nothing themselves. */
+const CASE_PROMPTS = [
+  { title: "Sum up the files", text: "Summarise what the files in this case say, with the file and page for each point." },
+  { title: "List the dates", text: "List the dates and events stated in the files in this case, in order." },
+  { title: "Find what is missing", text: "What do the files in this case leave unclear or unrecorded?" },
+];
+
 function savedChatFrom(item: HistorySession): SavedChat {
   return {
     id: item.id,
@@ -183,6 +192,17 @@ export default function HomePage() {
   const [chatCases, setChatCases] = useState<LegalCase[]>([]);
   const [draftVersion, setDraftVersion] = useState(0);
   const [view, setView] = useState<"research" | "workspace">("research");
+  // Where a police officer or an advocate is. Citizens and administrators never read it.
+  const [proRoute, setProRoute] = useState<ProRoute>(() => parseProRoute(typeof window === "undefined" ? "" : window.location.search));
+  useEffect(() => {
+    const follow = () => setProRoute(parseProRoute(window.location.search));
+    window.addEventListener("popstate", follow);
+    return () => window.removeEventListener("popstate", follow);
+  }, []);
+  const proNavigate = useCallback((to: ProRoute, options?: { replace?: boolean }) => {
+    window.history[options?.replace ? "replaceState" : "pushState"](null, "", proHref(to));
+    setProRoute(to);
+  }, []);
   const [mobileNav, setMobileNav] = useState(false);
   const openNavRef = useRef<HTMLButtonElement>(null);
   const closeNavRef = useRef<HTMLButtonElement>(null);
@@ -476,12 +496,23 @@ export default function HomePage() {
   const signOut = async () => { leaveActiveRequest(); await logout().catch(() => undefined); setUser(null); setMessages([]); setSessionId(null); setActiveChatId(null); setView("research"); setResponseMode("auto"); setMobileNav(false); };
   const hasProfessionalWorkspace = user?.role === "police" || user?.role === "advocate";
   useEffect(() => {
-    if (!hasProfessionalWorkspace) { setChatCases([]); setChatCaseId(null); return; }
-    listCases().then((response) => setChatCases(response.cases)).catch(() => setChatCases([]));
+    // A professional's cases are read once, by the shell, and reported up.
+    if (!hasProfessionalWorkspace) { setChatCases([]); setChatCaseId(null); }
   }, [hasProfessionalWorkspace]);
   const hasOperationsWorkspace = hasProfessionalWorkspace || user?.role === "admin";
   const resetResearch = (caseId: string | null = null) => { leaveActiveRequest(); openingChat.current = null; setRestoredDraft(""); setMessages([]); setSessionId(null); setActiveChatId(crypto.randomUUID()); setChatCaseId(caseId); setDraftVersion(value => value + 1); setView("research"); setMobileNav(false); window.scrollTo({ top: 0, behavior: "auto" }); };
+  // A chat screen shows one scope only. Arriving on a different scope starts it clean, so
+  // a case's conversation never stands under Research or under another case. A question
+  // still being answered is left to finish: its screen offers the way back to it.
+  const chatScopeId = hasProfessionalWorkspace && proRoute.section === "research" ? null : hasProfessionalWorkspace && proRoute.section === "case" && proRoute.tab === "ask" ? proRoute.caseId ?? null : undefined;
+  useEffect(() => {
+    if (chatScopeId === undefined || chatScopeId === chatCaseId || activeRequest.current) return;
+    resetResearch(chatScopeId);
+    // resetResearch only touches state setters and refs.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chatScopeId, chatCaseId, loading]);
   const openSavedChat = (item: SavedChat) => {
+    if (hasProfessionalWorkspace) proNavigate(item.caseId ? { section: "case", caseId: item.caseId, tab: "ask" } : { section: "research" });
     leaveActiveRequest();
     setChatMenuId(null);
     setActiveChatId(item.id);
@@ -563,9 +594,6 @@ export default function HomePage() {
   // The nonce matters: clicking the same sidebar link twice must reopen
   // that view, and a bare value would not change on the second click.
   const [workspaceView, setWorkspaceView] = useState<{ view: string; nonce: number } | null>(null);
-  const [workspaceVisited, setWorkspaceVisited] = useState(false);
-  useEffect(() => { if (view === "workspace") setWorkspaceVisited(true); }, [view]);
-  useEffect(() => { setWorkspaceVisited(false); }, [user?.id]);
   const openTool = (target?: string) => {
     setView("workspace"); setMobileNav(false);
     setWorkspaceView(current => ({ view: target || "casefile", nonce: (current?.nonce ?? 0) + 1 }));
@@ -652,15 +680,7 @@ export default function HomePage() {
 
   const role = user.role;
   const openCitizenTool = (tool: CitizenTool | null) => { setCitizenTool(current => ({ tool, nonce: (current?.nonce ?? 0) + 1 })); setView("workspace"); setMobileNav(false); };
-  const tools: { title: string; icon: typeof Scale; target?: string; citizenTool?: CitizenTool }[] = role === "citizen" ? CITIZEN_TOOLS.map(tool => ({ title: citizenText(tool.title as UiKey), icon: tool.icon, citizenTool: tool.id })) : role === "police" ? [
-    { title: "Investigations", icon: Fingerprint, target: "" },
-    { title: "FIR drafting", icon: FilePenLine, target: "agent" },
-    { title: "Evidence & documents", icon: ScanSearch, target: "documents" },
-  ] : role === "advocate" ? [
-    { title: "Your cases", icon: BriefcaseBusiness, target: "" },
-    { title: "Build a strategy", icon: Scale, target: "agent" },
-    { title: "Review documents", icon: ScanSearch, target: "documents" },
-  ] : [{ title: "Manage workspace", icon: Settings, target: "" }];
+  const tools: { title: string; icon: typeof Scale; target?: string; citizenTool?: CitizenTool }[] = role === "citizen" ? CITIZEN_TOOLS.map(tool => ({ title: citizenText(tool.title as UiKey), icon: tool.icon, citizenTool: tool.id })) : [{ title: "Manage workspace", icon: Settings, target: "" }];
   const pinnedChats = history.filter(item => item.pinned).sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0));
   const recentChats = history.filter(item => !item.pinned).sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0));
   const caseTitle = (caseId: string | null | undefined) => chatCases.find(item => item.id === caseId)?.title ?? "Matter";
@@ -675,51 +695,12 @@ export default function HomePage() {
     {chatMenuId === item.id && <div className="chat-menu" role="menu"><button role="menuitem" onClick={() => void togglePinned(item)}>{item.pinned ? <PinOff size={14}/> : <Pin size={14}/>} {item.pinned ? citizenText("unpinChat") : citizenText("pinChat")}</button><button role="menuitem" onClick={() => { setRenamingChatId(item.id); setRenameDraft(item.title); setChatMenuId(null); }}><Pencil size={14}/>{citizenText("renameChat")}</button><button role="menuitem" className="is-danger" onClick={() => deleteChat(item)}><Trash2 size={14}/>{citizenText("deleteChat")}</button></div>}
   </div>;
 
-  return <main data-role={role} data-motion={animate ? "on" : "off"} className="app-shell">
-    <a className="skip-link" href="#main-content">{citizenText("skipToContent")}</a>
-    <aside aria-label="Main navigation" aria-hidden={compactNavigation && !mobileNav} ref={node => { if(node) node.inert = compactNavigation && !mobileNav; }} className={`app-sidebar ${mobileNav ? "is-open" : ""}`}>
-      <div className="sidebar-brand"><BrandLogo /><button ref={closeNavRef} className="icon-button lg:hidden" onClick={() => setMobileNav(false)} aria-label={citizenText("closeNav")}><X size={18} /></button></div>
-      <button disabled={loading} className="new-chat-button" onClick={() => { resetResearch(); setMobileNav(false); }}><Plus size={18} />{citizenText("newChat")}</button>
-      <button className="sidebar-search" onClick={() => { setMobileNav(false); setHistoryPanelOpen(true); }}><Search size={15} aria-hidden="true" />{citizenText("searchChats")}</button>
-      <a className="sidebar-search" href="/law"><BookOpenText size={15} aria-hidden="true" />{citizenText("openProvision")}</a>
-      <nav className="feature-nav" aria-label="Features">{tools.map(tool => <button key={tool.title} onClick={() => { if (tool.citizenTool) openCitizenTool(tool.citizenTool); else openTool(tool.target); }}><tool.icon size={18} strokeWidth={1.65} /><span>{tool.title}</span></button>)}</nav>
-      <div className="chat-history">{pinnedChats.length > 0 && <><div className="history-heading"><span>{citizenText("pinned")} <b>{pinnedChats.length}/5</b></span><Pin size={13}/></div>{pinnedChats.map(chatRow)}</>}<div className="history-heading"><span>{hasProfessionalWorkspace ? "Law-only chats" : citizenText("recentChats")}</span><History size={14}/></div>{publicChats.length ? publicChats.map(chatRow) : !pinnedChats.length && !matterChats.length && <p>{citizenText("noChatsYet")}</p>}{hasProfessionalWorkspace && <><div className="history-heading"><span>Case chats</span><BriefcaseBusiness size={13}/></div>{matterChats.length ? matterChats.map(chatRow) : <p>Open a case and ask a question there to start one.</p>}</>}{historyCursor && <button type="button" className="ctz-load-more" onClick={() => void loadOlderChats()}>{citizenText("loadMore")}</button>}</div>
-      <div className="sidebar-bottom"><button onClick={() => { setMobileNav(false); role === "citizen" ? setCitizenGuideSlide(0) : setGuideOpen(true); }}><HelpCircle size={17} />{citizenText("gettingStarted")}</button><button onClick={() => { setMobileNav(false); setSettingsOpen(true); }}><Settings size={17} />{citizenText("settings")}<span className="ml-auto text-xs capitalize text-[var(--ink-soft)]">{role}</span></button></div>
-    </aside>
-    {mobileNav && <button aria-label="Dismiss navigation" className="sidebar-scrim" onClick={() => setMobileNav(false)} />}
-    {historyNotice && <div className="history-toast" role="status"><span>{historyNotice}</span><button aria-label={citizenText("dismiss")} onClick={() => setHistoryNotice("")}><X size={13}/></button></div>}
-    <div className="app-content" id="main-content" tabIndex={-1} ref={node => { if(node) node.inert = compactNavigation && mobileNav; }}>
-      <header className="workspace-header"><button ref={openNavRef} className="icon-button lg:hidden" aria-label={citizenText("openNav")} onClick={() => setMobileNav(true)}><Menu size={20} /></button><span>{view === "workspace" ? role === "citizen" ? " " : role === "police" ? "Investigation workspace" : role === "advocate" ? "Your case workspace" : "Administration" : " "}</span>{role === "citizen" && view !== "workspace" && <LangSwitcher/>}{view === "workspace" && <button className="text-sm text-[var(--ink-soft)]" onClick={() => setView("research")}><MessageSquare size={16} className="mr-2 inline" />{citizenText("backToChat")}</button>}</header>
-      {view === "workspace" && role === "citizen" && <CitizenWorkspace requested={citizenTool} onAsk={(question) => { resetResearch(); void submit(question, [], false, undefined, true); }} />}
-      {/* Stays mounted once opened: going back to chat must not lose an unsaved
-          narrative or the selected case. */}
-      {hasProfessionalWorkspace && workspaceVisited && <div hidden={view !== "workspace"}><ProfessionalWorkspace
-          key={user.id}
-          user={user}
-          chats={history.filter(item => item.caseId).map(item => ({ id: item.id, sessionId: item.sessionId, title: item.title, caseId: item.caseId ?? null, updatedAt: item.updatedAt ?? 0 }))}
-          onCasesChange={setChatCases}
-          onNewMatterChat={(caseId) => resetResearch(caseId)}
-          onOpenMatterChat={(chatId) => { const saved = history.find(item => item.id === chatId); if (saved) openSavedChat(saved); }}
-          requestedView={workspaceView}
-        /></div>}
-      {view === "workspace" && hasOperationsWorkspace ? role === "admin" ? <AdminWorkspace /> : null : view === "workspace" ? null :
-      <section className={`chat-workspace ${messages.length ? "has-conversation" : ""}`}>
-        {!messages.length ? <div className="chat-welcome">
-          {role === "citizen" && <DueSoonStrip onOpen={() => openCitizenTool("matter")}/>}
-          <div className="welcome-symbol"><Scale size={32} strokeWidth={1.3} /></div>
-          <h1>{role === "citizen" ? citizenText("welcomeHeading") : role === "police" ? "What are you investigating?" : role === "advocate" ? "Where does your argument begin?" : "What would you like to research?"}</h1>
-          <p>{role === "citizen" ? citizenText("welcomeLead") : role === "police" ? "Explore procedure, preserve evidence, and build your record." : role === "advocate" ? "Find authority. Explore both sides. Refine your position." : "Explore your legal corpus."}</p>
-          <ChatInput key={`${sessionId}:${draftVersion}`} onSend={submit} onStop={stopResearch} loading={loading} mode={responseMode} onModeChange={setResponseMode} cases={chatCases} caseId={chatCaseId} onCaseChange={setChatCaseId} scopeLockedReason={scopeLockedReason(sessionId)} placeholder={role === "citizen" ? citizenText("composerWelcome") : experience.placeholder} redactBeforeAttach={role === "citizen"} initialDraft={restoredDraft} />
-          {role === "citizen" && <div className="ctz-welcome-tools"><span>{citizenText("openTools")}</span>{CITIZEN_TOOLS.slice(0, 4).map(tool => <button type="button" key={tool.id} onClick={() => openCitizenTool(tool.id)}><tool.icon size={15} strokeWidth={1.6} aria-hidden="true"/>{citizenText(tool.title as UiKey)}</button>)}</div>}
-          <div className="prompt-shortcuts">{experience.suggestions.map((suggestion,index) => { const Icon = [FilePenLine, ScanSearch, ShieldCheck, BookOpenText][index]; return <button key={suggestion.title} disabled={loading} onClick={() => void submit(suggestion.text)}><Icon size={16} strokeWidth={1.6} aria-hidden="true" />{role === "citizen" ? citizenText((["suggestFir", "suggestPhone", "suggestStop", "suggestRights"] as const)[index]) : suggestion.title}</button>; })}</div>
-          <button className="guide-invite" onClick={() => role === "citizen" ? setCitizenGuideSlide(0) : setGuideOpen(true)}><HelpCircle size={14} />{citizenText("firstTime")}</button>
-        </div> : <>
+  const conversationView = (composerCases: LegalCase[], composerPlaceholder: string | undefined) => <>
           <div className="conversation">{messages.map((message,index) => <div key={message.id} ref={index === messages.length-1 ? latestMessage : undefined}>{!!message.helplines?.length && <HelplineNotice contacts={message.helplines}/>}<MessageBubble message={message} citizen={role === "citizen"} onLegalAid={role === "citizen" ? () => openCitizenTool("legal-aid") : undefined} role={role} question={message.role === "assistant" ? messages.slice(0, index).reverse().find(item => item.role === "user")?.content : undefined} onEdit={!loading && !message.documents?.some(document => !document.pages.length) ? (text) => void submit(text, message.documents, false, index) : undefined} onForgetDocuments={() => { const ids = new Set(message.documents?.map(document => document.id)); const clear = (items: ChatMessage[]) => items.map(item => ({...item, documents: item.documents?.map(document => ids.has(document.id) ? {...document, pages: []} : document)})); setMessages(clear); setHistory(current => current.map(item => ({...item, messages: clear(item.messages)}))); }} onRegenerate={!loading && message.role === "assistant" && index === messages.length-1 ? () => { const question=messages.slice(0,index).reverse().find(item=>item.role==="user"); if(question) void submit(question.content, question.documents, true); } : undefined} /></div>)}</div>
           {awayFromLatest && <button className="jump-latest" aria-label="Jump to latest message" onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: animate && !window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "smooth" : "auto" })}><ArrowDown size={17}/></button>}
-          <div className="conversation-composer"><ChatInput key={`${sessionId}:${draftVersion}`} onSend={submit} onStop={stopResearch} loading={loading} mode={responseMode} onModeChange={setResponseMode} cases={chatCases} caseId={chatCaseId} onCaseChange={setChatCaseId} scopeLockedReason={scopeLockedReason(sessionId)} redactBeforeAttach={role === "citizen"} initialDraft={restoredDraft} /></div>
-        </>}
-      </section>}
-    </div>
+          <div className="conversation-composer"><ChatInput key={`${sessionId}:${draftVersion}`} onSend={submit} onStop={stopResearch} loading={loading} mode={responseMode} onModeChange={setResponseMode} cases={composerCases} caseId={chatCaseId} onCaseChange={setChatCaseId} scopeLockedReason={scopeLockedReason(sessionId)} placeholder={composerPlaceholder} redactBeforeAttach={role === "citizen"} initialDraft={restoredDraft} /></div>
+  </>;
+  const sharedDialogs = <>
     {historyPanelOpen && <HistoryPanel citizen={role === "citizen"} onClose={() => setHistoryPanelOpen(false)} onOpen={openFromPanel} onChanged={() => setHistoryVersion(value => value + 1)} />}
     {accountOpen && <AccountDialog user={user} onClose={() => setAccountOpen(false)} onUserChange={setUser} onSignOut={() => { setAccountOpen(false); void signOut(); }} onErased={(receipt) => { setAccountOpen(false); setUser(null); setErasedReceipt(receipt); }} />}
     <AccountGate user={user} onCleared={() => setHistoryVersion(value => value + 1)} onSignOut={() => void signOut()} onOpenAccount={() => setAccountOpen(true)} />
@@ -750,5 +731,77 @@ export default function HomePage() {
         <section><div className="guide-picture"><BookOpenText size={46} strokeWidth={1.3} /><ShieldCheck className="guide-check" size={23} /></div><span className="step-number">03</span><h3>{role==="citizen" ? "Check the source" : "Build on the evidence"}</h3><p>{role==="citizen" ? "Expand a citation to read the passage. Copy useful references and return to past chats in the sidebar." : "Open your matter workspace to add evidence, review documents and prepare a draft or strategy."}</p></section>
       </div><button className="button-primary mt-8" onClick={()=>setGuideOpen(false)}>Got it, let’s begin</button><p className="mt-4 text-xs text-[var(--ink-soft)]">Research support, not a substitute for professional judgement.</p>
     </div></div>}
+  </>;
+
+  if (hasProfessionalWorkspace) {
+    const proChat = (scope: { caseId: string | null; caseTitle?: string }) => {
+      const rows = history.filter(item => (item.caseId ?? null) === scope.caseId).sort((a, b) => Number(b.pinned ?? false) - Number(a.pinned ?? false) || (b.updatedAt ?? 0) - (a.updatedAt ?? 0));
+      return <ProChatPane
+        scopeCaseId={scope.caseId}
+        scopeTitle={scope.caseTitle}
+        activeCaseId={chatCaseId}
+        busy={loading}
+        empty={!messages.length}
+        rows={rows.map(chatRow)}
+        onNew={() => resetResearch(scope.caseId)}
+        onLoadMore={historyCursor ? () => void loadOlderChats() : undefined}
+        composer={<ChatInput key={`${sessionId}:${draftVersion}`} onSend={submit} onStop={stopResearch} loading={loading} mode={responseMode} onModeChange={setResponseMode} caseId={chatCaseId} placeholder={scope.caseId ? "Ask about this case…" : experience.placeholder} initialDraft={restoredDraft} />}
+        conversation={conversationView([], undefined)}
+        suggestions={scope.caseId ? CASE_PROMPTS : [...experience.suggestions]}
+        onSuggest={(text) => void submit(text)}
+      />;
+    };
+    return <main data-role={role} data-motion={animate ? "on" : "off"} className="app-shell">
+      {historyNotice && <div className="history-toast" role="status"><span>{historyNotice}</span><button aria-label={citizenText("dismiss")} onClick={() => setHistoryNotice("")}><X size={13}/></button></div>}
+      <ProApp
+        key={user.id}
+        user={user}
+        route={proRoute}
+        navigate={proNavigate}
+        chats={history.map(item => ({ id: item.id, title: item.title, caseId: item.caseId ?? null, updatedAt: item.updatedAt ?? 0 }))}
+        onCasesChange={setChatCases}
+        onOpenChat={(chatId) => { const saved = history.find(item => item.id === chatId); if (saved) openSavedChat(saved); }}
+        chatView={proChat}
+        busyScope={loading ? { caseId: chatCaseId } : null}
+        onSettings={() => setSettingsOpen(true)}
+        onSearchChats={() => setHistoryPanelOpen(true)}
+      />
+      {sharedDialogs}
+    </main>;
+  }
+
+  return <main data-role={role} data-motion={animate ? "on" : "off"} className="app-shell">
+    <a className="skip-link" href="#main-content">{citizenText("skipToContent")}</a>
+    <aside aria-label="Main navigation" aria-hidden={compactNavigation && !mobileNav} ref={node => { if(node) node.inert = compactNavigation && !mobileNav; }} className={`app-sidebar ${mobileNav ? "is-open" : ""}`}>
+      <div className="sidebar-brand"><BrandLogo /><button ref={closeNavRef} className="icon-button lg:hidden" onClick={() => setMobileNav(false)} aria-label={citizenText("closeNav")}><X size={18} /></button></div>
+      <button disabled={loading} className="new-chat-button" onClick={() => { resetResearch(); setMobileNav(false); }}><Plus size={18} />{citizenText("newChat")}</button>
+      <button className="sidebar-search" onClick={() => { setMobileNav(false); setHistoryPanelOpen(true); }}><Search size={15} aria-hidden="true" />{citizenText("searchChats")}</button>
+      <a className="sidebar-search" href="/law"><BookOpenText size={15} aria-hidden="true" />{citizenText("openProvision")}</a>
+      <nav className="feature-nav" aria-label="Features">{tools.map(tool => <button key={tool.title} onClick={() => { if (tool.citizenTool) openCitizenTool(tool.citizenTool); else openTool(tool.target); }}><tool.icon size={18} strokeWidth={1.65} /><span>{tool.title}</span></button>)}</nav>
+      <div className="chat-history">{pinnedChats.length > 0 && <><div className="history-heading"><span>{citizenText("pinned")} <b>{pinnedChats.length}/5</b></span><Pin size={13}/></div>{pinnedChats.map(chatRow)}</>}<div className="history-heading"><span>{hasProfessionalWorkspace ? "Law-only chats" : citizenText("recentChats")}</span><History size={14}/></div>{publicChats.length ? publicChats.map(chatRow) : !pinnedChats.length && !matterChats.length && <p>{citizenText("noChatsYet")}</p>}{hasProfessionalWorkspace && <><div className="history-heading"><span>Case chats</span><BriefcaseBusiness size={13}/></div>{matterChats.length ? matterChats.map(chatRow) : <p>Open a case and ask a question there to start one.</p>}</>}{historyCursor && <button type="button" className="ctz-load-more" onClick={() => void loadOlderChats()}>{citizenText("loadMore")}</button>}</div>
+      <div className="sidebar-bottom"><button onClick={() => { setMobileNav(false); role === "citizen" ? setCitizenGuideSlide(0) : setGuideOpen(true); }}><HelpCircle size={17} />{citizenText("gettingStarted")}</button><button onClick={() => { setMobileNav(false); setSettingsOpen(true); }}><Settings size={17} />{citizenText("settings")}<span className="ml-auto text-xs capitalize text-[var(--ink-soft)]">{role}</span></button></div>
+    </aside>
+    {mobileNav && <button aria-label="Dismiss navigation" className="sidebar-scrim" onClick={() => setMobileNav(false)} />}
+    {historyNotice && <div className="history-toast" role="status"><span>{historyNotice}</span><button aria-label={citizenText("dismiss")} onClick={() => setHistoryNotice("")}><X size={13}/></button></div>}
+    <div className="app-content" id="main-content" tabIndex={-1} ref={node => { if(node) node.inert = compactNavigation && mobileNav; }}>
+      <header className="workspace-header"><button ref={openNavRef} className="icon-button lg:hidden" aria-label={citizenText("openNav")} onClick={() => setMobileNav(true)}><Menu size={20} /></button><span>{view === "workspace" ? role === "citizen" ? " " : role === "police" ? "Investigation workspace" : role === "advocate" ? "Your case workspace" : "Administration" : " "}</span>{role === "citizen" && view !== "workspace" && <LangSwitcher/>}{view === "workspace" && <button className="text-sm text-[var(--ink-soft)]" onClick={() => setView("research")}><MessageSquare size={16} className="mr-2 inline" />{citizenText("backToChat")}</button>}</header>
+      {view === "workspace" && role === "citizen" && <CitizenWorkspace requested={citizenTool} onAsk={(question) => { resetResearch(); void submit(question, [], false, undefined, true); }} />}
+      {view === "workspace" && hasOperationsWorkspace ? <AdminWorkspace /> : view === "workspace" ? null :
+      <section className={`chat-workspace ${messages.length ? "has-conversation" : ""}`}>
+        {!messages.length ? <div className="chat-welcome">
+          {role === "citizen" && <DueSoonStrip onOpen={() => openCitizenTool("matter")}/>}
+          <div className="welcome-symbol"><Scale size={32} strokeWidth={1.3} /></div>
+          <h1>{role === "citizen" ? citizenText("welcomeHeading") : role === "police" ? "What are you investigating?" : role === "advocate" ? "Where does your argument begin?" : "What would you like to research?"}</h1>
+          <p>{role === "citizen" ? citizenText("welcomeLead") : role === "police" ? "Explore procedure, preserve evidence, and build your record." : role === "advocate" ? "Find authority. Explore both sides. Refine your position." : "Explore your legal corpus."}</p>
+          <ChatInput key={`${sessionId}:${draftVersion}`} onSend={submit} onStop={stopResearch} loading={loading} mode={responseMode} onModeChange={setResponseMode} cases={chatCases} caseId={chatCaseId} onCaseChange={setChatCaseId} scopeLockedReason={scopeLockedReason(sessionId)} placeholder={role === "citizen" ? citizenText("composerWelcome") : experience.placeholder} redactBeforeAttach={role === "citizen"} initialDraft={restoredDraft} />
+          {role === "citizen" && <div className="ctz-welcome-tools"><span>{citizenText("openTools")}</span>{CITIZEN_TOOLS.slice(0, 4).map(tool => <button type="button" key={tool.id} onClick={() => openCitizenTool(tool.id)}><tool.icon size={15} strokeWidth={1.6} aria-hidden="true"/>{citizenText(tool.title as UiKey)}</button>)}</div>}
+          <div className="prompt-shortcuts">{experience.suggestions.map((suggestion,index) => { const Icon = [FilePenLine, ScanSearch, ShieldCheck, BookOpenText][index]; return <button key={suggestion.title} disabled={loading} onClick={() => void submit(suggestion.text)}><Icon size={16} strokeWidth={1.6} aria-hidden="true" />{role === "citizen" ? citizenText((["suggestFir", "suggestPhone", "suggestStop", "suggestRights"] as const)[index]) : suggestion.title}</button>; })}</div>
+          <button className="guide-invite" onClick={() => role === "citizen" ? setCitizenGuideSlide(0) : setGuideOpen(true)}><HelpCircle size={14} />{citizenText("firstTime")}</button>
+        </div> : <>
+          {conversationView(chatCases, undefined)}
+        </>}
+      </section>}
+    </div>
+    {sharedDialogs}
   </main>;
 }

@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { mockApi, openApp } from "./mock-api";
+import { CASE_ID, mockApi, openApp, openPro } from "./mock-api";
 
 test("citizen: the tools open and say who they are", async ({ page }) => {
   await openApp(page, "citizen");
@@ -10,22 +10,18 @@ test("citizen: the tools open and say who they are", async ({ page }) => {
   await expect(page.getByLabel("Legal research question")).toBeVisible();
 });
 
-test("police: the investigation workspace lists its tools", async ({ page }) => {
-  await openApp(page, "police");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("What are you investigating?");
-  await page.locator(".feature-nav").getByRole("button", { name: "Investigations" }).click();
-  const tools = page.getByRole("navigation", { name: "Case tools" });
-  await expect(tools.getByRole("button", { name: /Deadline register/ })).toBeVisible();
-  await tools.getByRole("button", { name: /Investigation record/ }).click();
-  await expect(page.getByRole("tablist", { name: "Investigation record" })).toBeVisible();
+test("police: the old tool rail is gone, and the tools live in the case", async ({ page }) => {
+  await openPro(page, "police", `/?s=case&case=${CASE_ID}&tab=deadlines`);
+  await expect(page.getByRole("navigation", { name: "Case tools" })).toHaveCount(0);
+  await expect(page.getByRole("navigation", { name: "Deadlines and compliance tools" }).getByRole("link", { name: "Compliance" })).toBeVisible();
+  await page.getByRole("navigation", { name: "Main sections" }).getByRole("link", { name: "Deadlines" }).click();
+  await expect(page.getByText("Act now").first()).toBeVisible();
 });
 
-test("advocate: the desk lists its tools", async ({ page }) => {
-  await openApp(page, "advocate");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Where does your argument begin?");
-  await page.locator(".feature-nav").getByRole("button", { name: "Your cases" }).click();
-  await page.getByRole("navigation", { name: "Case tools" }).getByRole("button", { name: /Advocate desk/ }).click();
-  await expect(page.getByRole("navigation", { name: "Advocate tools" }).getByRole("button", { name: "Calendar" })).toBeVisible();
+test("advocate: the old tool rail is gone, and the tools live in the case", async ({ page }) => {
+  await openPro(page, "advocate", `/?s=case&case=${CASE_ID}&tab=strategy`);
+  await expect(page.getByRole("navigation", { name: "Case tools" })).toHaveCount(0);
+  await expect(page.getByRole("navigation", { name: "Strategy tools" }).getByRole("link", { name: "Bail" })).toBeVisible();
 });
 
 test("admin: every console tab opens", async ({ page }) => {
@@ -52,14 +48,10 @@ test("admin: tabs answer the arrow keys", async ({ page }) => {
 
 test("a phone brings a chosen tool into view, and nothing overflows with a case to choose", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 800 });
-  await mockApi(page, { role: "police" });
-  await page.goto("/");
-  await page.getByLabel("Legal research question").waitFor();
+  await openPro(page, "police", `/?s=case&case=${CASE_ID}&tab=deadlines`);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
-  await page.getByRole("button", { name: "Open navigation" }).click();
-  await page.locator(".feature-nav").getByRole("button", { name: "Investigations" }).click();
-  await page.getByRole("navigation", { name: "Case tools" }).getByRole("button", { name: /Compliance/ }).click();
-  await expect(page.locator(".feature-view")).toBeInViewport();
+  await page.getByRole("navigation", { name: "Deadlines and compliance tools" }).getByRole("link", { name: "Compliance" }).click();
+  await expect(page.getByRole("heading", { level: 2, name: "BNSS compliance record" })).toBeInViewport();
 });
 
 test("citizens are not asked for corpus status, which the server refuses them", async ({ page }) => {

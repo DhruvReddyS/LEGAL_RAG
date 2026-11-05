@@ -129,7 +129,7 @@ function LimitationCalculator({ caseId, onAdded }: { caseId: string; onAdded: ()
   );
 }
 
-export default function CalendarTool({ caseId, caseTitle }: { caseId: string; caseTitle?: string }) {
+export default function CalendarTool({ caseId, caseTitle, showAcross = true }: { caseId: string; caseTitle?: string; showAcross?: boolean }) {
   const [events, setEvents] = useState<CalendarEvent[] | null>(null);
   const [across, setAcross] = useState<CalendarEvent[] | null>(null);
   const [kind, setKind] = useState("hearing");
@@ -168,6 +168,7 @@ export default function CalendarTool({ caseId, caseTitle }: { caseId: string; ca
   };
   return (
     <div className="adv-section">
+      {showAcross && (
       <section className="adv-section">
         <h4 className="adv-heading">All my cases</h4>
         {across === null ? (
@@ -178,6 +179,7 @@ export default function CalendarTool({ caseId, caseTitle }: { caseId: string; ca
           <p className="case-empty">No open dates in any of your cases.</p>
         )}
       </section>
+      )}
       {!caseId ? <NeedsCase /> : (
         <>
           <section className="adv-section">
