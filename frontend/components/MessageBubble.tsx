@@ -1,11 +1,12 @@
 "use client";
 import FollowUps from "@/components/FollowUps";
-import { BookMarked, Check, Clock3, Copy, Gavel, Pencil, RotateCcw, ShieldCheck, ThumbsDown, ThumbsUp, Volume2, Square, X } from "lucide-react";
+import { Check, Clock3, Copy, Pencil, RotateCcw, ShieldCheck, ThumbsDown, ThumbsUp, Volume2, Square } from "lucide-react";
 import { Fragment, ReactNode, useEffect, useRef, useState } from "react";
 import HumanHelp from "@/components/platform/HumanHelp";
 import { AnswerExportMenu, PrintOnlySources } from "@/components/platform/AnswerTools";
 import ReactMarkdown from "react-markdown";
-import { NO_LEAD, presentAnswer } from "@/lib/answer-presentation";
+import { isFastBrief, NO_LEAD, presentAnswer, sourceHeading } from "@/lib/answer-presentation";
+import { CorpusilThinking, CurrencyBadge, DeclineCard, type DeclineKind, FastBrief, SourcePages, SourcePanel, SourceTitle } from "./AnswerParts";
 import { isOutOfScope, safetyKind, shouldOfferHuman } from "@/lib/citizen-chat";
 import { HumanRoute } from "./citizen/shared";
 import SourceCurrency from "./citizen/SourceCurrency";
@@ -111,35 +112,7 @@ function llmWallTime(message: ChatMessage): number | null {
   return measured.length ? measured.reduce((total, value) => total + value, 0) : null;
 }
 
-export function CorpusilThinking({ detail, deep = true, stageLabel, progress, startedAt, citizen = false }: { detail?: string; deep?: boolean; stageLabel?: string | null; progress?: number | null; startedAt?: number; citizen?: boolean }) {
-  const { t } = useCitizenLang(citizen);
-  const [phrase, setPhrase] = useState(0);
-  const [elapsed, setElapsed] = useState(0);
-  const phrases = deep ? [t("thinkDeep1"), t("thinkDeep2"), t("thinkDeep3")] : [t("thinkSources1"), t("thinkSources2")];
-  useEffect(() => { const timer = window.setInterval(() => setPhrase(value => value + 1), 3600); return () => window.clearInterval(timer); }, []);
-  // Deep review takes minutes. Without an elapsed time and a named stage the
-  // wait is indistinguishable from a hang, which is what it was reported as.
-  useEffect(() => {
-    if (!deep || !startedAt) return;
-    const tick = () => setElapsed(Math.floor((Date.now() - startedAt) / 1000));
-    tick();
-    const timer = window.setInterval(tick, 1000);
-    return () => window.clearInterval(timer);
-  }, [deep, startedAt]);
-  const clock = elapsed >= 60 ? `${Math.floor(elapsed / 60)}m ${String(elapsed % 60).padStart(2, "0")}s` : `${elapsed}s`;
-  const scene = phrase % 3;
-  return <div className="thinking-inline"><span className="sr-only" role="status">{stageLabel || (deep ? t("deepInProgress") : t("searchInProgress"))}</span><div className="thinking-scene" aria-hidden="true">
-    {scene === 0 && <div className="balance-mark"><span className="balance-beam"/><span className="balance-pillar"/><span className="balance-pan left"><i className="balance-weight left"/></span><span className="balance-pan right"><i className="balance-weight right"/></span></div>}
-    {scene === 1 && <div className="gavel-mark"><Gavel size={24}/><span/></div>}
-    {scene === 2 && <div className="authority-mark"><BookMarked size={24}/><span/><i/></div>}
-  </div><div className="thinking-copy" aria-hidden="true">
-    <p key={stageLabel || phrase}>{stageLabel || phrases[phrase % phrases.length]}…</p>
-    {deep && startedAt ? <small>{typeof progress === "number" ? `${progress}% · ` : ""}{clock} {t("elapsedUsual")}</small> : detail ? <small>{detail}</small> : null}
-    {deep && typeof progress === "number" && <div className="thinking-progress" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label={t("deepProgress")}><span style={{ width: `${Math.max(2, progress)}%` }} /></div>}
-  </div></div>;
-}
-
-export default function MessageBubble({ message, onRegenerate, onForgetDocuments, onEdit, role, question, citizen = false, onLegalAid }: { message: ChatMessage; onRegenerate?: () => void; onForgetDocuments?: () => void; onEdit?: (text: string) => void; role?: string; question?: string; citizen?: boolean; onLegalAid?: () => void }) {
+export default function MessageBubble({ message, onRegenerate, onForgetDocuments, onEdit, role, question, citizen = false, onLegalAid, onAskDeep }: { message: ChatMessage; onRegenerate?: () => void; onForgetDocuments?: () => void; onEdit?: (text: string) => void; role?: string; question?: string; citizen?: boolean; onLegalAid?: () => void; onAskDeep?: () => void }) {
   const articleRef = useRef<HTMLElement>(null);
   const { t: text } = useCitizenLang(citizen);
   const safety = safetyKind(message);
@@ -170,11 +143,19 @@ export default function MessageBubble({ message, onRegenerate, onForgetDocuments
   const [editing, setEditing] = useState(false);
   const [editedText, setEditedText] = useState(message.content);
   useEffect(() => { setCanSpeak("speechSynthesis" in window); return () => { if ("speechSynthesis" in window) window.speechSynthesis.cancel(); }; }, []);
+  // A reopened chat keeps no lane, so its opening sentence is what marks a Fast result.
+  const fastMode = message.responseMode === "fast" || (message.responseMode === undefined && isFastBrief(message.content));
   const presentation = presentAnswer(message.content, {
-    fast: message.responseMode === "fast",
+    fast: fastMode,
     evidenceStrength: message.evidenceStrength ?? null,
   });
   const citations = message.citations ?? [];
+  const declined: DeclineKind | null = safety === "emergency" ? "emergency" : safety === "refusal" ? "refusal" : outOfScope ? "out_of_scope" : presentation.abstained ? "insufficient" : null;
+  const fastList = fastMode && !declined && citations.length > 0;
+  // A Deep answer that passed, or a reopened one whose every source the verifier marked.
+  const verifiedGrade = !fastMode && !declined && citations.length > 0 && (message.responseMode === "deep"
+    ? message.evidenceStrength === "strong" || message.evidenceStrength === "moderate"
+    : citations.every(item => item.verification_status === "verified"));
   const source = citations.find(item => active === `S${item.number}`);
   const document = message.documents?.find((_, index) => active === `D${index + 1}`);
   const elapsed = message.clientElapsedMs ?? (typeof message.timingsMs?.api_total_ms === "number" ? message.timingsMs.api_total_ms : null);
@@ -188,11 +169,19 @@ export default function MessageBubble({ message, onRegenerate, onForgetDocuments
     const number = part.match(/^\[Source (\d+)\]$/)?.[1];
     return number && citations.some(item => item.number === Number(number)) ? <button key={index} className="source-chip inline-source" aria-label={`${text("previewSource")} ${number}`} aria-expanded={active === `S${number}`} onClick={() => toggle(`S${number}`)}>{number}</button> : part;
   }) : children;
+  const panel = (source || document) && <SourcePanel label={text("sourcePreviewLabel")} closeLabel={text("closePreview")} onClose={() => setActive(null)} isDocument={!!document}>{source ? <>
+    <div className="source-eyebrow"><strong>{text("corpusSource")} {source.number}</strong><CurrencyBadge source={source} citizen={citizen} />{source.verification_status === "verified" ? <span className="answer-badge is-ok">{text("sourceChecked")}</span> : source.verification_status === "partial" ? <span className="answer-badge is-warn">{text("sourcePartial")}</span> : <span className="answer-badge is-warn">{text("fastUnverified")}</span>}</div>
+    <h3><SourceTitle source={source} citizen={citizen} /></h3>
+    <p className="source-pages"><SourcePages source={source} citizen={citizen} /></p>
+    <SourceCurrency source={source} citizen={citizen}/>
+    <blockquote lang="en">{source.excerpt}</blockquote>
+  </> : document && <><small>{text("yourDocument")}</small><h3>{document.filename}</h3><p className="source-pages">{text("documentContext")}</p>{document.pages.length ? document.pages.map(page => <div key={page.page}><small>{text("page")} {page.page}</small><blockquote>{page.text}</blockquote></div>) : <p>{text("documentGone")}</p>}{onForgetDocuments && <button className="answer-text-action" onClick={() => { onForgetDocuments(); setActive(null); }}>{text("forgetDocument")}</button>}</>}</SourcePanel>;
   const markdown = (text: string) => <ReactMarkdown components={{ p: ({ children }) => <p>{inline(children)}</p>, li: ({ children }) => <li>{inline(children)}</li>, strong: ({ children }) => <strong>{inline(children)}</strong> }}>{text}</ReactMarkdown>;
   const speak = () => {
     window.speechSynthesis.cancel();
     if (speaking) { setSpeaking(false); return; }
-    const utterance = new SpeechSynthesisUtterance(presentation.explanation.replace(/\[Source \d+\]|[*#_]/g, ""));
+    const spoken = fastList ? citations.map(item => `${sourceHeading(item).act}. ${item.excerpt}`).join(" ") : presentation.explanation;
+    const utterance = new SpeechSynthesisUtterance(spoken.replace(/\[Source \d+\]|[*#_]/g, ""));
     utterance.lang = "en-IN"; utterance.onend = utterance.onerror = () => setSpeaking(false);
     setSpeaking(true); window.speechSynthesis.speak(utterance);
   };
@@ -205,10 +194,9 @@ export default function MessageBubble({ message, onRegenerate, onForgetDocuments
     return <div className="provisional-turn">
       {thinking}
       <section className="provisional-brief" aria-label={text("provisionalLabel")}>
-        <p className="provisional-note"><ShieldCheck size={14}/> {text("provisionalNote")}</p>
-        <div className="legal-answer" lang="en">{markdown(message.content)}</div>
-        {!!citations.length && <div className="trust-row"><span className="source-label">{text("sourcesLabel")}</span>{citations.map(item => <button key={item.chunk_id} className="source-chip" onClick={() => toggle(`S${item.number}`)} aria-expanded={active === `S${item.number}`} aria-label={`${text("previewSource")} ${item.number}: ${item.title}`}>{item.number}</button>)}</div>}
+        <FastBrief citations={citations} provisional active={active} onPreview={toggle} citizen={citizen} />
       </section>
+      {panel}
     </div>;
   }
   if (message.role === "user") return <div className={`user-turn ${editing ? "is-editing" : ""}`}><article className="user-message">{editing ? <><textarea autoFocus aria-label={text("editYourQuestion")} value={editedText} maxLength={4000} rows={3} onChange={event => setEditedText(event.target.value)} onKeyDown={event => { if (event.key === "Escape") setEditing(false); if ((event.metaKey || event.ctrlKey) && event.key === "Enter" && editedText.trim()) { setEditing(false); onEdit?.(editedText.trim()); } }}/><p className="edit-hint">{text("editHint")}</p><div className="edit-actions"><button onClick={() => setEditing(false)}>{text("cancel")}</button><button disabled={!editedText.trim()} onClick={() => { setEditing(false); onEdit?.(editedText.trim()); }}>{text("saveResend")}</button></div></> : <p>{message.content}</p>}{message.documents?.map((doc, index) => <span className="document-chip" key={doc.id}>D{index + 1} · {doc.filename}</span>)}</article>{!editing && <div className="user-actions"><button className="answer-action" aria-label={text("copyQuestion")} onClick={async () => { try { await navigator.clipboard.writeText(message.content); setCopied(true); } catch { setCopyError(true); } }}>{copied ? <Check size={14}/> : <Copy size={14}/>}</button>{onEdit && <button className="answer-action" aria-label={text("editQuestion")} onClick={() => { setEditedText(message.content); setEditing(true); }}><Pencil size={14}/></button>}</div>}{copyError && <p className="edit-hint">{text("clipboardQuestion")}</p>}</div>;
@@ -217,13 +205,18 @@ export default function MessageBubble({ message, onRegenerate, onForgetDocuments
   return <article className="assistant-message" ref={articleRef}>
     <div className="answer-byline"><span className="corpus-signature">Corpusil</span><span>{message.category || "Legal research"}</span></div>
     {citizen && message.messageId && citations.length > 0 && <TranslatedAnswer messageId={message.messageId} render={markdown} />}
-    <div className="answer-lead legal-answer" lang="en">{!(safety && presentation.explanation === NO_LEAD) && markdown(presentation.explanation)}</div>
+    {fastList ? <FastBrief citations={citations} active={active} onPreview={toggle} onAskDeep={onAskDeep} citizen={citizen} lead={!isFastBrief(message.content) && <div className="answer-lead legal-answer" lang="en">{markdown(presentation.explanation)}</div>} /> : <>
+    {verifiedGrade && <div className="answer-verdict" data-grade={message.evidenceStrength === "moderate" ? "moderate" : "strong"}><ShieldCheck size={18} aria-hidden="true" /><div><strong>{text("verifiedTitle")}</strong><span>{text("verifiedDetail")}</span></div>{message.evidenceStrength && <details className="confidence-help"><summary className="confidence-pill">{message.evidenceStrength === "strong" ? text("gradeStrong") : text("gradeModerate")}</summary><p>{text("gradeHelp")}</p></details>}</div>}
+    {declined
+      ? <DeclineCard kind={declined} citizen={citizen}>{!(safety && presentation.explanation === NO_LEAD) && markdown(presentation.explanation)}</DeclineCard>
+      : <div className="answer-lead legal-answer" lang="en">{markdown(presentation.explanation)}</div>}
     <div className="trust-row" aria-label={text("evidenceAndSources")}>
-      <details hidden={outOfScope} className="confidence-help"><summary className="confidence-pill">{safety === "emergency" ? text("safetyLabel") : safety === "refusal" ? text("refusalLabel") : message.responseMode === "fast" ? text("gradeFast") : message.evidenceStrength === "strong" ? text("gradeStrong") : message.evidenceStrength === "moderate" ? text("gradeModerate") : message.evidenceStrength === "insufficient" ? text("gradeLimited") : text("gradeNotKept")}</summary><p>{safety === "emergency" ? text("safetyHelp") : safety === "refusal" ? text("refusalHelp") : message.responseMode === "fast" ? text("gradeFastHelp") : text("gradeHelp")}</p></details>
-      {citations.length > 0 && <span className="source-label">{text("sourcesLabel")}</span>}{citations.map(item => <button key={item.chunk_id} className="source-chip" onClick={() => toggle(`S${item.number}`)} aria-expanded={active === `S${item.number}`} aria-label={`${text("previewSource")} ${item.number}: ${item.title}`}>{item.number}</button>)}
-      {!citations.length && !safety && !outOfScope && <span>{text("noCitedAuthority")}</span>}
+      {!verifiedGrade && !declined && <details className="confidence-help"><summary className="confidence-pill">{message.evidenceStrength === "strong" ? text("gradeStrong") : message.evidenceStrength === "moderate" ? text("gradeModerate") : text("gradeNotKept")}</summary><p>{text("gradeHelp")}</p></details>}
+      {citations.length > 0 && <span className="source-label">{text("sourcesLabel")}</span>}{citations.map(item => { const heading = sourceHeading(item); return <button key={item.chunk_id} className="source-chip source-pill" onClick={() => toggle(`S${item.number}`)} aria-expanded={active === `S${item.number}`} aria-label={`${text("previewSource")} ${item.number}: ${item.title}`}><b>{item.number}</b><span>{heading.section ? `${heading.sectionIsNumber ? "s." : ""}${heading.section}, ` : ""}{heading.act}</span></button>; })}
+      {!citations.length && !declined && <span>{text("noCitedAuthority")}</span>}
       {message.documents?.map((doc, index) => <button key={doc.id} className="document-chip" onClick={() => toggle(`D${index + 1}`)} aria-expanded={active === `D${index + 1}`} title={`Your document: ${doc.filename}`}>D{index + 1}</button>)}
     </div>
+    </>}
     {!!message.sectionConfidence?.length && (
       <details className="section-grading">
         <summary>
@@ -246,15 +239,15 @@ export default function MessageBubble({ message, onRegenerate, onForgetDocuments
         </p>
       </details>
     )}
-    {(source || document) && <section className={`source-preview ${document ? "document-preview" : ""}`} aria-label={text("sourcePreviewLabel")}><button className="icon-button preview-close" onClick={() => setActive(null)} aria-label={text("closePreview")}><X size={16}/></button>{source ? <><small>{text("corpusSource")} {source.number} · {source.verification_status ?? "Unverified"}</small><h3>{source.title}</h3><p className="source-pages">{text("pagesLabel")} {source.page_start}–{source.page_end}{source.section ? ` · ${text("sectionLabel")} ${source.section}` : ""}</p><SourceCurrency source={source} citizen={citizen}/><blockquote lang="en">{source.excerpt}</blockquote></> : document && <><small>{text("yourDocument")}</small><h3>{document.filename}</h3><p className="source-pages">{text("documentContext")}</p>{document.pages.length ? document.pages.map(page => <div key={page.page}><small>{text("page")} {page.page}</small><blockquote>{page.text}</blockquote></div>) : <p>{text("documentGone")}</p>}{onForgetDocuments && <button className="answer-text-action" onClick={() => { onForgetDocuments(); setActive(null); }}>{text("forgetDocument")}</button>}</>}</section>}
-    <div className="legal-answer answer-body" lang="en">{presentation.basis && <><h3 lang={undefined}>{text("legalBasis")}</h3>{markdown(presentation.basis)}</>}{markdown(presentation.other)}{presentation.limits && <details open className="answer-limits"><summary>{text("limitsTitle")}</summary>{markdown(presentation.limits)}</details>}</div>
+    {panel}
+    <div className="legal-answer answer-body" lang="en">{presentation.basis && <><h3 lang={undefined}>{text("legalBasis")}</h3>{markdown(presentation.basis)}</>}{!fastList && markdown(presentation.other)}{presentation.limits && <details open className="answer-limits"><summary>{text("limitsTitle")}</summary>{markdown(presentation.limits)}</details>}</div>
     {presentation.footer && <section className="source-currency" aria-label="Source currency"><h3>{text("stillLaw")}</h3>{markdown(presentation.footer)}</section>}
-    {presentation.abstained && <HumanHelp role={role} />}
+    {presentation.abstained && !outOfScope && !(citizen && !safety) && <HumanHelp role={role} />}
     {citizen && !safety && !outOfScope && shouldOfferHuman(message) && <div className="ctz-chat-human"><HumanRoute onLegalAid={onLegalAid}>{text("humanNudge")}</HumanRoute></div>}
-    <aside className="legal-note" aria-label={text("noteLabel")}><ShieldCheck size={17}/><div><strong>{text("beforeRely")}</strong><p>{citations.some(item => item.repeal_label === "no_longer_in_force") ? text("noteRepealed") : citations.some(item => item.repeal_label === "concerns_repealed_provision") ? text("noteMoved") : citations.length && citations.every(item => item.current_status === "current") ? text("noteCurrent") : text("noteUnknown")} {text("noteCheck")}</p></div></aside>
+    {!(declined && !citations.length) && <aside className="legal-note" aria-label={text("noteLabel")}><ShieldCheck size={17}/><div><strong>{text("beforeRely")}</strong><p>{citations.some(item => item.repeal_label === "no_longer_in_force") ? text("noteRepealed") : citations.some(item => item.repeal_label === "concerns_repealed_provision") ? text("noteMoved") : citations.length && citations.every(item => item.current_status === "current") ? text("noteCurrent") : text("noteUnknown")} {text("noteCheck")}</p></div></aside>}
     <PrintOnlySources message={message} question={question} />
     <div className="answer-actions" aria-label={text("answerActions")}><AnswerExportMenu message={message} question={question} articleRef={articleRef} citizen={citizen} /><button className="answer-action" aria-label={copied ? text("answerCopied") : text("copyAnswer")} onClick={async () => { try { await navigator.clipboard.writeText(message.content); setCopied(true); setCopyError(false); } catch { setCopyError(true); } }}>{copied ? <Check size={16}/> : <Copy size={16}/>}</button><button className="answer-action" aria-label={text("markHelpful")} aria-pressed={feedback === "up"} disabled={!message.messageId} onClick={() => rate("up")}><ThumbsUp size={16}/></button><button className="answer-action" aria-label={text("markNotHelpful")} aria-pressed={feedback === "down"} disabled={!message.messageId} onClick={() => rate("down")}><ThumbsDown size={16}/></button>{onRegenerate && <button className="answer-action" aria-label={text("regenerate")} onClick={onRegenerate}><RotateCcw size={16}/></button>}<span className="performance-pills">{llmElapsedLabel && <span className="answer-performance" title="Measured wall time spent in Ollama calls across this answer." aria-label={`LLM time ${llmElapsedLabel}`}><span>LLM</span>{llmElapsedLabel}</span>}{elapsedLabel && <span className="answer-performance" title="Time from sending your question to receiving the finished response in this tab, including network and review wait." aria-label={`Total response time ${elapsedLabel}`}><Clock3 size={13}/><span>Total</span>{elapsedLabel}</span>}</span>{canSpeak && <button className="listen-button" onClick={speak} aria-pressed={speaking}>{speaking ? <Square size={14}/> : <Volume2 size={16}/>} {speaking ? text("stopReading") : text("listen")}</button>}</div>
-    {performanceRows.length > 0 && <details className="rag-timing"><summary><span><Clock3 size={13}/>RAG timing</span>{bottleneck && <small>Slowest: {bottleneck.label} · {durationLabel(bottleneck.ms)}</small>}</summary><div className="rag-timing-list">{performanceRows.map((row, index) => <div key={`${row.label}-${index}`} className={row.detail ? "is-detail" : row.label === "End-to-end total" ? "is-total" : ""}><span>{row.label}</span><b>{durationLabel(row.ms)}</b></div>)}</div></details>}
+    {performanceRows.length > 0 && <details className="rag-timing"><summary><span><Clock3 size={13}/>Response time</span>{bottleneck && <small>Slowest: {bottleneck.label} · {durationLabel(bottleneck.ms)}</small>}</summary><div className="rag-timing-list">{performanceRows.map((row, index) => <div key={`${row.label}-${index}`} className={row.detail ? "is-detail" : row.label === "End-to-end total" ? "is-total" : ""}><span>{row.label}</span><b>{durationLabel(row.ms)}</b></div>)}</div></details>}
     {onRegenerate && !safety && !outOfScope && !presentation.abstained && !message.stopped && role !== "admin" && <FollowUps citations={citations} role={role} citizen={citizen} />}
     {copyError && <p role="status" className="answer-footer">{text("clipboardAnswer")}</p>}
     {feedbackError && <p role="status" className="answer-footer">{text("ratingFailed")}</p>}

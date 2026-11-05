@@ -254,6 +254,8 @@ export const UI = {
   searchChats: l("Search chats", "चैट खोजें", "చాట్‌లు వెతకండి"),
   noChatsYet: l("Your conversations will appear here.", "आपकी बातचीत यहाँ दिखेगी।", "మీ సంభాషణలు ఇక్కడ కనిపిస్తాయి."),
   pinned: l("Pinned", "पिन की गई", "పిన్ చేసినవి"),
+  commonQuestions: l("Common questions", "आम प्रश्न", "సాధారణ ప్రశ్నలు"),
+  welcomeTrust: l("Answers show the law they come from. Legal information, not advice.", "उत्तर बताते हैं कि वे किस क़ानून से आए हैं। यह क़ानूनी जानकारी है, सलाह नहीं।", "సమాధానాలు అవి ఏ చట్టం నుంచి వచ్చాయో చూపిస్తాయి. ఇది న్యాయ సమాచారం, సలహా కాదు."),
   firstTime: l("First time here? Take a quick look", "पहली बार आए हैं? एक नज़र डालें", "మొదటిసారి వచ్చారా? ఒకసారి చూడండి"),
   suggestFir: l("Filing an FIR", "FIR दर्ज कराना", "FIR నమోదు"),
   suggestPhone: l("Stolen phone", "फ़ोन चोरी", "ఫోన్ దొంగతనం"),
@@ -284,6 +286,39 @@ export const UI = {
   chatUnreachable: l("The legal corpus is unavailable. Check your connection and try again.", "क़ानूनी संग्रह अभी उपलब्ध नहीं है। कनेक्शन जाँचकर फिर कोशिश करें।", "న్యాయ సేకరణ ఇప్పుడు అందుబాటులో లేదు. కనెక్షన్ చూసి మళ్లీ ప్రయత్నించండి."),
   chatNotLoaded: l("This conversation could not be loaded. Check your connection and try again.", "यह बातचीत लोड नहीं हुई। कनेक्शन जाँचकर फिर कोशिश करें।", "ఈ సంభాషణ లోడ్ కాలేదు. కనెక్షన్ చూసి మళ్లీ ప్రయత్నించండి."),
   jobNotFollowed: l("Progress on this review could not be followed. It may still finish: reopen this chat shortly.", "इस समीक्षा की प्रगति नहीं देखी जा सकी। यह फिर भी पूरी हो सकती है: थोड़ी देर बाद यह चैट खोलें।", "ఈ సమీక్ష పురోగతిని చూడలేకపోయాం. అయినా ఇది పూర్తి కావచ్చు: కొద్దిసేపటి తర్వాత ఈ చాట్ తెరవండి."),
+
+  // Chat: a Fast source list
+  fastKicker: l("Quick source lookup", "त्वरित स्रोत खोज", "త్వరిత మూలాల శోధన"),
+  fastUnverified: l("Not verified", "जाँचा नहीं गया", "సరిచూడలేదు"),
+  fastNote: l("The closest passages a quick search found. No statement has been checked against them, so treat this as a place to start reading, not as an answer.", "त्वरित खोज में मिले सबसे नज़दीकी अंश। किसी भी कथन को इनसे जाँचा नहीं गया है, इसलिए इन्हें उत्तर नहीं, पढ़ने की शुरुआत मानें।", "త్వరిత శోధనలో దొరికిన దగ్గరి భాగాలు. ఏ వాక్యాన్నీ వీటితో సరిచూడలేదు, కాబట్టి వీటిని సమాధానంగా కాక చదవడానికి ఆరంభంగా చూడండి."),
+  fastAskDeep: l("Get a full verified answer", "पूरा जाँचा हुआ उत्तर लें", "పూర్తి, సరిచూసిన సమాధానం పొందండి"),
+  fastAskDeepHint: l("Checks each claim against its source. Usually a minute or more.", "हर कथन को उसके स्रोत से जाँचता है। आमतौर पर एक मिनट या अधिक।", "ప్రతి వాక్యాన్ని దాని మూలంతో సరిచూస్తుంది. సాధారణంగా ఒక నిమిషం లేదా ఎక్కువ."),
+  fastShowMore: l("Show full passage", "पूरा अंश दिखाएँ", "పూర్తి భాగం చూపండి"),
+  fastShowLess: l("Show less", "कम दिखाएँ", "తక్కువ చూపండి"),
+  singlePage: l("Page", "पृष्ठ", "పేజీ"),
+  fastDetails: l("Details", "विवरण", "వివరాలు"),
+  fastOpenSource: l("Open source", "स्रोत खोलें", "మూలం తెరవండి"),
+  // Chat: where a source stands
+  currencyCurrent: l("Marked current", "वर्तमान के रूप में दर्ज", "ప్రస్తుతమైనదిగా నమోదు"),
+  currencyMoved: l("Cites moved provisions", "बदली धाराओं का हवाला", "మారిన సెక్షన్ల ప్రస్తావన"),
+  currencyRepealed: l("Repealed", "निरस्त", "రద్దయింది"),
+  currencySuperseded: l("Superseded", "प्रतिस्थापित", "భర్తీ అయింది"),
+  currencyUnknown: l("Status not confirmed", "स्थिति की पुष्टि नहीं", "స్థితి నిర్ధారణ కాలేదు"),
+  // Chat: a verified answer
+  verifiedTitle: l("Verified against sources", "स्रोतों से जाँचा गया", "మూలాలతో సరిచూశారు"),
+  verifiedDetail: l("Each statement was checked by the system against the passage it cites. Open a source to read it yourself.", "हर कथन को सिस्टम ने उसके उद्धृत अंश से जाँचा है। स्वयं पढ़ने के लिए स्रोत खोलें।", "ప్రతి వాక్యాన్ని వ్యవస్థ అది ఉదహరించిన భాగంతో సరిచూసింది. మీరే చదవడానికి మూలం తెరవండి."),
+  sourceChecked: l("Source checked", "स्रोत जाँचा गया", "మూలం సరిచూశారు"),
+  sourcePartial: l("Partly checked", "आंशिक रूप से जाँचा गया", "పాక్షికంగా సరిచూశారు"),
+  // Chat: declining to answer
+  declinedEvidenceTitle: l("More evidence is needed.", "और प्रमाण चाहिए।", "మరిన్ని ఆధారాలు అవసరం."),
+  declinedEvidenceWhy: l("Corpusil answers only when the law it holds supports the answer, and it would rather say so than guess. Naming the Act or section, or adding facts, can help.", "Corpusil तभी उत्तर देता है जब उसके पास मौजूद क़ानून उत्तर का समर्थन करे, और अनुमान लगाने के बजाय यह बता देता है। अधिनियम या धारा का नाम, या और तथ्य जोड़ने से मदद मिल सकती है।", "Corpusil తన దగ్గర ఉన్న చట్టం సమాధానానికి ఆధారం ఇచ్చినప్పుడే జవాబిస్తుంది, ఊహించడం కంటే ఆ విషయం చెప్పేస్తుంది. చట్టం లేదా సెక్షన్ పేరు, లేదా మరిన్ని వివరాలు చెప్పడం సహాయపడవచ్చు."),
+  declinedScopeTitle: l("Outside what Corpusil covers", "Corpusil के दायरे से बाहर", "Corpusil పరిధికి వెలుపల"),
+  declinedScopeWhy: l("Corpusil answers questions about Indian law from the documents it holds, so it has nothing to cite here.", "Corpusil अपने पास मौजूद दस्तावेज़ों से भारतीय क़ानून के प्रश्नों का उत्तर देता है, इसलिए यहाँ उद्धृत करने को कुछ नहीं है।", "Corpusil తన దగ్గర ఉన్న పత్రాల నుంచి భారతీయ చట్టం గురించిన ప్రశ్నలకు జవాబిస్తుంది, కాబట్టి ఇక్కడ ఉదహరించడానికి ఏమీ లేదు."),
+  // Chat: the stages of the wait
+  stageSearch: l("Searching the legal corpus", "क़ानूनी संग्रह में खोज", "న్యాయ సేకరణలో శోధన"),
+  stageRead: l("Reading what it found", "मिले हुए अंश पढ़ना", "దొరికిన భాగాలు చదవడం"),
+  stageCheck: l("Checking each claim against its source", "हर कथन को उसके स्रोत से जाँचना", "ప్రతి వాక్యాన్ని దాని మూలంతో సరిచూడడం"),
+  stageWrite: l("Writing the answer", "उत्तर लिखना", "సమాధానం రాయడం"),
 
   // Chat: an answer
   tryAgain: l("Try again", "फिर कोशिश करें", "మళ్లీ ప్రయత్నించండి"),
@@ -396,7 +431,7 @@ export const UI = {
   researchDepth: l("Default research depth", "खोज की सामान्य गहराई", "శోధన సాధారణ లోతు"),
   researchDepthHint: l("You can still change this beside any question.", "आप इसे हर प्रश्न के पास बदल सकते हैं।", "ప్రతి ప్రశ్న పక్కన దీన్ని మార్చవచ్చు."),
   motion: l("Motion", "गति", "కదలిక"),
-  motionHint: l("Includes the scales shown while an answer is prepared.", "इसमें उत्तर बनते समय दिखने वाला तराज़ू शामिल है।", "సమాధానం సిద్ధమయ్యేటప్పుడు కనిపించే త్రాసు కూడా ఇందులో ఉంది."),
+  motionHint: l("Small transitions, such as the progress shown while an answer is prepared.", "छोटे संक्रमण, जैसे उत्तर तैयार होते समय दिखने वाली प्रगति।", "చిన్న కదలికలు, ఉదాహరణకు సమాధానం సిద్ధమవుతున్నప్పుడు కనిపించే పురోగతి."),
   historyPrivacy: l("History & privacy", "इतिहास और निजता", "చరిత్ర, గోప్యత"),
   showRecent: l("Show recent chats", "हाल की चैट दिखाएँ", "ఇటీవలి చాట్‌లు చూపండి"),
   showRecentHint: l("Your conversations are stored on the server for your account. Delete one from its menu to erase it.", "आपकी बातचीत आपके खाते के लिए सर्वर पर रहती है। मिटाने के लिए उसके मेनू से मिटाएँ।", "మీ సంభాషణలు మీ ఖాతా కోసం సర్వర్‌లో ఉంటాయి. తొలగించడానికి దాని మెనూ నుండి తొలగించండి."),

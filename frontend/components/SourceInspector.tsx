@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, CircleAlert, FileText, Scale, ShieldCheck, X } from "lucide-react";
+import { CheckCircle2, CircleAlert, FileText, ShieldCheck, X } from "lucide-react";
 import type { SourceEvidence } from "@/lib/types";
 import { useEffect, useRef } from "react";
 
@@ -34,25 +34,28 @@ export default function SourceInspector({
     return () => { document.removeEventListener("keydown", keydown); previous?.focus(); };
   }, [onClose]);
   return (
-    <div ref={dialogRef} className="fixed inset-0 z-[80] flex justify-end bg-[var(--ink)]/35 backdrop-blur-[2px]" role="dialog" aria-modal="true" aria-label="Evidence inspector">
+    <div ref={dialogRef} className="inspector-scrim fixed inset-0 z-[80] flex justify-end" role="dialog" aria-modal="true" aria-label="Evidence inspector">
       <button className="absolute inset-0 cursor-default" onClick={onClose} aria-label="Close evidence inspector" />
-      <aside className="relative flex h-full w-full max-w-[520px] flex-col border-l border-[var(--border)] bg-[var(--card)] shadow-[-20px_0_60px_rgba(11,23,41,.18)]">
+      <aside className="inspector-panel relative flex h-full w-full max-w-[520px] flex-col border-l border-[var(--border)] bg-[var(--card)]">
         <header className="flex items-start justify-between border-b border-[var(--border)] px-6 py-5">
-          <div><p className="eyebrow">Why did the system say this?</p><h2 className="mt-1 text-xl font-semibold tracking-tight">Evidence inspector</h2></div>
-          <button onClick={onClose} className="rounded-xl border border-[var(--border)] p-2 text-[var(--ink-soft)] hover:bg-[var(--hover)]" aria-label="Close"><X size={18} /></button>
+          <div><p className="eyebrow">Why did the system say this?</p><h2 className="inspector-title">Evidence inspector</h2></div>
+          <button onClick={onClose} className="icon-button" aria-label="Close"><X size={18} /></button>
         </header>
         <div className="flex-1 overflow-y-auto p-6">
-          <div className="rounded-2xl bg-[var(--ink)] p-5 text-[var(--paper)]">
-            <div className="flex items-start justify-between gap-4"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--card)]/10"><Scale size={18} /></span><span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${verified ? "bg-[var(--state-ok-text)] text-[var(--state-ok-line)]" : "bg-[var(--state-warn-text)] text-[var(--state-warn-line)]"}`}>{source.verification_status}</span></div>
-            <h3 className="mt-4 text-base font-semibold">{source.title}</h3>
-            <p className="mt-1 text-xs capitalize text-[var(--paper)] opacity-80">{label(source.source_type)} / {source.scope === "private_case" ? "Private case evidence" : "Global legal corpus"}</p>
+          <div>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className={`answer-badge ${verified ? "is-ok" : "is-warn"} capitalize`}>{source.verification_status}</span>
+              <span className="answer-badge is-plain">{source.scope === "private_case" ? "Private case evidence" : "Global legal corpus"}</span>
+            </div>
+            <h3 className="inspector-source">{source.title}</h3>
+            <p className="mt-1 text-xs capitalize text-[var(--ink-soft)]">{label(source.source_type)}</p>
           </div>
 
-          <dl className="mt-5 grid grid-cols-2 gap-3">
-            <div className="rounded-xl border border-[var(--border)] p-3"><dt className="text-xs font-semibold text-[var(--ink-soft)]">Act / section</dt><dd className="mt-1 text-xs font-medium text-[var(--ink)]">{source.section ?? "Not specified"}</dd></div>
-            <div className="rounded-xl border border-[var(--border)] p-3"><dt className="text-xs font-semibold text-[var(--ink-soft)]">Page / chunk</dt><dd className="mt-1 text-xs font-medium text-[var(--ink)]">pp. {source.page_start}–{source.page_end} / {source.chunk_id}</dd></div>
-            <div className="rounded-xl border border-[var(--border)] p-3"><dt className="text-xs font-semibold text-[var(--ink-soft)]">Relevance score</dt><dd className="mt-1 text-xs font-medium text-[var(--ink)]">{source.relevance_score === null ? "Not recorded" : `${Math.round(source.relevance_score * 100)}%`}</dd></div>
-            <div className="rounded-xl border border-[var(--border)] p-3"><dt className="text-xs font-semibold text-[var(--ink-soft)]">Current-law status</dt><dd className="mt-1 text-xs font-medium capitalize text-[var(--ink)]">{label(source.current_status)}</dd></div>
+          <dl className="inspector-facts">
+            <div><dt>Act / section</dt><dd>{source.section ?? "Not specified"}</dd></div>
+            <div><dt>Page / chunk</dt><dd>pp. {source.page_start}–{source.page_end} / {source.chunk_id}</dd></div>
+            <div><dt>Relevance score</dt><dd>{source.relevance_score === null ? "Not recorded" : `${Math.round(source.relevance_score * 100)}%`}</dd></div>
+            <div><dt>Current-law status</dt><dd className="capitalize">{label(source.current_status)}</dd></div>
           </dl>
 
           {/* Two different warnings. Label A says this document is out of
@@ -133,9 +136,9 @@ export default function SourceInspector({
             </div>
           ) : null}
 
-          <section className="mt-5 rounded-2xl border border-[var(--border)] bg-[var(--hover)] p-5">
+          <section className="mt-5">
             <div className="flex items-center gap-2 text-xs font-semibold text-[var(--ink)]"><FileText size={15} className="text-[var(--accent)]" />Retrieved passage</div>
-            <blockquote className="mt-3 whitespace-pre-wrap text-sm leading-6 text-[var(--ink-soft)]">{source.excerpt}</blockquote>
+            <blockquote className="inspector-quote">{source.excerpt}</blockquote>
             {source.source_url && <a className="mt-3 inline-block text-xs font-medium text-[var(--accent)] hover:underline" href={source.source_url} target="_blank" rel="noopener noreferrer">Open the official source</a>}
           </section>
 

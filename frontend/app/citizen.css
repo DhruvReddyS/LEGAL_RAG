@@ -272,3 +272,34 @@ mark.ctz-mask {cursor:default;}
 }
 .ctz-translation { margin-bottom: 16px; padding: 12px 14px; background: var(--accent-soft); border-radius: 10px; }
 .ctz-translation-note { display: flex; align-items: center; gap: 6px; margin: 0 0 8px; font-size: 13px; color: var(--ink-soft); }
+
+/* The citizen's first screen: ask, or start from a situation. */
+[data-role="citizen"] .chat-welcome {padding:8px 0 56px;}
+[data-role="citizen"] .chat-welcome h1 {font-size:clamp(32px,3.4vw,42px);letter-spacing:-.02em;}
+[data-role="citizen"] .chat-welcome>p:not(.ctz-welcome-trust) {margin:10px 0 24px;font-size:15px;}
+.ctz-welcome-trust {display:flex;align-items:flex-start;gap:7px;margin:12px 2px 0;font-size:13px;line-height:1.5;color:var(--ink-soft);}
+.ctz-welcome-trust svg {flex:none;margin-top:3px;color:var(--accent);}
+.ctz-start {margin-top:28px;}
+.ctz-start h2 {margin-bottom:10px;font-family:var(--body);font-size:14px;font-weight:600;color:var(--ink);}
+.ctz-start-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+.ctz-start-grid button {display:flex;align-items:flex-start;gap:11px;min-width:0;padding:12px 14px;border:1px solid var(--border);border-radius:11px;background:var(--card);text-align:left;transition:border-color .15s,background .15s;}
+.ctz-start-grid button:hover {border-color:var(--accent);}
+.ctz-start-icon {display:grid;place-items:center;flex:none;width:30px;height:30px;border-radius:8px;background:var(--accent-soft);color:var(--accent);}
+.ctz-start-copy {display:grid;gap:2px;min-width:0;}
+.ctz-start-copy strong {font-size:14px;font-weight:600;line-height:1.35;color:var(--ink);}
+.ctz-start-copy small {font-size:12.5px;line-height:1.45;color:var(--ink-soft);}
+[data-role="citizen"] .prompt-shortcuts {align-items:center;gap:4px 16px;margin-top:18px;}
+.prompt-shortcuts-label {font-size:13px;font-weight:500;color:var(--ink);}
+[data-role="citizen"] .prompt-shortcuts button {min-height:36px;font-size:13px;}
+[data-role="citizen"] .guide-invite {margin-top:16px;font-size:13px;}
+@media (max-width:640px) {
+  .ctz-start-grid {grid-template-columns:minmax(0,1fr);}
+  .prompt-shortcuts-label {flex:1 1 100%;}
+}
+
+/* Devanagari and Telugu sit taller than Latin and cannot take tight tracking. Newsreader
+   has no glyphs for them, so these headings use the system's own face at its own rhythm. */
+html:lang(hi) h1,html:lang(hi) h2,html:lang(hi) h3,html:lang(te) h1,html:lang(te) h2,html:lang(te) h3 {letter-spacing:0;line-height:1.35;}
+html:lang(hi) .chat-welcome h1,html:lang(te) .chat-welcome h1,html:lang(hi) .settings-heading h2,html:lang(te) .settings-heading h2 {font-family:var(--body);font-weight:500;}
+html:lang(hi) .ctz-start-copy small,html:lang(te) .ctz-start-copy small,html:lang(hi) .fast-band-note,html:lang(te) .fast-band-note,html:lang(hi) .decline-why,html:lang(te) .decline-why {line-height:1.65;}
+html:lang(hi) .answer-badge,html:lang(te) .answer-badge {line-height:1.5;white-space:normal;}

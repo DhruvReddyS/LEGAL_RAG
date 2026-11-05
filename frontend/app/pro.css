@@ -254,13 +254,13 @@
 .pro-page.is-chat { max-width: 1160px; padding-bottom: 0; }
 .pro-chat { display: grid; grid-template-columns: 216px minmax(0, 1fr); gap: 24px; align-items: start; min-width: 0; }
 .pro-case-pane > .pro-chat { margin-top: -4px; }
-.pro-chat-side { position: sticky; top: 16px; display: grid; gap: 10px; min-width: 0; }
+.pro-chat-side { position: sticky; top: 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; min-width: 0; }
 .pro-case .pro-chat-side { top: 150px; }
 .pro-chat-new { width: 100%; }
 .pro-chat-list > summary { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; padding: 2px 4px; color: var(--ink-soft); font-size: 12px; font-weight: 600; cursor: pointer; list-style: none; }
 .pro-chat-list > summary::-webkit-details-marker { display: none; }
 .pro-chat-list > summary b { font-weight: 600; }
-.pro-chat-rows { display: grid; gap: 1px; }
+.pro-chat-rows { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1px; }
 .pro-chat-rows .chat-scope-tag { display: none; }
 .pro-chat-main { min-width: 0; display: flex; flex-direction: column; min-height: 60vh; }
 .pro-case .pro-chat-main { min-height: calc(100dvh - 200px); }

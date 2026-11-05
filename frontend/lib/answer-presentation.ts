@@ -155,3 +155,65 @@ export function legalCategory(query: string) {
     return "Constitutional law";
   return "Legal research";
 }
+
+/**
+ * A Fast result opens on this sentence. It describes the mode, which the source list
+ * says for itself. The history row keeps no lane, so a reopened chat is recognised by it.
+ */
+const FAST_BRIEF_OPENING = /^\s*Fast evidence brief\b/i;
+
+export function isFastBrief(content: string): boolean {
+  return FAST_BRIEF_OPENING.test(content);
+}
+
+type SourceFields = {
+  title: string;
+  act_name?: string | null;
+  section?: string | null;
+  court?: string | null;
+  current_status?: string;
+  repeal_label?: string;
+};
+
+/** Act and section, as a person would name the source. */
+export function sourceHeading(source: SourceFields) {
+  const act = (source.act_name || source.title).trim();
+  const raw = (source.section ?? "").trim().replace(/^(?:section|sec\.?|s\.)\s*/i, "");
+  const key = (text: string) => text.toLowerCase().replace(/^the\s+/, "").replace(/[^a-z0-9]+/g, " ").trim();
+  const sameDocument = key(source.title).includes(key(act)) || key(act).includes(key(source.title));
+  return {
+    act,
+    section: raw || null,
+    sectionIsNumber: /^\d/.test(raw),
+    detail: sameDocument ? (source.court ?? null) : source.title,
+  };
+}
+
+export type SourceStandingLabel = "sourceRepealed" | "currencyMoved" | "currencyCurrent" | "currencyRepealed" | "currencySuperseded" | "currencyUnknown";
+
+/**
+ * Where a source stands. "Marked current" and not "In force": the corpus records a
+ * status, and later changes may not be in it.
+ */
+export function sourceStanding(source: SourceFields): { tone: "ok" | "warn" | "bad" | "plain"; label: SourceStandingLabel } {
+  if (source.repeal_label === "no_longer_in_force") return { tone: "bad", label: "sourceRepealed" };
+  if (source.repeal_label === "concerns_repealed_provision") return { tone: "warn", label: "currencyMoved" };
+  if (source.current_status === "current") return { tone: "ok", label: "currencyCurrent" };
+  if (source.current_status === "repealed") return { tone: "bad", label: "currencyRepealed" };
+  if (source.current_status === "superseded") return { tone: "warn", label: "currencySuperseded" };
+  return { tone: "plain", label: "currencyUnknown" };
+}
+
+/**
+ * Which step of the wait a job's reported stage belongs to. No label yet means the
+ * job has only just started; a label from outside the pipeline (a queue position)
+ * is no step at all, and answers -1.
+ */
+export function deepStageIndex(label: string | null | undefined): number {
+  if (!label) return 0;
+  if (/check/i.test(label)) return 2;
+  if (/writing/i.test(label)) return 3;
+  if (/working through|reading|analys/i.test(label)) return 1;
+  if (/search|prepar|understand/i.test(label)) return 0;
+  return -1;
+}
