@@ -8,9 +8,10 @@ from contextlib import suppress
 import hashlib
 from decimal import Decimal
 from time import perf_counter
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -39,7 +40,9 @@ from app.schemas.agents import AgentTraceEvent, QueryIntent
 from app.services.adaptive_routing import route_legal_query
 from app.services.audit_redaction import trace_for_audit
 from app.services.citizen_safety import EMERGENCY_CONTACTS, SafetyIntervention, screen_citizen_query
+from app.services.answer_translation import MAX_CHARACTERS, TranslationRejected, translate_answer
 from app.services.question_scope import out_of_scope_answer
+from app.services.rate_limit import enforce_llm_sync_limit
 from app.services.rate_limit import RateLimitExceeded, user_rate_limiter
 from app.services.jobs import append_job_event
 from app.services.privacy import purge_conversation_traces
@@ -185,6 +188,50 @@ async def safety_check(
         if show
         else [],
     )
+
+
+class TranslationRequest(BaseModel):
+    language: Literal["hi", "te"]
+
+
+class TranslationResponse(BaseModel):
+    text: str
+
+
+@router.post("/messages/{message_id}/translation", response_model=TranslationResponse)
+async def translate_message(
+    message_id: uuid.UUID,
+    request: TranslationRequest,
+    workflow: Annotated[LegalRAGWorkflow, Depends(get_workflow)],
+    user: Annotated[User, Depends(require_permission(CHAT_USE))],
+    session: AsyncSession = Depends(get_db_session),
+) -> TranslationResponse:
+    """A machine translation of the user's own published answer. Stores nothing."""
+    message = await session.scalar(
+        select(ChatMessage)
+        .join(ChatSession, ChatSession.id == ChatMessage.session_id)
+        .where(
+            ChatMessage.id == message_id,
+            ChatSession.user_id == user.id,
+            ChatMessage.role == ChatMessageRole.ASSISTANT,
+        )
+    )
+    if message is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Message not found")
+    # Released before a model call that can take a minute. A pooled connection held
+    # idle through it is how a few readers starve everyone else.
+    answer, published = message.content, bool(message.citations)
+    await session.rollback()
+    if not published or len(answer) > MAX_CHARACTERS:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "This answer cannot be translated")
+    await enforce_llm_sync_limit(user.id)
+    try:
+        text = await translate_answer(
+            workflow.llm, message_id=str(message_id), answer=answer, language_code=request.language
+        )
+    except TranslationRejected as exc:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "No reliable translation is available") from exc
+    return TranslationResponse(text=text)
 
 
 @router.post("/query", response_model=ChatQueryResponse)

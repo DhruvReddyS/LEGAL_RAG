@@ -25,3 +25,13 @@ export function updateDeadline(id: string, changes: Partial<DeadlineInput> & { c
 export function deleteDeadline(id: string): Promise<void> {
   return request(`/citizen/matter/deadlines/${encodeURIComponent(id)}`, { method: "DELETE" });
 }
+
+/** A machine translation of a published answer. Rejected when it fails its check. */
+export async function translateAnswer(messageId: string, language: Lang, signal?: AbortSignal): Promise<string> {
+  const response = await request<{ text: string }>(`/chat/messages/${messageId}/translation`, {
+    method: "POST",
+    signal,
+    body: JSON.stringify({ language }),
+  });
+  return response.text;
+}

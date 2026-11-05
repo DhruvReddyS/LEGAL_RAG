@@ -38,7 +38,7 @@ test("AD-07: a purge runs only from a dry run, with the phrase typed", async ({ 
   const purged: unknown[] = [];
   await openApp(page, "admin", {
     overrides: {
-      "POST /admin/console/retention/dry-run": (route: Route) => json(route, { id: uuid(80), counts: { chat: 3 }, cutoffs: { chat: "2026-01-01T00:00:00Z" }, policy: { chat: 30 }, created_at: "2026-11-05T09:00:00Z", expires_at: "2026-11-05T09:15:00Z", confirmation: "PURGE 3" }),
+      "POST /admin/console/retention/dry-run": (route: Route) => json(route, { id: uuid(80), counts: { chat: 3 }, cutoffs: { chat: "2026-01-01T00:00:00Z" }, policy: { chat: 30 }, created_at: "2026-11-05T09:00:00Z", expires_at: new Date(Date.now() + 15 * 60_000).toISOString(), confirmation: "PURGE 3" }),
       "POST /admin/console/retention/purge": (route: Route) => { purged.push(route.request().postDataJSON()); return json(route, { id: uuid(81), deleted: { chat: 3 } }); },
     },
   });
