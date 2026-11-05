@@ -180,3 +180,24 @@ async def test_claims_come_back_in_draft_order() -> None:
     result = await verification_node(_state(*INTERLEAVED), ReadsThePrompt())  # type: ignore[arg-type]
     returned = [item.claim for item in result["verification_result"].claims]
     assert returned == [text for text, _ in INTERLEAVED]
+
+
+@pytest.mark.asyncio
+async def test_the_verifier_is_told_which_law_each_premise_is() -> None:
+    """A section's text does not name its Act, so a claim naming it could never pass."""
+    state = _state(("Section 35 of the BNSS allows arrest", "chunk-a"))
+    hit = state["retrieved_chunks"][0]
+    hit.payload.update(act_name="Bharatiya Nagarik Suraksha Sanhita, 2023", section="35")
+    llm = ReadsThePrompt()
+    await verification_node(state, llm)  # type: ignore[arg-type]
+    assert "THIS PREMISE IS: Bharatiya Nagarik Suraksha Sanhita, 2023, section 35" in llm.prompts[0]
+    assert "what" in llm.prompts[0] and "must rest on the premise text" in llm.prompts[0]
+
+
+@pytest.mark.asyncio
+async def test_a_premise_with_no_recorded_law_says_nothing_about_it() -> None:
+    state = _state(("A claim", "chunk-a"))
+    state["retrieved_chunks"][0].payload.update(act_name="", title="")
+    llm = ReadsThePrompt()
+    await verification_node(state, llm)  # type: ignore[arg-type]
+    assert "THIS PREMISE IS" not in llm.prompts[0]

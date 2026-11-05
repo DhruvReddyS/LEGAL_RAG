@@ -450,7 +450,9 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
     # Appended like followed provisions, and for the same reason.
     statutes = await _statutes_for(service, query, asked, hits, distinctive_terms_task)
     if statutes:
-        hits = hits + statutes
+        # First, because the model reads in order and the budget serves earlier
+        # passages first. Judgments that quote a section came before the section.
+        hits = statutes + hits
 
     # Collected, not computed: the lookup was dispatched before the search
     # and has been running throughout it. The publication gate needs these

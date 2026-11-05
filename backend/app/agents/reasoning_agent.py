@@ -11,6 +11,7 @@ from app.services.generation import INSUFFICIENT_EVIDENCE
 from app.services.llm import OllamaClient
 from app.services.retrieval import RetrievalHit
 from app.agents.role_profiles import profile_prompt, specialist_prompt
+from app.agents.evidence_budget import DEFAULT_CHARACTERS, character_limits
 from app.services.pipeline_telemetry import append_stage_metric, structured_with_metrics, text_size
 
 
@@ -26,7 +27,8 @@ REASONING_NUM_PREDICT = 1200
 # getting there. Widening the window is only useful if the budget holds, so
 # the cap falls as the window grows: 8 x 1,800 is less evidence in total than
 # the 5 x 3,500 it replaces, and covers more of the rule.
-MAX_EVIDENCE_TEXT_CHARACTERS = 1800
+# Now the default in evidence_budget, which gives primary law more.
+MAX_EVIDENCE_TEXT_CHARACTERS = DEFAULT_CHARACTERS
 
 
 # Output length is the largest single cost in a Deep run: 1,345 tokens at a
@@ -108,6 +110,7 @@ def evidence_labels(hits: list[RetrievalHit]) -> dict[str, str]:
 def format_evidence(hits: list[RetrievalHit]) -> str:
     blocks: list[str] = []
     labels = {chunk_id: label for label, chunk_id in evidence_labels(hits).items()}
+    limits = character_limits(hits)
     for hit in hits:
         payload = hit.payload
         blocks.append(
@@ -123,7 +126,7 @@ def format_evidence(hits: list[RetrievalHit]) -> str:
                 currency=resolve_currency(payload).status.value,
                 start=payload.get("page_start") or "?",
                 end=payload.get("page_end") or "?",
-                text=str(payload.get("text") or "").strip()[:MAX_EVIDENCE_TEXT_CHARACTERS],
+                text=str(payload.get("text") or "").strip()[: limits[str(payload.get("chunk_id"))]],
             )
         )
     return "\n\n---\n\n".join(blocks)
@@ -170,7 +173,10 @@ the order direct_answer, legal_basis, application, next_step, limit.
 Writing requirements:
 - Lead with a specific answer to the question; do not merely restate it or describe the evidence.
 - Make each claim self-contained because every claim is verified and may be removed independently.
-- Explain legal terms in ordinary language while retaining exact statutory terminology where needed.
+- Where a provision states a duty, a ground, a condition or a time limit, use the provision's own words
+  for it ("shall not", "forthwith", "reason to believe"), and explain them in plain language afterwards.
+  Do not soften them: "shall not touch" is not "should avoid touching".
+- Name the governing provision in force first, by its Act and section. When it replaced an older law, say so.
 - Put practical steps in a sensible action order and make clear when a step depends on missing facts.
 - State a material uncertainty as a limit; never hide it behind confident wording.
 - Do not describe an authority as current unless its CURRENCY is in_force. A source whose CURRENCY is
