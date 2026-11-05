@@ -124,7 +124,8 @@ app.add_middleware(
 @app.exception_handler(DBAPIError)
 async def _text_postgres_cannot_store(_request: Request, exc: DBAPIError) -> JSONResponse:
     """A NUL character can arrive in any text field, and PostgreSQL text cannot hold one."""
-    if "CharacterNotInRepertoire" not in str(exc.orig):
+    # 22021 is the SQLSTATE. SQLAlchemy releases differ on whether the message names the class.
+    if getattr(exc.orig, "sqlstate", None) != "22021" and "CharacterNotInRepertoire" not in str(exc.orig):
         raise exc
     return JSONResponse(
         status_code=422,
