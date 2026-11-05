@@ -5,6 +5,8 @@ import { CASE_ID, mockApi, openApp, openPro, type Role } from "./mock-api";
 const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
 
 async function expectNoViolations(page: Page) {
+  // A fade-in is measured at its end state: mid-fade, every colour reads as low contrast.
+  await page.evaluate(() => Promise.all(document.getAnimations().filter((animation) => animation.effect?.getComputedTiming().iterations !== Infinity).map((animation) => animation.finished.catch(() => undefined))));
   const { violations } = await new AxeBuilder({ page }).withTags(TAGS).analyze();
   expect(violations.map((item) => `${item.id}: ${item.nodes.map((node) => node.target.join(" ")).slice(0, 5).join(" | ")}`)).toEqual([]);
 }
