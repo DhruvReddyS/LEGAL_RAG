@@ -2,7 +2,7 @@
 
 import { ExternalLink, Loader2, LockKeyhole, Route, ShieldAlert, ShieldCheck, ThumbsDown, ThumbsUp } from "lucide-react";
 import { useEffect, useState } from "react";
-import { formatCount, formatPercent, formatWhen, toQuery } from "@/lib/admin-presentation";
+import { countOf, formatCount, formatPercent, formatWhen, toQuery } from "@/lib/admin-presentation";
 import {
   listFeedback,
   listQuarantines,
@@ -75,7 +75,7 @@ export default function IncidentsPanel({ prefillDocument, onPrefillUsed }: { pre
                     </div>
                   </div>
                   <small className="admin-muted">
-                    {item.citation_count} citations / confidence {formatPercent(item.confidence_score)}{item.has_correction ? " / correction supplied" : ""}
+                    {countOf(item.citation_count, "citation")} / confidence {formatPercent(item.confidence_score)}{item.has_correction ? " / correction supplied" : ""}
                   </small>
                   <div className="admin-actions">
                     <button className="button-secondary admin-compact" onClick={() => setTracing(item.id)}>

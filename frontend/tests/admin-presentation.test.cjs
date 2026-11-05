@@ -14,6 +14,12 @@ vm.runInNewContext(
 );
 const p = moduleScope.exports;
 
+test('one of something is not plural', () => {
+  assert.equal(p.countOf(1, 'citation'), '1 citation');
+  assert.equal(p.countOf(0, 'answer'), '0 answers');
+  assert.equal(p.countOf(2, 'answer'), '2 answers');
+});
+
 test('role counts are headed by real plurals', () => {
   assert.equal(p.rolePluralLabel('police'), 'Police');
   assert.equal(p.rolePluralLabel('citizen'), 'Citizens');
