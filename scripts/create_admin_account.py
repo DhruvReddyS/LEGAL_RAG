@@ -3,6 +3,11 @@ from __future__ import annotations
 import argparse
 import asyncio
 import getpass
+import sys
+from pathlib import Path
+
+# Runs from the repository root (scripts/ then backend/) and from /app in the image.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
 
 from sqlalchemy import func, select
 
