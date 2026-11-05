@@ -29,6 +29,9 @@ export type Presentation = {
   footer: string;
 };
 
+/** Stands in when an answer opens straight on a heading. */
+export const NO_LEAD = "Review the source-supported findings below.";
+
 /** Text the backend publishes when it cannot support an answer. */
 const ABSTENTION_PROSE =
   /insufficient|not enough evidence|could not find enough reliable/i;
@@ -57,7 +60,7 @@ export function presentAnswer(
     sections.find(section => /^direct answer$/i.test(section.title)) ?? sections[0];
   const paragraphs = direct.body.join("\n").trim().split(/\n\s*\n/).filter(Boolean);
   const explanation =
-    paragraphs.shift() || "Review the source-supported findings below.";
+    paragraphs.shift() || NO_LEAD;
   const plain = explanation.replace(/\*\*/g, "").trim();
 
   // Abstention comes from the pipeline's own evidence_strength when the caller

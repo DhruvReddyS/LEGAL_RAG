@@ -1,3 +1,7 @@
-export default function UploadPrivacy() {
-  return <div className="privacy-copy"><p>PDFs and images are processed on this server using PDF text extraction or English Tesseract OCR. Originals and temporary files are discarded after extraction. They are never added to the shared legal corpus.</p><p>Extracted text stays in this tab’s memory until you remove it, clear this tab’s history, sign out or close/reload the tab. Only selected excerpts (up to 9,000 characters) are sent with your next question to the configured legal-model service. Uploads use Deep review; reattach a file for a later question.</p><p>Questions, answers and derived processing records can contain personal details and remain in server records with no automatic expiry configured. Clearing this tab does not delete those records; delete a conversation from its menu to erase it from the server. Avoid uploading IDs or unnecessary sensitive information.</p><p>Listen to answer uses your browser’s speech voices; availability and remote processing depend on your browser and selected voice.</p></div>;
+"use client";
+import { useCitizenLang } from "./citizen/useCitizenLang";
+
+export default function UploadPrivacy({ citizen = false }: { citizen?: boolean }) {
+  const { t } = useCitizenLang(citizen);
+  return <div className="privacy-copy"><p>{t("privacyProcessing")}</p><p>{t("privacyMemory")}</p><p>{t("privacyRecords")}</p><p>{t("privacyListen")}</p></div>;
 }

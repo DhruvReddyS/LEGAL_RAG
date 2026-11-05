@@ -12,6 +12,7 @@ import {
   safeSourceUrl,
 } from "@/lib/answer-export";
 import type { ChatMessage } from "@/lib/types";
+import { useCitizenLang } from "@/components/citizen/useCitizenLang";
 
 export function saveTextFile(text: string, filename: string, type: string): void {
   const url = URL.createObjectURL(new Blob([text], { type }));
@@ -25,7 +26,8 @@ export function saveTextFile(text: string, filename: string, type: string): void
 }
 
 /** Print, or save as Markdown or HTML. The sources always come with it. */
-export function AnswerExportMenu({ message, question, articleRef }: { message: ChatMessage; question?: string; articleRef: React.RefObject<HTMLElement> }) {
+export function AnswerExportMenu({ message, question, articleRef, citizen = false }: { message: ChatMessage; question?: string; articleRef: React.RefObject<HTMLElement>; citizen?: boolean }) {
+  const { t } = useCitizenLang(citizen);
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -57,14 +59,14 @@ export function AnswerExportMenu({ message, question, articleRef }: { message: C
 
   return (
     <div className="answer-export" ref={menuRef}>
-      <button type="button" className="answer-action" aria-label="Print or save this answer" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(value => !value)}>
+      <button type="button" className="answer-action" aria-label={t("printOrSave")} aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(value => !value)}>
         <FileDown size={16} aria-hidden="true" />
       </button>
       {open && (
         <div className="answer-export-menu" role="menu">
-          <button type="button" role="menuitem" autoFocus onClick={print}><Printer size={14} aria-hidden="true" />Print</button>
-          <button type="button" role="menuitem" onClick={() => { setOpen(false); saveTextFile(answerToMarkdown(input), exportFilename("md"), "text/markdown;charset=utf-8"); }}><FileText size={14} aria-hidden="true" />Save as Markdown</button>
-          <button type="button" role="menuitem" onClick={() => { setOpen(false); saveTextFile(answerToHtml(input), exportFilename("html"), "text/html;charset=utf-8"); }}><FileText size={14} aria-hidden="true" />Save as HTML</button>
+          <button type="button" role="menuitem" autoFocus onClick={print}><Printer size={14} aria-hidden="true" />{t("print")}</button>
+          <button type="button" role="menuitem" onClick={() => { setOpen(false); saveTextFile(answerToMarkdown(input), exportFilename("md"), "text/markdown;charset=utf-8"); }}><FileText size={14} aria-hidden="true" />{t("saveMarkdown")}</button>
+          <button type="button" role="menuitem" onClick={() => { setOpen(false); saveTextFile(answerToHtml(input), exportFilename("html"), "text/html;charset=utf-8"); }}><FileText size={14} aria-hidden="true" />{t("saveHtml")}</button>
         </div>
       )}
     </div>
