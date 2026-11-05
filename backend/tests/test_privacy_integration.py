@@ -271,6 +271,14 @@ async def _seed_police_matter(user_id: uuid.UUID, marker: str) -> dict:
 
     qdrant = create_qdrant_client()
     try:
+        # A fresh store has no case collections until something indexes into one.
+        if not await qdrant.collection_exists(POLICE_CASE_DATA):
+            await qdrant.create_collection(
+                POLICE_CASE_DATA,
+                vectors_config={
+                    "dense": models.VectorParams(size=settings.embedding_dimension, distance=models.Distance.COSINE)
+                },
+            )
         await qdrant.upsert(
             collection_name=POLICE_CASE_DATA,
             points=[

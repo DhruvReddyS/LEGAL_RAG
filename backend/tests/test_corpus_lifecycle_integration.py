@@ -36,7 +36,9 @@ def no_processes() -> list[IngestionProcess]:
 
 @pytest.fixture(autouse=True)
 def _throwaway_qdrant_only() -> None:
-    assert settings.qdrant_url.endswith(":56333"), "this suite deletes points: throwaway Qdrant only"
+    # Hosted CI's Qdrant is a service container that lives only for the job.
+    throwaway = settings.qdrant_url.endswith(":56333") or os.environ.get("GITHUB_ACTIONS") == "true"
+    assert throwaway, "this suite deletes points: throwaway Qdrant only"
 
 
 @pytest_asyncio.fixture(loop_scope="session")
