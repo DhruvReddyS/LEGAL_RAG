@@ -282,7 +282,7 @@ export default function ProApp({ user, route, navigate, chats, onCasesChange, on
         <div className="pro-content" ref={(node) => { if (node) node.inert = compact && drawer; }}>
           <div className="pro-topbar">
             <button ref={openRef} type="button" className="icon-button" aria-label="Open navigation" onClick={() => setDrawer(true)}><Menu size={20} /></button>
-            <span className="truncate">{screenTitle}</span>
+            <span>Corpusil</span><span className="pro-role-chip">{isPolice ? "Police" : "Advocate"}</span>
           </div>
           {busyScope && !onChatScreen && (
             <div className="pro-strip" role="status">

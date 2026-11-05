@@ -2,7 +2,7 @@
 
 import { ArrowLeft, ArrowRight, Check, CheckCircle2, Circle, Fingerprint, BriefcaseBusiness, MessageSquare, Pencil, X } from "lucide-react";
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ApiError, listGeneratedDocuments, listIndexedCaseDocuments, updateCase } from "@/lib/api";
 import { caseReference, plural, shortDate, sortDue } from "@/lib/pro-presentation";
 import type { CaseDocumentSummary, DefenceAnalysisResponse, GeneratedDocumentSummary, LegalCase } from "@/lib/types";
@@ -25,6 +25,16 @@ function CaseHeader({ legalCase, tabs, activeTab }: { legalCase: LegalCase; tabs
     finally { setBusy(false); }
   };
   const Mark = isPolice ? Fingerprint : BriefcaseBusiness;
+  // On a phone the tabs scroll sideways. The one in use has to be on screen, after a reload too.
+  const tabsRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const list = tabsRef.current;
+    const current = list?.querySelector<HTMLElement>("[aria-current='page']");
+    if (!list || !current) return;
+    if (current.offsetLeft < list.scrollLeft || current.offsetLeft + current.offsetWidth > list.scrollLeft + list.clientWidth) {
+      list.scrollLeft = current.offsetLeft - 16;
+    }
+  }, [activeTab]);
   return (
     <header className="pro-case-head">
       <div className="pro-case-top">
@@ -57,7 +67,7 @@ function CaseHeader({ legalCase, tabs, activeTab }: { legalCase: LegalCase; tabs
         </div>
       </div>
       {failure && <p className="pro-form-error" role="alert">{failure}</p>}
-      <nav className="pro-tabs" aria-label="Case sections">
+      <nav ref={tabsRef} className="pro-tabs" aria-label="Case sections">
         {tabs.map((tab) => (
           <ProLink key={tab.key} to={{ section: "case", caseId: legalCase.id, tab: tab.key === "overview" ? undefined : tab.key }} current={activeTab === tab.key}>
             <tab.icon size={14} aria-hidden="true" />{tab.label}

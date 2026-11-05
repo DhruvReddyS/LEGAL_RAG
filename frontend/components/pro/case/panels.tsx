@@ -249,7 +249,7 @@ export function CaseFilesPanel({ caseId, isPolice, refresh, onChanged, onReview 
       {/* FILES SLOT: see ./slots.tsx. The bulk uploader takes this place once it is plugged in. */}
       {CaseBulkUpload ? <CaseBulkUpload key={caseId} caseId={caseId} onUploaded={onChanged} /> : <SingleUpload caseId={caseId} isPolice={isPolice} onUploaded={onChanged} />}
       <section className="pro-subsection" aria-label="Files in this case">
-        <h3>Files in this case</h3>
+        <h3>Added so far</h3>
         {failed && <p className="pro-quiet">The file list could not be read.</p>}
         {files && !files.length && <p className="pro-quiet">No file has been added to this case yet.</p>}
         {!!files?.length && (

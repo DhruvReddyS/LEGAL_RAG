@@ -1,5 +1,5 @@
 import { expect, test, type Route } from "@playwright/test";
-import { ANSWER, CITATION, ESCALATED, JOB_ID, json, MESSAGE_ID, mockApi, openApp, SESSION_ID } from "./mock-api";
+import { ANSWER, CITATION, ESCALATED, JOB_ID, json, MESSAGE_ID, mockApi, openApp, SESSION_ID, openPro } from "./mock-api";
 
 const ask = async (page: import("@playwright/test").Page, question: string) => {
   await page.getByLabel("Legal research question").fill(question);
@@ -70,7 +70,7 @@ test("settings and the conversation finder follow the language too", async ({ pa
 
 test("a professional keeps English whatever was left in this browser", async ({ page }) => {
   await page.addInitScript(() => window.localStorage.setItem("corpusil-language", "hi"));
-  await openApp(page, "advocate");
+  await openPro(page, "advocate");
   await expect(page.getByRole("button", { name: "Search chats" })).toBeVisible();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
 });

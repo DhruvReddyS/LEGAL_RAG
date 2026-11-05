@@ -22,6 +22,7 @@
 .pro-nav-bottom { margin-top: auto; padding-top: 14px; display: grid; gap: 2px; }
 .pro-nav-user { margin: 8px 10px 0; padding-top: 10px; border-top: 1px solid var(--border); color: var(--ink-soft); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pro-only-compact { display: none; }
+.pro-only-phone { display: none; }
 
 .pro-content { margin-left: var(--pro-nav-width); min-height: 100dvh; min-width: 0; }
 .pro-topbar { display: none; }
@@ -178,7 +179,7 @@
 .pro-case-facts { display: flex; align-items: center; gap: 10px; margin-left: auto; color: var(--ink-soft); font-size: 12.5px; }
 .pro-status-select select { height: 30px; padding: 0 6px; border: 1px solid var(--border); border-radius: 7px; background: var(--card); color: var(--ink); font-size: 13px; font-weight: 500; }
 .pro-rename { display: flex; flex: 1 1 280px; align-items: center; gap: 4px; min-width: 0; }
-.pro-tabs { display: flex; gap: 2px; margin-top: 8px; overflow-x: auto; scrollbar-width: none; }
+.pro-tabs { position: relative; display: flex; gap: 2px; margin-top: 8px; overflow-x: auto; scrollbar-width: none; }
 .pro-tabs::-webkit-scrollbar { display: none; }
 .pro-tabs a { display: inline-flex; flex: none; align-items: center; gap: 6px; padding: 8px 10px 9px; border-bottom: 2px solid transparent; color: var(--ink-soft); font-size: 13.5px; font-weight: 500; white-space: nowrap; }
 .pro-tabs a:hover { color: var(--ink); }
@@ -192,8 +193,8 @@
 .pro-toollist a { display: block; padding: 7px 10px; border-radius: 7px; color: var(--ink-soft); font-size: 13.5px; font-weight: 500; }
 .pro-toollist a:hover { background: var(--hover); color: var(--ink); }
 .pro-toollist a[aria-current="page"] { background: var(--pro-accent-soft); color: var(--ink); }
-.pro-toollist-group { display: block; margin: 10px 10px 3px; color: var(--ink-soft); font-size: 12px; font-weight: 600; }
-.pro-toollist-group:first-child { margin-top: 0; }
+.pro-toollist-group { display: block; margin: 14px 10px 4px; color: var(--ink-soft); font-size: 12px; font-weight: 600; }
+.pro-toollist > span:first-child .pro-toollist-group { margin-top: 2px; }
 .pro-tool-head { margin-bottom: 16px; }
 .pro-tool-head h2 { font-family: var(--body); font-size: 17px; font-weight: 600; letter-spacing: -.01em; }
 .pro-tool-head p { margin-top: 3px; max-width: 74ch; color: var(--ink-soft); font-size: 13.5px; line-height: 1.55; }
@@ -209,7 +210,10 @@
 .pro-steps a:hover strong { color: var(--pro-accent); }
 .pro-steps a span { color: var(--ink-soft); font-size: 12.5px; }
 .pro-steps li.is-done a strong { color: var(--ink-soft); }
-/* The older case blocks, when they sit inside the overview. */
+/* The older case blocks, when they sit inside the overview. They keep their actions, but
+   the screen keeps one primary, so theirs read as ordinary buttons here. */
+.pro-overview-main .case-block .button-primary { border: 1px solid var(--border); background: var(--card); color: var(--ink); font-weight: 500; padding: 7px 13px; border-radius: 8px; }
+.pro-overview-main .case-block .button-primary:hover { background: var(--hover); opacity: 1; }
 .pro-overview-main .case-block { padding: 16px 18px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); margin: 0; }
 
 /* Tool panels */
@@ -271,6 +275,7 @@
 
 /* Law lookup, inside the navigation */
 .pro-law { padding: 30px 24px 56px; min-width: 0; }
+.pro-law .law-back { display: none; }
 
 /* Dialog */
 .pro-dialog { width: 100%; max-width: 460px; padding: 20px 22px; border: 1px solid var(--border); border-radius: 12px; background: var(--paper); box-shadow: 0 18px 60px #00000033; }
@@ -286,7 +291,8 @@
   .pro-sidebar.is-open { transform: none; visibility: visible; }
   .pro-only-compact { display: inline-grid; }
   .pro-content { margin-left: 0; }
-  .pro-topbar { display: flex; align-items: center; gap: 8px; height: 50px; padding: 0 10px; border-bottom: 1px solid var(--border); color: var(--ink); font-size: 14px; font-weight: 500; }
+  .pro-topbar { display: flex; align-items: center; gap: 8px; height: 50px; padding: 0 10px; border-bottom: 1px solid var(--border); color: var(--ink); font-size: 14px; font-weight: 600; }
+  .pro-topbar .pro-role-chip { align-self: center; margin: 0; }
   .pro-page { padding: 20px 16px 44px; }
   .pro-strip { padding: 9px 16px; }
   .pro-case-head { padding: 8px 16px 0; }
@@ -313,6 +319,7 @@
   .pro-due-row .pro-due-main { flex-basis: 100%; }
   .pro-due-row .pro-due-when { flex: 1; text-align: left; }
   .pro-due-main > strong { white-space: normal; }
+  .pro-only-phone { display: inline; }
   .pro-table-head { display: none; }
   .pro-table-row { grid-template-columns: minmax(0, 1fr) auto; gap: 6px 10px; }
   .pro-cell-title { grid-column: 1; }

@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
-import { mockApi, openApp, type Role } from "./mock-api";
+import { CASE_ID, mockApi, openApp, openPro, type Role } from "./mock-api";
 
 const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
 
@@ -35,7 +35,8 @@ for (const theme of ["paper", "ink"] as const) {
       });
     }
 
-    for (const role of ["citizen", "police", "advocate", "admin"] as Role[]) {
+    // Police and advocate have a screen-by-screen sweep of their own in pro.spec.ts.
+    for (const role of ["citizen", "admin"] as Role[]) {
       test(`${role} chat and workspace`, async ({ page }) => {
         await openApp(page, role);
         await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
@@ -59,9 +60,8 @@ test("the answer view has no violations", async ({ page }) => {
 });
 
 test("every control has a programmatic name", async ({ page }) => {
-  await openApp(page, "advocate");
-  await page.locator(".feature-nav button").first().click();
-  await page.locator(".tool-rail button").first().waitFor();
+  await openPro(page, "advocate", `/?s=case&case=${CASE_ID}&tab=strategy`);
+  await page.getByRole("navigation", { name: "Strategy tools" }).waitFor();
   const unnamed = await page.evaluate(() => Array.from(document.querySelectorAll<HTMLElement>("input,textarea,select,button"))
     .filter((element) => element.getClientRects().length)
     .filter((element) => {

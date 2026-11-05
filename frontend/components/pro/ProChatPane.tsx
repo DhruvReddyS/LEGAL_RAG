@@ -54,7 +54,7 @@ export default function ProChatPane({ scopeCaseId, scopeTitle, activeCaseId, bus
         ) : empty ? (
           <div className="pro-chat-welcome">
             <h2>{scopeCaseId ? `Ask about ${scopeTitle ?? "this case"}` : "What would you like to research?"}</h2>
-            <p>{scopeCaseId ? "Reads the law and the files in this case, and no other case." : "Reads the law only. Answers cite the source, and say so when the sources do not settle it."}</p>
+            <p>{scopeCaseId ? "Reads the law and the files in this case, and no other case." : "Answers cite the source, and say so when the sources do not settle it."}</p>
             {composer}
             <div className="prompt-shortcuts">
               {suggestions.map((suggestion) => <button key={suggestion.title} type="button" disabled={busy} onClick={() => onSuggest(suggestion.text)}>{suggestion.title}</button>)}

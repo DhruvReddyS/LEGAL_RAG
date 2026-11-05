@@ -80,7 +80,7 @@ export default function CasesScreen() {
                         </>
                       ) : <small>{isPolice && nothing.has(item.id) ? "No dates recorded yet" : "Nothing due"}</small>}
                     </span>
-                    <span role="cell" className="pro-cell-last"><small>{shortDate(last)}</small></span>
+                    <span role="cell" className="pro-cell-last"><small><span className="pro-only-phone">Last activity </span>{shortDate(last)}</small></span>
                   </div>
                 );
               })}

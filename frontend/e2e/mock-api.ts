@@ -403,5 +403,5 @@ export async function openApp(page: Page, role: Role, extra: Partial<MockOptions
 export async function openPro(page: Page, role: "police" | "advocate", path = "/", extra: Partial<MockOptions> = {}) {
   await mockApi(page, { role, ...extra });
   await page.goto(path);
-  await page.getByRole("navigation", { name: "Main sections" }).waitFor();
+  await page.locator(".pro-app").waitFor();
 }
