@@ -14,6 +14,13 @@ from app.models.base import Base
 from app.models.case import Case, CaseDocument, GeneratedDocument
 from app.models.chat import ChatMessage, ChatSession, Feedback
 from app.models.corpus import Bookmark, CorpusIntake, CorpusSource
+from app.models.corpus_lifecycle import (
+    AmendmentFindingReview,
+    DocumentCurrencyState,
+    ExpertReviewClaim,
+    ExpertReviewItem,
+    LawChangeNotice,
+)
 from app.models.enums import (
     CaseRoleType,
     ChatMessageRole,
@@ -53,7 +60,12 @@ __all__ = [
     "RetentionRun",
     "AuditLog",
     "MatterCalendarEvent",
+    "AmendmentFindingReview",
     "Base",
+    "DocumentCurrencyState",
+    "ExpertReviewClaim",
+    "ExpertReviewItem",
+    "LawChangeNotice",
     "Bookmark",
     "Case",
     "CaseDocument",

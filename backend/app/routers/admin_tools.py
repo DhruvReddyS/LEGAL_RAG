@@ -10,6 +10,7 @@ from __future__ import annotations
 import asyncio
 import uuid
 from datetime import datetime
+from pathlib import Path
 from typing import Annotated, Any, AsyncIterator, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
@@ -33,6 +34,9 @@ from app.services import (
     admin_release,
     admin_retention,
     admin_users,
+    amendment_watch,
+    expert_review,
+    law_changes,
     quarantine,
 )
 from app.services.audit_redaction import redact_audit_metadata
@@ -187,7 +191,52 @@ async def corpus_work_item(payload: WorkItemRequest, admin: CorpusAdmin, session
     )
 
 
+class AmendmentReviewRequest(BaseModel):
+    status: Literal["open", "reviewed", "dismissed"]
+    note: str | None = Field(default=None, max_length=2000)
+
+
+@router.get("/corpus/amendments")
+async def corpus_amendments(
+    admin: CorpusAdmin, session: Db, page: Page = 1, page_size: PageSize = 25
+) -> dict[str, Any]:
+    return await amendment_watch.console_view(
+        session, Path(settings.legal_kb_root), page=page, page_size=page_size
+    )
+
+
+@router.put("/corpus/amendments/findings/{finding_id}")
+async def corpus_amendment_review(
+    finding_id: str, payload: AmendmentReviewRequest, admin: CorpusAdmin, session: Db
+) -> dict[str, Any]:
+    return await amendment_watch.review_finding(
+        session,
+        Path(settings.legal_kb_root),
+        admin=admin,
+        finding_id=finding_id,
+        status=payload.status,
+        note=payload.note,
+    )
+
+
+@router.post("/corpus/currency-notices/sync")
+async def corpus_currency_sync(admin: CorpusAdmin, session: Db) -> dict[str, Any]:
+    """Run the daily comparison now, after someone has edited the currency table."""
+    return await law_changes.sync_currency_notices(session)
+
+
 # ----------------------------------------------------------------- quality
+
+
+class ReviewSampleRequest(BaseModel):
+    count: int = Field(ge=1, le=50)
+    days: int = Field(default=30, ge=1, le=365)
+
+
+class ClaimVerdictRequest(BaseModel):
+    # Null clears a verdict given by mistake, and the claim is unreviewed again.
+    verdict: Literal["correct", "incorrect", "unsure"] | None
+    note: str | None = Field(default=None, max_length=2000)
 
 
 @router.get("/quality")
@@ -195,6 +244,33 @@ async def quality(
     admin: CorpusAdmin, session: Db, days: Annotated[int, Query(ge=1, le=365)] = 30
 ) -> dict[str, Any]:
     return await admin_quality.quality_dashboard(session, days)
+
+
+@router.get("/quality/review")
+async def quality_review(
+    admin: CorpusAdmin,
+    session: Db,
+    status: Literal["open", "done"] = "open",
+    page: Page = 1,
+    page_size: Annotated[int, Query(ge=1, le=50)] = 10,
+) -> dict[str, Any]:
+    return await expert_review.review_queue(session, status=status, page=page, page_size=page_size)
+
+
+@router.post("/quality/review/sample", status_code=201)
+async def quality_review_sample(
+    payload: ReviewSampleRequest, admin: CorpusAdmin, session: Db
+) -> dict[str, Any]:
+    return await expert_review.sample_answers(session, admin=admin, count=payload.count, days=payload.days)
+
+
+@router.put("/quality/review/claims/{claim_id}")
+async def quality_review_verdict(
+    claim_id: uuid.UUID, payload: ClaimVerdictRequest, admin: CorpusAdmin, session: Db
+) -> dict[str, Any]:
+    return await expert_review.record_verdict(
+        session, admin=admin, claim_id=claim_id, verdict=payload.verdict, note=payload.note
+    )
 
 
 # --------------------------------------------------------------- incidents

@@ -3,8 +3,9 @@
 import { ExternalLink, FileUp, FileCheck2, Loader2, Search, ShieldAlert } from "lucide-react";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { listCorpusIntakes, publishCorpusIntake, stageCorpusIntake, validateCorpusIntake } from "@/lib/api";
-import { currencyLabel, currencyTone, formatCount, toQuery } from "@/lib/admin-presentation";
+import { currencyLabel, currencyTone, formatCount, formatDay, toQuery } from "@/lib/admin-presentation";
 import { browseCorpus, setWorkItem } from "@/lib/api-admin";
+import { getAmendmentWatch, reviewAmendmentFinding, type AmendmentFinding, type FindingStatus } from "@/lib/api-corpus-lifecycle";
 import type { CorpusIntake } from "@/lib/types";
 import type { CorpusDocument, WorkQueue, WorkStatus } from "@/lib/types-admin";
 import { LoadState, messageOf, Notice, PanelHeading, Pager, Stat, StatusPill, useLoaded } from "./shared";
@@ -88,8 +89,121 @@ export default function CorpusPanel({ onQuarantine }: { onQuarantine: (documentI
           </>
         )}
       </section>
+      <AmendmentSection />
       <IntakeSection />
     </div>
+  );
+}
+
+const FINDING_LABELS: Record<string, string> = {
+  local_copy_differs: "Local copy differs",
+  source_date_newer: "Source date is newer",
+  manifest_file_changed: "Manifest file changed",
+  source_list_says_repealed: "Source list says repealed",
+  remote_headers_changed: "Official site reports a change",
+  currency_table_review_overdue: "Currency table review overdue",
+  successor_not_in_corpus: "Successor not in the corpus",
+};
+const WATCH_PAGE_SIZE = 10;
+
+function AmendmentSection() {
+  const [page, setPage] = useState(1);
+  const { data, error, loading, reload } = useLoaded(() => getAmendmentWatch(page, WATCH_PAGE_SIZE), String(page));
+  return (
+    <section className="admin-panel">
+      <PanelHeading
+        title="Amendment watch"
+        description="Acts with a known amendment or supersession to check. A finding means two of our own records disagree. It does not state the law, and nothing here changes the corpus: a person decides."
+      />
+      <LoadState
+        loading={loading && !data}
+        error={error}
+        onRetry={reload}
+        empty={data && !data.has_run ? "No check has run. Run scripts/check_amendments.py to create one." : null}
+      />
+      {data?.has_run && (
+        <>
+          <div className="admin-stats">
+            <Stat label="Watched Acts" value={formatCount(data.watched ?? 0)} />
+            <Stat label="Compared" value={formatCount(data.coverage?.checked ?? 0)} hint="Against a local source list" />
+            <Stat label="Nothing to compare" value={formatCount(data.coverage?.no_local_source ?? 0)} hint="No local source, so not checked" />
+            <Stat label="Findings open" value={formatCount(data.open_findings)} />
+          </div>
+          <p className="admin-muted">
+            Last check {data.checked_at ? formatDay(data.checked_at) : "unknown"}, {data.mode === "network" ? "including official sites" : "offline: official sites were not contacted"}.
+          </p>
+          <h4 className="admin-subhead">Findings</h4>
+          {data.findings.length ? (
+            <ul className="admin-list">
+              {data.findings.map(finding => <FindingRow key={finding.id} finding={finding} onChanged={reload} />)}
+            </ul>
+          ) : (
+            <p className="admin-empty">The last check found no disagreements.</p>
+          )}
+          <h4 className="admin-subhead">Watch list</h4>
+          <ul className="admin-list">
+            {data.watch.map(item => (
+              <li key={item.watch_id}>
+                <div className="admin-doc-head">
+                  <strong>{item.title}</strong>
+                  <StatusPill tone={item.standing === "checked" ? "ok" : "warn"}>
+                    {item.last_checked ? `Checked ${formatDay(item.last_checked)}` : "Never checked"}
+                  </StatusPill>
+                </div>
+                <small className="admin-muted admin-wrap">{item.reasons.join(", ").replaceAll("_", " ")}</small>
+                {item.superseded_by && <p className="admin-note">Replaced by {item.superseded_by}</p>}
+              </li>
+            ))}
+          </ul>
+          <Pager page={page} pageSize={WATCH_PAGE_SIZE} total={data.watch_total} onPage={setPage} noun="Acts" />
+        </>
+      )}
+    </section>
+  );
+}
+
+function FindingRow({ finding, onChanged }: { finding: AmendmentFinding; onChanged: () => void }) {
+  const [note, setNote] = useState(finding.review_note ?? "");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const save = async (status: FindingStatus) => {
+    setBusy(true);
+    setError("");
+    try {
+      await reviewAmendmentFinding(finding.id, status, note.trim() || null);
+      onChanged();
+    } catch (cause) { setError(messageOf(cause, "That was not saved.")); }
+    finally { setBusy(false); }
+  };
+  return (
+    <li>
+      <div className="admin-doc-head">
+        <strong>{finding.title}</strong>
+        <StatusPill tone={finding.review_status === "open" ? "warn" : "neutral"}>{FINDING_LABELS[finding.kind] ?? finding.kind}</StatusPill>
+      </div>
+      <p className="admin-note">{finding.detail}</p>
+      <div className="admin-work">
+        <label className="admin-inline-field">
+          <span>Review</span>
+          <select className="field" value={finding.review_status} disabled={busy} onChange={event => save(event.target.value as FindingStatus)}>
+            <option value="open">Open</option>
+            <option value="reviewed">Reviewed</option>
+            <option value="dismissed">Dismissed</option>
+          </select>
+        </label>
+        <label className="admin-inline-field is-grow">
+          <span>Note</span>
+          <input
+            className="field"
+            value={note}
+            maxLength={2000}
+            onChange={event => setNote(event.target.value)}
+            onBlur={() => { if (note.trim() !== (finding.review_note ?? "")) void save(finding.review_status); }}
+          />
+        </label>
+        {error && <Notice tone="bad">{error}</Notice>}
+      </div>
+    </li>
   );
 }
 

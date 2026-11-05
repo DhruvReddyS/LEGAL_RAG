@@ -189,11 +189,11 @@ search, and that stays true.
 | CORP-01 | Judgments at volume: Supreme Court and every High Court served | to acquire |
 | CORP-02 | State law for every state claimed | to acquire |
 | CORP-03 | Overruling and subsequent-history data | to acquire |
-| CORP-04 | Incremental ingestion — add, replace, retire without a rebuild | to build |
-| CORP-05 | Amendment and notification watch | to build |
-| CORP-06 | "The law you relied on changed" — notify recipients of a superseded citation | to build |
+| CORP-04 | Incremental ingestion — add, replace, retire without a rebuild | built |
+| CORP-05 | Amendment and notification watch | built |
+| CORP-06 | "The law you relied on changed" — notify recipients of a superseded citation | built |
 | CORP-07 | Golden set v4: document identities instead of phrase predicates | to build |
-| CORP-08 | Proactive expert review on sampled answers | to build |
+| CORP-08 | Proactive expert review on sampled answers | built |
 
 ### 3.8 Per-role answer shape
 
