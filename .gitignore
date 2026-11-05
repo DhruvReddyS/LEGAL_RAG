@@ -71,3 +71,6 @@ data/legal_kb/logs/
 
 # Also when it is a link, which a trailing slash does not match.
 node_modules
+
+# Local backups hold private case material.
+backups/

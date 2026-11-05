@@ -6,6 +6,9 @@
  * result is never shown without its coverage statement.
  */
 
+import type { DocxBlock } from "./docx";
+import type { BriefContent } from "./types-advocate";
+
 export type Tone = "ok" | "warn" | "bad" | "neutral";
 
 const ROUTE_STATUS: Record<string, { label: string; tone: Tone }> = {
@@ -222,6 +225,34 @@ export function draftExportText(content: { rendered_text: string; disclaimer: st
 export function exportFilename(title: string, version: number): string {
   const slug = title.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase() || "draft";
   return `${slug}-v${version}.txt`;
+}
+
+/** A brief as a document. The warnings go first, so they cannot be cut off a copy. */
+export function briefBlocks(content: BriefContent, version: number): DocxBlock[] {
+  const blocks: DocxBlock[] = [
+    { kind: "heading", level: 1, text: `${content.kind === "synopsis" ? "Synopsis" : "Brief"}, version ${version}` },
+    { kind: "paragraph", text: content.disclaimer, bold: true },
+  ];
+  if (content.note) blocks.push({ kind: "paragraph", text: content.note });
+  if (content.partial_review) {
+    blocks.push({
+      kind: "paragraph",
+      text: `Partial review. ${content.passages_read} of ${content.passages_total} passages were read, selected evenly across ${content.documents_read} document(s). What is not here may still be in the file.`,
+    });
+  }
+  for (const section of content.sections) {
+    blocks.push({ kind: "heading", level: 2, text: section.title });
+    for (const claim of section.claims) {
+      const sources = claim.citations.map((source) => `${source.title}, p.${source.page_start}`).join("; ");
+      blocks.push({ kind: "bullet", text: sources ? `${claim.text} (${sources})` : claim.text });
+    }
+  }
+  const flagged = content.provisions_in_record.filter((row) => row.needs_attention);
+  if (flagged.length) {
+    blocks.push({ kind: "heading", level: 2, text: "Provisions the record cites that need attention" });
+    for (const row of flagged) blocks.push({ kind: "bullet", text: `${row.citation}: ${row.advice}` });
+  }
+  return blocks;
 }
 
 export function groupArticles<T extends { division: string }>(articles: readonly T[]): [string, T[]][] {

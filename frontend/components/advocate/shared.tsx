@@ -6,6 +6,7 @@ import { useCallback, useState, type ReactNode } from "react";
 import SourceInspector from "@/components/SourceInspector";
 import { ApiError } from "@/lib/api";
 import { coverageLines, currencyMeta, draftExportText, exportFilename, type Tone } from "@/lib/advocate-presentation";
+import { docxFilename, saveDocx, textToBlocks } from "@/lib/docx";
 import type { AdvocateSource, CheckRow, CoverageStatement, VerifiedClaim } from "@/lib/types-advocate";
 
 export function errorText(error: unknown): string {
@@ -149,6 +150,7 @@ export function DraftActions({ content, title, version }: { content: { rendered_
         {copied ? <Check size={13} /> : <ClipboardCopy size={13} />}{copied ? "Copied" : "Copy"}
       </button>
       <button type="button" className="draft-action" onClick={save}><Download size={13} />Save as text</button>
+      <button type="button" className="draft-action" onClick={() => saveDocx(docxFilename(title, version), textToBlocks(text))}><FileText size={13} />Save as Word</button>
       {failed && <span className="adv-error">The browser refused clipboard access. Select the text and copy it instead.</span>}
     </div>
   );

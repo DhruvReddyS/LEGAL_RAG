@@ -5,6 +5,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { AuthorityCheck } from "@/components/AuthorityCheck";
 import { ComplianceChecklist } from "@/components/ComplianceChecklist";
 import CaseChronology from "@/components/CaseChronology";
+import BulkUpload from "@/components/case/BulkUpload";
+import CaseNotes from "@/components/case/CaseNotes";
 import { InvestigationTimeline } from "@/components/InvestigationTimeline";
 import { isPoliceView, PoliceToolView, usePoliceTools, type PoliceViewKey } from "@/components/police/PoliceTools";
 import { caseTimelineMessage, type CaseTimelineState } from "@/lib/police-presentation";
@@ -580,6 +582,7 @@ type ViewKey = "advocate" | "casefile" | "chronology" | "agent" | "deadlines" | 
                 </div>
               )}
 
+              {view === "casefile" && selected && <CaseNotes key={selectedId} caseId={selectedId} />}
               {view === "agent" && (
                 <div>
                   <textarea aria-label={isPolice ? "What is known so far" : "The case as you understand it"} value={scenario} onChange={(event) => setScenario(event.target.value)} placeholder={isPolice ? "Enter the complainant account, dates, location, property or person description, witnesses and known circumstances…" : "Describe allegations, evidence, disputed facts, procedural history and the client position…"} className="field min-h-44 w-full resize-y leading-6" />
@@ -649,14 +652,7 @@ type ViewKey = "advocate" | "casefile" | "chronology" | "agent" | "deadlines" | 
                       <option value="other">Other evidence</option>
                     </select>
                   </label>
-                  <label className="mt-4 flex min-h-40 cursor-pointer focus-within:outline focus-within:outline-2 focus-within:outline-[var(--accent)] flex-col items-center justify-center rounded-xl border border-dashed border-[var(--state-warn-line)] bg-[var(--hover)] px-4 text-center transition hover:bg-[var(--card)]">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--card)] text-[var(--accent)] shadow-sm">
-                      {busy === "upload" ? <Loader2 size={19} className="animate-spin" /> : <UploadCloud size={19} />}
-                    </div>
-                    <p className="mt-3 text-sm font-medium text-[var(--ink)]">Choose evidence to upload</p>
-                    <p className="mt-1 text-xs text-[var(--ink-soft)]">PDF or TXT / stays inside this case</p>
-                    <input type="file" accept="application/pdf,text/plain" className="sr-only" disabled={busy === "upload"} onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ""; void upload(file); }} />
-                  </label>
+                  <BulkUpload caseId={selectedId} docType={docType} onIndexed={() => setDocumentRefresh((value) => value + 1)} />
                 </div>
               )}
 

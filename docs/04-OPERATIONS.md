@@ -323,3 +323,48 @@ and user accounts cannot.
 text, so a rebuild only embeds text that changed, and an interrupted run keeps every
 finished batch. Deleting the file is safe and costs only time. `--force` ignores it.
 A new embedding model starts empty, since the model is part of the key.
+
+### Taking a backup
+
+```bash
+scripts/backup_local.sh                    # into backups/<date>_<time>/
+scripts/backup_local.sh --dest /some/disk  # into /some/disk/<date>_<time>/
+scripts/backup_local.sh --dry-run          # say where, and touch nothing
+```
+
+The stack must be running. A folder gets:
+
+| File | How it is made |
+|------|----------------|
+| `postgres/database.dump` | `pg_dump --format=custom` inside the compose container |
+| `qdrant/<collection>.snapshot` | One Qdrant snapshot per collection, deleted from the volume once downloaded |
+| `minio/data.tar` | The raw MinIO data directory, so object versions and metadata are kept |
+| `MANIFEST` | A SHA-256 for each file above |
+
+A run works in `<name>.partial` and renames it only at the end, so a folder without
+that suffix is whole. Snapshots of the corpus collection are large: check the free
+disk first. MinIO is copied while it runs, so take a backup when nothing is uploading.
+
+The folder holds private case material and is created readable only by you. It does
+not include `.env`, so keep that safe separately: a restored database needs the same
+secrets. Neither script reads a secret from `.env` or prints one, and everything goes
+through the compose containers, so a different database on `localhost:5432` cannot be
+reached by mistake.
+
+### Restoring one
+
+```bash
+scripts/restore_local.sh --yes backups/2026-11-05_143000
+```
+
+This overwrites the database, each collection in the backup and all MinIO data. It
+refuses without both `--yes` and a named folder, and refuses a folder that fails its
+`MANIFEST` check, before changing anything. It also refuses while the backend is
+running, in its container or on port 8000. Collections not in the backup are left as
+they are. Afterwards run `python -m alembic upgrade head` in `backend/`, in case the
+backup is older than the code.
+
+> These scripts have had their syntax and argument handling tested
+> (`backend/tests/test_backup_scripts.py`, with a stand-in for Docker). They have not
+> yet been run against a real stack. Try a backup and a restore on a scratch stack
+> before relying on them.

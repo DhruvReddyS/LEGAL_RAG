@@ -9,6 +9,7 @@ import ChatInput from "@/components/ChatInput";
 import { scopeLockedReason } from "@/lib/police-presentation";
 import MessageBubble from "@/components/MessageBubble";
 import UploadPrivacy from "@/components/UploadPrivacy";
+import { DeadlineReminders, ReminderSettings } from "@/components/platform/DeadlineReminders";
 import { legalCategory } from "@/lib/answer-presentation";
 import { useDialogFocus } from "@/components/useDialogFocus";
 import { isTauriDesktop } from "@/lib/desktop";
@@ -723,6 +724,7 @@ export default function HomePage() {
     {accountOpen && <AccountDialog user={user} onClose={() => setAccountOpen(false)} onUserChange={setUser} onSignOut={() => { setAccountOpen(false); void signOut(); }} onErased={(receipt) => { setAccountOpen(false); setUser(null); setErasedReceipt(receipt); }} />}
     <AccountGate user={user} onCleared={() => setHistoryVersion(value => value + 1)} onSignOut={() => void signOut()} onOpenAccount={() => setAccountOpen(true)} />
     {citizenGuideSlide !== null && <CitizenGuideDialog open initialSlide={citizenGuideSlide} onClose={() => setCitizenGuideSlide(null)} onStart={(prompt) => { setCitizenGuideSlide(null); void submit(prompt); }}/>}
+    <DeadlineReminders role={role} />
     {settingsOpen && <div className="modal-backdrop" onMouseDown={() => setSettingsOpen(false)}><div ref={settingsRef} role="dialog" aria-modal="true" aria-label={citizenText("settings")} className="settings-dialog" onMouseDown={event => event.stopPropagation()}>
       <div className="dialog-heading settings-heading"><div><h2>{citizenText("settings")}</h2><p>{citizenText("settingsLead")}</p></div><button aria-label={citizenText("closeSettings")} className="icon-button" onClick={() => setSettingsOpen(false)}><X size={18} /></button></div>
       <div className="settings-account"><div><strong>{user.name}</strong><span>{user.email}</span></div><b>{role}</b></div>
@@ -732,6 +734,7 @@ export default function HomePage() {
         <div className="setting-block setting-stack"><div className="setting-copy"><strong>{citizenText("researchDepth")}</strong><small>{citizenText("researchDepthHint")}</small></div><div className="mode-choice" role="group" aria-label={citizenText("researchDepth")}>{(["auto","fast","deep"] as RequestedResponseMode[]).map(mode => <button key={mode} aria-pressed={responseMode === mode} onClick={() => setResponseMode(mode)}>{mode === "auto" ? citizenText("modeAuto") : mode === "fast" ? citizenText("modeFast") : citizenText("modeDeep")}</button>)}</div></div>
         <label className="setting-block"><span className="setting-copy"><strong>{citizenText("motion")}</strong><small>{citizenText("motionHint")}</small></span><span className="premium-switch"><input type="checkbox" checked={animate} onChange={event => setAnimate(event.target.checked)} /><i/></span></label>
       </section>
+      <ReminderSettings citizen={role === "citizen"} />
       <section className="settings-section"><h3>{citizenText("historyPrivacy")}</h3>
         <label className="setting-block"><span className="setting-copy"><strong>{citizenText("showRecent")}</strong><small>{citizenText("showRecentHint")}</small></span><span className="premium-switch"><input type="checkbox" checked={rememberHistory} onChange={event => setRememberHistory(event.target.checked)} /><i/></span></label>
         <details className="settings-privacy"><summary>{citizenText("privacyDetails")}<span>{citizenText("viewDetails")}</span></summary><UploadPrivacy citizen={role === "citizen"}/><p>{citizenText("voiceSettingsNote")}</p></details>

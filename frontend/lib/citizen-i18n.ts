@@ -8,6 +8,28 @@ import { l, LANGS, type L, type Lang } from "./citizen-law/law";
 export const LANG_LABELS: Record<Lang, string> = { en: "English", hi: "हिन्दी", te: "తెలుగు" };
 
 export const UI = {
+  reminderOne: l("1 deadline needs attention.", "1 समय-सीमा पर ध्यान देना है।", "1 గడువును గమనించాలి."),
+  reminderMany: l("{n} deadlines need attention.", "{n} समय-सीमाओं पर ध्यान देना है।", "{n} గడువులను గమనించాలి."),
+  remindersTitle: l("Reminders", "याद दिलाना", "గుర్తుచేయడం"),
+  remindersLabel: l("Browser reminders for due deadlines", "नियत समय-सीमाओं के लिए ब्राउज़र रिमाइंडर", "గడువుల కోసం బ్రౌజర్ రిమైండర్లు"),
+  remindersHint: l("While this app is open, your browser can show how many deadlines are due. It shows a count and no details.", "जब यह ऐप खुला हो, ब्राउज़र दिखा सकता है कि कितनी समय-सीमाएँ नियत हैं। इसमें केवल संख्या होती है, कोई विवरण नहीं।", "ఈ యాప్ తెరిచి ఉన్నప్పుడు, ఎన్ని గడువులు ఉన్నాయో బ్రౌజర్ చూపగలదు. ఇది సంఖ్య మాత్రమే చూపిస్తుంది, వివరాలు కాదు."),
+  remindersEnable: l("Turn on", "चालू करें", "ఆన్ చేయండి"),
+  remindersOn: l("On. A count is shown while this app is open, at most once a day for each item. To stop, use your browser's site settings.", "चालू है। ऐप खुला होने पर संख्या दिखती है, हर मद के लिए दिन में अधिकतम एक बार। बंद करने के लिए ब्राउज़र की साइट सेटिंग देखें।", "ఆన్‌లో ఉంది. యాప్ తెరిచి ఉన్నప్పుడు సంఖ్య కనిపిస్తుంది, ప్రతి అంశానికి రోజుకు ఒక్కసారి మాత్రమే. ఆపడానికి బ్రౌజర్ సైట్ సెట్టింగులు చూడండి."),
+  remindersBlocked: l("Blocked in this browser. To allow them, change this site's notification setting in your browser.", "इस ब्राउज़र में अवरुद्ध हैं। अनुमति देने के लिए ब्राउज़र में इस साइट की सूचना सेटिंग बदलें।", "ఈ బ్రౌజర్‌లో నిరోధించబడ్డాయి. అనుమతించడానికి బ్రౌజర్‌లో ఈ సైట్ నోటిఫికేషన్ సెట్టింగ్ మార్చండి."),
+  remindersUnsupported: l("This browser cannot show them. Due dates are still shown inside the app.", "यह ब्राउज़र इन्हें नहीं दिखा सकता। नियत तारीखें ऐप के भीतर दिखती रहेंगी।", "ఈ బ్రౌజర్ వీటిని చూపలేదు. గడువు తేదీలు యాప్‌లో కనిపిస్తూనే ఉంటాయి."),
+  followUpsLabel: l("You could ask next", "आप आगे यह पूछ सकते हैं", "మీరు తర్వాత ఇది అడగవచ్చు"),
+  fuNextSteps: l("What steps can I take next, and who do I go to?", "मैं आगे क्या कदम उठा सकता हूँ, और किसके पास जाऊँ?", "నేను తర్వాత ఏ చర్యలు తీసుకోవచ్చు, ఎవరి దగ్గరకు వెళ్లాలి?"),
+  fuDocuments: l("What documents should I keep ready?", "मुझे कौन से दस्तावेज़ तैयार रखने चाहिए?", "నేను ఏ పత్రాలు సిద్ధంగా ఉంచుకోవాలి?"),
+  fuTimeLimits: l("Are there time limits I should know about?", "क्या कोई समय-सीमा है जो मुझे पता होनी चाहिए?", "నేను తెలుసుకోవలసిన గడువులు ఏమైనా ఉన్నాయా?"),
+  fuWhatMustShow: l("What does this provision say has to be shown?", "इस प्रावधान के अनुसार क्या दिखाना ज़रूरी है?", "ఈ నిబంధన ప్రకారం ఏమి చూపించాలి?"),
+  fuHowReport: l("How do I report this, and to whom?", "मैं इसकी शिकायत कैसे और किससे करूँ?", "దీన్ని ఎలా, ఎవరికి ఫిర్యాదు చేయాలి?"),
+  fuFreeHelp: l("Where can I get free legal help?", "मुझे मुफ़्त क़ानूनी मदद कहाँ मिल सकती है?", "నాకు ఉచిత న్యాయ సహాయం ఎక్కడ దొరుకుతుంది?"),
+  fuProofKeep: l("What records are useful to keep?", "कौन से रिकॉर्ड संभालकर रखना उपयोगी है?", "ఏ రికార్డులు దాచుకోవడం ఉపయోగం?"),
+  fuCopies: l("How do I get copies of documents?", "मुझे दस्तावेज़ों की प्रतियाँ कैसे मिलेंगी?", "పత్రాల నకళ్లు నాకు ఎలా లభిస్తాయి?"),
+  fuUseRight: l("How do people use this right in practice?", "लोग इस अधिकार का व्यवहार में उपयोग कैसे करते हैं?", "ఈ హక్కును ఆచరణలో ఎలా ఉపయోగిస్తారు?"),
+  fuComplainWhere: l("Where can I complain if this right is ignored?", "इस अधिकार की अनदेखी हो तो मैं कहाँ शिकायत करूँ?", "ఈ హక్కును పట్టించుకోకపోతే నేను ఎక్కడ ఫిర్యాదు చేయాలి?"),
+  fuConsumerFile: l("How do I file a consumer complaint?", "मैं उपभोक्ता शिकायत कैसे दर्ज करूँ?", "వినియోగదారు ఫిర్యాదు ఎలా దాఖలు చేయాలి?"),
+  fuSimpler: l("Can you explain this in simpler words?", "क्या आप इसे आसान शब्दों में समझा सकते हैं?", "దీన్ని సులభమైన మాటల్లో వివరించగలరా?"),
   // Shell
   toolsTitle: l("Help for your situation", "आपकी स्थिति के लिए मदद", "మీ పరిస్థితికి సహాయం"),
   toolsIntro: l("Tools that work from the law itself. They explain, cite and point you to the right door. They do not decide your case.", "ये उपकरण सीधे क़ानून पर आधारित हैं। ये समझाते हैं, स्रोत बताते हैं और सही रास्ता दिखाते हैं। ये आपके मामले का फ़ैसला नहीं करते।", "ఈ సాధనాలు నేరుగా చట్టం ఆధారంగా పనిచేస్తాయి. వివరిస్తాయి, మూలాలు చూపిస్తాయి, సరైన దారి చూపిస్తాయి. మీ కేసును నిర్ణయించవు."),

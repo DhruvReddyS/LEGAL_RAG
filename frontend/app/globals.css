@@ -393,3 +393,4 @@
   .composer-toolbar .mode-picker select {max-width:100%;text-overflow:ellipsis;}
   .professional-path {display:none;}
 }
+.follow-ups {margin-top:18px;}.follow-ups h3 {margin:0 0 8px;font-size:12px;font-weight:500;color:var(--ink-soft);}.follow-ups ul {display:grid;gap:4px;margin:0;padding:0;list-style:none;}.follow-ups button {display:flex;align-items:flex-start;gap:8px;width:100%;min-height:36px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;line-height:1.5;text-align:left;color:var(--ink);background:transparent;transition:background .15s;}.follow-ups button:hover {background:var(--hover);}.follow-ups svg {flex:none;margin-top:3px;color:var(--ink-soft);}
