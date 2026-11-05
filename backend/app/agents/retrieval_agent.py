@@ -14,7 +14,7 @@ from app.services.fast_research import (
 )
 from app.ingestion.init_qdrant import ADVOCATE_CASE_DATA, GLOBAL_LEGAL_CORPUS, POLICE_CASE_DATA
 from app.agents.publication import evidence_addresses_the_question
-from app.services.question_scope import off_topic_check_for
+from app.services.question_scope import asks_about_foreign_law, off_topic_check_for
 from app.core.config import settings
 from app.services.pipeline_telemetry import append_stage_metric, text_size
 
@@ -96,7 +96,8 @@ async def _statutes_for(service, query: str, asked: str, hits: list, distinctive
     """Primary law not already in hand. Anything going wrong adds nothing."""
     try:
         found = await service.search_statutes(query, collection=GLOBAL_LEGAL_CORPUS)
-        statutes = governing_statutes(
+        statutes = await governing_statutes(
+            service,
             found,
             query=asked,
             focus_tokens=_focus_tokens(asked),
@@ -487,8 +488,10 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
         # refusal. The offline probe passed that question because it used
         # the original wording, which is precisely the harness/lane
         # mismatch this project keeps repeating.
+        # Primary law confirmed for this question addresses it, in whatever words.
         "evidence_addresses_question": (
-            evidence_addresses_the_question(asked, hits, set(distinctive))
+            (bool(statutes) or evidence_addresses_the_question(asked, hits, set(distinctive)))
+            and not asks_about_foreign_law(asked)
             and not await _is_off_topic(service, asked)
         ),
         "retrieved_chunks": hits,

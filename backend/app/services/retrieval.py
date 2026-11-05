@@ -399,6 +399,10 @@ def _distinctive_from_counts(counts: dict[str, int]) -> list[str]:
     )
 
 
+# Enough for a section's opening, and it keeps this cheap enough for the Fast lane.
+RELEVANCE_MAX_TOKENS = 512
+
+
 class BGEReranker:
     # bge-reranker-v2-m3 supports an 8192-token context. Using that full context
     # prevents the current 700-word legal chunks from being silently cut down to
@@ -423,13 +427,13 @@ class BGEReranker:
             )
         return self._model
 
-    def score(self, query: str, documents: list[str]) -> list[float]:
+    def score(self, query: str, documents: list[str], *, max_length: int | None = None) -> list[float]:
         if not documents:
             return []
         scores = self._load().compute_score(
             [[query, document] for document in documents],
             batch_size=self.BATCH_SIZE,
-            max_length=self.MAX_LENGTH,
+            max_length=max_length or self.MAX_LENGTH,
             normalize=True,
         )
         if isinstance(scores, float):
@@ -1008,6 +1012,13 @@ class HybridRetrievalService:
         except Exception:  # noqa: BLE001 - see the docstring
             return []
         return hits
+
+    async def relevance_scores(self, query: str, texts: list[str]) -> list[float]:
+        """How well each text answers the query, read together, from 0 to 1."""
+        return await asyncio.get_running_loop().run_in_executor(
+            self._reranking_executor,
+            lambda: self.reranker.score(query, texts, max_length=RELEVANCE_MAX_TOKENS),
+        )
 
     async def distinctive_query_terms(
         self,

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-from app.services.fast_research import governing_statutes, shown_to_the_reader
+from app.services.fast_research import STATUTES_READ_CLOSELY, governing_statutes, shown_to_the_reader
 
 
 def _hit(chunk: str, document: str, *, relation: str | None = None, document_type: str = "bare_act", source_type: str = "ACT"):
@@ -40,29 +40,69 @@ def test_the_limit_holds() -> None:
     assert len(shown_to_the_reader([_hit(str(n), str(n)) for n in range(9)], [], [], limit=4)) == 4
 
 
-def _statutes(hits, query="Can police arrest without warrant?"):
-    return governing_statutes(
-        hits, query=query, focus_tokens={"arrest", "warrant", "police"}, distinctive_terms=set()
+class _Reader:
+    """Scores by a word in the passage, as a stand-in for reading it."""
+
+    def __init__(self, *, broken: bool = False) -> None:
+        self.broken = broken
+        self.reads: list[int] = []
+
+    async def relevance_scores(self, query, texts):
+        if self.broken:
+            raise RuntimeError("reranker unavailable")
+        self.reads.append(len(texts))
+        return [0.9 if "ANSWER" in text else 0.01 for text in texts]
+
+
+async def _statutes(hits, query="Can police arrest without warrant?", reader=None):
+    return await governing_statutes(
+        reader or _Reader(),
+        hits,
+        query=query,
+        focus_tokens={"arrest", "warrant", "police"},
+        distinctive_terms=set(),
     )
 
 
-def test_two_places_at_most() -> None:
-    assert len(_statutes([_hit(str(n), str(n)) for n in range(5)])) == 2
+def _unrelated(chunk: str, text: str = "Nothing in common with what was asked."):
+    hit = _hit(chunk, chunk)
+    hit.payload["text"] = text
+    return hit
 
 
-def test_circulars_do_not_count_as_primary_law() -> None:
-    assert _statutes([_hit("x", "x", document_type="sop_or_circular")]) == []
+async def test_two_places_at_most() -> None:
+    assert len(await _statutes([_hit(str(n), str(n)) for n in range(5)])) == 2
 
 
-def test_the_constitution_counts() -> None:
-    assert _statutes([_hit("x", "x", document_type="other", source_type="CONSTITUTION")])
+async def test_circulars_do_not_count_as_primary_law() -> None:
+    assert await _statutes([_hit("x", "x", document_type="sop_or_circular")]) == []
 
 
-def test_the_relevance_gate_still_applies() -> None:
-    hit = _hit("x", "x")
-    hit.payload["text"] = "Nothing to do with the question at all."
-    assert _statutes([hit]) == []
+async def test_the_constitution_counts() -> None:
+    assert await _statutes([_hit("x", "x", document_type="other", source_type="CONSTITUTION")])
 
 
-def test_a_foreign_law_question_gets_no_statute() -> None:
-    assert _statutes([_hit("x", "x")], query="Can police arrest without warrant in Canada?") == []
+async def test_close_reading_finds_a_section_in_other_words() -> None:
+    """The case this exists for: no shared words, and the right section."""
+    found = await _statutes([_unrelated("wrong"), _unrelated("right", "ANSWER dishonour of cheque")])
+    assert [hit.payload["chunk_id"] for hit in found] == ["right"]
+
+
+async def test_nothing_is_shown_when_neither_test_passes() -> None:
+    assert await _statutes([_unrelated("x")]) == []
+
+
+async def test_a_lost_reranker_falls_back_to_the_word_gate() -> None:
+    reader = _Reader(broken=True)
+    assert [hit.payload["chunk_id"] for hit in await _statutes([_hit("x", "x"), _unrelated("y")], reader=reader)] == ["x"]
+
+
+async def test_only_the_top_candidates_are_read() -> None:
+    reader = _Reader()
+    await _statutes([_unrelated(str(n)) for n in range(30)], reader=reader)
+    assert reader.reads == [STATUTES_READ_CLOSELY]
+
+
+async def test_a_foreign_law_question_gets_no_statute() -> None:
+    hit = _unrelated("x", "ANSWER")
+    assert await _statutes([hit], query="Can police arrest without warrant in Canada?") == []

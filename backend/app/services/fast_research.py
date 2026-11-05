@@ -392,30 +392,68 @@ def publishable_hits(
     return relevant
 
 
-# How many places in the brief are held for primary law. Measured on golden set v4:
-# the governing section was shown for 39 of 94 questions, and 48 with two places
-# (held-out half 23 of 52 to 29). A cross-encoder over the same list added 2-3 more
-# for about 20 seconds per question on a loaded CPU, so it is not used here.
+# How many places in the brief are held for primary law, how many candidates are
+# read closely to fill them, and how sure that reading must be.
+#
+# The word-overlap gate threw out the right section whenever a person's words were
+# not the statute's: for "a cheque has bounced" s.138 ranked first and was dropped.
+# Reading the question and passage together, on golden set v4 against v6, took the
+# governing section shown from 52 of 94 to 65, and from 32 to 39 of the 52 held out
+# from choosing the threshold, for 0.6 seconds a question on a GPU. Of 20 questions
+# about topics the corpus may not cover, 7 got a section instead of the word gate's
+# wrong Acts. Two of the seven were still wrong, so the brief stays labelled unverified.
 STATUTE_PLACES = 2
+STATUTES_READ_CLOSELY = 5
+STATUTE_RELEVANCE_FLOOR = 0.2
+_RELEVANCE_TEXT_CHARACTERS = 1800
 
 
-def governing_statutes(
+def _is_primary_law(hit: object) -> bool:
+    payload = getattr(hit, "payload")
+    return (
+        str(payload.get("document_type")) == "bare_act"
+        or str(payload.get("source_type")) == "CONSTITUTION"
+    )
+
+
+async def governing_statutes(
+    service: Any,
     hits: list,
     *,
     query: str,
     focus_tokens: set[str],
     distinctive_terms: set[str],
 ) -> list:
-    """The best primary law from `search_statutes`, through the same relevance gate."""
-    primary = [
-        hit
-        for hit in hits
-        if str(hit.payload.get("document_type")) == "bare_act"
-        or str(hit.payload.get("source_type")) == "CONSTITUTION"
-    ]
-    return publishable_hits(
+    """The primary law that answers the question: read closely, then the word gate.
+
+    The word gate stays as the fallback, so losing the reranker returns this to what
+    it did before rather than to nothing.
+    """
+    primary = [hit for hit in hits if _is_primary_law(hit)]
+    if not primary or asks_about_foreign_law(query):
+        return []
+    by_words = publishable_hits(
         primary, query=query, focus_tokens=focus_tokens, distinctive_terms=distinctive_terms
-    )[:STATUTE_PLACES]
+    )
+    closest = primary[:STATUTES_READ_CLOSELY]
+    try:
+        scores = await service.relevance_scores(
+            query, [str(hit.payload.get("text") or "")[:_RELEVANCE_TEXT_CHARACTERS] for hit in closest]
+        )
+    except Exception:  # noqa: BLE001 - see the docstring
+        scores = []
+    confirmed = [
+        hit
+        for score, _, hit in sorted(
+            zip(scores, range(len(closest)), closest), key=lambda item: (-item[0], item[1])
+        )
+        if score >= STATUTE_RELEVANCE_FLOOR
+    ]
+    chosen = {str(hit.payload.get("chunk_id")) for hit in confirmed}
+    return [
+        *confirmed,
+        *(hit for hit in by_words if str(hit.payload.get("chunk_id")) not in chosen),
+    ][:STATUTE_PLACES]
 
 
 async def _primary_law_search(service: Any, query: str, collection: str) -> list:
@@ -733,11 +771,16 @@ class FastLegalResearchService:
             distinctive_terms=distinctive_terms,
             domain_tokens=domain_tokens,
         )
-        statutes = governing_statutes(
-            statute_hits,
-            query=query,
-            focus_tokens=focus_tokens,
-            distinctive_terms=distinctive_terms,
+        statutes = (
+            []
+            if off_topic
+            else await governing_statutes(
+                self.retrieval,
+                statute_hits,
+                query=query,
+                focus_tokens=focus_tokens,
+                distinctive_terms=distinctive_terms,
+            )
         )
         # An implementation bridge points to an exact, current provision in
         # the corpus whose statutory wording differs from the citizen's words.

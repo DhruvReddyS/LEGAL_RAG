@@ -98,7 +98,8 @@ async def _shown_to_the_reader(
         )
     except Exception:  # noqa: BLE001 - mirrors the lane's fail-open enrichment
         followed = []
-    statutes = governing_statutes(
+    statutes = await governing_statutes(
+        service,
         await service.search_statutes(question, collection=collection),
         query=question,
         focus_tokens=focus,

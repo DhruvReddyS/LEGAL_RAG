@@ -57,8 +57,8 @@
   },
   "POSH": {
    "name": "Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013",
-   "document_id": "civil-doc-287b5d4d96c74556b72273f2",
-   "source_url": "https://www.wcd.gov.in/documents/uploaded/1710219823.pdf",
+   "document_id": "exp-doc-1260492b560a47a3a613a603",
+   "source_url": "https://indiacode.gov.in/server/api/core/bitstreams/2a5ab29a-5f3e-4893-803e-a29aba53f640/content",
    "corpus_status": "current/verify"
   },
   "RTI": {
@@ -75,8 +75,8 @@
   },
   "IT": {
    "name": "Information Technology Act, 2000",
-   "document_id": "gold-doc-d2e0898940c03054cad6a9c2",
-   "source_url": "https://cca.gov.in/sites/files/pdf/ACT/ACT2000.pdf",
+   "document_id": "exp-doc-11acfa1da5314ba282f1aec5",
+   "source_url": "https://indiacode.gov.in/server/api/core/bitstreams/770a7d02-48f2-4274-bab9-10d0f48ee264/content",
    "corpus_status": "current/verify"
   },
   "ITKIT": {
@@ -894,7 +894,7 @@
   "posh-2-n": {
    "act": "POSH",
    "section": "s.2(n)",
-   "quote": "includes any one or more of the following unwelcome acts or behaviour",
+   "quote": "includes any one or more of the following unwelcome acts or behavior",
    "page": 3
   },
   "posh-4": {
@@ -930,7 +930,7 @@
   "posh-12": {
    "act": "POSH",
    "section": "s.12(1)",
-   "quote": "During the pendency of an inquiry, on a written request",
+   "quote": "During the pendency of an inquiry on a written request",
    "page": 7
   },
   "posh-18": {
