@@ -49,6 +49,11 @@ export function apiUrl(): string {
     return getRuntimeBackendUrl();
   }
 
+  // An explicit build setting always wins, including on a local address.
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return CONFIGURED_API_URL;
+  }
+
   if (
     (window.location.hostname === "localhost" ||
       window.location.hostname.endsWith(".localhost") ||

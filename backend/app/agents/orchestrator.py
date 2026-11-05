@@ -15,6 +15,7 @@ from app.agents.response_generation import response_generation_node
 from app.agents.retrieval_agent import retrieval_node
 from app.agents.state import AgentState
 from app.agents.verification_agent import verification_node
+from app.services.answer_cache import AnswerCache, cacheable_request
 from app.services.llm import OllamaClient
 from app.services.retrieval import HybridRetrievalService
 from app.agents.role_profiles import get_role_profile, select_specialist_agent
@@ -32,6 +33,7 @@ class LegalRAGWorkflow:
     """Bounded, dependency-injected LangGraph workflow for verified legal answers."""
 
     def __init__(self, retrieval: HybridRetrievalService, llm: OllamaClient | None = None) -> None:
+        self.answer_cache = AnswerCache()
         self.retrieval = retrieval
         self.llm = llm or OllamaClient()
         graph = StateGraph(AgentState)
@@ -247,6 +249,19 @@ class LegalRAGWorkflow:
     ) -> AgentState:
         workflow_started_ns = perf_counter_ns()
         run_id = str(uuid.uuid4())
+        reusable = cacheable_request(
+            case_id=case_id, history=history, document_context=document_context
+        )
+        if reusable and (cached := self.answer_cache.get(query, role)) is not None:
+            return {
+                **cached,
+                "run_id": run_id,
+                "stage_metrics": [],
+                "timings": {
+                    "answer_cache_hit": True,
+                    "workflow_total_ms": (perf_counter_ns() - workflow_started_ns) / 1e6,
+                },
+            }
         initial_state = AgentState(
             query=query,
             document_context=document_context,
@@ -301,4 +316,6 @@ class LegalRAGWorkflow:
             **result.get("timings", {}),
             "workflow_total_ms": result["stage_metrics"][-1]["duration_ms"],
         }
+        if reusable:
+            self.answer_cache.put(query, role, result)
         return result

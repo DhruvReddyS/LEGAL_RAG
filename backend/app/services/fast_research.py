@@ -18,6 +18,7 @@ from app.services.retrieval import (
     _base_forms,
 )
 from app.services.lay_vocabulary import domain_vocabulary
+from app.services.question_scope import asks_about_foreign_law
 from app.services.legal_term_normalization import (
     LEGAL_ACRONYM_EXPANSIONS,
     normalize_legal_terms,
@@ -353,6 +354,8 @@ def publishable_hits(
     accuracy on the raw retrieved list, a third of which repeats a document
     the reader has already been shown.
     """
+    if asks_about_foreign_law(query):
+        return []
     floor = COVERAGE_FLOOR if distinctive_terms else COVERAGE_FLOOR_WITHOUT_RARE_TERM
 
     def _passes(hit) -> bool:
@@ -685,7 +688,13 @@ class FastLegalResearchService:
             ),
             *citation_followed_hits,
         ]
-        hits = _select_diverse_hits(relevant_hits, settings.fast_result_limit)
+        # Followed provisions join after the gate, so the scope rule is applied
+        # to the final list as well as inside it.
+        hits = (
+            []
+            if asks_about_foreign_law(query)
+            else _select_diverse_hits(relevant_hits, settings.fast_result_limit)
+        )
         if not hits:
             answer = INSUFFICIENT_EVIDENCE
             citations: list[AgentCitation] = []
