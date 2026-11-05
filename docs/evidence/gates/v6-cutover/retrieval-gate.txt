@@ -1,0 +1,15 @@
+  NOTE: baseline was measured against golden_set_v3.json and this run used golden_set_v4.json. The comparison is between two different yardsticks; re-record before trusting it.
+baseline: global_legal_corpus_v3 recorded 2026-09-06T15:04:14.922162+00:00; this run: global_legal_corpus_v6
+  NOTE: prompts changed since the baseline: defence_strategy, query_understanding, reasoning, verification
+quality gate: hybrid against quality-baseline.json
+  recall_at_5              0.927 -> 0.500  (-0.427)  REGRESSION
+  citation_accuracy_at_5   0.638 -> 0.288  (-0.350)  REGRESSION
+    advocate  R@5 0.714 -> 0.667 (-0.047)  <-- watch
+    citizen   R@5 0.957 -> 0.471 (-0.486)  <-- watch
+    police    R@5 0.960 -> 0.440 (-0.520)  <-- watch
+
+quality gate FAILED:
+  recall_at_5: 0.927 -> 0.500 (-0.427)
+  citation_accuracy_at_5: 0.638 -> 0.288 (-0.350)
+
+If this drop is intended, re-record the baseline with --record and say in the commit message why the new number is the right one.

@@ -1,0 +1,45 @@
+[fast] warm-up (q01) ...
+[fast] q01 r0 ...    0.27 s  4 cites   450 words  strong
+[fast] q02 r0 ...    0.88 s  4 cites   485 words  strong
+[fast] q03 r0 ...    0.73 s  4 cites   494 words  moderate
+[fast] q04 r0 ...    0.61 s  4 cites   655 words  strong
+[fast] q05 r0 ...    1.76 s  0 cites    18 words  insufficient
+[fast] q06 r0 ...    0.53 s  4 cites   585 words  strong
+[fast] q07 r0 ...    1.36 s  4 cites   539 words  insufficient
+[fast] q01 r1 ...    0.38 s  4 cites   450 words  strong
+[fast] q02 r1 ...    0.55 s  4 cites   485 words  strong
+[fast] q03 r1 ...    0.66 s  4 cites   494 words  moderate
+[fast] q04 r1 ...    0.59 s  4 cites   655 words  strong
+[fast] q05 r1 ...    0.88 s  0 cites    18 words  insufficient
+[fast] q06 r1 ...    0.51 s  4 cites   585 words  strong
+[fast] q07 r1 ...    0.53 s  4 cites   539 words  insufficient
+[fast] q01 r2 ...    0.35 s  4 cites   450 words  strong
+[fast] q02 r2 ...    0.41 s  4 cites   485 words  strong
+[fast] q03 r2 ...    0.37 s  4 cites   494 words  moderate
+[fast] q04 r2 ...    0.30 s  4 cites   655 words  strong
+[fast] q05 r2 ...    2.16 s  0 cites    18 words  insufficient
+[fast] q06 r2 ...    1.05 s  4 cites   585 words  strong
+[fast] q07 r2 ...    0.93 s  4 cites   539 words  insufficient
+[fast] drained escalated jobs: {'cancelled_jobs': 6, 'queue_depth_after_drain': 0}
+[deep] warm-up (q01) ...
+Traceback (most recent call last):
+  File "/Users/sripathidhruvreddy/Documents/MAJOR PROJECT/scripts/latency_benchmark.py", line 859, in <module>
+    report = asyncio.run(run(arguments))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sripathidhruvreddy/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/Users/sripathidhruvreddy/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sripathidhruvreddy/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/Users/sripathidhruvreddy/Documents/MAJOR PROJECT/scripts/latency_benchmark.py", line 718, in run
+    await run_deep(client, credentials_by_role[warm["role"]], warm, -1, args.poll_interval)
+  File "/Users/sripathidhruvreddy/Documents/MAJOR PROJECT/scripts/latency_benchmark.py", line 555, in run_deep
+    enqueue.raise_for_status()
+  File "/Users/sripathidhruvreddy/Documents/MAJOR PROJECT/.venv-ingest/lib/python3.12/site-packages/httpx/_models.py", line 829, in raise_for_status
+    raise HTTPStatusError(message, request=request, response=self)
+httpx.HTTPStatusError: Client error '429 Too Many Requests' for url 'http://127.0.0.1:8000/jobs/deep-review'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/429

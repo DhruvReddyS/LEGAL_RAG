@@ -1,0 +1,10 @@
+  NOTE: baseline used golden_set_v3.json and this run used golden_set_v4.json. Different yardsticks; re-record before trusting the comparison.
+baseline: global_legal_corpus_v3 recorded 2026-09-06T16:51:50.894939+00:00; this run: global_legal_corpus_v6
+answer gate: against answer-quality-baseline.json
+  abstention_correct       0.885 -> 0.931  (+0.046)  ok
+  ground_coverage          0.477 -> 0.540  (+0.063)  ok
+  currency_correct         0.650 -> 1.000  (+0.350)  ok
+    citizen   coverage 0.512 -> 0.577 (+0.065)
+    police    coverage 0.442 -> 0.504 (+0.062)
+
+answer gate passed

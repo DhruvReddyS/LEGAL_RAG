@@ -1,8 +1,8 @@
 {
-  "recorded_at": "2026-09-06T15:04:14.922162+00:00",
+  "recorded_at": "2026-11-05T09:33:17.952528+00:00",
   "config": "hybrid",
-  "collection": "global_legal_corpus_v3",
-  "golden_set": "golden_set_v3.json",
+  "collection": "global_legal_corpus_v6",
+  "golden_set": "golden_set_v4.json",
   "measurement_config": {
     "embedding_model": "BAAI/bge-m3",
     "embedding_dimension": 1024,
@@ -10,37 +10,43 @@
     "reranker_input_characters": 2500,
     "repealed_rank_penalty": 3,
     "abstain_coverage_floor": 0.34,
+    "fast_min_candidate_limit": 20,
     "prompt_versions": {
-      "query_understanding": "35f38ca312bf",
-      "reasoning": "6edb7e55484f",
-      "verification": "d4bc4e178e2d",
+      "query_understanding": "3bd57cb79f3e",
+      "reasoning": "72f6be429daa",
+      "verification": "43319c51e03a",
       "drafting_fact_extraction": "26bf93f7493e",
-      "defence_strategy": "014cb50323bb",
-      "document_analysis": "090c2b8c8849"
+      "defence_strategy": "8884175dd1f7",
+      "document_analysis": "090c2b8c8849",
+      "advocate_claim_verification": "71ce2ed0c9c8",
+      "advocate_grounds": "9377aa68cadf",
+      "advocate_brief": "dc3044e57a86",
+      "advocate_comparison": "6967dc6f373d",
+      "advocate_debate": "11a1614a1b11"
     }
   },
   "metrics": {
-    "recall_at_5": 0.9272727272727272,
-    "citation_accuracy_at_5": 0.6378787878787878
+    "recall_at_5": 0.5,
+    "citation_accuracy_at_5": 0.28812056737588654
   },
   "by_role": {
     "advocate": {
-      "items": 7,
-      "recall_at_5": 0.714,
-      "recall_at_20": 0.857,
-      "citation_accuracy_at_5": 0.619
+      "items": 18,
+      "recall_at_5": 0.667,
+      "recall_at_20": 0.722,
+      "citation_accuracy_at_5": 0.407
     },
     "citizen": {
-      "items": 23,
-      "recall_at_5": 0.957,
-      "recall_at_20": 0.957,
-      "citation_accuracy_at_5": 0.721
+      "items": 51,
+      "recall_at_5": 0.471,
+      "recall_at_20": 0.686,
+      "citation_accuracy_at_5": 0.266
     },
     "police": {
       "items": 25,
-      "recall_at_5": 0.96,
-      "recall_at_20": 1.0,
-      "citation_accuracy_at_5": 0.567
+      "recall_at_5": 0.44,
+      "recall_at_20": 0.72,
+      "citation_accuracy_at_5": 0.247
     }
   }
 }

@@ -1,0 +1,67 @@
+{
+  "after": "global_legal_corpus_v6",
+  "before": "global_legal_corpus_v4",
+  "corpus": {
+    "after": {
+      "chunks": 86127,
+      "documents": 1593
+    },
+    "before": {
+      "chunks": 49745,
+      "documents": 737
+    },
+    "chunk_growth": 1.731
+  },
+  "golden_set": "golden_set_v4.json",
+  "growth_threshold": 2.0,
+  "items": 2,
+  "phrases_after": {
+    "chain of custody": 11,
+    "hash value": 7
+  },
+  "phrases_before": {
+    "chain of custody": 9,
+    "hash value": 4
+  },
+  "rows": [
+    {
+      "chunks_after": 17,
+      "chunks_before": 8,
+      "documents_after": 7,
+      "documents_before": 4,
+      "grew_faster_than_the_corpus": true,
+      "growth": 1.75,
+      "id": "sop-electronic-device",
+      "newly_findable": false,
+      "phrases": [
+        "hash value"
+      ],
+      "question": "How should an electronic device be seized and preserved?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    },
+    {
+      "chunks_after": 31,
+      "chunks_before": 26,
+      "documents_after": 11,
+      "documents_before": 9,
+      "grew_faster_than_the_corpus": false,
+      "growth": 1.22,
+      "id": "sop-chain-custody",
+      "newly_findable": false,
+      "phrases": [
+        "chain of custody"
+      ],
+      "question": "How must chain of custody be maintained for seized material?",
+      "recall_change_attributable_to_retrieval": true,
+      "still_absent": false
+    }
+  ],
+  "summary": {
+    "items_newly_findable": 0,
+    "items_still_absent": 0,
+    "items_where_recall_change_is_attributable": 2,
+    "items_whose_haystack_grew": 0,
+    "items_with_no_before_baseline": 0
+  }
+}
