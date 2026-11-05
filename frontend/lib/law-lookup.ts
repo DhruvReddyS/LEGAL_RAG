@@ -47,3 +47,30 @@ export const CURRENCY_LABEL: Record<string, string> = {
   superseded: "Replaced or repealed",
   unverified: "Currency not verified",
 };
+
+export interface ActSummary {
+  id: string;
+  name: string;
+  section_count: number;
+}
+
+export interface ActList {
+  ready: boolean;
+  acts: ActSummary[];
+  total: number;
+}
+
+export interface ActSections {
+  ready: boolean;
+  id: string;
+  name: string | null;
+  sections: { section: string; citation: string }[];
+}
+
+export function searchActs(name: string, signal?: AbortSignal): Promise<ActList> {
+  return request(`/law/acts?name=${encodeURIComponent(name)}`, { signal });
+}
+
+export function listActSections(actId: string, signal?: AbortSignal): Promise<ActSections> {
+  return request(`/law/acts/${encodeURIComponent(actId)}/sections`, { signal });
+}

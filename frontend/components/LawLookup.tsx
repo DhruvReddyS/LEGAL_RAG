@@ -1,5 +1,6 @@
 "use client";
 
+import ActBrowser from "@/components/ActBrowser";
 import { ArrowRight, Columns2, ExternalLink, Loader2, Search, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { ApiError } from "@/lib/api";
@@ -66,6 +67,7 @@ export default function LawLookup() {
   const inFlight = useRef<AbortController | null>(null);
   const compareFlight = useRef<AbortController | null>(null);
   const resultHeading = useRef<HTMLHeadingElement>(null);
+  const resultArea = useRef<HTMLDivElement>(null);
 
   const open = useCallback(async (citation: string) => {
     const wanted = citation.trim();
@@ -157,7 +159,7 @@ export default function LawLookup() {
         </div>
       </form>
 
-      <div aria-live="polite">
+      <div aria-live="polite" ref={resultArea}>
         {error && <p className="law-message law-error" role="alert">{error}</p>}
 
         {result && !result.understood && (
@@ -244,6 +246,8 @@ export default function LawLookup() {
           </section>
         )}
       </div>
+
+      <ActBrowser onOpen={(citation) => { void open(citation); resultArea.current?.scrollIntoView({ block: "start" }); }} />
     </div>
   );
 }
