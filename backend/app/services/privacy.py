@@ -45,6 +45,7 @@ from app.models import (
 )
 from app.models.advocate import AdvocateWorkProduct, MatterCalendarEvent
 from app.models.citizen import CitizenDeadline
+from app.models.corpus_lifecycle import LawChangeNotice
 from app.models.enums import UserRole
 from app.models.police import (
     PoliceComplianceRecord,
@@ -309,6 +310,12 @@ async def build_export(session: AsyncSession, user: User) -> dict[str, Any]:
             _row_dict(row)
             for row in (
                 await session.scalars(select(CitizenDeadline).where(CitizenDeadline.user_id == user.id))
+            ).all()
+        ],
+        "law_change_notices": [
+            _row_dict(row)
+            for row in (
+                await session.scalars(select(LawChangeNotice).where(LawChangeNotice.user_id == user.id))
             ).all()
         ],
         "stored_files": [_row_dict(row) for row in storage],
