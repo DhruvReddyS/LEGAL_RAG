@@ -206,6 +206,8 @@ export interface CaseDocumentSummary {
 export interface CaseDocumentListResponse {
   documents: CaseDocumentSummary[];
   total: number;
+  /** Stored, but an outage stopped indexing. Absent from an older server. */
+  not_indexed?: { storage_object_id: string; filename: string; uploaded_at: string }[];
 }
 
 export interface SourceEvidence {

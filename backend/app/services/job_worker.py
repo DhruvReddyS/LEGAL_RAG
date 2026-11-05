@@ -14,7 +14,11 @@ from app.core.config import settings
 from app.core.database import AsyncSessionLocal
 from app.models import AuditLog, Case, CaseDocument, ChatMessage, ChatMessageAnnotation, Job, StorageObject, User
 from app.models.enums import ChatMessageRole, JobStatus, JobType
-from app.services.case_documents import CaseDocumentIndexingService
+from app.services.case_documents import (
+    CaseDocumentIndexingService,
+    EvidenceRefused,
+    discard_refused_evidence,
+)
 from app.services.advocate_work import save_work_product
 from app.services.debate_room import DebateStopped, run_debate
 from app.services.document_analysis import DocumentAnalysisService
@@ -437,14 +441,24 @@ class DurableJobWorker:
                 user = await session.get(User, initial_job.user_id)
                 if case is None or stored is None or user is None or stored.case_id != case.id:
                     raise ValueError("Queued OCR ingestion resources no longer exist")
-                document, pages, chunks = await CaseDocumentIndexingService(
-                    session, self.workflow.retrieval
-                ).index_storage_object(
-                    case=case,
-                    stored=stored,
-                    user=user,
-                    doc_type=str(payload["doc_type"]),
-                )
+                try:
+                    document, pages, chunks = await CaseDocumentIndexingService(
+                        session, self.workflow.retrieval
+                    ).index_storage_object(
+                        case=case,
+                        stored=stored,
+                        user=user,
+                        doc_type=str(payload["doc_type"]),
+                    )
+                except EvidenceRefused:
+                    # In its own transaction: this one rolls back as the job fails.
+                    async with AsyncSessionLocal() as cleanup:
+                        async with cleanup.begin():
+                            refused = await cleanup.get(StorageObject, stored.id)
+                            refused_by = await cleanup.get(User, user.id)
+                            if refused is not None and refused_by is not None:
+                                await discard_refused_evidence(cleanup, refused, refused_by)
+                    raise
                 job = await self._running_job_for_update(session, job_id)
                 if job is None:
                     return

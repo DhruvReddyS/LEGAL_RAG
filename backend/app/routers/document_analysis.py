@@ -21,6 +21,7 @@ from app.schemas.document_analysis import (
     DocumentAnalyzeRequest,
     DocumentAnalysisResponse,
     SourceInspectorResponse,
+    UnindexedCaseFile,
 )
 from app.services.citation_status import citation_labels_for
 from app.services.document_analysis import DISCLAIMER, DocumentAnalysisService
@@ -182,7 +183,19 @@ async def list_indexed_documents(
                 chunk_count=len(points),
             )
         )
-    return CaseDocumentListResponse(documents=summaries, total=len(summaries))
+    indexed_urls = {document.file_url for document in documents}
+    not_indexed = [
+        UnindexedCaseFile(
+            storage_object_id=item.id,
+            filename=item.original_filename,
+            uploaded_at=item.created_at,
+        )
+        for url, item in by_url.items()
+        if url not in indexed_urls
+    ]
+    return CaseDocumentListResponse(
+        documents=summaries, total=len(summaries), not_indexed=not_indexed
+    )
 
 
 def _status(payload: dict[str, Any], *, private: bool) -> tuple[str, str]:

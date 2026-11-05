@@ -60,7 +60,7 @@ from app.models.police import (
     PoliceWitness,
 )
 from app.services.privacy_notice import PRIVACY_NOTICE_VERSION, notice_document
-from app.services.storage import create_s3_client
+from app.services.storage import create_s3_client, delete_every_version
 
 
 def _utcnow() -> datetime:
@@ -458,39 +458,13 @@ async def _erase_private_vectors(case_ids: list[uuid.UUID]) -> int:
     return erased
 
 
-def _delete_every_version(client: Any, bucket: str, prefix: str) -> int:
-    """Delete an object and all its history.
-
-    The buckets are versioned, so a plain delete only adds a delete marker and
-    leaves every byte recoverable. Erasure has to remove the versions themselves.
-    """
-    removed = 0
-    paginator = client.get_paginator("list_object_versions")
-    try:
-        for page in paginator.paginate(Bucket=bucket, Prefix=prefix):
-            targets = [
-                {"Key": item["Key"], "VersionId": item["VersionId"]}
-                for group in ("Versions", "DeleteMarkers")
-                for item in page.get(group, [])
-            ]
-            for start in range(0, len(targets), 1000):
-                batch = targets[start : start + 1000]
-                client.delete_objects(Bucket=bucket, Delete={"Objects": batch, "Quiet": True})
-                removed += len(batch)
-    except ClientError as exc:
-        if exc.response.get("Error", {}).get("Code") == "NoSuchBucket":
-            return 0
-        raise
-    return removed
-
-
 def _erase_objects(
     prefixes: list[tuple[str, str]],
 ) -> int:
     client = create_s3_client()
     removed = 0
     for bucket, prefix in prefixes:
-        removed += _delete_every_version(client, bucket, prefix)
+        removed += delete_every_version(client, bucket, prefix)
         try:
             leftover = client.list_object_versions(Bucket=bucket, Prefix=prefix)
         except ClientError as exc:

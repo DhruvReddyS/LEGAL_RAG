@@ -2,7 +2,7 @@
 
 import { CheckCircle2, Clock3, Loader2, RotateCcw, UploadCloud, XCircle } from "lucide-react";
 import { useEffect, useState, useSyncExternalStore, type DragEvent } from "react";
-import { queueSummary, type EvidenceStatus } from "@/lib/evidence-queue";
+import { EVIDENCE_ACCEPT, queueSummary, type EvidenceStatus } from "@/lib/evidence-queue";
 import { evidenceStore } from "./evidence-store";
 
 const STATUS_TEXT: Record<EvidenceStatus, string> = {
@@ -47,11 +47,11 @@ export default function BulkUpload({ caseId, docType, onIndexed }: { caseId: str
           {summary.active ? <Loader2 size={19} className="animate-spin" aria-hidden="true" /> : <UploadCloud size={19} aria-hidden="true" />}
         </span>
         <span className="evidence-drop-title">Choose or drop evidence to upload</span>
-        <span className="evidence-drop-hint">PDF or TXT, up to 25 MiB each / stays inside this case</span>
+        <span className="evidence-drop-hint">PDF, TXT or a PNG, JPEG or WebP image, up to 25 MiB each / scans and images are read by English OCR / stays inside this case</span>
         <input
           type="file"
           multiple
-          accept="application/pdf,text/plain"
+          accept={EVIDENCE_ACCEPT}
           className="sr-only"
           onChange={(event) => { const chosen = Array.from(event.target.files ?? []); event.target.value = ""; evidenceStore.enqueue(chosen, caseId, docType); }}
         />

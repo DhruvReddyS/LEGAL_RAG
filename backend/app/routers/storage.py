@@ -16,7 +16,13 @@ from app.schemas.storage import (
     CaseDocumentIndexRequest,
     CaseDocumentIndexResponse,
 )
-from app.services.case_documents import MAX_INDEXABLE_BYTES, CaseDocumentIndexingService
+from app.services.case_documents import (
+    MAX_INDEXABLE_BYTES,
+    NOT_KEPT,
+    CaseDocumentIndexingService,
+    EvidenceRefused,
+    discard_refused_evidence,
+)
 from app.services.rate_limit import enforce_llm_sync_limit
 from app.services.retrieval import HybridRetrievalService
 from app.services.storage import (
@@ -91,14 +97,21 @@ async def index_case_object(
     stored = await service._authorized_object(object_id, current_user)
     if stored.case_id != case_id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Object not found")
-    document, pages, chunks = await CaseDocumentIndexingService(
-        session, retrieval
-    ).index_storage_object(
-        case=case,
-        stored=stored,
-        user=current_user,
-        doc_type=request.doc_type.strip().lower(),
-    )
+    try:
+        document, pages, chunks = await CaseDocumentIndexingService(
+            session, retrieval
+        ).index_storage_object(
+            case=case,
+            stored=stored,
+            user=current_user,
+            doc_type=request.doc_type.strip().lower(),
+        )
+    except EvidenceRefused as refused:
+        await discard_refused_evidence(session, stored, current_user)
+        await session.commit()
+        raise HTTPException(
+            status_code=refused.status_code, detail=f"{refused.detail} {NOT_KEPT}"
+        ) from refused
     session.add(
         AuditLog(
             user_id=current_user.id,

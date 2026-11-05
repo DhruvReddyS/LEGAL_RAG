@@ -66,7 +66,7 @@ test.describe("adding many files to a case", () => {
     const queue = page.getByRole("region", { name: "Files being added" });
     await expect(queue.getByRole("status")).toContainText("4 of 4 finished, 2 failed");
     await expect(queue.locator('li[data-status="done"]')).toHaveCount(2);
-    await expect(queue.locator("li", { hasText: "virus.exe" })).toContainText("Only PDF and TXT");
+    await expect(queue.locator("li", { hasText: "virus.exe" })).toContainText("Only PDF, TXT, PNG, JPEG and WebP");
     await expect(queue.locator("li", { hasText: "second.pdf" })).toContainText("25 MiB");
     expect(order).toEqual(["upload 1", "index first", "upload 2", "upload 3", "index third"]);
     await expect(queue.getByRole("button", { name: "Retry second.pdf" })).toBeVisible();

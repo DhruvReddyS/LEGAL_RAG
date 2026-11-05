@@ -10,6 +10,7 @@ from typing import Any
 
 import boto3
 from botocore.client import Config
+from botocore.exceptions import ClientError
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -79,6 +80,9 @@ _MAGIC_BY_TYPE: dict[str, tuple[bytes, ...]] = {
     "image/webp": (b"RIFF",),
 }
 
+# Every image type the upload allowlist admits is read by OCR when indexed.
+IMAGE_CONTENT_TYPES = frozenset(kind for kind in _MAGIC_BY_TYPE if kind.startswith("image/"))
+
 
 def content_matches_declared_type(content: bytes, content_type: str) -> bool:
     """Whether a file is on the allowlist and its bytes agree with its label."""
@@ -86,7 +90,36 @@ def content_matches_declared_type(content: bytes, content_type: str) -> bool:
         # Text has no signature. NUL bytes mean it is not text, whatever it says.
         return b"\x00" not in content[:8192]
     signatures = _MAGIC_BY_TYPE.get(content_type)
-    return signatures is not None and content.startswith(signatures)
+    if signatures is None or not content.startswith(signatures):
+        return False
+    # RIFF is only the container: a WAV or AVI starts the same way.
+    return content_type != "image/webp" or content[8:12] == b"WEBP"
+
+
+def delete_every_version(client: Any, bucket: str, prefix: str) -> int:
+    """Delete an object and all its history.
+
+    The buckets are versioned, so a plain delete only adds a delete marker and
+    leaves every byte recoverable. Erasure has to remove the versions themselves.
+    """
+    removed = 0
+    paginator = client.get_paginator("list_object_versions")
+    try:
+        for page in paginator.paginate(Bucket=bucket, Prefix=prefix):
+            targets = [
+                {"Key": item["Key"], "VersionId": item["VersionId"]}
+                for group in ("Versions", "DeleteMarkers")
+                for item in page.get(group, [])
+            ]
+            for start in range(0, len(targets), 1000):
+                batch = targets[start : start + 1000]
+                client.delete_objects(Bucket=bucket, Delete={"Objects": batch, "Quiet": True})
+                removed += len(batch)
+    except ClientError as exc:
+        if exc.response.get("Error", {}).get("Code") == "NoSuchBucket":
+            return 0
+        raise
+    return removed
 
 
 def attachment_disposition(filename: str) -> str:
@@ -267,6 +300,13 @@ class DocumentStorageService:
             Params={"Bucket": stored.bucket, "Key": stored.object_key},
             ExpiresIn=expires,
         )
+
+    async def erase_stored_object(self, stored: StorageObject) -> None:
+        """Remove a stored file and its record, leaving no version behind."""
+        await asyncio.to_thread(
+            delete_every_version, self.client, stored.bucket, stored.object_key
+        )
+        await self.session.delete(stored)
 
     async def delete_object(self, object_id: uuid.UUID, user: User) -> None:
         stored = await self._authorized_object(object_id, user)

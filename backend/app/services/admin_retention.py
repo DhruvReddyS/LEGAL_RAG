@@ -27,7 +27,7 @@ from app.core.case_scope import collection_for_case_role
 from app.models import AuditLog, Case, ChatMessage, ChatSession, Job, RevokedRefreshToken, StorageObject, User
 from app.models.admin_tools import RetentionPolicy, RetentionRun
 from app.models.enums import JobStatus
-from app.services.storage import create_s3_client
+from app.services.storage import create_s3_client, delete_every_version
 
 logger = logging.getLogger("legal_rag.retention")
 
@@ -253,7 +253,8 @@ async def _erase_case_from_stores(case: Case, retrieval_client: Any, objects: li
     if objects:
         client = create_s3_client()
         for stored in objects:
-            await asyncio.to_thread(client.delete_object, Bucket=stored.bucket, Key=stored.object_key)
+            # Versioned buckets: a plain delete leaves every byte behind a delete marker.
+            await asyncio.to_thread(delete_every_version, client, stored.bucket, stored.object_key)
 
 
 async def _purge_cases(
