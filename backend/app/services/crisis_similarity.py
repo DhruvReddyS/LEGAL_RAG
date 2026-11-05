@@ -101,15 +101,23 @@ class CrisisSimilarity:
     def __init__(self, encoder: _QueryEncoder, *, threshold: float = CRISIS_SIMILARITY_THRESHOLD) -> None:
         self._encoder = encoder
         self._threshold = threshold
-        self._examples: list[Sequence[float]] | None = None
-        self._examples_lock = asyncio.Lock()
+        self._examples: asyncio.Task[list[Sequence[float]]] | None = None
+
+    async def _embed_examples(self) -> list[Sequence[float]]:
+        embedded = await self._encoder.embed_documents(list(CRISIS_EXAMPLES))
+        return [item.dense for item in embedded]  # type: ignore[attr-defined]
+
+    def prepare(self) -> None:
+        """Start embedding the examples now, so the first person does not wait."""
+        if self._examples is None or (self._examples.done() and self._examples.exception()):
+            self._examples = asyncio.create_task(self._embed_examples())
 
     async def _example_vectors(self) -> list[Sequence[float]]:
-        async with self._examples_lock:
-            if self._examples is None:
-                embedded = await self._encoder.embed_documents(list(CRISIS_EXAMPLES))
-                self._examples = [item.dense for item in embedded]  # type: ignore[attr-defined]
-        return self._examples
+        # Shielded because callers run under a timeout. Cancelling this work when
+        # it took longer than the timeout meant it restarted on every request and
+        # never finished, so on a slow machine every question showed the helplines.
+        self.prepare()
+        return await asyncio.shield(self._examples)
 
     async def sounds_like_crisis(self, query: str) -> bool:
         examples = await self._example_vectors()

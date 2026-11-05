@@ -58,6 +58,11 @@ CASE_NAME = re.compile(rf"(?P<first>{_PARTY})\s+(?:vs?\.?|versus|Vs\.?|V\.)\s+(?
 _NOT_A_PARTY = frozenset({"in", "see", "and", "of", "at", "para", "supra", "the", "ors", "anr", "others"})
 
 
+# As ingestion stores them. Filtering on "judgment" alone matched nothing in a real
+# collection, so every judgment tool reported an empty corpus.
+JUDGMENT_SOURCE_TYPES = ("SUPREME_COURT_JUDGMENT", "HIGH_COURT_JUDGMENT", "judgment")
+
+
 def normalise_citation(value: str) -> str:
     return re.sub(r"\s+", "", value).casefold()
 
@@ -250,7 +255,7 @@ class JudgmentIndex:
     def _filter(self, *extra: models.Condition) -> models.Filter:
         return models.Filter(
             must=[
-                models.FieldCondition(key="source_type", match=models.MatchValue(value="judgment")),
+                models.FieldCondition(key="source_type", match=models.MatchAny(any=list(JUDGMENT_SOURCE_TYPES))),
                 # The same tiers served retrieval reads, so noise held back
                 # from answers is not counted as searched.
                 models.FieldCondition(key="corpus_tier", match=models.MatchAny(any=["gold", "extended"])),

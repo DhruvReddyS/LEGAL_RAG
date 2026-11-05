@@ -15,6 +15,7 @@ from app.ingestion.citations import extract_references
 from app.services.authority_check import _CODE_BY_KEY, _check_one, check_authorities
 from app.services.advocate_sources import source_from_payload
 from app.services.judgment_index import (
+    JUDGMENT_SOURCE_TYPES,
     CaseReference,
     CorpusUnavailable,
     HeldJudgment,
@@ -120,7 +121,7 @@ async def search_precedents(
     hits = await retrieval.search(
         text,
         filters=RetrievalFilters(
-            source_types=["judgment"],
+            source_types=list(JUDGMENT_SOURCE_TYPES),
             courts=[court] if court else [],
             year_from=year_from,
             year_to=year_to,

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import asyncio
+
 from dataclasses import dataclass
 
 import pytest
@@ -44,6 +46,25 @@ async def test_examples_are_embedded_once() -> None:
     encoder = _Encoder([1.0, 0.0])
     similarity = CrisisSimilarity(encoder)
     await similarity.sounds_like_crisis("first")
+    await similarity.sounds_like_crisis("second")
+    assert encoder.document_calls == 1
+
+
+@pytest.mark.asyncio
+async def test_a_timeout_does_not_stop_the_examples_finishing() -> None:
+    """Cancelled each time, slow embedding never finished and every question got helplines."""
+    finish = asyncio.Event()
+
+    class _Slow(_Encoder):
+        async def embed_documents(self, texts, *, batch_size=8):
+            await finish.wait()
+            return await super().embed_documents(texts, batch_size=batch_size)
+
+    encoder = _Slow([1.0, 0.0])
+    similarity = CrisisSimilarity(encoder)
+    with pytest.raises(asyncio.TimeoutError):
+        await asyncio.wait_for(similarity.sounds_like_crisis("first"), timeout=0.01)
+    finish.set()
     await similarity.sounds_like_crisis("second")
     assert encoder.document_calls == 1
 

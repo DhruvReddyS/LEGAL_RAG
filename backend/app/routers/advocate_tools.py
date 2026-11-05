@@ -57,6 +57,7 @@ from app.services.held_material import (
     search_precedents,
 )
 from app.services.judgment_index import (
+    JUDGMENT_SOURCE_TYPES,
     CorpusUnavailable,
     JudgmentIndex,
     coverage_statement,
@@ -140,7 +141,7 @@ async def assess_bail_routes(
         try:
             hits = await runtime.retrieval.search(
                 retrieval_query(body.offence_description, routes),
-                filters=RetrievalFilters(source_types=["judgment"]),
+                filters=RetrievalFilters(source_types=list(JUDGMENT_SOURCE_TYPES)),
                 candidate_limit=20,
                 result_limit=6,
             )

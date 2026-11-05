@@ -77,3 +77,9 @@ async def test_a_document_is_read_in_page_order(collection) -> None:
     chunks = await JudgmentIndex(client, name).document_chunks("one")
     assert [chunk["page_start"] for chunk in chunks] == [1, 2]
     assert await JudgmentIndex(client, name).document_chunks("held-back") == []
+
+
+def test_the_filter_names_the_values_ingestion_actually_stores() -> None:
+    from app.services.judgment_index import JUDGMENT_SOURCE_TYPES
+
+    assert {"SUPREME_COURT_JUDGMENT", "HIGH_COURT_JUDGMENT"} <= set(JUDGMENT_SOURCE_TYPES)

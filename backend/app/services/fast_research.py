@@ -479,7 +479,7 @@ def currency_notice(payloads: list[dict[str, Any]]) -> str | None:
         if reasons:
             notice += "\n\n" + "\n".join(f"- {reason}" for reason in reasons)
         if unnamed:
-            notice += "\n\n- status unchecked, no reason recorded: " + "; ".join(unnamed)
+            notice += "\n\n- Also not verified, no reason recorded: " + "; ".join(unnamed)
         return notice
     return None
 

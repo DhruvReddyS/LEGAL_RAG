@@ -189,6 +189,7 @@ export const UI = {
   beforeRely: l("Before you rely on this", "इस पर भरोसा करने से पहले", "దీనిపై ఆధారపడే ముందు"),
   backToChat: l("Back to chat", "चैट पर वापस", "చాట్‌కు తిరిగి"),
   newChat: l("New chat", "नई चैट", "కొత్త చాట్"),
+  openProvision: l("Open a provision", "धारा खोलें", "సెక్షన్ తెరవండి"),
   gettingStarted: l("Getting started", "शुरुआत", "ప్రారంభం"),
   settings: l("Settings", "सेटिंग", "సెట్టింగ్‌లు"),
   recentChats: l("Recent chats", "हाल की चैट", "ఇటీవలి చాట్‌లు"),

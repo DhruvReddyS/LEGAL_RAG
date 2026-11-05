@@ -75,6 +75,7 @@ async def lifespan(app: FastAPI):
         poll_interval_ms=settings.job_poll_interval_ms,
     )
     if settings.warm_query_models_on_startup:
+        app.state.crisis_similarity.prepare()
         await asyncio.gather(
             retrieval_service.warmup(),
             app.state.legal_rag_workflow.llm.warmup(),
