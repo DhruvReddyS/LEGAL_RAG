@@ -59,30 +59,6 @@ export function pollDelayMs(consecutiveFailures: number): number {
   return Math.min(1000 * 2 ** consecutiveFailures, 15_000);
 }
 
-/** F19: enough to find a running job again after a reload. */
-export type ActiveJob = { jobId: string; sessionId: string; assistantId: string; requestedMode: string };
-
-const jobKey = (userId: string) => `corpusil-active-job:${userId}`;
-
-export function rememberActiveJob(storage: Pick<Storage, "setItem">, userId: string, job: ActiveJob): void {
-  try { storage.setItem(jobKey(userId), JSON.stringify(job)); } catch { /* storage disabled */ }
-}
-
-export function forgetActiveJob(storage: Pick<Storage, "removeItem">, userId: string): void {
-  try { storage.removeItem(jobKey(userId)); } catch { /* storage disabled */ }
-}
-
-export function readActiveJob(storage: Pick<Storage, "getItem">, userId: string): ActiveJob | null {
-  try {
-    const raw = storage.getItem(jobKey(userId));
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    return typeof parsed?.jobId === "string" && typeof parsed?.sessionId === "string" ? parsed : null;
-  } catch {
-    return null;
-  }
-}
-
 /** F27: a safety answer did not come from sources, so it must not read like a ranked passage. */
 export type SafetyKind = "emergency" | "refusal";
 

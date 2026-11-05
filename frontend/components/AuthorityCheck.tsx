@@ -64,6 +64,7 @@ export function AuthorityCheck({ caseId }: { caseId: string }) {
       </p>
 
       <textarea
+        aria-label="Text of the draft to check"
         value={draft}
         onChange={event => setDraft(event.target.value)}
         placeholder="Paste the petition, FIR, application or notice…"
@@ -80,7 +81,7 @@ export function AuthorityCheck({ caseId }: { caseId: string }) {
 
       {result && (
         <>
-          <div className="flex flex-wrap gap-2 text-[11px]">
+          <div className="flex flex-wrap gap-2 text-xs">
             <span className="state-tally is-plain">{result.checked.length} citations found</span>
             {result.needs_attention > 0 && (
               <span className="state-tally is-bad">{result.needs_attention} need attention</span>

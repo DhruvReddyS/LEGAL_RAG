@@ -76,7 +76,7 @@ export default function AuthModal({ onSuccess, progress }: { onSuccess: (user: U
         </ul>
       </div>
 
-      <dl className="auth-figures">
+      {progress && <dl className="auth-figures">
         <div>
           <dt>Sources</dt>
           <dd>{documents ?? "—"}</dd>
@@ -92,7 +92,7 @@ export default function AuthModal({ onSuccess, progress }: { onSuccess: (user: U
             {progress?.validation_status === "pass" ? "Verified" : "Checking"}
           </dd>
         </div>
-      </dl>
+      </dl>}
     </section>
 
     <section className="auth-entry">

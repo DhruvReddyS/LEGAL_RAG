@@ -218,7 +218,7 @@ a.specimen-mark:hover {background:var(--border);color:var(--ink);}
 /* Small text, raised. These held 9 to 11px of grey, which is hard to read for
    anyone (audit F42). The composer hint and history labels are where it hurt. */
 .composer-toolbar,.history-heading,.chat-history>p,.chat-open,.chat-menu button,.history-toast,.answer-performance,.source-chip,.legal-note p,.legal-note strong,.answer-footer,.attachment-formats,.setting-copy small,.corpus-status small {font-size:12px;}
-.history-heading b {font-size:11px;}
+.history-heading b {font-size:12px;}
 .chat-menu .is-danger {color:var(--danger-text);}
 .chat-open {min-height:36px;}
 .answer-action,.icon-button {min-width:36px;min-height:36px;}
@@ -326,7 +326,7 @@ html[data-low-bandwidth="on"] *,html[data-low-bandwidth="on"] *::before,html[dat
 .sidebar-search:hover {background:var(--hover);color:var(--ink);}
 .history-load-more {display:block;width:100%;padding:8px 12px;font-size:12px;color:var(--ink-soft);text-align:left;border-radius:7px;}
 .history-load-more:hover {background:var(--hover);color:var(--ink);}
-.chat-matter-tag {display:block;padding:0 12px 6px 33px;font-size:11.5px;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.chat-matter-tag {display:block;padding:0 12px 6px 33px;font-size:12px;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .settings-account-link {display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;margin-top:9px;padding:14px 16px;border:1px solid var(--border);border-radius:12px;background:var(--card);font-size:13px;text-align:left;}
 .settings-account-link:hover {border-color:var(--accent);}
 .settings-account-link small {display:block;margin-top:2px;font-size:12px;color:var(--ink-soft);}

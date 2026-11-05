@@ -36,7 +36,7 @@
   border: 1px solid var(--border);
   border-radius: 8px;
   color: var(--ink-soft);
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .admin-tabs {
@@ -124,13 +124,13 @@
   font-weight: 600;
 }
 .admin-footnote {
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.6;
   color: var(--ink-soft);
 }
 .admin-muted {
   color: var(--ink-soft);
-  font-size: 11px;
+  font-size: 12px;
 }
 .admin-wrap {
   overflow-wrap: anywhere;
@@ -148,7 +148,7 @@
 }
 .admin-error {
   color: var(--state-bad-text);
-  font-size: 11px;
+  font-size: 12px;
 }
 .admin-note {
   margin-top: 6px;
@@ -171,7 +171,7 @@
   border: 1px solid var(--border);
   border-radius: 999px;
   color: var(--ink-soft);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   line-height: 1.3;
   white-space: nowrap;
@@ -245,7 +245,7 @@
 }
 .admin-stat span {
   color: var(--ink-soft);
-  font-size: 11px;
+  font-size: 12px;
 }
 .admin-stat strong {
   font-size: 19px;
@@ -260,7 +260,7 @@
 }
 .admin-stat small {
   color: var(--ink-soft);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.4;
 }
 
@@ -379,7 +379,7 @@
   gap: 3px;
   min-width: 0;
   color: var(--ink-soft);
-  font-size: 11px;
+  font-size: 12px;
 }
 .admin-inline-field.is-grow {
   flex: 1 1 200px;
@@ -439,7 +439,7 @@
   padding-top: 11px;
   border-top: 1px solid var(--border);
   color: var(--ink-soft);
-  font-size: 11px;
+  font-size: 12px;
 }
 .admin-pager > div {
   display: flex;
@@ -474,10 +474,10 @@
   gap: 4px;
   min-width: 0;
   color: var(--ink-soft);
-  font-size: 11px;
+  font-size: 12px;
 }
 .admin-field small {
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.45;
 }
 .admin-field .field {
@@ -511,7 +511,7 @@
 }
 .admin-serving > div:first-child span {
   color: var(--ink-soft);
-  font-size: 11px;
+  font-size: 12px;
 }
 .admin-serving > div:first-child code {
   font-size: 16px;
@@ -566,7 +566,7 @@
 }
 .admin-gate-head small {
   color: var(--ink-soft);
-  font-size: 11px;
+  font-size: 12px;
 }
 .admin-docs {
   display: flex;
@@ -576,7 +576,7 @@
   padding-top: 10px;
   border-top: 1px solid var(--border);
   color: var(--ink-soft);
-  font-size: 11px;
+  font-size: 12px;
 }
 .admin-run {
   display: flex;
@@ -594,7 +594,7 @@
 }
 .admin-run small {
   color: var(--ink-soft);
-  font-size: 11px;
+  font-size: 12px;
 }
 .admin-bullets {
   display: grid;
@@ -627,7 +627,7 @@
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--paper);
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.55;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -649,7 +649,7 @@
 .admin-steps p {
   margin: 3px 0 0;
   color: var(--ink-soft);
-  font-size: 11px;
+  font-size: 12px;
 }
 .admin-command {
   display: flex;
@@ -664,7 +664,7 @@
 .admin-command code {
   flex: 1;
   min-width: 0;
-  font-size: 11px;
+  font-size: 12px;
 }
 .admin-defs {
   display: grid;
@@ -712,7 +712,7 @@
   padding: 7px 10px 7px 0;
   border-bottom: 1px solid var(--border);
   color: var(--ink-soft);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   text-align: left;
   white-space: nowrap;
@@ -755,7 +755,7 @@
 }
 .admin-chart figcaption span {
   color: var(--ink-soft);
-  font-size: 10px;
+  font-size: 12px;
 }
 .admin-chart figcaption b {
   margin-left: auto;
@@ -779,7 +779,7 @@
 }
 .admin-chart-axis {
   fill: var(--ink-soft);
-  font-size: 11px;
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
 .admin-chart-line {
@@ -810,7 +810,7 @@
   border: 1px solid var(--border);
   border-radius: 7px;
   background: var(--paper);
-  font-size: 11px;
+  font-size: 12px;
   pointer-events: none;
 }
 .admin-chart-tip strong {
@@ -820,13 +820,13 @@
 .admin-chart-tip span,
 .admin-chart-tip small {
   color: var(--ink-soft);
-  font-size: 10px;
+  font-size: 12px;
   overflow-wrap: anywhere;
 }
 .admin-chart-table > summary {
   width: fit-content;
   color: var(--ink-soft);
-  font-size: 10px;
+  font-size: 12px;
   cursor: pointer;
 }
 .admin-chart-table table {

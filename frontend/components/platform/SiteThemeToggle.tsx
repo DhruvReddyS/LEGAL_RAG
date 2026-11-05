@@ -2,39 +2,18 @@
 
 import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
+import { readTheme, saveTheme } from "@/lib/preferences";
 
-const KEY = "corpusil.site-theme";
-
-/**
- * The public pages follow the system theme through CSS alone, so a visitor gets
- * the right colours with no script. This only records an explicit override.
- */
+/** The public pages follow the system theme until someone chooses. */
 export default function SiteThemeToggle() {
   const [theme, setTheme] = useState<"paper" | "ink" | null>(null);
 
-  useEffect(() => {
-    let stored: string | null = null;
-    try {
-      stored = window.localStorage.getItem(KEY);
-    } catch {
-      // Storage disabled: the system theme stands.
-    }
-    const active = stored === "ink" || stored === "paper"
-      ? stored
-      : window.matchMedia("(prefers-color-scheme: dark)").matches ? "ink" : "paper";
-    if (stored === "ink" || stored === "paper") document.documentElement.dataset.theme = stored;
-    setTheme(active);
-  }, []);
+  useEffect(() => { setTheme(readTheme()); }, []);
 
   const toggle = () => {
     const next = theme === "ink" ? "paper" : "ink";
     setTheme(next);
-    document.documentElement.dataset.theme = next;
-    try {
-      window.localStorage.setItem(KEY, next);
-    } catch {
-      // Applies for this page only.
-    }
+    saveTheme(next);
   };
 
   return (

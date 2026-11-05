@@ -338,7 +338,7 @@ type ViewKey = "advocate" | "casefile" | "agent" | "deadlines" | "compliance" | 
           <div>
             <div className="matter-rail-head"><BriefcaseBusiness size={16} className="text-[var(--accent)]" />{roleCopy.matters}</div>
             <div className="mt-3 flex gap-2">
-              <input value={newTitle} onChange={(event) => setNewTitle(event.target.value)} placeholder={isPolice ? "New investigation title" : "New case title"} className="field h-10 min-w-0 flex-1" />
+              <input value={newTitle} onChange={(event) => setNewTitle(event.target.value)} placeholder={isPolice ? "New investigation title" : "New case title"} aria-label={isPolice ? "New investigation title" : "New case title"} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); void makeCase(); } }} className="field h-10 min-w-0 flex-1" />
               <button onClick={makeCase} aria-label="Create case" disabled={busy === "case" || newTitle.trim().length < 3} className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-[var(--ink)] text-[var(--paper)] disabled:opacity-40">
                 {busy === "case" ? <Loader2 size={15} className="animate-spin" /> : <Plus size={17} />}
               </button>
@@ -360,7 +360,7 @@ type ViewKey = "advocate" | "casefile" | "agent" | "deadlines" | "compliance" | 
                 <p className="py-6 text-center text-xs text-[var(--ink-soft)]">No case matches that name.</p>
               )}
               {!!hiddenCount && !caseFilter.trim() && (
-                <p className="pt-2 text-center text-[11px] text-[var(--ink-soft)]">{hiddenCount} closed or archived. Type a name to find one.</p>
+                <p className="pt-2 text-center text-xs text-[var(--ink-soft)]">{hiddenCount} closed or archived. Type a name to find one.</p>
               )}
               {!cases.length && (
                 <div className="py-8 text-center">
@@ -564,7 +564,7 @@ type ViewKey = "advocate" | "casefile" | "agent" | "deadlines" | "compliance" | 
 
               {view === "agent" && (
                 <div>
-                  <textarea value={scenario} onChange={(event) => setScenario(event.target.value)} placeholder={isPolice ? "Enter the complainant account, dates, location, property or person description, witnesses and known circumstances…" : "Describe allegations, evidence, disputed facts, procedural history and the client position…"} className="field min-h-44 w-full resize-y leading-6" />
+                  <textarea aria-label={isPolice ? "What is known so far" : "The case as you understand it"} value={scenario} onChange={(event) => setScenario(event.target.value)} placeholder={isPolice ? "Enter the complainant account, dates, location, property or person description, witnesses and known circumstances…" : "Describe allegations, evidence, disputed facts, procedural history and the client position…"} className="field min-h-44 w-full resize-y leading-6" />
                   <button onClick={runProfessionalTool} disabled={busy === "tool" || scenario.trim().length < 40} className="button-primary mt-3">
                     {busy === "tool" ? <Loader2 size={15} className="animate-spin" /> : <Scale size={15} />}
                     {isPolice ? "Generate review draft" : "Run two-sided analysis"}
@@ -574,7 +574,7 @@ type ViewKey = "advocate" | "casefile" | "agent" | "deadlines" | "compliance" | 
                       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border)] bg-[var(--card)] px-4 py-3">
                         <p className="text-xs font-semibold">Draft version {draft.version} / {draft.status}</p>
                         <div className="flex items-center gap-3">
-                          <p className="text-[11px] text-[var(--state-warn-text)]">{draft.missing_fields.length ? `Missing: ${draft.missing_fields.join(", ")}` : "Required facts captured"}</p>
+                          <p className="text-xs text-[var(--state-warn-text)]">{draft.missing_fields.length ? `Missing: ${draft.missing_fields.join(", ")}` : "Required facts captured"}</p>
                           <button className="draft-action" onClick={() => void copyDraft(draft)}>{copied ? <Check size={13} /> : <ClipboardCopy size={13} />}{copied ? "Copied" : "Copy"}</button>
                           <button className="draft-action" onClick={() => downloadDraft(draft)}><Download size={13} />Save</button>
                         </div>
@@ -598,10 +598,10 @@ type ViewKey = "advocate" | "casefile" | "agent" | "deadlines" | "compliance" | 
               {view === "search" && (
                 <div>
                   <div className="inline-flex rounded-lg bg-[var(--hover)] p-1">
-                    <button onClick={() => setSearchMode("case_specific")} className={`rounded-md px-3 py-1.5 text-xs font-medium ${searchMode === "case_specific" ? "bg-[var(--card)] text-[var(--ink)] shadow-sm" : "text-[var(--ink-soft)]"}`}>This case</button>
-                    <button onClick={() => setSearchMode("general")} className={`rounded-md px-3 py-1.5 text-xs font-medium ${searchMode === "general" ? "bg-[var(--card)] text-[var(--ink)] shadow-sm" : "text-[var(--ink-soft)]"}`}>All my cases</button>
+                    <button aria-pressed={searchMode === "case_specific"} onClick={() => setSearchMode("case_specific")} className={`rounded-md px-3 py-1.5 text-xs font-medium ${searchMode === "case_specific" ? "bg-[var(--card)] text-[var(--ink)] shadow-sm" : "text-[var(--ink-soft)]"}`}>This case</button>
+                    <button aria-pressed={searchMode === "general"} onClick={() => setSearchMode("general")} className={`rounded-md px-3 py-1.5 text-xs font-medium ${searchMode === "general" ? "bg-[var(--card)] text-[var(--ink)] shadow-sm" : "text-[var(--ink-soft)]"}`}>All my cases</button>
                   </div>
-                  <textarea value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search legal authority and authorised evidence…" className="field mt-4 min-h-28 w-full resize-y leading-6" />
+                  <textarea aria-label="Search legal authority and authorised evidence" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search legal authority and authorised evidence…" className="field mt-4 min-h-28 w-full resize-y leading-6" />
                   <button onClick={search} disabled={busy === "search" || !searchQuery.trim()} className="button-primary mt-3">
                     {busy === "search" ? <Loader2 size={15} className="animate-spin" /> : <FileSearch size={15} />}Search sources
                   </button>
@@ -610,7 +610,7 @@ type ViewKey = "advocate" | "casefile" | "agent" | "deadlines" | "compliance" | 
                       <article key={`${hit.payload.collection_name}-${hit.point_id}`} className="rounded-xl border border-[var(--border)] p-3.5">
                         <div className="flex items-center justify-between gap-3">
                           <p className="truncate text-xs font-semibold text-[var(--accent)]">{String(hit.payload.title ?? "Private case evidence")}</p>
-                          <span className="text-[10px] text-[var(--ink-soft)]">{Math.round(hit.reranker_score * 100)}% match</span>
+                          <span className="text-xs text-[var(--ink-soft)]">{Math.round(hit.reranker_score * 100)}% match</span>
                         </div>
                         <p className="mt-2 line-clamp-4 text-xs leading-5 text-[var(--ink-soft)]">{String(hit.payload.text ?? "")}</p>
                       </article>
@@ -630,13 +630,13 @@ type ViewKey = "advocate" | "casefile" | "agent" | "deadlines" | "compliance" | 
                       <option value="other">Other evidence</option>
                     </select>
                   </label>
-                  <label className="mt-4 flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-[var(--state-warn-line)] bg-[var(--hover)] px-4 text-center transition hover:bg-[var(--card)]">
+                  <label className="mt-4 flex min-h-40 cursor-pointer focus-within:outline focus-within:outline-2 focus-within:outline-[var(--accent)] flex-col items-center justify-center rounded-xl border border-dashed border-[var(--state-warn-line)] bg-[var(--hover)] px-4 text-center transition hover:bg-[var(--card)]">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--card)] text-[var(--accent)] shadow-sm">
                       {busy === "upload" ? <Loader2 size={19} className="animate-spin" /> : <UploadCloud size={19} />}
                     </div>
                     <p className="mt-3 text-sm font-medium text-[var(--ink)]">Choose evidence to upload</p>
                     <p className="mt-1 text-xs text-[var(--ink-soft)]">PDF or TXT / stays inside this case</p>
-                    <input type="file" accept="application/pdf,text/plain" className="hidden" disabled={busy === "upload"} onChange={(event) => upload(event.target.files?.[0])} />
+                    <input type="file" accept="application/pdf,text/plain" className="sr-only" disabled={busy === "upload"} onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ""; void upload(file); }} />
                   </label>
                 </div>
               )}

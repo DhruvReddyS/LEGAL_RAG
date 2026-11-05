@@ -1,30 +1,26 @@
 "use client";
 
 import { ArrowDown, BookOpenText, ChevronRight, Search, BriefcaseBusiness, Check, FilePenLine, Fingerprint, HelpCircle, History, LogOut, Menu, MessageSquare, MoreHorizontal, Pencil, Pin, PinOff, Plus, Scale, ScanSearch, Settings, ShieldCheck, Trash2, Undo2, X, Zap } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import AuthModal from "@/components/AuthModal";
 import BrandLogo from "@/components/BrandLogo";
 import ChatInput from "@/components/ChatInput";
 import { scopeLockedReason } from "@/lib/police-presentation";
 import MessageBubble from "@/components/MessageBubble";
-import CitizenGuideDialog from "@/components/CitizenGuideDialog";
 import UploadPrivacy from "@/components/UploadPrivacy";
 import { legalCategory } from "@/lib/answer-presentation";
-import ProfessionalWorkspace from "@/components/ProfessionalWorkspace";
 import { useDialogFocus } from "@/components/useDialogFocus";
-import AdminWorkspace from "@/components/AdminWorkspace";
 import { isTauriDesktop } from "@/lib/desktop";
 import { SITE_ROUTES } from "@/lib/site";
-import AccountDialog from "@/components/platform/AccountDialog";
 import AccountGate from "@/components/platform/AccountGate";
-import HistoryPanel from "@/components/platform/HistoryPanel";
 import { listHistorySessions, setSessionPinned } from "@/lib/api-platform";
 import { mergeById } from "@/lib/history-view";
-import { DEFAULT_LIMITS, followJob, forgetActiveJob, readActiveJob, rememberActiveJob } from "@/lib/job-stream";
-import { bandwidthPlan, readPreferences, PREFERENCES_EVENT } from "@/lib/preferences";
+import { browserTabCoordinator, DEFAULT_LIMITS, followJobAcrossTabs, forgetActiveJob, readActiveJob, rememberActiveJob, type JobView } from "@/lib/job-stream";
+import { bandwidthPlan, readPreferences, readTheme, saveTheme, PREFERENCES_EVENT } from "@/lib/preferences";
 import type { HistorySession } from "@/lib/types-platform";
 import { HelplineNotice } from "@/components/HelplineNotice";
-import CitizenWorkspace, { CITIZEN_TOOLS, type CitizenTool } from "@/components/citizen/CitizenWorkspace";
+import { CITIZEN_TOOLS, type CitizenTool } from "@/components/citizen/tools";
 import DueSoonStrip from "@/components/citizen/DueSoonStrip";
 import { LangSwitcher } from "@/components/citizen/shared";
 import { useCitizenLang } from "@/components/citizen/useCitizenLang";
@@ -33,6 +29,16 @@ import type { UiKey } from "@/lib/citizen-i18n";
 import { onSessionExpired } from "@/lib/session-expiry";
 import { ApiError, apiUrl, cancelDeepReviewJob, chatWithCorpus, checkForHelplines, deleteChatSession, getChatSession, renameChatSession, getDeepReviewJob, getIngestionProgress, getMe, logout, refreshSession, listCases } from "@/lib/api";
 import type { ChatMessage, CitizenDocument, IngestionProgress, RequestedResponseMode, User, LegalCase } from "@/lib/types";
+
+// Each person uses one workspace and rarely opens the dialogs, so none of them is
+// paid for up front.
+const WorkspaceLoading = () => <p className="workspace-loading" role="status">Loading…</p>;
+const ProfessionalWorkspace = dynamic(() => import("@/components/ProfessionalWorkspace"), { loading: WorkspaceLoading });
+const AdminWorkspace = dynamic(() => import("@/components/AdminWorkspace"), { loading: WorkspaceLoading });
+const CitizenWorkspace = dynamic(() => import("@/components/citizen/CitizenWorkspace"), { loading: WorkspaceLoading });
+const AccountDialog = dynamic(() => import("@/components/platform/AccountDialog"));
+const HistoryPanel = dynamic(() => import("@/components/platform/HistoryPanel"));
+const CitizenGuideDialog = dynamic(() => import("@/components/CitizenGuideDialog"));
 
 const ROLE_EXPERIENCES = {
   citizen: {
@@ -120,6 +126,10 @@ function jobFollower() {
   };
 }
 
+/** Where a running job is remembered: localStorage, so a second tab can find it too. */
+const jobStore = () => window.localStorage;
+const jobTabs = browserTabCoordinator();
+
 function savedChatFrom(item: HistorySession): SavedChat {
   return {
     id: item.id,
@@ -173,12 +183,18 @@ export default function HomePage() {
   const [draftVersion, setDraftVersion] = useState(0);
   const [view, setView] = useState<"research" | "workspace">("research");
   const [mobileNav, setMobileNav] = useState(false);
+  const openNavRef = useRef<HTMLButtonElement>(null);
+  const closeNavRef = useRef<HTMLButtonElement>(null);
+  // The drawer is inert until it opens, so focus has to be moved into it by hand.
+  useEffect(() => { if (mobileNav) closeNavRef.current?.focus(); }, [mobileNav]);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
   const [citizenGuideSlide, setCitizenGuideSlide] = useState<number | null>(null);
   const [animate, setAnimate] = useState(true);
-  const [theme, setTheme] = useState<"paper" | "ink">("paper");
-  useEffect(() => { document.documentElement.dataset.theme = theme; }, [theme]);
+  // One record with the public pages, so a choice survives a new tab and the sign-in screen.
+  const [theme, setThemeState] = useState<"paper" | "ink">("paper");
+  useEffect(() => { setThemeState(readTheme()); }, []);
+  const setTheme = (next: "paper" | "ink") => { setThemeState(next); saveTheme(next); };
   const [rememberHistory, setRememberHistory] = useState(true);
   const [history, setHistory] = useState<SavedChat[]>([]);
   const [historyReady, setHistoryReady] = useState(false);
@@ -234,14 +250,23 @@ export default function HomePage() {
       catch { try { const current = await withTimeout(refreshSession()); if (mounted) setUser(current); } catch { if (mounted) setUser(null); } }
       finally { if (mounted) setAuthChecked(true); }
     };
+    restoreAuth();
+    return () => { mounted = false; };
+  }, []);
+
+  // The server gives corpus status to administrators only, so nobody else asks for it.
+  const isAdmin = user?.role === "admin";
+  useEffect(() => {
+    if (!isAdmin) { setProgress(null); return; }
+    let mounted = true;
     const poll = async () => { try { const next = await getIngestionProgress(); if (mounted) setProgress(next); } catch { if (mounted) setProgress(null); } };
     // Low-bandwidth mode drops this background check. Re-read on each tick, so the
     // setting takes effect without a reload.
     const pollIfWanted = () => { if (bandwidthPlan(readPreferences().lowBandwidth).pollCorpusStatus) void poll(); };
-    restoreAuth(); pollIfWanted(); const interval = setInterval(pollIfWanted, 30_000);
+    pollIfWanted(); const interval = setInterval(pollIfWanted, 30_000);
     window.addEventListener(PREFERENCES_EVENT, pollIfWanted);
     return () => { mounted = false; clearInterval(interval); window.removeEventListener(PREFERENCES_EVENT, pollIfWanted); };
-  }, []);
+  }, [isAdmin]);
 
   // A refresh the server refused means this session is over. Show sign-in and
   // keep the conversation and the draft, rather than leaving a signed-in screen
@@ -276,7 +301,6 @@ export default function HomePage() {
     try {
       const preferences = JSON.parse(sessionStorage.getItem("corpusil-preferences:" + user.id) || "{}");
       setAnimate(preferences.animate !== false);
-      setTheme(preferences.theme === "ink" ? "ink" : "paper");
       setRememberHistory(preferences.rememberHistory !== false);
       if (["auto", "fast", "deep"].includes(preferences.mode)) setResponseMode(preferences.mode);
     } catch { /* Storage disabled: fall back to defaults. */ }
@@ -311,27 +335,45 @@ export default function HomePage() {
   useEffect(() => {
     if (!user || !historyReady) return;
     try {
-      sessionStorage.setItem("corpusil-preferences:" + user.id, JSON.stringify({ animate, rememberHistory, mode: responseMode, theme }));
+      sessionStorage.setItem("corpusil-preferences:" + user.id, JSON.stringify({ animate, rememberHistory, mode: responseMode }));
       // Conversations are never mirrored into browser storage any more.
       sessionStorage.removeItem("corpusil-chats:" + user.id);
     } catch { /* Browsers with storage disabled keep history in memory. */ }
-  }, [history, user, historyReady, rememberHistory, animate, responseMode, theme]);
+  }, [history, user, historyReady, rememberHistory, animate, responseMode]);
 
   const stopResearch = () => {
     const active = activeRequest.current;
     if (!active) return;
     active.controller.abort(); activeRequest.current = null;
-    if (user) forgetActiveJob(window.sessionStorage, user.id);
+    if (user) forgetActiveJob(jobStore(), user.id, active.jobId);
     setLoading(false);
     setMessages(current => current.map(message => message.id === active.assistantId ? { ...message, loading: false, stopped: true, content: "Response stopped." } : message));
-    if (user) { try { forgetActiveJob(window.sessionStorage, user.id); } catch { /* Storage disabled. */ } }
     if (active.jobId) void cancelDeepReviewJob(active.jobId).catch(() => {
       setMessages(current => current.map(message => message.id === active.assistantId ? { ...message, content: "Stopped here. The server could not confirm cancellation and may finish the queued review." } : message));
     });
   };
 
-  const submit = async (query: string, documents: CitizenDocument[] = [], regenerate = false, editIndex?: number) => {
-    if (!query.trim() || loading || !user) return;
+  // Stop watching without stopping the work: a Deep review carries on and its answer
+  // lands in history. Used when the person moves to another conversation mid-wait.
+  const leaveActiveRequest = () => {
+    const active = activeRequest.current;
+    if (!active) return;
+    active.controller.abort(); activeRequest.current = null;
+    if (user) forgetActiveJob(jobStore(), user.id, active.jobId);
+    setLoading(false);
+  };
+
+  const showJobProgress = (assistantId: string) => (view: JobView) => setMessages(current => current.map(message => message.id === assistantId ? {
+    ...message,
+    loading: true,
+    stageLabel: view.stageLabel ?? (view.queuePosition ? `Waiting in line, position ${view.queuePosition}` : null),
+    jobProgress: view.progress,
+  } : message));
+
+  const submit = async (query: string, documents: CitizenDocument[] = [], regenerate = false, editIndex?: number, fresh = false) => {
+    // `fresh` starts a new conversation in the same tick as resetResearch, whose state
+    // updates this closure cannot see yet: it must not append to the old conversation.
+    if (!query.trim() || (loading && activeRequest.current) || !user) return;
     setRestoredDraft("");
     const requestStarted = performance.now();
     setView("research");
@@ -340,9 +382,9 @@ export default function HomePage() {
     activeRequest.current = operation;
     const branchIndex = editIndex ?? (regenerate ? messages.map(message => message.role).lastIndexOf("user") : -1);
     if (branchIndex >= 0 || !activeChatId) setActiveChatId(crypto.randomUUID());
-    const baseMessages = branchIndex >= 0 ? messages.slice(0, branchIndex) : messages;
+    const baseMessages = fresh ? [] : branchIndex >= 0 ? messages.slice(0, branchIndex) : messages;
     const priorMessages = branchIndex >= 0 ? baseMessages.filter(message => !message.error && !message.stopped && message.content.trim()).slice(-8).map(message => ({ role: message.role, content: message.content.slice(0, 4000) })) : [];
-    const targetSession = branchIndex >= 0 ? null : sessionId;
+    const targetSession = fresh || branchIndex >= 0 ? null : sessionId;
     if (branchIndex >= 0) setSessionId(null);
     const agentLabel = user.role === "police" ? "Police Procedure Research Agent" : user.role === "advocate" ? "Advocate Authority Research Agent" : "Citizen Legal Navigator";
     const availableDocuments = documents.filter(document => document.pages.length > 0);
@@ -371,18 +413,17 @@ export default function HomePage() {
           stageLabel: null,
           jobProgress: 0,
         } : message));
-        try { rememberActiveJob(window.sessionStorage, user.id, { jobId: response.job_id, sessionId: response.session_id, startedAt: Date.now() }); } catch { /* Storage disabled. */ }
-        const job = await followJob(response.job_id, jobFollower(), {
+        rememberActiveJob(jobStore(), user.id, { jobId: response.job_id, sessionId: response.session_id, startedAt: Date.now() });
+        const job = await followJobAcrossTabs(response.job_id, jobFollower(), jobTabs, {
           signal: operation.controller.signal,
-          onUpdate: (view) => setMessages((current) => current.map((message) => message.id === assistantId ? {
-            ...message,
-            loading: true,
-            stageLabel: view.stageLabel ?? (view.queuePosition ? `Waiting in line, position ${view.queuePosition}` : null),
-            jobProgress: view.progress,
-          } : message)),
+          onUpdate: showJobProgress(assistantId),
         });
-        try { forgetActiveJob(window.sessionStorage, user.id); } catch { /* Storage disabled. */ }
+        forgetActiveJob(jobStore(), user.id, response.job_id);
         if (operation.controller.signal.aborted) return;
+        if (job.status === "cancelled") {
+          setMessages(current => current.map(message => message.id === assistantId ? { ...message, loading: false, stopped: true, content: "Response stopped." } : message));
+          return;
+        }
         if (job.status === "succeeded" && job.result) {
           const result = job.result;
           setMessages((current) => current.map((message) => message.id === assistantId ? {
@@ -414,21 +455,22 @@ export default function HomePage() {
       setMessages((current) => current.map((message) => message.id === assistantId ? { ...message, messageId: response.message_id ?? undefined, content: response.answer, loading: false, citations: response.citations, confidenceScore: response.confidence_score, evidenceStrength: response.evidence_strength, sectionConfidence: response.section_confidence, responseMode: response.response_mode, requestedMode: response.requested_mode, routingReason: response.routing_reason, routingSignals: response.routing_signals, timingsMs: response.timings_ms, pipelineMetrics: response.pipeline_metrics, latencyTargetMs: response.latency_target_ms, targetMet: response.target_met, clientElapsedMs: Math.round(performance.now() - requestStarted) } : message));
     } catch (error) {
       if (operation.controller.signal.aborted) return;
-      forgetActiveJob(window.sessionStorage, user.id);
+      forgetActiveJob(jobStore(), user.id, operation.jobId);
       const detail = error instanceof ApiError ? error.message : "The legal corpus is unavailable. Confirm the backend is healthy and try again.";
       setMessages((current) => current.map((item) => item.id === assistantId ? { ...item, content: "", loading: false, error: detail } : item));
     } finally { if (activeRequest.current === operation) { activeRequest.current = null; setLoading(false); } }
   };
 
-  const signOut = async () => { await logout().catch(() => undefined); setUser(null); setMessages([]); setSessionId(null); setActiveChatId(null); setView("research"); setResponseMode("auto"); setMobileNav(false); };
+  const signOut = async () => { leaveActiveRequest(); await logout().catch(() => undefined); setUser(null); setMessages([]); setSessionId(null); setActiveChatId(null); setView("research"); setResponseMode("auto"); setMobileNav(false); };
   const hasProfessionalWorkspace = user?.role === "police" || user?.role === "advocate";
   useEffect(() => {
     if (!hasProfessionalWorkspace) { setChatCases([]); setChatCaseId(null); return; }
     listCases().then((response) => setChatCases(response.cases)).catch(() => setChatCases([]));
   }, [hasProfessionalWorkspace]);
   const hasOperationsWorkspace = hasProfessionalWorkspace || user?.role === "admin";
-  const resetResearch = (caseId: string | null = null) => { openingChat.current = null; setRestoredDraft(""); setMessages([]); setSessionId(null); setActiveChatId(crypto.randomUUID()); setChatCaseId(caseId); setDraftVersion(value => value + 1); setView("research"); setMobileNav(false); window.scrollTo({ top: 0, behavior: "auto" }); };
+  const resetResearch = (caseId: string | null = null) => { leaveActiveRequest(); openingChat.current = null; setRestoredDraft(""); setMessages([]); setSessionId(null); setActiveChatId(crypto.randomUUID()); setChatCaseId(caseId); setDraftVersion(value => value + 1); setView("research"); setMobileNav(false); window.scrollTo({ top: 0, behavior: "auto" }); };
   const openSavedChat = (item: SavedChat) => {
+    leaveActiveRequest();
     setChatMenuId(null);
     setActiveChatId(item.id);
     // Restoring the conversation without its scope would let the next
@@ -522,47 +564,60 @@ export default function HomePage() {
     return () => window.removeEventListener("keydown", handleEscape);
   }, []);
 
-  // A Deep review keeps running on the server through a reload. Pick it back up,
-  // rather than leaving the person to think it was lost and pay for another.
+  // A Deep review keeps running on the server through a reload, and a second tab can
+  // see it too. Pick it back up, rather than leaving the person to think it was lost
+  // and pay for another. Only one tab at a time holds the stream: see followJobAcrossTabs.
   const resumedFor = useRef<string | null>(null);
   useEffect(() => {
     if (!user || !historyReady || resumedFor.current === user.id) return;
     resumedFor.current = user.id;
-    let stored: ReturnType<typeof readActiveJob> = null;
-    try { stored = readActiveJob(window.sessionStorage, user.id); } catch { /* Storage disabled. */ }
-    if (!stored || activeRequest.current) return;
-    const resume = stored;
+    const resume = readActiveJob(jobStore(), user.id);
+    if (!resume || activeRequest.current) return;
     const assistantId = crypto.randomUUID();
     const operation = { controller: new AbortController(), assistantId, jobId: resume.jobId };
     activeRequest.current = operation;
+    const drop = () => setMessages(current => current.filter(message => message.id !== assistantId));
+    const fail = (error: string) => setMessages(current => current.map(message => message.id === assistantId ? { ...message, content: "", loading: false, error } : message));
     setLoading(true);
     setSessionId(resume.sessionId);
     setActiveChatId(resume.sessionId);
     void (async () => {
       try {
         const conversation = await getChatSession(resume.sessionId);
+        if (operation.controller.signal.aborted) return;
         setChatCaseId(conversation.case_id ?? null);
-        const shown: ChatMessage[] = conversation.messages.map(message => ({ id: message.id, messageId: message.id, role: message.role === "user" ? "user" : "assistant", content: message.content, citations: message.citations, confidenceScore: message.confidence_score ?? undefined, evidenceStrength: message.confidence_score === 0 ? "insufficient" : undefined, timestamp: Date.parse(message.created_at) }));
-        setMessages([...shown, { id: assistantId, role: "assistant", content: "", timestamp: resume.startedAt, loading: true, requestedMode: "deep", responseMode: "deep", stageLabel: null, jobProgress: 0 }]);
-        const job = await followJob(resume.jobId, jobFollower(), {
+        setMessages([...restoreStoredMessages(conversation.messages), { id: assistantId, role: "assistant", content: "", timestamp: resume.startedAt, loading: true, requestedMode: "deep", responseMode: "deep", stageLabel: null, jobProgress: 0 }]);
+        const job = await followJobAcrossTabs(resume.jobId, jobFollower(), jobTabs, {
           signal: operation.controller.signal,
-          onUpdate: (view) => setMessages(current => current.map(message => message.id === assistantId ? { ...message, loading: true, stageLabel: view.stageLabel ?? (view.queuePosition ? `Waiting in line, position ${view.queuePosition}` : null), jobProgress: view.progress } : message)),
+          onUpdate: showJobProgress(assistantId),
         });
         if (operation.controller.signal.aborted) return;
         if (job.status === "succeeded" && job.result) {
           const result = job.result;
-          setMessages(current => current.map(message => message.id === assistantId ? { ...message, messageId: result.message_id, content: result.answer, loading: false, citations: result.citations, confidenceScore: result.confidence_score, evidenceStrength: result.evidence_strength, responseMode: "deep", timingsMs: result.timings_ms, pipelineMetrics: result.pipeline_metrics, stageLabel: null, jobProgress: null } : message));
+          // Finished while the page was closed: the stored conversation already holds it.
+          if (conversation.messages.some(message => message.id === result.message_id)) drop();
+          else setMessages(current => current.map(message => message.id === assistantId ? { ...message, messageId: result.message_id, content: result.answer, loading: false, citations: result.citations, confidenceScore: result.confidence_score, evidenceStrength: result.evidence_strength, sectionConfidence: result.section_confidence, responseMode: "deep", timingsMs: result.timings_ms, pipelineMetrics: result.pipeline_metrics, stageLabel: null, jobProgress: null } : message));
+        } else if (job.status === "cancelled") {
+          setMessages(current => current.map(message => message.id === assistantId ? { ...message, loading: false, stopped: true, content: "Response stopped." } : message));
         } else {
-          setMessages(current => current.map(message => message.id === assistantId ? { ...message, content: "", loading: false, error: job.error_message || `Deep review ${job.status}.` } : message));
+          fail(job.error_message || `Deep review ${job.status}.`);
         }
       } catch (error) {
         if (operation.controller.signal.aborted) return;
-        setMessages(current => current.map(message => message.id === assistantId ? { ...message, content: "", loading: false, error: error instanceof ApiError ? error.message : "Progress on this review could not be followed. It may still finish: reopen this chat shortly." } : message));
+        const status = error instanceof ApiError ? error.status : 0;
+        // The record outlived the job or the conversation. Nothing was lost by this
+        // screen, so there is nothing to report: open as if there had been no record.
+        if (status === 403 || status === 404) {
+          setMessages([]); setSessionId(null); setActiveChatId(null); setChatCaseId(null);
+        }
+        else fail(error instanceof ApiError ? error.message : "Progress on this review could not be followed. It may still finish: reopen this chat shortly.");
       } finally {
-        try { forgetActiveJob(window.sessionStorage, user.id); } catch { /* Storage disabled. */ }
+        forgetActiveJob(jobStore(), user.id, resume.jobId);
         if (activeRequest.current === operation) { activeRequest.current = null; setLoading(false); }
       }
     })();
+    // showJobProgress only touches state setters.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, historyReady]);
 
   // The landing page owns a first visit on the web. The desktop app, an expired
@@ -571,7 +626,7 @@ export default function HomePage() {
     window.location.replace(SITE_ROUTES.welcome);
     return null;
   }
-  if (!authChecked) return <main className="grid min-h-screen place-items-center"><Scale size={24} className="text-neutral-400" aria-label="Loading workspace" /></main>;
+  if (!authChecked) return <main className="grid min-h-screen place-items-center"><Scale size={24} className="text-[var(--ink-soft)]" aria-label="Loading workspace" /></main>;
   if (erasedReceipt) return <main className="erased-screen"><div><h1>Your account has been erased.</h1><p>Your account, conversations, case records and files have been removed from this installation. Backups, if the operator keeps any, leave as they age out.</p><p>Your receipt, should you need to quote it. It does not identify you:</p><code>{erasedReceipt}</code></div></main>;
   if (!user) return <>
     {sessionExpired && <p className="ctz-session-expired" role="status">{citizenText("sessionExpired")}</p>}
@@ -609,19 +664,20 @@ export default function HomePage() {
   </div>;
 
   return <main data-role={role} data-motion={animate ? "on" : "off"} className="app-shell">
+    <a className="skip-link" href="#main-content">Skip to content</a>
     <aside aria-label="Main navigation" aria-hidden={compactNavigation && !mobileNav} ref={node => { if(node) node.inert = compactNavigation && !mobileNav; }} className={`app-sidebar ${mobileNav ? "is-open" : ""}`}>
-      <div className="sidebar-brand"><BrandLogo /><button className="icon-button lg:hidden" onClick={() => setMobileNav(false)} aria-label="Close navigation"><X size={18} /></button></div>
+      <div className="sidebar-brand"><BrandLogo /><button ref={closeNavRef} className="icon-button lg:hidden" onClick={() => { setMobileNav(false); openNavRef.current?.focus(); }} aria-label="Close navigation"><X size={18} /></button></div>
       <button disabled={loading} className="new-chat-button" onClick={() => { resetResearch(); setMobileNav(false); }}><Plus size={18} />{citizenText("newChat")}</button>
       <button className="sidebar-search" onClick={() => { setMobileNav(false); setHistoryPanelOpen(true); }}><Search size={15} aria-hidden="true" />Search chats</button>
       <nav className="feature-nav" aria-label="Features">{tools.map(tool => <button key={tool.title} onClick={() => { if (tool.citizenTool) openCitizenTool(tool.citizenTool); else openTool(tool.target); }}><tool.icon size={18} strokeWidth={1.65} /><span>{tool.title}</span></button>)}</nav>
       <div className="chat-history">{pinnedChats.length > 0 && <><div className="history-heading"><span>Pinned <b>{pinnedChats.length}/5</b></span><Pin size={13}/></div>{pinnedChats.map(chatRow)}</>}<div className="history-heading"><span>{hasProfessionalWorkspace ? "Law-only chats" : citizenText("recentChats")}</span><History size={14}/></div>{publicChats.length ? publicChats.map(chatRow) : !pinnedChats.length && !matterChats.length && <p>Your conversations will appear here.</p>}{hasProfessionalWorkspace && <><div className="history-heading"><span>Case chats</span><BriefcaseBusiness size={13}/></div>{matterChats.length ? matterChats.map(chatRow) : <p>Open a case and ask a question there to start one.</p>}</>}{historyCursor && <button type="button" className="ctz-load-more" onClick={() => void loadOlderChats()}>{citizenText("loadMore")}</button>}</div>
-      <div className="sidebar-bottom"><button onClick={() => { setMobileNav(false); role === "citizen" ? setCitizenGuideSlide(0) : setGuideOpen(true); }}><HelpCircle size={17} />{citizenText("gettingStarted")}</button><button onClick={() => { setMobileNav(false); setSettingsOpen(true); }}><Settings size={17} />{citizenText("settings")}<span className="ml-auto text-[11px] capitalize text-neutral-400">{role}</span></button></div>
+      <div className="sidebar-bottom"><button onClick={() => { setMobileNav(false); role === "citizen" ? setCitizenGuideSlide(0) : setGuideOpen(true); }}><HelpCircle size={17} />{citizenText("gettingStarted")}</button><button onClick={() => { setMobileNav(false); setSettingsOpen(true); }}><Settings size={17} />{citizenText("settings")}<span className="ml-auto text-xs capitalize text-[var(--ink-soft)]">{role}</span></button></div>
     </aside>
     {mobileNav && <button aria-label="Dismiss navigation" className="sidebar-scrim" onClick={() => setMobileNav(false)} />}
     {historyNotice && <div className="history-toast" role="status"><span>{historyNotice}</span><button aria-label="Dismiss notification" onClick={() => setHistoryNotice("")}><X size={13}/></button></div>}
-    <div className="app-content" id="main-content" ref={node => { if(node) node.inert = compactNavigation && mobileNav; }}>
-      <header className="workspace-header"><button className="icon-button lg:hidden" aria-label="Open navigation" onClick={() => setMobileNav(true)}><Menu size={20} /></button><span>{view === "workspace" ? role === "citizen" ? " " : role === "police" ? "Investigation workspace" : role === "advocate" ? "Your case workspace" : "Administration" : " "}</span>{role === "citizen" && view !== "workspace" && <LangSwitcher/>}{view === "workspace" && <button className="text-sm text-neutral-500" onClick={() => setView("research")}><MessageSquare size={16} className="mr-2 inline" />{citizenText("backToChat")}</button>}</header>
-      {view === "workspace" && role === "citizen" && <CitizenWorkspace requested={citizenTool} onAsk={(question) => { resetResearch(); void submit(question); }} />}
+    <div className="app-content" id="main-content" tabIndex={-1} ref={node => { if(node) node.inert = compactNavigation && mobileNav; }}>
+      <header className="workspace-header"><button ref={openNavRef} className="icon-button lg:hidden" aria-label="Open navigation" onClick={() => setMobileNav(true)}><Menu size={20} /></button><span>{view === "workspace" ? role === "citizen" ? " " : role === "police" ? "Investigation workspace" : role === "advocate" ? "Your case workspace" : "Administration" : " "}</span>{role === "citizen" && view !== "workspace" && <LangSwitcher/>}{view === "workspace" && <button className="text-sm text-[var(--ink-soft)]" onClick={() => setView("research")}><MessageSquare size={16} className="mr-2 inline" />{citizenText("backToChat")}</button>}</header>
+      {view === "workspace" && role === "citizen" && <CitizenWorkspace requested={citizenTool} onAsk={(question) => { resetResearch(); void submit(question, [], false, undefined, true); }} />}
       {/* Stays mounted once opened: going back to chat must not lose an unsaved
           narrative or the selected case. */}
       {hasProfessionalWorkspace && workspaceVisited && <div hidden={view !== "workspace"}><ProfessionalWorkspace
@@ -646,7 +702,7 @@ export default function HomePage() {
           <button className="guide-invite" onClick={() => role === "citizen" ? setCitizenGuideSlide(0) : setGuideOpen(true)}><HelpCircle size={14} />First time here? Take a quick look</button>
         </div> : <>
           <div className="conversation">{messages.map((message,index) => <div key={message.id} ref={index === messages.length-1 ? latestMessage : undefined}>{!!message.helplines?.length && <HelplineNotice contacts={message.helplines}/>}<MessageBubble message={message} citizen={role === "citizen"} onLegalAid={role === "citizen" ? () => openCitizenTool("legal-aid") : undefined} role={role} question={message.role === "assistant" ? messages.slice(0, index).reverse().find(item => item.role === "user")?.content : undefined} onEdit={!loading && !message.documents?.some(document => !document.pages.length) ? (text) => void submit(text, message.documents, false, index) : undefined} onForgetDocuments={() => { const ids = new Set(message.documents?.map(document => document.id)); const clear = (items: ChatMessage[]) => items.map(item => ({...item, documents: item.documents?.map(document => ids.has(document.id) ? {...document, pages: []} : document)})); setMessages(clear); setHistory(current => current.map(item => ({...item, messages: clear(item.messages)}))); }} onRegenerate={!loading && message.role === "assistant" && index === messages.length-1 ? () => { const question=messages.slice(0,index).reverse().find(item=>item.role==="user"); if(question) void submit(question.content, question.documents, true); } : undefined} /></div>)}</div>
-          {awayFromLatest && <button className="jump-latest" aria-label="Jump to latest message" onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: animate ? "smooth" : "auto" })}><ArrowDown size={17}/></button>}
+          {awayFromLatest && <button className="jump-latest" aria-label="Jump to latest message" onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: animate && !window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "smooth" : "auto" })}><ArrowDown size={17}/></button>}
           <div className="conversation-composer"><ChatInput key={`${sessionId}:${draftVersion}`} onSend={submit} onStop={stopResearch} loading={loading} mode={responseMode} onModeChange={setResponseMode} cases={chatCases} caseId={chatCaseId} onCaseChange={setChatCaseId} scopeLockedReason={scopeLockedReason(sessionId)} redactBeforeAttach={role === "citizen"} initialDraft={restoredDraft} /></div>
         </>}
       </section>}
@@ -654,7 +710,7 @@ export default function HomePage() {
     {historyPanelOpen && <HistoryPanel onClose={() => setHistoryPanelOpen(false)} onOpen={openFromPanel} onChanged={() => setHistoryVersion(value => value + 1)} />}
     {accountOpen && <AccountDialog user={user} onClose={() => setAccountOpen(false)} onUserChange={setUser} onSignOut={() => { setAccountOpen(false); void signOut(); }} onErased={(receipt) => { setAccountOpen(false); setUser(null); setErasedReceipt(receipt); }} />}
     <AccountGate user={user} onCleared={() => setHistoryVersion(value => value + 1)} onSignOut={() => void signOut()} onOpenAccount={() => setAccountOpen(true)} />
-    <CitizenGuideDialog open={citizenGuideSlide !== null} initialSlide={citizenGuideSlide ?? 0} onClose={() => setCitizenGuideSlide(null)} onStart={(prompt) => { setCitizenGuideSlide(null); void submit(prompt); }}/>
+    {citizenGuideSlide !== null && <CitizenGuideDialog open initialSlide={citizenGuideSlide} onClose={() => setCitizenGuideSlide(null)} onStart={(prompt) => { setCitizenGuideSlide(null); void submit(prompt); }}/>}
     {settingsOpen && <div className="modal-backdrop" onMouseDown={() => setSettingsOpen(false)}><div ref={settingsRef} role="dialog" aria-modal="true" aria-label="Settings" className="settings-dialog" onMouseDown={event => event.stopPropagation()}>
       <div className="dialog-heading settings-heading"><div><h2>Settings</h2><p>Make the workspace feel right for you.</p></div><button aria-label="Close settings" className="icon-button" onClick={() => setSettingsOpen(false)}><X size={18} /></button></div>
       <div className="settings-account"><div><strong>{user.name}</strong><span>{user.email}</span></div><b>{role}</b></div>
@@ -662,22 +718,22 @@ export default function HomePage() {
       <section className="settings-section"><h3>Experience</h3>
         <div className="setting-block"><div className="setting-copy"><strong>Appearance</strong><small>A calm palette for daytime or low light.</small></div><div className="theme-choice" role="group" aria-label="Appearance"><button aria-pressed={theme === "paper"} onClick={() => setTheme("paper")}><i className="paper-swatch"/>Light</button><button aria-pressed={theme === "ink"} onClick={() => setTheme("ink")}><i className="ink-swatch"/>Dark</button></div></div>
         <div className="setting-block setting-stack"><div className="setting-copy"><strong>Default research depth</strong><small>You can still change this beside any question.</small></div><div className="mode-choice" role="group" aria-label="Default response mode">{(["auto","fast","deep"] as RequestedResponseMode[]).map(mode => <button key={mode} aria-pressed={responseMode === mode} onClick={() => setResponseMode(mode)}>{mode === "auto" ? "Auto" : mode === "fast" ? "Fast" : "Deep review"}</button>)}</div></div>
-        <label className="setting-block"><span className="setting-copy"><strong>Ambient motion</strong><small>Includes the scales and subtle background glow.</small></span><span className="premium-switch"><input type="checkbox" checked={animate} onChange={event => setAnimate(event.target.checked)} /><i/></span></label>
+        <label className="setting-block"><span className="setting-copy"><strong>Motion</strong><small>Includes the scales shown while an answer is prepared.</small></span><span className="premium-switch"><input type="checkbox" checked={animate} onChange={event => setAnimate(event.target.checked)} /><i/></span></label>
       </section>
       <section className="settings-section"><h3>History & privacy</h3>
         <label className="setting-block"><span className="setting-copy"><strong>Show recent chats</strong><small>Your conversations are stored on the server for your account. Delete one from its menu to erase it.</small></span><span className="premium-switch"><input type="checkbox" checked={rememberHistory} onChange={event => setRememberHistory(event.target.checked)} /><i/></span></label>
         <details className="settings-privacy"><summary>Documents, voice & retention<span>View details</span></summary><UploadPrivacy/><p>Voice uses your browser’s recognition service. English is currently validated; transcripts remain editable and never send automatically.</p></details>
       </section>
-      <section className="settings-section"><h3>Corpus connection</h3><div className="corpus-status"><span className={progress?.validation_status === "pass" ? "is-online" : ""}/><div><strong>{progress?.validation_status === "pass" ? "Verified corpus ready" : "Corpus status unavailable"}</strong><small>{progress ? `${progress.canonical_documents.toLocaleString()} sources · ${(progress.global_points ?? progress.qdrant_points).toLocaleString()} searchable passages` : "Reconnect to check source availability."}</small></div></div></section>
+      {role === "admin" && <section className="settings-section"><h3>Corpus connection</h3><div className="corpus-status"><span className={progress?.validation_status === "pass" ? "is-online" : ""}/><div><strong>{progress?.validation_status === "pass" ? "Verified corpus ready" : "Corpus status unavailable"}</strong><small>{progress ? `${progress.canonical_documents.toLocaleString()} sources · ${(progress.global_points ?? progress.qdrant_points).toLocaleString()} searchable passages` : "Reconnect to check source availability."}</small></div></div></section>}
       <div className="settings-actions"><button disabled={loading} onClick={() => { setHistory([]); setMessages([]); setSessionId(null); setActiveChatId(crypto.randomUUID()); setDraftVersion(value => value + 1); }}>Clear this tab’s history</button><button disabled={loading} onClick={() => { setSettingsOpen(false); void signOut(); }}><LogOut size={15} />Sign out</button></div>
     </div></div>}
     {guideOpen && <div className="modal-backdrop" onMouseDown={() => setGuideOpen(false)}><div ref={guideRef} role="dialog" aria-modal="true" aria-label="Getting started" className="guide-dialog" onMouseDown={event=>event.stopPropagation()}>
-      <div className="dialog-heading"><div><p className="text-xs text-neutral-400">A quick introduction</p><h2>From question to clarity.</h2></div><button className="icon-button" aria-label="Close guide" onClick={() => setGuideOpen(false)}><X size={18} /></button></div>
+      <div className="dialog-heading"><div><p className="text-xs text-[var(--ink-soft)]">A quick introduction</p><h2>From question to clarity.</h2></div><button className="icon-button" aria-label="Close guide" onClick={() => setGuideOpen(false)}><X size={18} /></button></div>
       <div className="visual-guide">
         <section><div className="guide-picture"><MessageSquare size={44} strokeWidth={1.3} /><span className="guide-line long" /><span className="guide-line" /></div><span className="step-number">01</span><h3>{role==="citizen" ? "Tell us what happened" : "Start with the facts"}</h3><p>Ask a question in chat. Include the details that matter, without unnecessary personal information.</p></section>
         <section><div className="guide-picture"><Scale size={48} strokeWidth={1.3} /><span className="guide-dots"><i/><i/><i/></span></div><span className="step-number">02</span><h3>Choose your depth</h3><p>Auto picks a workflow. Fast finds source passages; Deep Review works through a fuller analysis.</p></section>
         <section><div className="guide-picture"><BookOpenText size={46} strokeWidth={1.3} /><ShieldCheck className="guide-check" size={23} /></div><span className="step-number">03</span><h3>{role==="citizen" ? "Check the source" : "Build on the evidence"}</h3><p>{role==="citizen" ? "Expand a citation to read the passage. Copy useful references and return to past chats in the sidebar." : "Open your matter workspace to add evidence, review documents and prepare a draft or strategy."}</p></section>
-      </div><button className="button-primary mt-8" onClick={()=>setGuideOpen(false)}>Got it, let’s begin</button><p className="mt-4 text-xs text-neutral-400">Research support, not a substitute for professional judgement.</p>
+      </div><button className="button-primary mt-8" onClick={()=>setGuideOpen(false)}>Got it, let’s begin</button><p className="mt-4 text-xs text-[var(--ink-soft)]">Research support, not a substitute for professional judgement.</p>
     </div></div>}
   </main>;
 }

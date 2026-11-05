@@ -163,7 +163,7 @@ export function ComplianceChecklist({ caseId }: { caseId: string }) {
 
       {checklist && (
         <>
-          <div className="flex flex-wrap gap-2 text-[11px]">
+          <div className="flex flex-wrap gap-2 text-xs">
             <span className="state-tally is-plain">{checklist.items.length} requirements</span>
             {checklist.outstanding.length > 0 && (
               <span className="state-tally is-bad">{checklist.outstanding.length} not done</span>

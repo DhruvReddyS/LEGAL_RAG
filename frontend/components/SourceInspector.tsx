@@ -43,16 +43,16 @@ export default function SourceInspector({
         </header>
         <div className="flex-1 overflow-y-auto p-6">
           <div className="rounded-2xl bg-[var(--ink)] p-5 text-[var(--paper)]">
-            <div className="flex items-start justify-between gap-4"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--card)]/10"><Scale size={18} /></span><span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${verified ? "bg-[var(--state-ok-text)] text-[var(--state-ok-line)]" : "bg-[var(--state-warn-text)] text-[var(--state-warn-line)]"}`}>{source.verification_status}</span></div>
+            <div className="flex items-start justify-between gap-4"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--card)]/10"><Scale size={18} /></span><span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${verified ? "bg-[var(--state-ok-text)] text-[var(--state-ok-line)]" : "bg-[var(--state-warn-text)] text-[var(--state-warn-line)]"}`}>{source.verification_status}</span></div>
             <h3 className="mt-4 text-base font-semibold">{source.title}</h3>
-            <p className="mt-1 text-xs capitalize text-slate-400">{label(source.source_type)} / {source.scope === "private_case" ? "Private case evidence" : "Global legal corpus"}</p>
+            <p className="mt-1 text-xs capitalize text-[var(--paper)] opacity-80">{label(source.source_type)} / {source.scope === "private_case" ? "Private case evidence" : "Global legal corpus"}</p>
           </div>
 
           <dl className="mt-5 grid grid-cols-2 gap-3">
-            <div className="rounded-xl border border-[var(--border)] p-3"><dt className="text-[10px] font-semibold text-[var(--ink-soft)]">Act / section</dt><dd className="mt-1 text-xs font-medium text-[var(--ink)]">{source.section ?? "Not specified"}</dd></div>
-            <div className="rounded-xl border border-[var(--border)] p-3"><dt className="text-[10px] font-semibold text-[var(--ink-soft)]">Page / chunk</dt><dd className="mt-1 text-xs font-medium text-[var(--ink)]">pp. {source.page_start}–{source.page_end} / {source.chunk_id}</dd></div>
-            <div className="rounded-xl border border-[var(--border)] p-3"><dt className="text-[10px] font-semibold text-[var(--ink-soft)]">Relevance score</dt><dd className="mt-1 text-xs font-medium text-[var(--ink)]">{source.relevance_score === null ? "Not recorded" : `${Math.round(source.relevance_score * 100)}%`}</dd></div>
-            <div className="rounded-xl border border-[var(--border)] p-3"><dt className="text-[10px] font-semibold text-[var(--ink-soft)]">Current-law status</dt><dd className="mt-1 text-xs font-medium capitalize text-[var(--ink)]">{label(source.current_status)}</dd></div>
+            <div className="rounded-xl border border-[var(--border)] p-3"><dt className="text-xs font-semibold text-[var(--ink-soft)]">Act / section</dt><dd className="mt-1 text-xs font-medium text-[var(--ink)]">{source.section ?? "Not specified"}</dd></div>
+            <div className="rounded-xl border border-[var(--border)] p-3"><dt className="text-xs font-semibold text-[var(--ink-soft)]">Page / chunk</dt><dd className="mt-1 text-xs font-medium text-[var(--ink)]">pp. {source.page_start}–{source.page_end} / {source.chunk_id}</dd></div>
+            <div className="rounded-xl border border-[var(--border)] p-3"><dt className="text-xs font-semibold text-[var(--ink-soft)]">Relevance score</dt><dd className="mt-1 text-xs font-medium text-[var(--ink)]">{source.relevance_score === null ? "Not recorded" : `${Math.round(source.relevance_score * 100)}%`}</dd></div>
+            <div className="rounded-xl border border-[var(--border)] p-3"><dt className="text-xs font-semibold text-[var(--ink-soft)]">Current-law status</dt><dd className="mt-1 text-xs font-medium capitalize text-[var(--ink)]">{label(source.current_status)}</dd></div>
           </dl>
 
           {/* Two different warnings. Label A says this document is out of
@@ -103,12 +103,12 @@ export default function SourceInspector({
                           <span className="text-[var(--ink-soft)]"> — {mapping.subject}</span>
                         ) : null}
                         {mapping.ingredients_changed ? (
-                          <span className="ml-1 rounded bg-[var(--state-warn-bg)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--state-bad-text)]">
+                          <span className="ml-1 rounded bg-[var(--state-warn-bg)] px-1.5 py-0.5 text-xs font-semibold text-[var(--state-bad-text)]">
                             elements changed
                           </span>
                         ) : null}
                         {mapping.note ? (
-                          <span className="mt-0.5 block text-[11px] leading-4 text-[var(--ink-soft)]">
+                          <span className="mt-0.5 block text-xs leading-4 text-[var(--ink-soft)]">
                             {mapping.note}
                           </span>
                         ) : null}
@@ -117,14 +117,14 @@ export default function SourceInspector({
                   </ul>
                 ) : null}
                 {source.unmapped_repealed_provisions?.length ? (
-                  <p className="mt-2 text-[11px] leading-4 text-[var(--ink-soft)]">
+                  <p className="mt-2 text-xs leading-4 text-[var(--ink-soft)]">
                     No mapping recorded for{" "}
                     {source.unmapped_repealed_provisions.join(", ")}. Check the
                     replacement Act directly.
                   </p>
                 ) : null}
                 {source.mapping_review_status === "pending_legal_review" ? (
-                  <p className="mt-2 text-[11px] leading-4 text-[var(--ink-soft)]">
+                  <p className="mt-2 text-xs leading-4 text-[var(--ink-soft)]">
                     Section mappings are indicative and awaiting legal review. Confirm
                     against the official concordance before relying on them.
                   </p>

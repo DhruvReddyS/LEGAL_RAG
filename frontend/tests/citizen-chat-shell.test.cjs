@@ -73,26 +73,8 @@ test('backoff grows and stops growing', () => {
 
 function fakeStorage() {
   const data = new Map();
-  return { getItem: key => (data.has(key) ? data.get(key) : null), setItem: (key, value) => data.set(key, value), removeItem: key => data.delete(key), data };
+  return { getItem: key => (data.has(key) ? data.get(key) : null), setItem: (key, value) => data.set(key, value), removeItem: key => data.delete(key) };
 }
-
-test('a running job is remembered per user and forgotten when it ends', () => {
-  const storage = fakeStorage();
-  const job = { jobId: 'j', sessionId: 's', assistantId: 'a', requestedMode: 'auto' };
-  chat.rememberActiveJob(storage, 'u1', job);
-  assert.deepEqual(chat.readActiveJob(storage, 'u1'), job);
-  assert.equal(chat.readActiveJob(storage, 'u2'), null);
-  chat.forgetActiveJob(storage, 'u1');
-  assert.equal(chat.readActiveJob(storage, 'u1'), null);
-});
-
-test('a damaged record is ignored', () => {
-  const storage = fakeStorage();
-  storage.setItem('corpusil-active-job:u', '{not json');
-  assert.equal(chat.readActiveJob(storage, 'u'), null);
-  storage.setItem('corpusil-active-job:u', '{"jobId":1}');
-  assert.equal(chat.readActiveJob(storage, 'u'), null);
-});
 
 // F27, F28, restore ----------------------------------------------------------
 

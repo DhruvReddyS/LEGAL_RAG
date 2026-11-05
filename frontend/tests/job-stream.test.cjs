@@ -6,6 +6,7 @@ const {
   viewFromEvent,
   viewFromJob,
   followJob,
+  followJobAcrossTabs,
   rememberActiveJob,
   readActiveJob,
   forgetActiveJob,
@@ -260,4 +261,64 @@ test('storage being unavailable is not an error', () => {
   rememberActiveJob(broken, 'u', { jobId: JOB_ID, sessionId: SESSION_ID, startedAt: 1 });
   forgetActiveJob(broken, 'u');
   assert.equal(readActiveJob(broken, 'u'), null);
+});
+
+test('a finished job does not clear the record of a newer one', () => {
+  const store = memoryStore();
+  const newer = '99999999-2222-3333-4444-555555555555';
+  rememberActiveJob(store, 'u', { jobId: newer, sessionId: SESSION_ID, startedAt: 1 });
+  forgetActiveJob(store, 'u', JOB_ID);
+  assert.equal(readActiveJob(store, 'u').jobId, newer);
+  forgetActiveJob(store, 'u', newer);
+  assert.equal(readActiveJob(store, 'u'), null);
+});
+
+/** Two tabs in one test: a lock queue and a channel, as the browser provides them. */
+function fakeTabs() {
+  let tail = Promise.resolve();
+  const listeners = new Set();
+  const held = { streams: 0 };
+  return {
+    held,
+    coordinator: {
+      exclusive(_jobId, signal, work) {
+        const run = tail.then(() => {
+          if (signal?.aborted) { const error = new Error('Aborted'); error.name = 'AbortError'; throw error; }
+          return work();
+        });
+        tail = run.catch(() => undefined);
+        return run;
+      },
+      publish(_jobId, view) { for (const listener of listeners) listener(view); },
+      subscribe(_jobId, listener) { listeners.add(listener); return () => listeners.delete(listener); },
+    },
+  };
+}
+
+test('two tabs following one job hold one stream, and both end with the result', async () => {
+  const { coordinator, held } = fakeTabs();
+  let status = running();
+  const shared = deps({
+    getJob: async () => status,
+    openStream: async () => {
+      held.streams += 1;
+      status = done;
+      return response(200, streamOf([stageEvent(1, 'Reading', 40), END]));
+    },
+  });
+  const seenByWaiter = [];
+  const first = followJobAcrossTabs('j', shared, coordinator);
+  const second = followJobAcrossTabs('j', shared, coordinator, { onUpdate: view => seenByWaiter.push(view.stageLabel) });
+  const [a, b] = await Promise.all([first, second]);
+  assert.equal(a.status, 'succeeded');
+  assert.equal(b.status, 'succeeded');
+  assert.equal(held.streams, 1, 'the second tab read the finished job and opened no stream');
+  assert.ok(seenByWaiter.includes('Reading'), 'the waiting tab sees the progress the first one shares');
+});
+
+test('a waiting tab that gives up stops cleanly', async () => {
+  const { coordinator } = fakeTabs();
+  const controller = new AbortController();
+  controller.abort();
+  await assert.rejects(followJobAcrossTabs('j', deps(), coordinator, { signal: controller.signal }), error => error.name === 'AbortError');
 });

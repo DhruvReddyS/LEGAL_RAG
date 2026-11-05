@@ -1,8 +1,8 @@
 "use client";
-import { ArrowLeft, ArrowRight, BookOpenCheck, CalendarDays, Compass, FilePenLine, FileSearch, HandHeart, Route, type LucideIcon } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarDays } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { listDeadlines } from "@/lib/api-citizen";
-import { formatDate, type UiKey } from "@/lib/citizen-i18n";
+import { formatDate } from "@/lib/citizen-i18n";
 import type { ToolLink } from "@/lib/citizen-law/journeys";
 import { needsAttention } from "@/lib/citizen-matter";
 import type { CitizenDeadline, DeadlineDraft } from "@/lib/types-citizen";
@@ -14,19 +14,8 @@ import MyMatter from "./MyMatter";
 import NoticeExplainer from "./NoticeExplainer";
 import RightsCard from "./RightsCard";
 import { Disclaimer, LangSwitcher } from "./shared";
+import { CITIZEN_TOOLS, type CitizenTool } from "./tools";
 import { useCitizenLang } from "./useCitizenLang";
-
-export type CitizenTool = "journeys" | "rights" | "router" | "notice" | "draft" | "legal-aid" | "matter";
-
-export const CITIZEN_TOOLS: { id: CitizenTool; icon: LucideIcon; title: UiKey; blurb: UiKey }[] = [
-  { id: "journeys", icon: Compass, title: "toolJourneys", blurb: "toolJourneysBlurb" },
-  { id: "rights", icon: BookOpenCheck, title: "toolRights", blurb: "toolRightsBlurb" },
-  { id: "router", icon: Route, title: "toolRouter", blurb: "toolRouterBlurb" },
-  { id: "notice", icon: FileSearch, title: "toolNotice", blurb: "toolNoticeBlurb" },
-  { id: "draft", icon: FilePenLine, title: "toolDraft", blurb: "toolDraftBlurb" },
-  { id: "legal-aid", icon: HandHeart, title: "toolLegalAid", blurb: "toolLegalAidBlurb" },
-  { id: "matter", icon: CalendarDays, title: "toolMatter", blurb: "toolMatterBlurb" },
-];
 
 type Open = { tool: CitizenTool | null; arg?: string; draft?: DeadlineDraft | null };
 

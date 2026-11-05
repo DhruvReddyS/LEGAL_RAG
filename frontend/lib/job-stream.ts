@@ -279,8 +279,13 @@ export function rememberActiveJob(store: KeyValueStore, userId: string, job: Act
   }
 }
 
-export function forgetActiveJob(store: KeyValueStore, userId: string): void {
+/**
+ * Pass the job this tab was following: if another tab has since started a newer
+ * job, its record must survive this one finishing.
+ */
+export function forgetActiveJob(store: KeyValueStore, userId: string, jobId?: string): void {
   try {
+    if (jobId && readActiveJob(store, userId)?.jobId !== jobId) return;
     store.removeItem(key(userId));
   } catch {
     // nothing to do
@@ -300,4 +305,74 @@ export function readActiveJob(store: KeyValueStore, userId: string): ActiveJob |
   } catch {
     return null;
   }
+}
+
+// ------------------------------------------------------------- across several tabs
+
+/** How tabs agree that only one of them holds a stream open for a job. */
+export interface TabCoordinator {
+  /** Runs `work` once no other tab is following this job. */
+  exclusive<T>(jobId: string, signal: AbortSignal | undefined, work: () => Promise<T>): Promise<T>;
+  /** Progress the following tab shares with the tabs waiting behind it. */
+  publish(jobId: string, view: JobView): void;
+  subscribe(jobId: string, listener: (view: JobView) => void): () => void;
+}
+
+/**
+ * Follow a job from whichever tab gets there first. The others wait their turn and
+ * show the progress it shares. When it finishes, or the tab that held it closes, the
+ * next one takes over: followJob reads the job first, so a finished job costs one GET
+ * and opens no stream.
+ */
+export async function followJobAcrossTabs(
+  jobId: string,
+  deps: FollowDeps,
+  tabs: TabCoordinator,
+  options: { signal?: AbortSignal; onUpdate?: (view: JobView) => void } = {},
+): Promise<DeepReviewJob> {
+  const onUpdate = options.onUpdate ?? (() => undefined);
+  const stopListening = tabs.subscribe(jobId, onUpdate);
+  try {
+    return await tabs.exclusive(jobId, options.signal, () => {
+      stopListening();
+      return followJob(jobId, deps, {
+        signal: options.signal,
+        onUpdate: (view) => {
+          tabs.publish(jobId, view);
+          onUpdate(view);
+        },
+      });
+    });
+  } finally {
+    stopListening();
+  }
+}
+
+/**
+ * Web Locks release by themselves when a tab dies, so a crash cannot strand a job.
+ * Without them (an old webview, a non-secure origin) a tab simply follows on its own,
+ * which costs an extra stream and nothing else.
+ */
+export function browserTabCoordinator(): TabCoordinator {
+  const channelName = (jobId: string) => `corpusil.job.${jobId}`;
+  const hasChannel = typeof BroadcastChannel !== "undefined";
+  return {
+    exclusive(jobId, signal, work) {
+      const locks = typeof navigator !== "undefined" ? navigator.locks : undefined;
+      if (!locks) return work();
+      return locks.request(`corpusil.job.${jobId}`, signal ? { signal } : {}, work) as Promise<never>;
+    },
+    publish(jobId, view) {
+      if (!hasChannel) return;
+      const channel = new BroadcastChannel(channelName(jobId));
+      channel.postMessage(view);
+      channel.close();
+    },
+    subscribe(jobId, listener) {
+      if (!hasChannel) return () => undefined;
+      const channel = new BroadcastChannel(channelName(jobId));
+      channel.onmessage = (event: MessageEvent<JobView>) => listener(event.data);
+      return () => channel.close();
+    },
+  };
 }

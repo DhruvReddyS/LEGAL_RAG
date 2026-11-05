@@ -107,7 +107,7 @@ function DeadlineRow({ deadline }: { deadline: InvestigationDeadline }) {
               </span>
               <span className={breached ? tone.accent : ""}>({remaining(deadline.due_at as string)})</span>
               {deadline.is_earliest_possible && (
-                <span className="text-[10px] opacity-80">
+                <span className="text-xs opacity-80">
                   earliest it can expire — ss.58 and 78 exclude travel from the place of arrest
                 </span>
               )}
@@ -334,7 +334,7 @@ export function InvestigationTimeline({ caseId, onSaved }: { caseId: string; onS
       </div>
 
       {counts && (
-        <div className="flex flex-wrap gap-2 text-[11px]">
+        <div className="flex flex-wrap gap-2 text-xs">
           <span className="state-tally is-plain">{counts.tracked} obligations</span>
           {counts.breached > 0 && (
             <span className="state-tally is-bad">{counts.breached} overdue</span>

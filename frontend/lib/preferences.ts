@@ -74,3 +74,27 @@ export function savePreferences(preferences: ReadingPreferences): void {
   applyPreferences(preferences);
   window.dispatchEvent(new CustomEvent(PREFERENCES_EVENT));
 }
+
+export type Theme = "paper" | "ink";
+export const THEME_KEY = "corpusil.site-theme";
+
+/** The stored choice, or what the system asks for when there is none. */
+export function readTheme(): Theme {
+  if (typeof window === "undefined") return "paper";
+  try {
+    const stored = window.localStorage.getItem(THEME_KEY);
+    if (stored === "ink" || stored === "paper") return stored;
+  } catch {
+    // Storage disabled: the system preference stands.
+  }
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "ink" : "paper";
+}
+
+export function saveTheme(theme: Theme): void {
+  document.documentElement.dataset.theme = theme;
+  try {
+    window.localStorage.setItem(THEME_KEY, theme);
+  } catch {
+    // Applies for this page only.
+  }
+}
