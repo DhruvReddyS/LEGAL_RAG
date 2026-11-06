@@ -150,22 +150,29 @@ def test_one_act_filed_under_two_names_is_one_provision() -> None:
     assert retrieval_agent._provision_of(letter) == retrieval_agent._provision_of(act)
 
 
-def _statute(chunk: str, relation: str | None = None) -> SimpleNamespace:
+def _statute(chunk: str, relation: str | None = None, act: str = "Some Special Act", section: str = "1") -> SimpleNamespace:
     hit = _hit(chunk, relation)
-    hit.payload.update(document_type="bare_act", act_name="An Act", text=chunk)
+    hit.payload.update(document_type="bare_act", act_name=act, title=act, section=section, text=chunk)
     return hit
 
 
+def _theft() -> SimpleNamespace:
+    return _statute("s303", "implementation_bridge", act="The Bharatiya Nyaya Sanhita, 2023", section="303")
+
+
 def _scoring(*scores: float) -> SimpleNamespace:
-    async def relevance_scores(_query, _texts):
+    calls: list[list[str]] = []
+
+    async def relevance_scores(_query, texts):
+        calls.append(texts)
         return list(scores)
 
-    return SimpleNamespace(relevance_scores=relevance_scores)
+    return SimpleNamespace(relevance_scores=relevance_scores, calls=calls)
 
 
 @pytest.mark.asyncio
 async def test_with_the_governing_section_known_a_statute_that_does_not_answer_goes() -> None:
-    theft, prisons = _statute("s303", "implementation_bridge"), _statute("s41")
+    theft, prisons = _theft(), _statute("s41", act="Model Prisons Act", section="41")
     judgment = _hit("judgment")
     judgment.payload["document_type"] = "judgment"
     kept = await retrieval_agent._statutes_that_answer(_scoring(0.002), "q", [theft, prisons, judgment])
@@ -174,14 +181,36 @@ async def test_with_the_governing_section_known_a_statute_that_does_not_answer_g
 
 @pytest.mark.asyncio
 async def test_a_statute_that_also_answers_stays() -> None:
-    theft, related = _statute("s303", "implementation_bridge"), _statute("s378")
+    theft, related = _theft(), _statute("related")
     assert await retrieval_agent._statutes_that_answer(_scoring(0.8), "q", [theft, related]) == [theft, related]
 
 
 @pytest.mark.asyncio
 async def test_without_a_governing_section_the_list_is_left_alone() -> None:
-    hits = [_statute("a"), _statute("b")]
-    assert await retrieval_agent._statutes_that_answer(_scoring(0.0, 0.0), "q", hits) == hits
+    hits = [_statute("a"), _statute("b", section="2")]
+    service = _scoring(0.0, 0.0)
+    assert await retrieval_agent._statutes_that_answer(service, "q", hits) == hits
+    assert service.calls == []
+
+
+@pytest.mark.asyncio
+async def test_the_governing_act_and_the_general_codes_cost_no_reading() -> None:
+    hits = [
+        _theft(),
+        _statute("other", act="The Bharatiya Nyaya Sanhita, 2023", section="304"),
+        _statute("crpc", act="The Code of Criminal Procedure, 1973", section="154"),
+    ]
+    service = _scoring()
+    assert await retrieval_agent._statutes_that_answer(service, "q", hits) == hits
+    assert service.calls == []
+
+
+@pytest.mark.asyncio
+async def test_a_provision_in_several_chunks_is_read_once_and_goes_together() -> None:
+    hits = [_theft(), _statute("a", section="41"), _statute("b", section="41")]
+    service = _scoring(0.0)
+    assert await retrieval_agent._statutes_that_answer(service, "q", hits) == [hits[0]]
+    assert len(service.calls[0]) == 1
 
 
 @pytest.mark.asyncio
@@ -189,5 +218,5 @@ async def test_a_failed_reading_costs_nothing() -> None:
     async def down(_query, _texts):
         raise RuntimeError
 
-    hits = [_statute("a", "implementation_bridge"), _statute("b")]
+    hits = [_theft(), _statute("b")]
     assert await retrieval_agent._statutes_that_answer(SimpleNamespace(relevance_scores=down), "q", hits) == hits

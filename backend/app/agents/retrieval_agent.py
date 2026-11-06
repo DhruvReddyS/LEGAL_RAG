@@ -6,13 +6,13 @@ from time import perf_counter_ns
 
 from app.schemas.agents import AgentTraceEvent
 from app.services.retrieval import HybridRetrievalService, RetrievalFilters
-from app.services.retrieval import RetrievalTarget
+from app.services.retrieval import RetrievalTarget, reranker_excerpt
 from app.services.legal_term_normalization import normalize_legal_terms
 from app.services.fast_research import (
     act_the_results_agree_on,
     governing_statutes,
     STATUTE_RELEVANCE_FLOOR,
-    _RELEVANCE_TEXT_CHARACTERS,
+    _GENERAL_LAW,
     _focus_tokens,
     _is_primary_law,
     _payload_windows,
@@ -25,6 +25,8 @@ from app.services.pipeline_telemetry import append_stage_metric, text_size
 
 
 LOW_RERANKER_SCORE_FALLBACK_THRESHOLD = 0.15
+_EXCERPT_READ = 900
+_REPLACED_GENERAL_LAW = re.compile(r"code of criminal procedure|penal code|evidence act", re.IGNORECASE)
 TOPIC_ANCHOR_MIN_COVERAGE = 0.5
 LOW_SCORE_FALLBACK_TERMS = (
     "non-cognizable offence General Diary entry SOP complaint procedure"
@@ -141,19 +143,27 @@ async def _statutes_that_answer(service, asked: str, hits: list) -> list:
     kept s.41 of the Model Prisons Act, which was never read, beside BNS s.303. Judgments
     stay, because they are often about the law without resembling the question.
     """
-    if not any(_is_bridged(hit) for hit in hits):
+    governing_acts = {_provision_of(hit)[0] for hit in hits if _is_bridged(hit)}
+    if not governing_acts:
         return hits
-    others = [hit for hit in hits if _is_primary_law(hit) and not _is_bridged(hit)]
-    if not others:
+    # The general codes and the governing Act itself are not what this is for: CrPC s.154
+    # is the history of s.173, and reading them cost 650 ms and lost two useful sources.
+    # Each provision is read once, however many of its chunks came back.
+    to_read: dict[tuple[str, str], str] = {}
+    for hit in hits:
+        provision = _provision_of(hit)
+        title = str(hit.payload.get("title") or "")
+        general = _GENERAL_LAW.search(title) or _REPLACED_GENERAL_LAW.search(title)
+        if _is_primary_law(hit) and provision[0] not in governing_acts and not general:
+            to_read.setdefault(provision, reranker_excerpt(str(hit.payload.get("text") or ""), asked, budget=_EXCERPT_READ))
+    if not to_read:
         return hits
     try:
-        scores = await service.relevance_scores(
-            asked, [str(hit.payload.get("text") or "")[:_RELEVANCE_TEXT_CHARACTERS] for hit in others]
-        )
+        scores = await service.relevance_scores(asked, list(to_read.values()))
     except Exception:  # noqa: BLE001 - this check must never cost an answer
         return hits
-    dropped = {id(hit) for score, hit in zip(scores, others) if score < STATUTE_RELEVANCE_FLOOR}
-    return [hit for hit in hits if id(hit) not in dropped]
+    dropped = {provision for provision, score in zip(to_read, scores) if score < STATUTE_RELEVANCE_FLOOR}
+    return [hit for hit in hits if _is_bridged(hit) or _provision_of(hit) not in dropped]
 
 
 async def _is_off_topic(service, asked: str) -> bool:
