@@ -1,0 +1,33 @@
+# Overlay for one Oracle Always Free ARM server. Use with docker/docker-compose.yml.
+# Only Caddy is reachable from outside. Every other port stays on 127.0.0.1.
+services:
+  backend:
+    environment:
+      APP_ENV: production
+      COOKIE_SECURE: "true"
+      COOKIE_SAMESITE: none
+      TRUSTED_HOSTS: ${PUBLIC_HOST:?set PUBLIC_HOST},localhost,127.0.0.1,backend
+      CORS_ORIGINS: tauri://localhost,http://tauri.localhost,https://${PUBLIC_HOST}
+      # A server has no accelerator, and memory is the limit on 12 GB.
+      EMBEDDING_DEVICE: cpu
+      EXPECT_ACCELERATED_INFERENCE: "false"
+      HF_HUB_OFFLINE: "1"
+
+  caddy:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    depends_on:
+      - backend
+    command: caddy reverse-proxy --from ${PUBLIC_HOST} --to backend:8000
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - legal_rag_network
+
+volumes:
+  caddy_data:
+  caddy_config:

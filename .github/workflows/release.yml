@@ -46,6 +46,7 @@ jobs:
       LEGAL_KB_ROOT: data/legal_kb
       JOB_WORKER_ENABLED: "false"
       WARM_QUERY_MODELS_ON_STARTUP: "false"
+      HF_HOME: ${{ github.workspace }}/.hf-cache
     steps:
       - name: Check out source
         uses: actions/checkout@v7
@@ -78,6 +79,17 @@ jobs:
       - name: Apply database migrations
         run: python -m alembic upgrade head
         working-directory: backend
+
+      - name: Create Qdrant collections
+        # The cross-tenant tests index evidence into the private collections.
+        run: python -m app.ingestion.init_qdrant
+        working-directory: backend
+
+      - name: Cache the embedding model
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.hf-cache
+          key: hf-bge-m3-${{ runner.os }}
 
       - name: Initialize S3-compatible storage buckets
         run: python -m app.ingestion.init_storage
