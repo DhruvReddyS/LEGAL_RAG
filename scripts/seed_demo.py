@@ -85,6 +85,18 @@ def _consent(client: httpx.Client, headers: dict[str, str]) -> None:
         client.post("/account/consent", json={"notice_version": consent.get("current_version")}, headers=headers)
 
 
+def _clear_earlier_warmups(client: httpx.Client, tokens: dict[str, dict[str, str]]) -> None:
+    """Each start asks these again, and the earlier chats filled the history with repeats."""
+    questions = {question for _, question in WARM}
+    for headers in tokens.values():
+        listed = client.get("/chat/sessions", headers=headers)
+        body = listed.json() if listed.status_code == 200 else []
+        sessions = body.get("sessions", []) if isinstance(body, dict) else body
+        for session in sessions:
+            if session.get("title") in questions and not session.get("case_id"):
+                client.delete(f"/chat/sessions/{session['id']}", headers=headers)
+
+
 def _wait_for(client: httpx.Client, headers: dict[str, str], job_id: str, limit: float = 180) -> str:
     deadline = time.monotonic() + limit
     while time.monotonic() < deadline:
@@ -184,6 +196,7 @@ def main() -> int:
         advocate_case = _seed_case(client, tokens["advocate"], ADVOCATE_CASE, ADVOCATE_FILES)
         _record_advocate_dates(client, tokens["advocate"], advocate_case)
         print("Warming demo questions")
+        _clear_earlier_warmups(client, tokens)
         failures = 0
         for role, question in WARM:
             started = time.perf_counter()

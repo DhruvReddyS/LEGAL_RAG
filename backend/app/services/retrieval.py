@@ -307,6 +307,14 @@ _ACT_NAME_FRAGMENTS = {
     "CPA": "Consumer Protection Act",
     "SCST": "Prevention of Atrocities",
     "NIA": "Negotiable Instruments Act",
+    "COI": "Constitution of India",
+    "POCSO": "Protection of Children from Sexual",
+    "ARMS": "Arms Act",
+    "JJ": "Juvenile Justice",
+    "ICA": "Contract Act",
+    "RTI": "Right to Information",
+    "HMA": "Hindu Marriage Act",
+    "LSA": "Legal Services Authorities",
 }
 
 

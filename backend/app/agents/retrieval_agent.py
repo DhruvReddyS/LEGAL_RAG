@@ -26,6 +26,7 @@ from app.services.pipeline_telemetry import append_stage_metric, text_size
 
 LOW_RERANKER_SCORE_FALLBACK_THRESHOLD = 0.15
 _EXCERPT_READ = 900
+_CASE_TEXT_FOR_CONCEPTS = 400
 _ACT_AND_YEAR = re.compile(r"((?:(?!The\s)[A-Z][\w'-]*\s+(?:of\s+|and\s+)?)+Act),\s*((?:18|19|20)\d\d)")
 _REPLACED_GENERAL_LAW = re.compile(r"code of criminal procedure|penal code|evidence act", re.IGNORECASE)
 TOPIC_ANCHOR_MIN_COVERAGE = 0.5
@@ -192,6 +193,16 @@ def _without_the_act_it_replaced(asked: str, hits: list) -> list:
         )
 
     return [hit for hit in hits if not replaced(hit)] if governing else hits
+
+
+def _what_the_files_name(hits: list) -> str:
+    """In a case, the files can name what a question only points at.
+
+    "What is the accused charged with?" never says theft, and reached only the BNSS
+    definitions, so the answer said the BNSS defines theft. Empty outside a case.
+    """
+    opening = (str(hit.payload.get("text") or "")[:_CASE_TEXT_FOR_CONCEPTS] for hit in hits if hit.payload.get("case_id"))
+    return " ".join(opening)[: _CASE_TEXT_FOR_CONCEPTS * 2]
 
 
 async def _is_off_topic(service, asked: str) -> bool:
@@ -520,7 +531,7 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
         followed = await service.fetch_followed_provisions(
             hits,
             target=targets[0],
-            query=str(state.get("query") or query),
+            query=" ".join(filter(None, (str(state.get("query") or query), _what_the_files_name(hits)))),
         )
     except Exception:  # noqa: BLE001 - a failed lookup must not cost the
         # answer; what retrieval found on its merits still stands.

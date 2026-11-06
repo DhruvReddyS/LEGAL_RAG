@@ -415,6 +415,49 @@ _AGREEMENT_WINDOW = 8
 _AGREEMENT_SECTIONS = 3
 
 
+_SAME_TEXT = 0.5
+_TEXT_COMPARED = 400
+
+
+def _opening_words(hit: object) -> set[str]:
+    return set(re.findall(r"[a-z]{3,}", str(getattr(hit, "payload").get("text") or "")[:_TEXT_COMPARED].casefold()))
+
+
+def _properly_named(hit: object) -> bool:
+    return bool(re.search(r"\bact\b|sanhita|adhiniyam|constitution|code", str(getattr(hit, "payload").get("act_name") or ""), re.I))
+
+
+def distinct_provisions(hits: list) -> list:
+    """One copy of each section, in the place of the first, under the better name.
+
+    The corpus holds two editions of many Acts, under different names ("Rti 2005" and "The
+    Right to Information Act"), so names cannot say they are the same law. Their words can.
+    A copy took a place that the next section should have had: the top two for "how long
+    does a public authority have to answer" were s.6 and s.6, and the answer is s.7. Each
+    claim was also verified once per copy. Chunks of one long section differ in their words
+    and stay, and so does anything with no section.
+    """
+    kept: list = []
+    seen: dict[str, list[tuple[set[str], int]]] = {}
+    for hit in hits:
+        section = str(getattr(hit, "payload").get("section") or "").strip().casefold()
+        if not section or not _is_primary_law(hit):
+            kept.append(hit)
+            continue
+        words = _opening_words(hit)
+        earlier = seen.setdefault(section, [])
+        same = next(
+            (place for other, place in earlier if len(words & other) / max(len(words | other), 1) >= _SAME_TEXT),
+            None,
+        )
+        if same is None:
+            earlier.append((words, len(kept)))
+            kept.append(hit)
+        elif _properly_named(hit) and not _properly_named(kept[same]):
+            kept[same] = hit
+    return kept
+
+
 def act_the_results_agree_on(hits: list) -> list:
     """The best sections of the Act most results come from, if one stands out.
 
@@ -459,7 +502,7 @@ async def governing_statutes(
     The word gate stays as the fallback, so losing the reranker returns this to what
     it did before rather than to nothing.
     """
-    primary = [hit for hit in hits if _is_primary_law(hit)]
+    primary = distinct_provisions([hit for hit in hits if _is_primary_law(hit)])
     if not primary or asks_about_foreign_law(query):
         return [], frozenset()
     by_words = publishable_hits(
@@ -534,19 +577,27 @@ def shown_to_the_reader(
         if hit.payload.get("retrieval_enrichment_relation") != "implementation_bridge"
     ]
     placed = {str(hit.payload.get("chunk_id")) for hit in [*followed, *statutes]}
-    return _select_diverse_hits(
+    # Sections chosen for the question all stay: two sections of one Act are not padding,
+    # and with its second edition gone s.34 was dropped for sharing a document with s.35.
+    chosen = distinct_provisions([*bridged, *statutes])[:limit]
+    rest = distinct_provisions(
         [
-            *bridged,
-            *statutes,
+            *chosen,
             *forwarded,
             *(
                 hit
                 for hit in ranked_relevant
                 if str(hit.payload.get("chunk_id")) not in placed | ruled_out
             ),
-        ],
-        limit,
-    )
+        ]
+    )[len(chosen):]
+    held = {_document_key(hit) for hit in chosen}
+    return [
+        *chosen,
+        *_select_diverse_hits(
+            [hit for hit in rest if _document_key(hit) not in held], limit - len(chosen)
+        ),
+    ][:limit]
 
 
 def _select_diverse_hits(hits: list, limit: int) -> list:

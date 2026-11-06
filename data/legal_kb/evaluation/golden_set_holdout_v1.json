@@ -1,0 +1,414 @@
+{
+ "version": "holdout-v1",
+ "created": "2026-11-06",
+ "notes": "Held out from golden set v4 and never tuned against. Written from the statutes; each section read in the corpus. Reported separately. Not lawyer reviewed.",
+ "items": [
+  {
+   "id": "h-extortion",
+   "question": "A man says he will hurt my family unless I pay him money. What offence is this?",
+   "role": "citizen",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nyaya sanhita",
+     "section": "308"
+    }
+   ]
+  },
+  {
+   "id": "h-stalking",
+   "question": "A man keeps following me and sending messages though I told him to stop. Is that a crime?",
+   "role": "citizen",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nyaya sanhita",
+     "section": "78"
+    }
+   ]
+  },
+  {
+   "id": "h-cruelty",
+   "question": "My husband and in-laws treat me cruelly and demand more dowry. What law punishes this?",
+   "role": "citizen",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    }
+   ]
+  },
+  {
+   "id": "h-rash-death",
+   "question": "What is the punishment for causing death by rash and negligent driving?",
+   "role": "citizen",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nyaya sanhita",
+     "section": "106"
+    }
+   ]
+  },
+  {
+   "id": "h-murder",
+   "question": "What is the punishment for murder?",
+   "role": "police",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nyaya sanhita",
+     "section": "103"
+    }
+   ]
+  },
+  {
+   "id": "h-maint-wife",
+   "question": "Can a wife with no income ask a magistrate to order her husband to support her?",
+   "role": "citizen",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    }
+   ]
+  },
+  {
+   "id": "h-confession",
+   "question": "Can a confession made to a police officer be proved against the accused?",
+   "role": "advocate",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "sakshya adhiniyam",
+     "section": "23"
+    }
+   ]
+  },
+  {
+   "id": "h-spouse",
+   "question": "Can a person be made to disclose what their spouse told them during the marriage?",
+   "role": "advocate",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "sakshya adhiniyam",
+     "section": "128"
+    }
+   ]
+  },
+  {
+   "id": "h-client",
+   "question": "Can my lawyer be forced to reveal what I told them in confidence?",
+   "role": "citizen",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "sakshya adhiniyam",
+     "section": "132"
+    }
+   ]
+  },
+  {
+   "id": "h-art20",
+   "question": "Can I be forced to give evidence against myself?",
+   "role": "citizen",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "constitution of india",
+     "section": "20"
+    }
+   ]
+  },
+  {
+   "id": "h-art17",
+   "question": "Is untouchability still allowed in India?",
+   "role": "citizen",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "constitution of india",
+     "section": "17"
+    }
+   ]
+  },
+  {
+   "id": "h-art21a",
+   "question": "Does a child have a right to free education?",
+   "role": "citizen",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "constitution of india",
+     "section": "21A"
+    }
+   ]
+  },
+  {
+   "id": "h-art226",
+   "question": "Which article allows a High Court to issue writs?",
+   "role": "advocate",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "constitution of india",
+     "section": "226"
+    }
+   ]
+  },
+  {
+   "id": "h-rti-penalty",
+   "question": "What penalty can an information officer face for refusing to give information?",
+   "role": "citizen",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "right to information",
+     "section": "20"
+    }
+   ]
+  },
+  {
+   "id": "h-rti-exempt",
+   "question": "What kinds of information can the government refuse to disclose under RTI?",
+   "role": "citizen",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "right to information",
+     "section": "8"
+    }
+   ]
+  },
+  {
+   "id": "h-consumer-limit",
+   "question": "How long do I have to file a consumer complaint?",
+   "role": "citizen",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "consumer protection",
+     "section": "69"
+    }
+   ]
+  },
+  {
+   "id": "h-min-wage",
+   "question": "Who fixes the minimum rate of wages?",
+   "role": "citizen",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "code on wages",
+     "section": "6"
+    }
+   ]
+  },
+  {
+   "id": "h-hma-void",
+   "question": "Is a second marriage valid while the first spouse is alive, for Hindus?",
+   "role": "citizen",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage",
+     "section": "11"
+    }
+   ]
+  },
+  {
+   "id": "h-hma-divorce",
+   "question": "What are the grounds for divorce for a Hindu couple?",
+   "role": "citizen",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage",
+     "section": "13"
+    }
+   ]
+  },
+  {
+   "id": "h-hma-mutual",
+   "question": "How can a Hindu husband and wife divorce by mutual consent?",
+   "role": "citizen",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage",
+     "section": "13B"
+    }
+   ]
+  },
+  {
+   "id": "h-minor-contract",
+   "question": "Who is competent to enter into a contract? Can a minor?",
+   "role": "citizen",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "contract act",
+     "section": "11"
+    }
+   ]
+  },
+  {
+   "id": "h-dv-protection",
+   "question": "What protection order can a magistrate give a woman facing domestic violence?",
+   "role": "citizen",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "domestic violence",
+     "section": "18"
+    }
+   ]
+  },
+  {
+   "id": "h-posh",
+   "question": "How does a woman complain about sexual harassment at her workplace?",
+   "role": "citizen",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "sexual harassment",
+     "section": "9"
+    }
+   ]
+  },
+  {
+   "id": "h-drunk",
+   "question": "What is the penalty for driving under the influence of alcohol?",
+   "role": "police",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "motor vehicles",
+     "section": "185"
+    }
+   ]
+  },
+  {
+   "id": "h-obscene",
+   "question": "What is the punishment for publishing obscene material online?",
+   "role": "police",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "information technology",
+     "section": "67"
+    }
+   ]
+  },
+  {
+   "id": "h-identity",
+   "question": "Someone used my password and pretended to be me online. What offence is it?",
+   "role": "citizen",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "information technology",
+     "section": "66C"
+    }
+   ]
+  },
+  {
+   "id": "h-registration",
+   "question": "Which documents must be compulsorily registered when buying land?",
+   "role": "citizen",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "registration act",
+     "section": "17"
+    }
+   ]
+  },
+  {
+   "id": "h-will",
+   "question": "How must a will be signed and witnessed?",
+   "role": "citizen",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "succession act",
+     "section": "63"
+    }
+   ]
+  },
+  {
+   "id": "h-bribe",
+   "question": "What is the offence when a public servant takes a bribe?",
+   "role": "police",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "prevention of corruption",
+     "section": "7"
+    }
+   ]
+  },
+  {
+   "id": "h-proclaimed",
+   "question": "When can the property of an absconding person be attached by the court?",
+   "role": "police",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nagarik suraksha",
+     "section": "85"
+    }
+   ]
+  },
+  {
+   "id": "h-summons-refuse",
+   "question": "Must a police officer tell a person why they are being arrested and that they can have a lawyer?",
+   "role": "police",
+   "topic": "holdout",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nagarik suraksha",
+     "section": "47"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "38"
+    }
+   ]
+  }
+ ]
+}

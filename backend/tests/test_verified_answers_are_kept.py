@@ -7,6 +7,7 @@ from types import SimpleNamespace
 import pytest
 
 from app.agents import retrieval_agent
+from app.services.fast_research import distinct_provisions, shown_to_the_reader
 from app.agents.orchestrator import LegalRAGWorkflow
 from app.agents.reasoning_agent import format_evidence
 from app.agents.response_generation import _correct_act_names, _renumbered_lines
@@ -168,6 +169,67 @@ def _scoring(*scores: float) -> SimpleNamespace:
         return list(scores)
 
     return SimpleNamespace(relevance_scores=relevance_scores, calls=calls)
+
+
+def _copy(chunk: str, act: str, text: str, section: str = "6") -> SimpleNamespace:
+    hit = _statute(chunk, act=act, section=section)
+    hit.payload["text"] = text
+    return hit
+
+
+RTI_6 = "6. Request for obtaining information. A person who desires to obtain any information under this Act"
+RTI_7 = "7. Disposal of request. The Central Public Information Officer shall within thirty days of the receipt"
+
+
+def test_a_second_edition_of_a_section_gives_way_to_the_next_section() -> None:
+    first, copy, next_section = (
+        _copy("a", "The Right to Information Act, 2005", RTI_6),
+        _copy("b", "Rti 2005", "6. (1) " + RTI_6[3:]),
+        _copy("c", "The Right to Information Act, 2005", RTI_7, section="7"),
+    )
+    assert distinct_provisions([first, copy, next_section]) == [first, next_section]
+
+
+def test_the_properly_named_copy_is_kept_in_the_first_place() -> None:
+    poor, good = _copy("a", "Rti 2005", RTI_6), _copy("b", "The Right to Information Act, 2005", RTI_6)
+    assert distinct_provisions([poor, good]) == [good]
+
+
+def test_the_same_number_in_another_act_is_a_different_provision() -> None:
+    hits = [_copy("a", "An Act", RTI_6), _copy("b", "Other Act", "6. Duties of the licensing authority upon a vehicle")]
+    assert distinct_provisions(hits) == hits
+
+
+def test_two_chunks_of_one_long_section_both_stay() -> None:
+    hits = [_copy("a", "An Act", RTI_6), _copy("b", "An Act", "continued proviso regarding fees and persons below poverty line")]
+    assert distinct_provisions(hits) == hits
+
+
+def test_material_with_no_section_is_not_compared() -> None:
+    hits = [_copy("a", "A", RTI_6, section=""), _copy("b", "A", RTI_6, section="")]
+    assert distinct_provisions(hits) == hits
+
+
+def test_outside_a_case_no_file_text_reaches_the_concepts() -> None:
+    assert retrieval_agent._what_the_files_name([_statute("law")]) == ""
+
+
+def test_in_a_case_the_files_can_name_the_offence() -> None:
+    case_file = _hit("file")
+    case_file.payload.update(case_id="c1", text="Alleged offence: theft of a motorcycle.")
+    assert "theft" in retrieval_agent._what_the_files_name([_statute("law"), case_file])
+
+
+def test_two_chosen_sections_of_one_act_both_show() -> None:
+    first, second = _statute("s35", "implementation_bridge", section="35"), _statute("s34", "implementation_bridge", section="34")
+    first.payload.update(document_id="one-act", text="35. A complaint may be filed with a District Commission")
+    second.payload.update(document_id="one-act", text="34. The District Commission shall have jurisdiction over value")
+    assert shown_to_the_reader([], [first, second], [], limit=4) == [first, second]
+
+
+def test_a_stated_limit_on_what_is_shown_still_holds() -> None:
+    hits = [_copy(str(index), "An Act", f"{index}. unique words number {index} about subject {index * 7}", section=str(index)) for index in range(6)]
+    assert len(shown_to_the_reader(hits, [], [], limit=4)) <= 4
 
 
 def _consumer() -> SimpleNamespace:

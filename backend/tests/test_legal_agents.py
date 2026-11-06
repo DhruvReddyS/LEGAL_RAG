@@ -76,7 +76,7 @@ def test_response_generation_maps_only_retrieved_markers() -> None:
         }
     )
     assert result["final_answer"].startswith(
-        "## Why this is the legal position\n\n- The proposition applies [Source 1]."
+        "## Direct answer\n\nThe proposition applies [Source 1]."
     )
     assert "Legal decision-support information" in result["final_answer"]
     assert "## Source currency" in result["final_answer"]
@@ -279,6 +279,28 @@ def test_response_generation_never_publishes_superseded_authority() -> None:
     )
     assert result["citations"] == []
     assert "could not find enough reliable support" in result["final_answer"]
+
+
+def test_an_answer_whose_lead_was_rejected_still_opens_with_a_verified_statement() -> None:
+    result = response_generation_node(
+        {
+            "role": "citizen",
+            "retrieved_chunks": [_hit()],
+            "verification_result": VerificationResult(
+                score=0.5,
+                supported_claims=1,
+                total_claims=2,
+                claims=[
+                    ClaimVerification(claim="The rejected lead", chunk_id="chunk-1", category="direct_answer", verdict="no"),
+                    ClaimVerification(claim="The verified rule", chunk_id="chunk-1", category="legal_basis", verdict="yes"),
+                ],
+            ),
+            "agent_trace": [],
+        }
+    )
+    answer = result["final_answer"]
+    assert answer.startswith("## Direct answer")
+    assert "The verified rule" in answer and "The rejected lead" not in answer
 
 
 def test_citation_status_keeps_strongest_verdict_for_shared_chunk() -> None:

@@ -166,6 +166,16 @@ def response_generation_node(state: dict) -> dict:
             for chunk_id in chunk_ids:
                 if chunk_id not in sources_by_category[category]:
                     sources_by_category[category].append(chunk_id)
+        # Verified statements only, none written here: when the lead claim is rejected the
+        # reader should still be told the answer first, not start at "Why this is the position".
+        if not supported_by_category["direct_answer"]:
+            for category in ("legal_basis", "application"):
+                if supported_by_category[category]:
+                    supported_by_category["direct_answer"].append(supported_by_category[category].pop(0))
+                    claims_by_category["direct_answer"] += 1
+                    claims_by_category[category] -= 1
+                    sources_by_category["direct_answer"] = list(sources_by_category[category])
+                    break
         sections: list[str] = []
         for category, label in section_labels.items():
             claims = supported_by_category[category]

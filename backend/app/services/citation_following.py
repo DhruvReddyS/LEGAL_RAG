@@ -205,6 +205,99 @@ _CONCEPTS: tuple[_Concept, ...] = (
         ),
     ),
     _Concept("BNS", "356", "defamation implementation", all_of=(("defam",),)),
+    # Each read in the corpus. These are how people ask, not section titles: a lay question
+    # about any of them shares too few words with the section to rank it.
+    _Concept(
+        "BNS", "356", "harm-to-reputation implementation",
+        all_of=(("reputation",), ("false", "lie", "lies", "rumour", "rumor", "statement", "post", "said")),
+    ),
+    _Concept("BNS", "4", "community-service implementation", all_of=(("community service",),)),
+    # A question that names the article reaches it already.
+    _Concept(
+        "COI", "14", "equality-before-law implementation",
+        all_of=(("equal treatment", "treated equally", "equal protection", "equality before"),),
+        none_of=(("article", "pay", "salary", "wages"),),
+    ),
+    _Concept(
+        "BNSS", "48", "informing-relatives implementation",
+        all_of=(
+            ("arrest",),
+            ("tell", "inform", "notify", "intimat"),
+            ("family", "relative", "brother", "sister", "wife", "husband", "mother", "father", "son",
+             "daughter", "friend", "nominated"),
+        ),
+    ),
+    _Concept(
+        "BNSS", "478", "bailable-offence implementation",
+        all_of=(("bailable",),),
+        none_of=(("non bailable", "nonbailable", "anticipat", "default"),),
+    ),
+    _Concept(
+        "POCSO", "19", "child-abuse-reporting implementation",
+        all_of=(
+            ("report", "inform", "tell the police"),
+            ("child", "minor", "pocso"),
+            ("sexual", "molest", "child abuse", "abused a child"),
+        ),
+    ),
+    _Concept(
+        "SCST", "3", "atrocity-offences implementation",
+        all_of=(
+            ("atrocit", "scheduled caste", "scheduled tribe", "dalit", "caste abuse", "caste insult"),
+            ("protect", "punish", "offence", "offense", "crime", "abuse", "insult", "humiliat"),
+        ),
+        none_of=(("court", "tried", "tries", "trial", "reservation", "certificate", "scholarship"),),
+    ),
+    _Concept(
+        "ARMS", "13", "firearm-licence implementation",
+        all_of=(("firearm", "gun", "pistol", "revolver", "rifle", "arms licen"), ("licen",)),
+        none_of=(("cancel", "revok", "without a licen", "without licen"),),
+    ),
+    _Concept(
+        "JJ", "31", "child-in-need-of-care implementation",
+        all_of=(("care and protection", "abandoned child", "orphan", "lost child"),),
+    ),
+    _Concept(
+        "ICA", "10", "valid-contract implementation",
+        all_of=(("contract", "agreement"), ("valid", "essential", "enforceable", "binding")),
+        none_of=(("rent", "employment", "void", "minor", "government"),),
+    ),
+    _Concept(
+        "CPA", "34", "consumer-forum implementation",
+        all_of=(
+            ("consumer",),
+            ("where", "which forum", "which commission", "jurisdiction", "what forum", "small amount", "worth"),
+        ),
+    ),
+    _Concept(
+        "RTI", "7", "information-request-time implementation",
+        all_of=(
+            ("rti", "right to information", "public authority", "information officer", "information request"),
+            ("how long", "time limit", "how many days", "within how", "how soon"),
+        ),
+    ),
+    _Concept(
+        "RTI", "19", "information-appeal implementation",
+        all_of=(
+            ("rti", "right to information", "public authority", "information officer", "information request"),
+            ("appeal", "what can i do", "what do i do", "what next", "no reply", "not answered", "no response"),
+        ),
+    ),
+    _Concept(
+        "HMA", "24", "interim-maintenance implementation",
+        all_of=(
+            ("maintenance", "alimony"),
+            ("divorce", "matrimonial"),
+            ("while", "during", "pending", "interim", "until"),
+        ),
+    ),
+    _Concept(
+        "LSA", "12", "free-legal-aid implementation",
+        all_of=(
+            ("afford", "free", "poor", "no money", "cannot pay", "can't pay"),
+            ("lawyer", "advocate", "legal aid", "legal help", "legal services"),
+        ),
+    ),
     _Concept("BNS", "318", "cheating implementation", all_of=(("cheat", "tricked me", "duped"),), none_of=(("exam",),)),
     # Special Acts each have their own "search without warrant" power and outrank the
     # general one, so a person asking about their house got the Immoral Traffic Act.
@@ -250,9 +343,16 @@ def _normalise(query: str) -> str:
     return " ".join(re.sub(r"[-_/]", " ", str(query or "").lower()).split())
 
 
+# Too short to be prefixes. "fir" matched "fire", "firm", "first" and "firearm", which put the
+# FIR section in front of a gun licence and a "first spouse" question.
+_WHOLE_WORDS_ONLY = frozenset({"fir", "sho", "son", "rti", "lie", "law"})
+
+
 def _present(term: str, text: str, words: tuple[str, ...]) -> bool:
     if " " in term:
         return term in text
+    if term in _WHOLE_WORDS_ONLY:
+        return term in words or f"{term}s" in words
     return any(word.startswith(term) for word in words)
 
 

@@ -332,6 +332,63 @@ class TestTheLaneUsesIt:
 @pytest.mark.parametrize(
     "question",
     [
+        "Can my company fire me for a false statement in my resume?",
+        "How is a licence for a firearm obtained?",
+        "Is a second marriage valid while the first spouse is alive?",
+        "The firm should not have charged me twice",
+    ],
+)
+def test_words_that_only_begin_like_fir_are_not_about_an_fir(question: str) -> None:
+    assert ("BNSS", "173") not in [(item.code, item.section) for item in implementation_provisions_for_query(question)]
+
+
+@pytest.mark.parametrize("question", ["How do I file an FIR?", "The police refuse to register my FIR", "How many FIRs can be filed?"])
+def test_an_fir_is_still_an_fir(question: str) -> None:
+    assert ("BNSS", "173") in [(item.code, item.section) for item in implementation_provisions_for_query(question)]
+
+
+@pytest.mark.parametrize(
+    "code, section, question",
+    [
+        ("BNS", "356", "He posted lies about me and ruined my reputation online"),
+        ("COI", "14", "Am I entitled to be treated equally by the government?"),
+        ("BNSS", "48", "Police arrested my husband, must they inform the family?"),
+        ("BNSS", "478", "Can bail be refused for a bailable offence?"),
+        ("POCSO", "19", "Do I have to report child sexual abuse I know about?"),
+        ("ARMS", "13", "How do I apply for a gun licence?"),
+        ("JJ", "31", "I found an abandoned child, who takes care of it?"),
+        ("ICA", "10", "What makes an agreement a binding contract?"),
+        ("CPA", "34", "Which forum hears a consumer dispute worth 5 lakh?"),
+        ("RTI", "7", "How many days does the information officer get to reply?"),
+        ("RTI", "19", "My RTI was rejected, can I appeal?"),
+        ("HMA", "24", "Can I get interim maintenance while the divorce is pending?"),
+        ("LSA", "12", "I am poor, can I get a free lawyer?"),
+    ],
+)
+def test_plain_questions_reach_their_sections(code: str, section: str, question: str) -> None:
+    assert (code, section) in [(item.code, item.section) for item in implementation_provisions_for_query(question)]
+
+
+@pytest.mark.parametrize(
+    "question",
+    [
+        "Can I get the deposit back from my landlord?",
+        "Is my rent agreement valid without registration?",
+        "Do I have to pay tax on a gift of a gun?",
+        "What is a free trade agreement?",
+        "Is alimony taxed?",
+        "Do men and women get equal pay and equal treatment at work?",
+        "How long does a passport take?",
+        "The company report says the child care fund was abused",
+    ],
+)
+def test_nearby_questions_reach_no_section(question: str) -> None:
+    assert implementation_provisions_for_query(question) == []
+
+
+@pytest.mark.parametrize(
+    "question",
+    [
         "Can the police refuse to register it?",
         "The police will not register my complaint",
         "The officer is not taking my complaint",
