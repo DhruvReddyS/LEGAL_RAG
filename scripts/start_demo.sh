@@ -46,7 +46,8 @@ export LEGAL_KB_ROOT="$ROOT/data/legal_kb" HF_HUB_OFFLINE=1 HF_HOME="$ROOT/data/
 export JOB_WORKER_ENABLED=true WARM_QUERY_MODELS_ON_STARTUP=true
 # One presenter, asking quickly, must not meet the per-user limits meant for a public host.
 export SYNC_DEEP_REQUESTS_PER_MINUTE=30 FAST_REQUESTS_PER_MINUTE=120 JOB_ENQUEUES_PER_MINUTE=60 LLM_SYNC_REQUESTS_PER_MINUTE=30
-export CORS_ORIGINS="http://localhost:$FRONTEND_PORT,http://127.0.0.1:$FRONTEND_PORT"
+# The last two are the installed desktop app on macOS and on Windows.
+export CORS_ORIGINS="http://localhost:$FRONTEND_PORT,http://127.0.0.1:$FRONTEND_PORT,tauri://localhost,http://tauri.localhost"
 
 echo "Bringing the database up to date"
 (cd backend && "$PY" -m alembic upgrade head >"$LOGS/migrate.log" 2>&1) || fail "migration failed: see $LOGS/migrate.log"

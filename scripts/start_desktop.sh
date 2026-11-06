@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 COMPOSE_FILE="${PROJECT_DIR}/docker/docker-compose.yml"
 ENV_FILE="${PROJECT_DIR}/.env"
-APP_PATH="${PROJECT_DIR}/frontend/src-tauri/target/release/bundle/macos/Aegis Legal Intelligence.app"
+APP_PATH="${PROJECT_DIR}/frontend/src-tauri/target/release/bundle/macos/Corpusil.app"
 
 if [[ ! -f "${ENV_FILE}" ]]; then
   echo "Missing ${ENV_FILE}. Copy .env.example to .env and add the required secrets first." >&2

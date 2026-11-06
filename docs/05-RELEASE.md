@@ -14,6 +14,38 @@ The interactive, source-linked diagram is
 ---
 
 
+## Final deployment workflow
+
+Decided 6 November 2026. Corpusil needs a 14B local model, PostgreSQL, Qdrant, MinIO and the
+corpus together, so it does not fit an ordinary free web host, and no data leaves the machine
+that runs it.
+
+| Stage | Where it runs | Who for | State |
+|---|---|---|---|
+| Demo | One Mac: `FRONTEND_PORT=3100 DEMO_PASSWORD=... ./scripts/start_demo.sh --seed` | College evaluation | Ready |
+| Desktop apps | macOS and Windows installers from GitHub Releases, pointed at a backend | Demo and pilot | This release |
+| Private pilot | One strong machine: `./scripts/start_private_demo_host.sh`, reached over Tailscale Serve | Guide, lawyer, a few police and advocate testers | Next |
+| Public website | Static site on an HTTPS host, with a GPU server behind TLS | The public | Only after lawyer review, grievance officer details and signing |
+
+**To ship a version:**
+1. Run `scripts/run_corpus_gates.sh global_legal_corpus_v6 <label>` on the code. All seven pass, or the failure is reported.
+2. Run the backend, red team and frontend suites, and confirm CI on `main`.
+3. Set one version in `frontend/package.json`, its lock file, `frontend/src-tauri/tauri.conf.json`, `Cargo.toml` and `Cargo.lock`. `scripts/check_release_version.py --tag v<version>` checks them.
+4. Push the tag `v<version>`. `.github/workflows/release.yml` tests, builds the three installers and leaves a draft.
+5. Read the draft's assets, try an installer, then publish.
+
+**The apps contain no corpus, model or secrets.** They need a backend. On the machine running the
+backend, the default address works. On another machine, install Tailscale, join the network, and
+enter the printed `https://` address in the app's connection settings.
+
+The installers are not Apple-notarized or Windows Authenticode-signed. macOS and Windows warn on
+first open. Signing certificates are a cost decision for a public release.
+
+Never use Tailscale Funnel or a router port forward: they publish the corpus and other people's
+case material to the open internet.
+
+---
+
 ## 1. Release model
 
 The GitHub Release is a client distribution channel, not a complete hosted service. The release workflow builds signed Tauri installers and updater metadata for macOS and Windows, creates a draft GitHub Release, verifies its artifacts, and intentionally leaves publication as a manual decision.
@@ -37,9 +69,8 @@ A named police or advocate case query searches the global corpus and that role's
 ### Global corpus
 
 - Canonical source PDFs, manifests, and rebuild inputs: host filesystem at `data/legal_kb`, bind-mounted into the backend.
-- Retrieval chunks and embeddings: Qdrant global collection. The validated
-  live fallback is `global_legal_corpus_v4`; `global_legal_corpus_v5` remains
-  a release candidate until every corpus gate passes.
+- Retrieval chunks and embeddings: Qdrant global collection, serving
+  `global_legal_corpus_v6`.
 - Administrator-staged corpus objects: versioned MinIO corpus bucket.
 - The global corpus is rebuildable from the validated source files and manifests and must never be bundled into a public desktop release.
 
