@@ -9,7 +9,8 @@ from app.models import Case, GeneratedDocument
 from app.schemas.documents import DraftAuthority, FIRFacts
 from app.services.llm import OllamaClient
 from app.services.citation_status import citation_labels_for
-from app.services.retrieval import HybridRetrievalService, RetrievalFilters
+from app.ingestion.init_qdrant import GLOBAL_LEGAL_CORPUS
+from app.services.retrieval import HybridRetrievalService, RetrievalFilters, RetrievalTarget
 
 
 FIR_REQUIRED_FIELDS = (
@@ -122,7 +123,9 @@ def render_fir(facts: FIRFacts, authorities: list[DraftAuthority]) -> str:
         return item.strip() if item and item.strip() else "[INFORMATION REQUIRED]"
 
     witness_text = "; ".join(facts.witness_details) or "[INFORMATION REQUIRED, IF ANY]"
-    identification = "; ".join(facts.identification_details) or "[INFORMATION REQUIRED]"
+    identification = (
+        "; ".join(facts.identification_details) or (facts.subject_or_property or "").strip() or "[INFORMATION REQUIRED]"
+    )
     authority_lines = (
         "\n".join(
             f"- {item.title}, section {item.section or 'not identified'}, "
@@ -202,6 +205,23 @@ USER DESCRIPTION:
         except RuntimeError:
             return FIRFacts(narrative=description)
 
+    async def _governing_law(self, hits: list, facts: FIRFacts) -> list:
+        """The sections that govern an FIR on these facts, which a keyword search can rank out."""
+        # "FIR" appears in no statute, so s.173 of the BNSS never ranked for its own draft.
+        asked = f"First information report of an offence. {facts.suspected_offence_or_circumstance or ''} {facts.narrative}"
+        try:
+            found = await self.retrieval.fetch_followed_provisions(
+                hits,
+                target=RetrievalTarget(
+                    collection_name=GLOBAL_LEGAL_CORPUS,
+                    filters=RetrievalFilters(current_only=False, corpus_tiers=["gold", "extended"]),
+                ),
+                query=asked[:4000],
+            )
+        except Exception:  # noqa: BLE001 - the draft still stands on what the search found
+            return []
+        return [hit for hit in found if hit.payload.get("retrieval_enrichment_relation") == "implementation_bridge"]
+
     async def create_fir_draft(
         self, *, case: Case, description: str
     ) -> tuple[GeneratedDocument, FIRFacts, list[str], list[DraftAuthority], str]:
@@ -211,7 +231,7 @@ USER DESCRIPTION:
             await self._extract_facts(description), description
         )
         search_query = (
-            "Indian law police complaint FIR registration cognizable offence missing property "
+            "Indian law police complaint FIR registration cognizable offence "
             f"{facts.suspected_offence_or_circumstance or ''} {facts.narrative}"
         )[:4000]
         hits = await self.retrieval.search(
@@ -225,9 +245,10 @@ USER DESCRIPTION:
         )
         authorities = [
             _draft_authority(hit)
-            for hit in hits
+            for hit in [*await self._governing_law(hits, facts), *hits]
             if hit.payload.get("chunk_id") and hit.payload.get("text")
         ]
+        authorities = list({item.chunk_id: item for item in authorities}.values())[:5]
         missing = missing_fir_fields(facts)
         rendered = render_fir(facts, authorities)
         latest = await self.session.scalar(

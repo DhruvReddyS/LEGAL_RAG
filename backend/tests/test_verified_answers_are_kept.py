@@ -64,7 +64,7 @@ async def test_a_section_read_and_ruled_out_is_named_by_its_act_and_section(monk
     _, _, moot = await retrieval_agent._statutes_for(
         SimpleNamespace(search_statutes=found), "q", "q", [], asyncio.ensure_future(no_terms())
     )
-    assert moot == {("Model Prisons Act", "41")}
+    assert moot == {("model prisons act", "41")}
 
 
 def test_a_question_the_evidence_does_not_address_skips_the_model() -> None:
@@ -140,3 +140,54 @@ def test_no_renumbered_provision_is_left_out_however_many_a_judgment_cites() -> 
         assert f"{old} is now {new[0]}" in lines
     assert lines.splitlines()[0].startswith("- IEA s.3 is now")
     assert len(lines.splitlines()) == 4
+
+
+def test_one_act_filed_under_two_names_is_one_provision() -> None:
+    letter = _hit("a")
+    letter.payload.update(act_name="Model Prisons and Correctional Services Act, 2023 - Letter to States and UTs", section="41")
+    act = _hit("b")
+    act.payload.update(act_name="Model Prisons and Correctional Services Act", section="41")
+    assert retrieval_agent._provision_of(letter) == retrieval_agent._provision_of(act)
+
+
+def _statute(chunk: str, relation: str | None = None) -> SimpleNamespace:
+    hit = _hit(chunk, relation)
+    hit.payload.update(document_type="bare_act", act_name="An Act", text=chunk)
+    return hit
+
+
+def _scoring(*scores: float) -> SimpleNamespace:
+    async def relevance_scores(_query, _texts):
+        return list(scores)
+
+    return SimpleNamespace(relevance_scores=relevance_scores)
+
+
+@pytest.mark.asyncio
+async def test_with_the_governing_section_known_a_statute_that_does_not_answer_goes() -> None:
+    theft, prisons = _statute("s303", "implementation_bridge"), _statute("s41")
+    judgment = _hit("judgment")
+    judgment.payload["document_type"] = "judgment"
+    kept = await retrieval_agent._statutes_that_answer(_scoring(0.002), "q", [theft, prisons, judgment])
+    assert kept == [theft, judgment]
+
+
+@pytest.mark.asyncio
+async def test_a_statute_that_also_answers_stays() -> None:
+    theft, related = _statute("s303", "implementation_bridge"), _statute("s378")
+    assert await retrieval_agent._statutes_that_answer(_scoring(0.8), "q", [theft, related]) == [theft, related]
+
+
+@pytest.mark.asyncio
+async def test_without_a_governing_section_the_list_is_left_alone() -> None:
+    hits = [_statute("a"), _statute("b")]
+    assert await retrieval_agent._statutes_that_answer(_scoring(0.0, 0.0), "q", hits) == hits
+
+
+@pytest.mark.asyncio
+async def test_a_failed_reading_costs_nothing() -> None:
+    async def down(_query, _texts):
+        raise RuntimeError
+
+    hits = [_statute("a", "implementation_bridge"), _statute("b")]
+    assert await retrieval_agent._statutes_that_answer(SimpleNamespace(relevance_scores=down), "q", hits) == hits

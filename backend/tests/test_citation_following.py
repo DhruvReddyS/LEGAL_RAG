@@ -383,6 +383,7 @@ def test_plain_words_reach_the_offence_or_remedy(question: str, expected: tuple[
         ("Can messages on my mobile be used as proof in court?", ("BSA", "63")),
         ("Is a screenshot admissible evidence?", ("BSA", "63")),
         ("Where is a case under the atrocities act tried?", ("SCST", "14")),
+        ("A cheque given to me has bounced. What can I do?", ("NIA", "138")),
     ],
 )
 def test_people_reach_these_sections_by_what_they_call_them(query, expected) -> None:

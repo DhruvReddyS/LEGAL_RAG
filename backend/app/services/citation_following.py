@@ -169,6 +169,10 @@ _CONCEPTS: tuple[_Concept, ...] = (
         ),
         none_of=(("stolen", "stole", "theft", "lost", "snatch"),),
     ),
+    _Concept(
+        "NIA", "138", "dishonoured-cheque implementation",
+        all_of=(("cheque", "check"), ("bounc", "dishonou", "dishonor", "returned unpaid", "insufficient")),
+    ),
     # Read in the corpus: s.14 sets up the Exclusive Special Court these offences go to.
     _Concept(
         "SCST", "14", "atrocities-court implementation",

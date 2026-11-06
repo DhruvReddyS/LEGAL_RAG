@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import re
 from time import perf_counter_ns
 
 from app.schemas.agents import AgentTraceEvent
@@ -10,7 +11,10 @@ from app.services.legal_term_normalization import normalize_legal_terms
 from app.services.fast_research import (
     act_the_results_agree_on,
     governing_statutes,
+    STATUTE_RELEVANCE_FLOOR,
+    _RELEVANCE_TEXT_CHARACTERS,
     _focus_tokens,
+    _is_primary_law,
     _payload_windows,
 )
 from app.ingestion.init_qdrant import ADVOCATE_CASE_DATA, GLOBAL_LEGAL_CORPUS, POLICE_CASE_DATA
@@ -93,8 +97,14 @@ async def _distinctive_terms(service, focus_tokens, target) -> list[str]:
         return []
 
 
+def _is_bridged(hit) -> bool:
+    return hit.payload.get("retrieval_enrichment_relation") == "implementation_bridge"
+
+
 def _provision_of(hit) -> tuple[str, str]:
-    return (str(hit.payload.get("act_name") or ""), str(hit.payload.get("section") or ""))
+    # One Act is filed under several names: "Model Prisons Act, 2023 - Letter to States".
+    act = re.split(r"\s+-\s+|,\s*(?:19|20)\d\d", str(hit.payload.get("act_name") or ""))[0]
+    return (act.strip().casefold(), str(hit.payload.get("section") or ""))
 
 
 async def _statutes_for(service, query: str, asked: str, hits: list, distinctive_task) -> list:
@@ -122,6 +132,28 @@ async def _statutes_for(service, query: str, asked: str, hits: list, distinctive
     moot = frozenset(_provision_of(hit) for hit in found if str(hit.payload.get("chunk_id")) in ruled_out)
     held = {str(hit.payload.get("chunk_id")) for hit in hits}
     return [hit for hit in statutes if str(hit.payload.get("chunk_id")) not in held], bool(statutes), moot
+
+
+async def _statutes_that_answer(service, asked: str, hits: list) -> list:
+    """With the governing section known, other statutes must answer the question themselves.
+
+    The closely read statutes are not always the ones in the list: "someone took my phone"
+    kept s.41 of the Model Prisons Act, which was never read, beside BNS s.303. Judgments
+    stay, because they are often about the law without resembling the question.
+    """
+    if not any(_is_bridged(hit) for hit in hits):
+        return hits
+    others = [hit for hit in hits if _is_primary_law(hit) and not _is_bridged(hit)]
+    if not others:
+        return hits
+    try:
+        scores = await service.relevance_scores(
+            asked, [str(hit.payload.get("text") or "")[:_RELEVANCE_TEXT_CHARACTERS] for hit in others]
+        )
+    except Exception:  # noqa: BLE001 - this check must never cost an answer
+        return hits
+    dropped = {id(hit) for score, hit in zip(scores, others) if score < STATUTE_RELEVANCE_FLOOR}
+    return [hit for hit in hits if id(hit) not in dropped]
 
 
 async def _is_off_topic(service, asked: str) -> bool:
@@ -472,7 +504,7 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
         if _provision_of(hit) not in ruled_out
         or hit.payload.get("retrieval_enrichment_relation") == "implementation_bridge"
     ]
-    hits = kept or hits
+    hits = await _statutes_that_answer(service, asked, kept or hits)
     # First, because the model reads in order and the budget serves earlier passages
     # first. A provision the question itself points at leads: "default bail" appears in
     # no statute, and the Contract Act's "default" outranked s.187 for that question.
