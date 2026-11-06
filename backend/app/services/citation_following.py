@@ -146,6 +146,19 @@ _CONCEPTS: tuple[_Concept, ...] = (
         all_of=(("fir", "first information report", "first information"),),
         none_of=(("quash", "bail", "anticipat"),),
     ),
+    # A refusal rarely says "FIR": "Can the police refuse to register it?" reached BNS s.113,
+    # which is about registering terrorism cases, on the words "register the case".
+    _Concept(
+        "BNSS", "173", "refusal-to-register implementation",
+        all_of=(
+            ("refuse to register", "refused to register", "refusing to register", "refuses to register",
+             "not register", "won't register", "not registering", "refuse to file", "refused to file",
+             "refusing to file", "not taking my complaint", "not accepting my complaint",
+             "refused to take my complaint", "refuse to take my complaint"),
+            ("police", "station", "officer", "sho", "constable", "inspector"),
+        ),
+        none_of=(("company", "marriage", "vehicle", "society", "trademark", "sale deed", "land"),),
+    ),
     _Concept("BNSS", "482", "anticipatory-bail implementation", all_of=(("anticipatory bail", "advance bail", "pre-arrest bail"),)),
     _Concept("BNSS", "193", "final-report implementation", all_of=(("chargesheet", "charge sheet", "final report", "police report"),), none_of=(("bail",),)),
     _Concept("BNSS", "192", "case-diary implementation", all_of=(("case diary", "police diary"),)),

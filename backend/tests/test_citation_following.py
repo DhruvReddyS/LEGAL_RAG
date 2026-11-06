@@ -329,6 +329,32 @@ class TestTheLaneUsesIt:
         )
 
 
+@pytest.mark.parametrize(
+    "question",
+    [
+        "Can the police refuse to register it?",
+        "The police will not register my complaint",
+        "The officer is not taking my complaint",
+        "What if the SHO won't register my case?",
+    ],
+)
+def test_a_police_refusal_to_register_points_at_the_first_information_section(question: str) -> None:
+    assert ("BNSS", "173") in [(item.code, item.section) for item in implementation_provisions_for_query(question)]
+
+
+@pytest.mark.parametrize(
+    "question",
+    [
+        "Can the registrar refuse to register my sale deed?",
+        "Why did the sub-registrar refuse to register the marriage?",
+        "My landlord refused to file the rent agreement",
+        "The police did not register my vehicle properly",
+    ],
+)
+def test_other_refusals_to_register_do_not(question: str) -> None:
+    assert ("BNSS", "173") not in [(item.code, item.section) for item in implementation_provisions_for_query(question)]
+
+
 def test_a_search_without_a_warrant_points_at_the_general_power() -> None:
     from app.services.citation_following import implementation_provisions_for_query
 

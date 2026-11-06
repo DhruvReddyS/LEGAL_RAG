@@ -15,7 +15,7 @@ from typing import Any
 
 from qdrant_client import models
 
-from app.agents.advocate_agents import BriefDraft, ComparisonDraft, DebateDraft, GroundsDraft
+from app.agents.advocate_agents import BriefDraft, ComparisonDraft, DebateDraft, GroundsDraft, SynopsisDraft
 from app.agents.verification_agent import VerificationBatch
 from app.schemas.strategy import DefenceAnalysisDraft
 from app.services.retrieval import RetrievalHit
@@ -226,6 +226,15 @@ class PromptReadingLLM:
             return GroundsDraft.model_validate({"grounds": self._points(passages)})
         if schema is DebateDraft:
             return DebateDraft.model_validate({"arguments": self._points(passages)[:3]})
+        if schema is SynopsisDraft:
+            return SynopsisDraft.model_validate(
+                {
+                    "claims": [
+                        {"text": first_sentence(text), "source_ids": [passage_id], "section": "chronology"}
+                        for passage_id, text in passages
+                    ]
+                }
+            )
         if schema is BriefDraft:
             return BriefDraft.model_validate(
                 {

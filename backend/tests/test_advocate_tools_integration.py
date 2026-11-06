@@ -14,8 +14,10 @@ import pytest
 import pytest_asyncio
 from fastapi.routing import APIRoute
 from httpx import ASGITransport, AsyncClient
+from pydantic import ValidationError
 from sqlalchemy import delete, select
 
+from app.agents.advocate_agents import BriefDraft, Evidence, SynopsisClaim, SynopsisDraft, build_verified_brief
 from app.core.database import AsyncSessionLocal
 from app.models import AdvocateWorkProduct, AuditLog, Case, CaseDocument, Job, JobEvent, MatterCalendarEvent, User
 from app.models.enums import JobStatus
@@ -452,8 +454,44 @@ async def test_a_synopsis_stays_within_its_sections(harness: Harness) -> None:
     await harness.add_case_file(harness.case_id, "On 3 March the FIR was registered.\nThe issue is whether the search was lawful.")
     response = await harness.client.post(f"/cases/{harness.case_id}/advocate/briefs", json={"kind": "synopsis"}, headers=harness.owner)
     content = response.json()["content"]
+    assert content["sections"], "a synopsis of a real file must show something"
     assert {section["key"] for section in content["sections"]} <= {"chronology", "issues", "relief"}
     assert response.json()["kind"] == "synopsis"
+
+
+async def test_a_synopsis_asks_the_model_only_for_sections_it_can_show() -> None:
+    """On one case the model filed all 20 statements under "facts", and the advocate saw nothing."""
+    asked_for: list[type] = []
+
+    async def structured(_prompt: str, schema: type):
+        asked_for.append(schema)
+        return schema()
+
+    llm = SimpleNamespace(structured=structured)
+    await build_verified_brief(llm, kind="synopsis", focus=None, evidence=Evidence())
+    await build_verified_brief(llm, kind="brief", focus=None, evidence=Evidence())
+    assert asked_for[0] is SynopsisDraft and asked_for[1] is BriefDraft
+    with pytest.raises(ValidationError):
+        SynopsisClaim(text="The FIR was registered.", source_ids=[], section="facts")
+
+
+async def test_a_statement_proposed_twice_is_kept_once_and_first() -> None:
+    claim = {"source_ids": [], "section": "chronology"}
+    draft = SynopsisDraft.model_validate(
+        {"claims": [{"text": "First fact.", **claim}, {"text": "Second fact.", **claim}, {"text": " first  FACT. ", **claim}]}
+    )
+    asked: list[list[str]] = []
+
+    async def structured(prompt: str, schema: type):
+        if schema is SynopsisDraft:
+            return draft
+        asked.append(prompt)
+        return schema()
+
+    result = await build_verified_brief(
+        SimpleNamespace(structured=structured), kind="synopsis", focus=None, evidence=Evidence()
+    )
+    assert result["proposed_count"] == 2
 
 
 async def test_a_brief_with_no_documents_says_so(harness: Harness) -> None:
