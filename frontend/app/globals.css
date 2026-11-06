@@ -22,7 +22,7 @@
 .app-shell {min-height:100dvh;background:var(--paper);}
 .app-sidebar {position:fixed;inset:0 auto 0 0;width:236px;padding:29px 16px 16px;display:flex;flex-direction:column;background:var(--sidebar);z-index:40;overflow:hidden;}
 .sidebar-brand,.new-chat-button,.feature-nav,.sidebar-bottom {flex:none;}
-.sidebar-brand {display:flex;align-items:center;justify-content:space-between;padding:0 10px 31px;}.corpusil-wordmark {display:inline-flex;align-items:center;gap:8px;font-family:var(--serif);font-size:23px;font-weight:500;line-height:1;letter-spacing:-.018em;color:var(--ink);white-space:nowrap;}.corpusil-mark {flex:none;color:var(--accent);}
+.sidebar-brand {display:flex;align-items:center;justify-content:space-between;padding:0 10px 31px;}.corpusil-wordmark {display:inline-block;line-height:0;font-size:23px;} .corpusil-wordmark img {display:block;height:1.55em;width:auto;max-width:100%;} .corpusil-logo-cream {display:none !important;} :root[data-theme="ink"] .corpusil-logo-ink, .auth-story .corpusil-logo-ink {display:none !important;} :root[data-theme="ink"] .corpusil-logo-cream, .auth-story .corpusil-logo-cream {display:block !important;}.corpusil-mark {flex:none;color:var(--accent);}
 .new-chat-button {display:flex;align-items:center;gap:11px;padding:10px 13px;border:1px solid var(--border);border-radius:9px;background:transparent;font-size:13px;font-weight:500;}.new-chat-button:hover {background:var(--card);}
 .feature-nav {margin-top:18px;display:grid;gap:3px;}.feature-nav button,.sidebar-bottom button {display:flex;align-items:center;gap:11px;padding:10px 12px;text-align:left;font-size:13px;border-radius:7px;color:var(--ink-soft);transition:background .15s;}
 .feature-nav button:hover,.sidebar-bottom button:hover {background:var(--hover);color:var(--ink);}.feature-nav svg {color:var(--ink-soft);}
@@ -68,7 +68,7 @@
   padding:46px 56px 40px;background:#1b2621;color:#e7ede9;
 }
 @media (max-width:1000px) {.auth-story {display:none;}}
-.auth-story .auth-wordmark {align-self:start;justify-self:start;font-size:24px;color:#e7ede9;}.auth-story .corpusil-mark {color:#8ed3aa;}
+.auth-story .auth-wordmark {align-self:start;justify-self:start;font-size:24px;}
 
 .auth-story-body {align-self:center;max-width:34rem;}
 .auth-story h1 {

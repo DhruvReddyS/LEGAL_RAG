@@ -9,7 +9,7 @@
 /* Navigation */
 .pro-sidebar { position: fixed; inset: 0 auto 0 0; z-index: 40; width: var(--pro-nav-width); display: flex; flex-direction: column; padding: 22px 12px 14px; background: var(--sidebar); border-right: 1px solid var(--border); overflow-y: auto; }
 .pro-brand { display: flex; align-items: center; justify-content: space-between; padding: 0 8px 6px; }
-.pro-brand .corpusil-wordmark { width: 132px; }
+.pro-brand .corpusil-wordmark { width: 150px; }
 .pro-role-chip { align-self: flex-start; margin: 4px 8px 18px; padding: 2px 8px; border-radius: 6px; background: var(--pro-accent-soft); color: var(--pro-accent); font-size: 12px; font-weight: 600; }
 .pro-nav { display: grid; gap: 2px; }
 .pro-nav-item { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 36px; padding: 7px 10px; border-radius: 7px; color: var(--ink-soft); font-size: 13.5px; font-weight: 500; text-align: left; transition: background .12s, color .12s; }

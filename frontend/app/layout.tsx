@@ -12,6 +12,7 @@ import "./citizen.css";
 import "./pro.css";
 import "./answer.css";
 import "./landing.css";
+import "./polish.css";
 const uiFont = DM_Sans({ subsets: ["latin"], variable: "--font-ui", display: "swap" });
 const editorialFont = Newsreader({ subsets: ["latin"], variable: "--font-editorial", display: "swap", adjustFontFallback: false });
 

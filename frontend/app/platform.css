@@ -30,8 +30,8 @@
 .site-open-app {padding:9px 14px;border-radius:9px;background:var(--ink);color:var(--paper);font-size:14px;font-weight:500;white-space:nowrap;}
 .site-open-app:hover {opacity:.86;}
 .site[data-header-tone="cover"] .site-header {background:var(--cover-bg);border-bottom-color:var(--cover-line);}
-.site[data-header-tone="cover"] .corpusil-wordmark {color:var(--cover-ink);}
-.site[data-header-tone="cover"] .corpusil-mark {color:var(--cover-accent);}
+.site[data-header-tone="cover"] .corpusil-logo-ink {display:none !important;}
+.site[data-header-tone="cover"] .corpusil-logo-cream {display:block !important;}
 .site[data-header-tone="cover"] .site-nav a,.site[data-header-tone="cover"] .site-theme {color:var(--cover-soft);}
 .site[data-header-tone="cover"] .site-nav a:hover,.site[data-header-tone="cover"] .site-theme:hover {background:#ffffff14;color:var(--cover-ink);}
 .site[data-header-tone="cover"] .site-open-app {background:var(--cover-ink);color:var(--cover-bg);}
