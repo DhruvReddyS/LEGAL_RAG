@@ -26,6 +26,7 @@ from app.services.pipeline_telemetry import append_stage_metric, text_size
 
 LOW_RERANKER_SCORE_FALLBACK_THRESHOLD = 0.15
 _EXCERPT_READ = 900
+_ACT_AND_YEAR = re.compile(r"((?:(?!The\s)[A-Z][\w'-]*\s+(?:of\s+|and\s+)?)+Act),\s*((?:18|19|20)\d\d)")
 _REPLACED_GENERAL_LAW = re.compile(r"code of criminal procedure|penal code|evidence act", re.IGNORECASE)
 TOPIC_ANCHOR_MIN_COVERAGE = 0.5
 LOW_SCORE_FALLBACK_TERMS = (
@@ -164,6 +165,33 @@ async def _statutes_that_answer(service, asked: str, hits: list) -> list:
         return hits
     dropped = {provision for provision, score in zip(to_read, scores) if score < STATUTE_RELEVANCE_FLOOR}
     return [hit for hit in hits if _is_bridged(hit) or _provision_of(hit) not in dropped]
+
+
+def _without_the_act_it_replaced(asked: str, hits: list) -> list:
+    """With an Act's section governing, its earlier namesake no longer speaks to the question.
+
+    The 2019 Consumer Protection Act's s.35 sat beside commentary on the 1986 Act, and the
+    draft took "up to Rs. 10,000" and "no time limit" from it. Rejected claims went from 2 of
+    20 to 8 of 17. `_provision_of` drops the year, so the old Act also passed as the governing
+    one. Judgments stay, and so does the old Act if the question gives its year.
+    """
+    governing = {}
+    for hit in hits:
+        named = _ACT_AND_YEAR.search(str(hit.payload.get("act_name") or "")) if _is_bridged(hit) else None
+        if named:
+            governing[named[1].casefold()] = max(int(named[2]), governing.get(named[1].casefold(), 0))
+
+    def replaced(hit) -> bool:
+        if _is_bridged(hit) or hit.payload.get("document_type") == "judgment":
+            return False
+        return any(
+            named[1].casefold() in governing
+            and int(named[2]) < governing[named[1].casefold()]
+            and named[2] not in asked
+            for named in _ACT_AND_YEAR.finditer(str(hit.payload.get("title") or ""))
+        )
+
+    return [hit for hit in hits if not replaced(hit)] if governing else hits
 
 
 async def _is_off_topic(service, asked: str) -> bool:
@@ -524,6 +552,7 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
     if bridged or statutes:
         placed = {id(hit) for hit in bridged}
         hits = [*bridged, *statutes, *(hit for hit in hits if id(hit) not in placed)]
+    hits = _without_the_act_it_replaced(asked, hits)
 
     # Collected, not computed: the lookup was dispatched before the search
     # and has been running throughout it. The publication gate needs these

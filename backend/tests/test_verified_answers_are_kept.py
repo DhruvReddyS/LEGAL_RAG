@@ -170,6 +170,63 @@ def _scoring(*scores: float) -> SimpleNamespace:
     return SimpleNamespace(relevance_scores=relevance_scores, calls=calls)
 
 
+def _consumer() -> SimpleNamespace:
+    return _statute("s35", "implementation_bridge", act="The Consumer Protection Act, 2019", section="35")
+
+
+def _titled(chunk: str, title: str, document_type: str = "commentary") -> SimpleNamespace:
+    hit = _hit(chunk)
+    hit.payload.update(document_type=document_type, act_name=title, title=title, section="3", text=chunk)
+    return hit
+
+
+def test_the_act_a_governing_section_replaced_does_not_reach_the_model() -> None:
+    current = _consumer()
+    hits = [
+        current,
+        _titled("old", "The Consumer Protection Act, 1986 (repealed by the Consumer Protection Act, 2019)", "bare_act"),
+        _titled("notes", "Commentary on the Consumer Protection Act, 1986, published by the Commission"),
+    ]
+    assert retrieval_agent._without_the_act_it_replaced("My phone broke", hits) == [current]
+
+
+def test_the_rest_of_the_list_is_not_touched_by_the_earlier_act_rule() -> None:
+    current = _consumer()
+    hits = [
+        current,
+        _statute("same-act", act="The Consumer Protection Act, 2019", section="2"),
+        _titled("other", "The Sale of Goods Act, 1930", "bare_act"),
+        _titled("case", "A v B on the Consumer Protection Act, 1986", "judgment"),
+    ]
+    assert retrieval_agent._without_the_act_it_replaced("My phone broke", hits) == hits
+
+
+def test_asking_about_the_old_act_by_its_year_keeps_it() -> None:
+    hits = [_consumer(), _titled("old", "The Consumer Protection Act, 1986", "bare_act")]
+    assert retrieval_agent._without_the_act_it_replaced("What did the 1986 Act say?", hits) == hits
+
+
+def test_without_a_governing_section_an_older_act_stays() -> None:
+    hits = [
+        _statute("new", act="The Consumer Protection Act, 2019", section="35"),
+        _titled("old", "The Consumer Protection Act, 1986", "bare_act"),
+    ]
+    assert retrieval_agent._without_the_act_it_replaced("My phone broke", hits) == hits
+
+
+def test_an_act_named_only_in_brackets_does_not_match_every_other_act() -> None:
+    hits = [
+        _statute(
+            "sc",
+            "implementation_bridge",
+            act="The Scheduled Castes and the Scheduled Tribes (Prevention of Atrocities) Act, 1989",
+            section="14",
+        ),
+        _titled("other", "The Protection of Civil Rights Act, 1955", "bare_act"),
+    ]
+    assert retrieval_agent._without_the_act_it_replaced("Which court?", hits) == hits
+
+
 @pytest.mark.asyncio
 async def test_with_the_governing_section_known_a_statute_that_does_not_answer_goes() -> None:
     theft, prisons = _theft(), _statute("s41", act="Model Prisons Act", section="41")
