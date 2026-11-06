@@ -1,0 +1,1 @@
+{"status":"ready","api_compatibility":"1","dependencies":{"database":{"status":"ready","duration_ms":18.35},"qdrant":{"status":"ready","duration_ms":16.05,"collections":8},"ollama":{"status":"ready","duration_ms":11.03,"model":"qwen3-14b-16k:latest"}},"inference":{"embedding":"mps","reranking":"mps"}}

@@ -37,8 +37,8 @@ set**, backed by automatic abstention and visible uncertainty outside it.
 
 | | |
 |---|---|
-| Backend tests | **2,785** plus 37 red team, passing on the isolated stack, 5 November 2026 |
-| Frontend tests | 334 unit, 149 browser (Playwright, mocked backend) |
+| Backend tests | **2,881** plus 37 red team, passing on the isolated stack, 6 November 2026 |
+| Frontend tests | 345 unit, 164 browser (Playwright, mocked backend) |
 | API endpoints | 58 across 16 routers |
 | Corpus | 1,596 rows / **1,593 unique documents** / 56,290 pages / 86,127 passages |
 | Judgments | **93** (79 Supreme Court, 14 AP High Court) |
@@ -55,9 +55,9 @@ On v6, 5 November 2026, on an M-series host with the 14B model:
 
 | | Fast | Deep |
 |---|---|---|
-| p50 | **0.55 s** | 47.9 s |
-| p95 | 1.17 s | 59.1 s |
-| First useful output, p95 | as above | 7.1 s |
+| p50 | **0.45 s** | 42.7 s |
+| p95 | 1.29 s | 59.0 s |
+| First useful output, p95 | as above | 4.1 s |
 
 Fast takes longer than it did because it now reads the top Acts closely. That took the
 governing section shown from 39 to 67 of 94 questions, which was worth the half second.
@@ -67,8 +67,8 @@ governing section shown from 39 to 67 of 94 questions, which was worth the half 
 | Governing section shown, Fast | 67 of 94 |
 | Should-refuse questions refused | 8 of 8 |
 | Currency correct, Deep | 1.000 |
-| Abstention correct, Deep | 0.931 |
-| Ground coverage, Deep | 0.540 |
+| Abstention correct, Deep | 1.000 |
+| Ground coverage, Deep (10 scored items only) | 0.618 |
 | Unsupported published claims | 0 |
 
 ---
