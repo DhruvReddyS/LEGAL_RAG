@@ -142,6 +142,7 @@ export function CorpusilThinking({ deep = true, stageLabel, progress, startedAt,
     </div>
     {deep && typeof progress === "number" && <div className="thinking-progress" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label={t("deepProgress")}><span style={{ width: `${Math.max(2, progress)}%` }} /></div>}
     {current < 0 && stageLabel && <p className="stages-queue" aria-hidden="true">{stageLabel}</p>}
+    {!deep && elapsed >= 8 && <p className="stages-queue" role="status">{t("stageLonger")}</p>}
     <ol className="stages-list" aria-hidden="true">
       {steps.map((step, index) => {
         const state = current < 0 ? "pending" : index < current ? "done" : index === current ? "active" : "pending";

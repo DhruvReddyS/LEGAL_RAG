@@ -93,6 +93,10 @@ async def _distinctive_terms(service, focus_tokens, target) -> list[str]:
         return []
 
 
+def _provision_of(hit) -> tuple[str, str]:
+    return (str(hit.payload.get("act_name") or ""), str(hit.payload.get("section") or ""))
+
+
 async def _statutes_for(service, query: str, asked: str, hits: list, distinctive_task) -> list:
     """Primary law not already in hand, and whether any was confirmed at all.
 
@@ -102,7 +106,7 @@ async def _statutes_for(service, query: str, asked: str, hits: list, distinctive
     """
     try:
         found = await service.search_statutes(query, collection=GLOBAL_LEGAL_CORPUS)
-        statutes, _ = await governing_statutes(
+        statutes, ruled_out = await governing_statutes(
             service,
             found,
             query=asked,
@@ -113,9 +117,11 @@ async def _statutes_for(service, query: str, asked: str, hits: list, distinctive
             [] if asks_about_foreign_law(asked) else act_the_results_agree_on(found)
         )
     except Exception:  # noqa: BLE001 - also covers services without this method
-        return [], False
+        return [], False, frozenset()
+    # By its Act and section: a long section is several chunks, and only some were read.
+    moot = frozenset(_provision_of(hit) for hit in found if str(hit.payload.get("chunk_id")) in ruled_out)
     held = {str(hit.payload.get("chunk_id")) for hit in hits}
-    return [hit for hit in statutes if str(hit.payload.get("chunk_id")) not in held], bool(statutes)
+    return [hit for hit in statutes if str(hit.payload.get("chunk_id")) not in held], bool(statutes), moot
 
 
 async def _is_off_topic(service, asked: str) -> bool:
@@ -453,9 +459,20 @@ async def retrieval_node(state: dict, service: HybridRetrievalService) -> dict:
         hits = hits + followed
     # Primary law for the question, which the mixed list can rank out of reach.
     # Appended like followed provisions, and for the same reason.
-    statutes, primary_law_confirmed = await _statutes_for(
+    statutes, primary_law_confirmed, ruled_out = await _statutes_for(
         service, query, asked, hits, distinctive_terms_task
     )
+    # A section read against the question and found not to answer it does not go to the
+    # model. The Fast lane already keeps these out. Here "someone took my phone" produced
+    # a paragraph on phones in prisons, from a section scored 0.005. A question's own
+    # bridged provision always stays, and so does the list if nothing else would remain.
+    kept = [
+        hit
+        for hit in hits
+        if _provision_of(hit) not in ruled_out
+        or hit.payload.get("retrieval_enrichment_relation") == "implementation_bridge"
+    ]
+    hits = kept or hits
     # First, because the model reads in order and the budget serves earlier passages
     # first. A provision the question itself points at leads: "default bail" appears in
     # no statute, and the Contract Act's "default" outranked s.187 for that question.

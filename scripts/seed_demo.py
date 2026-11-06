@@ -13,6 +13,8 @@ answers already held in memory. They last until the API restarts.
 
 from __future__ import annotations
 
+from datetime import datetime, timedelta, timezone
+
 import os
 import sys
 import time
@@ -120,6 +122,53 @@ def _seed_case(client: httpx.Client, headers: dict[str, str], title: str, files:
     return case_id
 
 
+def _record_police_dates(client: httpx.Client, headers: dict[str, str], case_id: str) -> None:
+    """Dates relative to today, so the dashboard has something real to show on any day.
+
+    Without them the police dashboard reads zero everywhere and the deadline tools have
+    nothing to compute. An arrest twenty hours ago leaves four hours of the s.58 limit, so
+    this replaces what is there on every run, and the case is fictional.
+    """
+    path = f"/cases/{case_id}/investigation/facts"
+    now = datetime.now(timezone.utc)
+    recorded = client.put(
+        path,
+        json={
+            "information_recorded_at": (now - timedelta(days=3)).isoformat(),
+            "arrested_at": (now - timedelta(hours=20)).isoformat(),
+            "arrested_under_warrant": False,
+            "gravity": "other",
+        },
+        headers=headers,
+    )
+    recorded.raise_for_status()
+    print("  dates recorded")
+
+
+def _record_advocate_dates(client: httpx.Client, headers: dict[str, str], case_id: str) -> None:
+    """A hearing and a limitation date ahead of today, unless some are still ahead."""
+    path = f"/cases/{case_id}/advocate/calendar"
+    today = datetime.now(timezone.utc).date()
+    listed = client.get(path, headers=headers)
+    listed.raise_for_status()
+    body = listed.json()
+    events = body.get("items") or body.get("events") or [] if isinstance(body, dict) else body
+    if any(str(event.get("due_on")) >= today.isoformat() for event in events):
+        print("  calendar already has dates ahead")
+        return
+    for kind, title, days in (
+        ("hearing", "Bail hearing before the Sessions Court", 3),
+        ("limitation", "Last date to file the criminal revision", 24),
+    ):
+        created = client.post(
+            path,
+            json={"kind": kind, "title": title, "due_on": (today + timedelta(days=days)).isoformat()},
+            headers=headers,
+        )
+        created.raise_for_status()
+    print("  calendar dates recorded")
+
+
 def main() -> int:
     password = os.environ.get("DEMO_PASSWORD")
     if not password:
@@ -130,8 +179,10 @@ def main() -> int:
         for headers in tokens.values():
             _consent(client, headers)
         print("Demo cases")
-        _seed_case(client, tokens["police"], POLICE_CASE, POLICE_FILES)
-        _seed_case(client, tokens["advocate"], ADVOCATE_CASE, ADVOCATE_FILES)
+        police_case = _seed_case(client, tokens["police"], POLICE_CASE, POLICE_FILES)
+        _record_police_dates(client, tokens["police"], police_case)
+        advocate_case = _seed_case(client, tokens["advocate"], ADVOCATE_CASE, ADVOCATE_FILES)
+        _record_advocate_dates(client, tokens["advocate"], advocate_case)
         print("Warming demo questions")
         failures = 0
         for role, question in WARM:

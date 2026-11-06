@@ -48,6 +48,16 @@ def recover_explicit_missing_item(facts: FIRFacts, description: str) -> FIRFacts
             ).strip(" ,.;")
             if subject:
                 updates["subject_or_property"] = subject
+    if not facts.subject_or_property and "subject_or_property" not in updates:
+        # "parked his motorcycle outside his shop. It was missing the next day."
+        taken = re.search(
+            r"\b(?:stole|stolen|took|snatched|parked|left|kept)\s+(?:his|her|my|their|the|a|an)\s+"
+            r"([a-z][a-z -]{1,40}?)\s+(?:outside|near|at|in|on|from|and|without|\.|,)",
+            description,
+            flags=re.IGNORECASE,
+        )
+        if taken and re.search(r"\b(?:missing|stolen|stole|took|snatched|gone)\b", description, re.IGNORECASE):
+            updates["subject_or_property"] = taken.group(1).strip()
     collar = re.search(
         r"\bcollar(?:\s+number)?\s+([A-Za-z0-9-]+)",
         description,

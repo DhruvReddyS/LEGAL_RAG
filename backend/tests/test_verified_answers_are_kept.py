@@ -36,11 +36,35 @@ async def test_a_confirmed_section_already_in_hand_still_counts_as_confirmed(mon
     service = SimpleNamespace(search_statutes=found)
     import asyncio
 
-    new, was_confirmed = await retrieval_agent._statutes_for(
+    new, was_confirmed, _ = await retrieval_agent._statutes_for(
         service, "q", "q", [section], asyncio.ensure_future(no_terms())
     )
     assert new == []
     assert was_confirmed is True
+
+
+@pytest.mark.asyncio
+async def test_a_section_read_and_ruled_out_is_named_by_its_act_and_section(monkeypatch) -> None:
+    read = _hit("prisons-a")
+    read.payload.update(act_name="Model Prisons Act", section="41")
+
+    async def rules_it_out(*_args, **_kwargs):
+        return [], frozenset({"prisons-a"})
+
+    async def no_terms():
+        return []
+
+    async def found(*_args, **_kwargs):
+        return [read]
+
+    monkeypatch.setattr(retrieval_agent, "governing_statutes", rules_it_out)
+    monkeypatch.setattr(retrieval_agent, "act_the_results_agree_on", lambda _hits: [])
+    import asyncio
+
+    _, _, moot = await retrieval_agent._statutes_for(
+        SimpleNamespace(search_statutes=found), "q", "q", [], asyncio.ensure_future(no_terms())
+    )
+    assert moot == {("Model Prisons Act", "41")}
 
 
 def test_a_question_the_evidence_does_not_address_skips_the_model() -> None:
@@ -79,3 +103,25 @@ def test_a_refusal_with_no_model_run_still_gives_a_clean_answer() -> None:
     )
     assert result["final_answer"] == INSUFFICIENT_EVIDENCE
     assert result["citations"] == []
+
+
+@pytest.mark.parametrize(
+    ("description", "expected"),
+    [
+        ("Ravi parked his motorcycle outside his shop. It was missing at 7 am.", "motorcycle"),
+        ("Someone stole my gold chain at the market.", "gold chain"),
+    ],
+)
+def test_the_missing_property_is_recovered_from_plain_words(description: str, expected: str) -> None:
+    from app.agents.drafting_agent import recover_explicit_missing_item
+    from app.schemas.documents import FIRFacts
+
+    assert recover_explicit_missing_item(FIRFacts(narrative=description), description).subject_or_property == expected
+
+
+def test_nothing_is_recovered_when_nothing_is_missing() -> None:
+    from app.agents.drafting_agent import recover_explicit_missing_item
+    from app.schemas.documents import FIRFacts
+
+    facts = recover_explicit_missing_item(FIRFacts(narrative="x"), "He parked his car outside the court and went in.")
+    assert facts.subject_or_property is None

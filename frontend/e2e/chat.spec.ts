@@ -257,3 +257,57 @@ test.describe("a Deep review", () => {
     await expect(page.locator("main, .auth-shell").getByRole("alert")).toHaveCount(0);
   });
 });
+
+test("the page takes the reader to the start of an answer that has arrived", async ({ page }) => {
+  await openApp(page, "citizen");
+  await page.addStyleTag({ content: ".conversation > div { min-height: 1400px; }" });
+  await page.route("**/chat/query", async route => {
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    await route.fallback();
+  });
+  const box = page.getByLabel("Legal research question");
+  for (const question of ["First question about the law", "Second question about the law"]) {
+    await box.fill(question);
+    await box.press("Enter");
+    await expect(page.getByRole("button", { name: "Send question" })).toBeVisible({ timeout: 15_000 });
+  }
+  await expect
+    .poll(() => page.evaluate(() => {
+      const turns = document.querySelectorAll(".conversation > div");
+      return Math.round(turns[turns.length - 1].getBoundingClientRect().top);
+    }))
+    .toBeLessThan(200);
+  await page.waitForTimeout(800);
+  const place = await page.evaluate(() => {
+    const turns = document.querySelectorAll(".conversation > div");
+    return { top: turns[turns.length - 1].getBoundingClientRect().top };
+  });
+  expect(place.top).toBeGreaterThan(0);
+});
+
+test("the page leaves a reader alone who scrolled away while waiting", async ({ page }) => {
+  await openApp(page, "citizen");
+  const box = page.getByLabel("Legal research question");
+  await box.fill("First question about the law");
+  await box.press("Enter");
+  await expect(page.getByRole("button", { name: "Send question" })).toBeVisible({ timeout: 15_000 });
+  await page.waitForTimeout(600);
+  await page.evaluate(() => {
+    document.body.style.minHeight = "4000px";
+    window.scrollTo({ top: 0 });
+  });
+  await page.route("**/chat/query", async route => {
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    await route.fallback();
+  });
+  await box.fill("Second question about the law");
+  await box.press("Enter");
+  await page.waitForTimeout(900);
+  await page.mouse.move(640, 300);
+  await page.mouse.wheel(0, -2000);
+  await page.waitForTimeout(400);
+  const before = await page.evaluate(() => window.scrollY);
+  await expect(page.getByRole("button", { name: "Send question" })).toBeVisible({ timeout: 15_000 });
+  await page.waitForTimeout(600);
+  expect(Math.abs((await page.evaluate(() => window.scrollY)) - before)).toBeLessThan(120);
+});

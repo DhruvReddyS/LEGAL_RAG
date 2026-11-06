@@ -22,6 +22,9 @@ function Notice({ text, failed }: { text: string; failed: boolean }) {
 const docLabel = (type: string) => type.split(/[_-]/).map((word) => (word.toUpperCase() === "FIR" ? "FIR" : word)).join(" ").replace(/^./, (c) => c.toUpperCase());
 
 /** Police: a reviewable FIR draft from the known facts, with the versions kept so far. */
+// The stored draft keeps its source markers for tracing. They mean nothing to the officer.
+const readableDraft = (text: string) => text.replace(/\s*\[SRC:[^\]]+\]/g, "");
+
 export function FirDraftPanel({ caseId, caseTitle, onChanged }: { caseId: string; caseTitle: string; onChanged: () => void }) {
   const [scenario, setScenario] = useState("");
   const [draft, setDraft] = useState<FIRDraftResponse | null>(null);
@@ -51,7 +54,7 @@ export function FirDraftPanel({ caseId, caseTitle, onChanged }: { caseId: string
     catch (error) { setNotice({ text: errorText(error), failed: true }); } finally { setBusy(false); }
   };
   // The disclaimer travels with the text. A draft pasted without it reads as finished.
-  const fullText = (item: FIRDraftResponse) => `${item.rendered_text}\n\n---\n${item.disclaimer}`;
+  const fullText = (item: FIRDraftResponse) => `${readableDraft(item.rendered_text)}\n\n---\n${item.disclaimer}`;
   const copy = async (item: FIRDraftResponse) => {
     try { await navigator.clipboard.writeText(fullText(item)); setCopied(true); window.setTimeout(() => setCopied(false), 2000); }
     catch { setNotice({ text: "The browser refused clipboard access. Select the text and copy it instead.", failed: true }); }
@@ -80,13 +83,13 @@ export function FirDraftPanel({ caseId, caseTitle, onChanged }: { caseId: string
         <div className="pro-draft">
           <div className="pro-draft-head">
             <strong>Draft version {draft.version}, {draft.status}</strong>
-            <span>{draft.missing_fields.length ? `Missing: ${draft.missing_fields.join(", ")}` : "Required facts captured"}</span>
+            <span>{draft.missing_fields.length ? `Missing: ${draft.missing_fields.map(field => field.replace(/_/g, " ")).join(", ")}` : "Required facts captured"}</span>
             <div className="pro-draft-actions">
               <button type="button" className="pro-button" onClick={() => void copy(draft)}>{copied ? <Check size={13} aria-hidden="true" /> : <ClipboardCopy size={13} aria-hidden="true" />}{copied ? "Copied" : "Copy"}</button>
               <button type="button" className="pro-button" onClick={() => save(draft)}><Download size={13} aria-hidden="true" />Save</button>
             </div>
           </div>
-          <pre>{draft.rendered_text}</pre>
+          <pre>{readableDraft(draft.rendered_text)}</pre>
         </div>
       )}
       <section className="pro-subsection" aria-label="FIR drafts in this case">

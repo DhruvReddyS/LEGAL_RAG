@@ -316,6 +316,7 @@ export const UI = {
   declinedScopeWhy: l("Corpusil answers questions about Indian law from the documents it holds, so it has nothing to cite here.", "Corpusil अपने पास मौजूद दस्तावेज़ों से भारतीय क़ानून के प्रश्नों का उत्तर देता है, इसलिए यहाँ उद्धृत करने को कुछ नहीं है।", "Corpusil తన దగ్గర ఉన్న పత్రాల నుంచి భారతీయ చట్టం గురించిన ప్రశ్నలకు జవాబిస్తుంది, కాబట్టి ఇక్కడ ఉదహరించడానికి ఏమీ లేదు."),
   // Chat: the stages of the wait
   stageSearch: l("Searching the legal corpus", "क़ानूनी संग्रह में खोज", "న్యాయ సేకరణలో శోధన"),
+  stageLonger: l("This question needs a closer read, and each claim is being checked against its source. This takes about a minute.", "इस सवाल को ध्यान से पढ़ा जा रहा है, और हर कथन को उसके स्रोत से जाँचा जा रहा है। इसमें लगभग एक मिनट लगता है।", "ఈ ప్రశ్నను జాగ్రత్తగా చదువుతున్నాం, ప్రతి వాక్యాన్ని దాని మూలంతో సరిచూస్తున్నాం. దీనికి దాదాపు ఒక నిమిషం పడుతుంది."),
   stageRead: l("Reading what it found", "मिले हुए अंश पढ़ना", "దొరికిన భాగాలు చదవడం"),
   stageCheck: l("Checking each claim against its source", "हर कथन को उसके स्रोत से जाँचना", "ప్రతి వాక్యాన్ని దాని మూలంతో సరిచూడడం"),
   stageWrite: l("Writing the answer", "उत्तर लिखना", "సమాధానం రాయడం"),

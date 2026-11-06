@@ -478,3 +478,23 @@ test("a changed law is announced on the dashboard, and goes once it is read", as
   await dialog.getByRole("button", { name: "Close account and privacy" }).click();
   await expect(page.getByText("The law behind a saved answer has changed")).toHaveCount(0);
 });
+
+test("a long row of sources cannot push a case answer sideways", async ({ page }) => {
+  const many = Array.from({ length: 8 }, (_, index) => ({
+    ...CITATION,
+    chunk_id: `chunk-${index}`,
+    title: `A very long name of an Act that does not fit on one line, number ${index}, 2023`,
+  }));
+  await openPro(page, "advocate", `/?s=case&case=${CASE_ID}&tab=ask`);
+  await page.route("**/chat/query", route =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ...ANSWER, citations: many }) }),
+  );
+  const box = page.getByLabel("Legal research question");
+  await box.fill("What does this case rest on?");
+  await box.press("Enter");
+  await expect(page.locator(".assistant-message").last()).toBeVisible();
+  await page.waitForTimeout(500);
+  const sideways = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(sideways).toBeLessThanOrEqual(0);
+  expect(await page.evaluate(() => window.scrollX)).toBe(0);
+});

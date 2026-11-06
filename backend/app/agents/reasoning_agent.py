@@ -181,6 +181,8 @@ Writing requirements:
 - Name the governing provision in force first, by its Act and section. When it replaced an older law, say so.
 - A source marked GOVERNS_THIS_QUESTION is the provision the question is about. Answer from its text first and
   give its conditions and time limits; use other sources only to add to it, never in its place.
+- Leave out a source that is about a different subject, even if it shares a word with the question. Never
+  invent circumstances the user did not state in order to make a source apply.
 - Put practical steps in a sensible action order and make clear when a step depends on missing facts.
 - State a material uncertainty as a limit; never hide it behind confident wording.
 - Do not describe an authority as current unless its CURRENCY is in_force. A source whose CURRENCY is

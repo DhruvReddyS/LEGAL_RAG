@@ -33,14 +33,8 @@ echo "Starting the stores"
 docker compose --env-file .env -f docker/docker-compose.yml up -d --wait postgres qdrant minio >/dev/null 2>&1 \
   || fail "the database, vector store or file store did not start."
 
-if ! curl -fsS --max-time 3 http://127.0.0.1:11434/api/version >/dev/null 2>&1; then
-  echo "Starting Ollama"
-  (open -a Ollama 2>/dev/null || nohup ollama serve >"$LOGS/ollama.log" 2>&1 &)
-  for _ in $(seq 1 30); do
-    curl -fsS --max-time 2 http://127.0.0.1:11434/api/version >/dev/null 2>&1 && break
-    sleep 2
-  done
-fi
+echo "Starting Ollama without its prompt cache"
+./scripts/ollama_lean.sh || fail "Ollama did not start."
 curl -fsS --max-time 3 http://127.0.0.1:11434/api/version >/dev/null 2>&1 || fail "Ollama did not start."
 
 set -a

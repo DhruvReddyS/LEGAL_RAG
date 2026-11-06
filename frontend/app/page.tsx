@@ -261,6 +261,9 @@ export default function HomePage() {
     window.addEventListener("scroll", check, { passive: true });
     return () => { window.removeEventListener("scroll", check); activeRequest.current?.controller.abort(); };
   }, []);
+  // A growing answer fires no scroll event, so check when the thread changes too. Takes the
+  // reader to the start of an answer that was on its way, unless they scrolled off meanwhile.
+  const readerMoved = useRef(false);
   const experience = ROLE_EXPERIENCES[(user?.role as keyof typeof ROLE_EXPERIENCES) ?? "citizen"] ?? ROLE_EXPERIENCES.citizen;
 
   useEffect(() => {
@@ -324,6 +327,34 @@ export default function HomePage() {
   useEffect(() => {
     if (messages.length) latestMessage.current?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
   }, [messages.length]);
+
+  const latestLoading = Boolean(messages[messages.length - 1]?.loading);
+  const wasLoading = useRef(false);
+  useEffect(() => {
+    if (latestLoading) {
+      readerMoved.current = false;
+      wasLoading.current = true;
+      return;
+    }
+    const arrived = wasLoading.current;
+    wasLoading.current = false;
+    const frame = requestAnimationFrame(() => {
+      if (arrived && !readerMoved.current) {
+        latestMessage.current?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+      }
+      setAwayFromLatest(document.documentElement.scrollHeight - window.innerHeight - window.scrollY > 280);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [latestLoading]);
+  useEffect(() => {
+    const moved = (event: Event) => {
+      if (event instanceof KeyboardEvent && !["PageUp", "PageDown", "ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) return;
+      readerMoved.current = true;
+    };
+    const events = ["wheel", "touchmove", "keydown"] as const;
+    events.forEach(name => window.addEventListener(name, moved, { passive: true }));
+    return () => events.forEach(name => window.removeEventListener(name, moved));
+  }, []);
 
   useEffect(() => {
     if (!user) { setHistory([]); setHistoryReady(false); return; }

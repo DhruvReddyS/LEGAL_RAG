@@ -82,6 +82,9 @@ if [ -z "${LEGAL_RAG_BENCHMARK_PASSWORD:-}" ]; then
   exit 2
 fi
 
+# The same Ollama the demo runs, so the numbers describe what will be shown.
+"$ROOT/scripts/ollama_lean.sh" || exit 2
+
 mkdir -p "$OUT"
 FAILED=()
 PASSED=()
