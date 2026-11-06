@@ -1,0 +1,50 @@
+{
+  "citations": 301,
+  "descriptive_modules_skipped": [
+    "repeal_labels.py",
+    "section_mapping.py",
+    "supersession.py"
+  ],
+  "distinct_provisions": 71,
+  "modules": [
+    "backend/app/agents/evidence_budget.py",
+    "backend/app/agents/reasoning_agent.py",
+    "backend/app/agents/response_generation.py",
+    "backend/app/agents/retrieval_agent.py",
+    "backend/app/models/enums.py",
+    "backend/app/models/police.py",
+    "backend/app/routers/police_tools.py",
+    "backend/app/schemas/investigation.py",
+    "backend/app/schemas/police.py",
+    "backend/app/services/advocate_drafting.py",
+    "backend/app/services/advocate_provisions.py",
+    "backend/app/services/authority_check.py",
+    "backend/app/services/bail.py",
+    "backend/app/services/citation_following.py",
+    "backend/app/services/citizen_safety.py",
+    "backend/app/services/investigation_compliance.py",
+    "backend/app/services/investigation_timeline.py",
+    "backend/app/services/police_case_file.py",
+    "backend/app/services/police_drafting.py",
+    "backend/app/services/police_offences.py",
+    "backend/app/services/police_register.py",
+    "backend/app/services/police_search_check.py",
+    "backend/app/services/retrieval.py"
+  ],
+  "provisions_not_reachable": 0,
+  "provisions_per_statute": {
+    "BNS": 34,
+    "BNSS": 33,
+    "BSA": 4
+  },
+  "sections_reachable_per_statute": {
+    "BNS": 358,
+    "BNSS": 530,
+    "BSA": 169
+  },
+  "unresolvable_because_interpolated": [
+    "BNSS s.187(3)({"
+  ]
+}
+
+Provision drift gate passed.

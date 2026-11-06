@@ -1,0 +1,22 @@
+
+Latency gate FAILED:
+  - deep_mean_verification_score fell to 0.7165 against a floor of 0.717 (contract 0.797); speed was bought with evidence
+  - deep_unsupported_claims_per_query rose to 2.8571 against a ceiling of 2.786 (contract 2.2857)
+{
+  "context_deep_decode_tokens_per_second_p50": 23.63,
+  "context_deep_end_to_end_p50_ms": 45803.49,
+  "context_deep_end_to_end_p95_ms": 64221.5,
+  "deep_abstention_rate": 0.0,
+  "deep_citations_per_query": 4.0,
+  "deep_first_useful_output_p95_ms": 2079.9,
+  "deep_mean_verification_score": 0.7165,
+  "deep_non_model_overhead_p95_ms": 1149.31,
+  "deep_runs": 21,
+  "deep_ungrounded_published_answers": 0,
+  "deep_unsupported_claims_per_query": 2.8571,
+  "fast_abstention_rate": 0.0,
+  "fast_citations_per_query": 3.5714,
+  "fast_p95_ms": 752.32,
+  "fast_runs": 21,
+  "query_set_version": "latency-v1"
+}
