@@ -113,7 +113,7 @@ not read" must not look the same.
 
 | Group | Asks |
 |---|---|
-| **Correctness** | Does the code do what it was told? (2,881 tests) |
+| **Correctness** | Does the code do what it was told? (2,891 tests) |
 | **Security** | Can a caller reach another tenant's evidence? (36 tests, plus a structural check that every `{case_id}` route enforces ownership) |
 | **Quality** | Does retrieval find the right law, and is the answer any good? (61 golden items, both gates) |
 

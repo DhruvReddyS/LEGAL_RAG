@@ -37,7 +37,7 @@ set**, backed by automatic abstention and visible uncertainty outside it.
 
 | | |
 |---|---|
-| Backend tests | **2,881** plus 37 red team, passing on the isolated stack, 6 November 2026 |
+| Backend tests | **2,891** plus 37 red team, passing on the isolated stack, 6 November 2026 |
 | Frontend tests | 345 unit, 164 browser (Playwright, mocked backend) |
 | API endpoints | 58 across 16 routers |
 | Corpus | 1,596 rows / **1,593 unique documents** / 56,290 pages / 86,127 passages |
