@@ -9,7 +9,7 @@ import pytest
 from app.agents import retrieval_agent
 from app.agents.orchestrator import LegalRAGWorkflow
 from app.agents.reasoning_agent import format_evidence
-from app.agents.response_generation import _correct_act_names
+from app.agents.response_generation import _correct_act_names, _renumbered_lines
 
 
 def _hit(chunk: str, relation: str | None = None) -> SimpleNamespace:
@@ -125,3 +125,18 @@ def test_nothing_is_recovered_when_nothing_is_missing() -> None:
 
     facts = recover_explicit_missing_item(FIRFacts(narrative="x"), "He parked his car outside the court and went in.")
     assert facts.subject_or_property is None
+
+
+def test_no_renumbered_provision_is_left_out_however_many_a_judgment_cites() -> None:
+    moved = {
+        "IEA s.3": ["BSA s.2 (the elements of the provision also changed)"],
+        "IEA s.5": ["BSA s.3"],
+        "IEA s.65": ["BSA s.60"],
+        "IEA s.65A": ["BSA s.62"],
+        "IEA s.65B": ["BSA s.63 (the elements of the provision also changed)"],
+    }
+    lines = _renumbered_lines(moved)
+    for old, new in moved.items():
+        assert f"{old} is now {new[0]}" in lines
+    assert lines.splitlines()[0].startswith("- IEA s.3 is now")
+    assert len(lines.splitlines()) == 4

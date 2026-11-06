@@ -159,6 +159,21 @@ _CONCEPTS: tuple[_Concept, ...] = (
     _Concept("BNSS", "54", "identification-parade implementation", all_of=(("identification parade", "test identification", "tip parade"),)),
     _Concept("BSA", "26", "dying-declaration implementation", all_of=(("dying declaration", "dying person", "statement before death"),)),
     _Concept("BSA", "63", "electronic-record implementation", all_of=(("electronic record", "electronic evidence", "digital evidence", "whatsapp", "cctv"),)),
+    # People name the device, not "electronic record". A stolen phone is about the theft.
+    _Concept(
+        "BSA", "63", "electronic-record implementation",
+        all_of=(
+            ("phone", "mobile", "computer", "laptop", "email", "e-mail", "screenshot", "pen drive", "hard disk"),
+            ("evidence", "proof", "prove"),
+            ("court", "admissib"),
+        ),
+        none_of=(("stolen", "stole", "theft", "lost", "snatch"),),
+    ),
+    # Read in the corpus: s.14 sets up the Exclusive Special Court these offences go to.
+    _Concept(
+        "SCST", "14", "atrocities-court implementation",
+        all_of=(("atrocit", "sc/st act", "sc-st act", "sc st act"), ("court", "tried", "tries", "trial")),
+    ),
     _Concept("BSA", "104", "burden-of-proof implementation", all_of=(("burden of proof",),)),
     _Concept(
         "BNS", "303", "theft implementation",

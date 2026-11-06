@@ -69,14 +69,25 @@ CLAIMS_PRESENT_FORCE_RE = re.compile(
 )
 
 
-# A long list of every provision a judgment happens to cite took a quarter of the answer.
-MAX_RENUMBERED_SHOWN = 3
+# A long list of every provision a judgment happens to cite took a quarter of the answer,
+# so the rest share one line. None is hidden: a reader relying on the old number needs the new one.
+RENUMBERED_ON_THEIR_OWN_LINE = 3
 # The model wrote the Sanhita's name wrongly in 30 of 52 mentions, in claims that verified.
 _MISSPELT_BNSS = re.compile(r"\bBharatiya\s+Nag\w*\s+Suraksha\s+Sanhita\b", re.I)
 
 
 def _correct_act_names(text: str) -> str:
     return _MISSPELT_BNSS.sub("Bharatiya Nagarik Suraksha Sanhita", text)
+
+
+def _renumbered_lines(renumbered: dict) -> str:
+    """Every renumbered provision, with the ones whose elements changed first."""
+    ordered = sorted(renumbered.items(), key=lambda item: ("changed" not in " ".join(item[1]), item[0]))
+    described = [f"{old} is now {' and '.join(new)}" for old, new in ordered]
+    lines = [f"- {move}." for move in described[:RENUMBERED_ON_THEIR_OWN_LINE]]
+    if rest := described[RENUMBERED_ON_THEIR_OWN_LINE:]:
+        lines.append(f"- Also: {'; '.join(rest)}.")
+    return "\n".join(lines)
 
 
 def response_generation_node(state: dict) -> dict:
@@ -340,13 +351,7 @@ def response_generation_node(state: dict) -> dict:
                 "One or more sources above is no longer in force:\n\n" + lines + "\n\n"
             )
         if renumbered:
-            # Ones whose elements changed first: those are the ones a reader must not assume.
-            ordered = sorted(renumbered.items(), key=lambda item: ("changed" not in " ".join(item[1]), item[0]))
-            moved = "\n".join(
-                f"- {old} is now {' and '.join(new)}." for old, new in ordered[:MAX_RENUMBERED_SHOWN]
-            )
-            if len(ordered) > MAX_RENUMBERED_SHOWN:
-                moved += f"\n- And {len(ordered) - MAX_RENUMBERED_SHOWN} more in the same sources."
+            moved = _renumbered_lines(renumbered)
             answer += (
                 "The sources above remain in force, but they cite provisions that were "
                 "renumbered when the 2023 Sanhitas commenced on 1 July 2024:\n\n"

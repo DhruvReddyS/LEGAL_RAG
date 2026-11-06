@@ -375,3 +375,27 @@ def test_a_tax_seizure_is_not_sent_to_the_criminal_procedure_section() -> None:
 )
 def test_plain_words_reach_the_offence_or_remedy(question: str, expected: tuple[str, str]) -> None:
     assert expected in [p.key for p in implementation_provisions_for_query(question)]
+
+
+@pytest.mark.parametrize(
+    ("query", "expected"),
+    [
+        ("Can messages on my mobile be used as proof in court?", ("BSA", "63")),
+        ("Is a screenshot admissible evidence?", ("BSA", "63")),
+        ("Where is a case under the atrocities act tried?", ("SCST", "14")),
+    ],
+)
+def test_people_reach_these_sections_by_what_they_call_them(query, expected) -> None:
+    assert expected in [item.key for item in implementation_provisions_for_query(query)]
+
+
+@pytest.mark.parametrize(
+    ("query", "unwanted"),
+    [
+        ("My phone was stolen. What evidence should I take to court?", ("BSA", "63")),
+        ("Can I buy a laptop for my evidence class?", ("BSA", "63")),
+        ("What is the punishment for an atrocity against a Scheduled Caste?", ("SCST", "14")),
+    ],
+)
+def test_those_names_do_not_pull_the_section_into_other_questions(query, unwanted) -> None:
+    assert unwanted not in [item.key for item in implementation_provisions_for_query(query)]
