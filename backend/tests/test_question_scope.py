@@ -7,7 +7,13 @@ from types import SimpleNamespace
 import pytest
 
 from app.services.fast_research import publishable_hits
-from app.services.question_scope import OffTopicCheck, asks_about_foreign_law, out_of_scope_answer
+from app.services.question_scope import (
+    OffTopicCheck,
+    asks_about_foreign_law,
+    off_topic_check_for,
+    out_of_scope_answer,
+    warm_off_topic_check,
+)
 
 
 @pytest.mark.parametrize(
@@ -107,6 +113,26 @@ async def test_a_legal_word_keeps_the_question_without_asking_the_encoder() -> N
 
 async def test_a_failure_never_costs_an_answer() -> None:
     assert not await OffTopicCheck(_Encoder([1.0, 0.0], broken=True)).is_off_topic("What should I cook?")
+
+
+async def test_examples_prepared_at_startup_are_not_embedded_again() -> None:
+    encoder = _Encoder([0.0, 1.0])
+    await warm_off_topic_check(encoder)
+    assert encoder.document_calls == 1
+    assert not await off_topic_check_for(encoder).is_off_topic("My boss has not paid me")
+    assert encoder.document_calls == 1
+
+
+async def test_a_failed_startup_preparation_is_retried_by_the_first_question() -> None:
+    encoder = _Encoder([1.0, 0.0], broken=True)
+    await warm_off_topic_check(encoder)
+    encoder.broken = False
+    assert await off_topic_check_for(encoder).is_off_topic("What should I cook?")
+    assert encoder.document_calls == 2
+
+
+async def test_startup_preparation_survives_having_no_encoder() -> None:
+    await warm_off_topic_check(None)
 
 
 async def test_with_no_encoder_a_question_is_answered_not_lost() -> None:

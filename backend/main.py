@@ -13,6 +13,7 @@ from fastapi.responses import JSONResponse
 from qdrant_client.http.exceptions import ResponseHandlingException
 from sqlalchemy.exc import DBAPIError
 
+from app.services.question_scope import warm_off_topic_check
 from app.services.llm import LLMUnavailableError
 
 from app.agents.orchestrator import LegalRAGWorkflow
@@ -83,6 +84,7 @@ async def lifespan(app: FastAPI):
             retrieval_service.warmup(),
             app.state.legal_rag_workflow.llm.warmup(),
         )
+        await warm_off_topic_check(retrieval_service)
     if settings.job_worker_enabled:
         await app.state.job_worker.start()
     await scheduled_passes.start()

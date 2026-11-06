@@ -1,0 +1,21 @@
+
+Latency gate FAILED:
+  - fast_p95_ms is 1,926 ms against a limit of 1,758 ms (contract 1,172 ms)
+{
+  "context_deep_decode_tokens_per_second_p50": 26.56,
+  "context_deep_end_to_end_p50_ms": 39914.09,
+  "context_deep_end_to_end_p95_ms": 57805.57,
+  "deep_abstention_rate": 0.0,
+  "deep_citations_per_query": 4.0,
+  "deep_first_useful_output_p95_ms": 3587.73,
+  "deep_mean_verification_score": 0.7586,
+  "deep_non_model_overhead_p95_ms": 1145.03,
+  "deep_runs": 21,
+  "deep_ungrounded_published_answers": 0,
+  "deep_unsupported_claims_per_query": 2.7143,
+  "fast_abstention_rate": 0.0,
+  "fast_citations_per_query": 3.7143,
+  "fast_p95_ms": 1926.42,
+  "fast_runs": 21,
+  "query_set_version": "latency-v1"
+}
