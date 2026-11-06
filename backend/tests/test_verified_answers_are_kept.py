@@ -7,7 +7,7 @@ from types import SimpleNamespace
 import pytest
 
 from app.agents import retrieval_agent
-from app.services.fast_research import distinct_provisions, shown_to_the_reader
+from app.services.fast_research import distinct_provisions, governing_statutes, shown_to_the_reader
 from app.agents.orchestrator import LegalRAGWorkflow
 from app.agents.reasoning_agent import format_evidence
 from app.agents.response_generation import _correct_act_names, _renumbered_lines
@@ -218,6 +218,14 @@ def test_in_a_case_the_files_can_name_the_offence() -> None:
     case_file = _hit("file")
     case_file.payload.update(case_id="c1", text="Alleged offence: theft of a motorcycle.")
     assert "theft" in retrieval_agent._what_the_files_name([_statute("law"), case_file])
+
+
+@pytest.mark.asyncio
+async def test_the_deep_lane_reads_every_copy_it_was_measured_on() -> None:
+    first, copy = _copy("a", "An Act", RTI_6), _copy("b", "Rti 2005", RTI_6)
+    service = _scoring(0.9, 0.9)
+    await governing_statutes(service, [first, copy], query="q", focus_tokens=set(), distinctive_terms=set())
+    assert len(service.calls[0]) == 2
 
 
 def test_two_chosen_sections_of_one_act_both_show() -> None:

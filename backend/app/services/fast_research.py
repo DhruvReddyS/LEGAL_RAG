@@ -502,7 +502,7 @@ async def governing_statutes(
     The word gate stays as the fallback, so losing the reranker returns this to what
     it did before rather than to nothing.
     """
-    primary = distinct_provisions([hit for hit in hits if _is_primary_law(hit)])
+    primary = [hit for hit in hits if _is_primary_law(hit)]
     if not primary or asks_about_foreign_law(query):
         return [], frozenset()
     by_words = publishable_hits(
@@ -876,9 +876,11 @@ class FastLegalResearchService:
         statutes, ruled_out = (
             ([], frozenset())
             if off_topic
+            # The Fast lane only. In Deep, removing the copies cost the s.47 claim on grounds of
+            # arrest and failed the latency gate, so that lane keeps the evidence it was measured on.
             else await governing_statutes(
                 self.retrieval,
-                statute_hits,
+                distinct_provisions(statute_hits),
                 query=query,
                 focus_tokens=focus_tokens,
                 distinctive_terms=distinctive_terms,
