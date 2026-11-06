@@ -1,0 +1,343 @@
+[fast] warm-up (q01) ...
+[fast] q01 r0 ...    0.29 s  4 cites   450 words  strong
+[fast] q02 r0 ...    0.70 s  4 cites   485 words  strong
+[fast] q03 r0 ...    0.68 s  4 cites   494 words  moderate
+[fast] q04 r0 ...    0.58 s  4 cites   655 words  strong
+[fast] q05 r0 ...    1.68 s  0 cites    18 words  insufficient
+[fast] q06 r0 ...    0.49 s  4 cites   585 words  strong
+[fast] q07 r0 ...    1.11 s  4 cites   539 words  insufficient
+[fast] q01 r1 ...    0.38 s  4 cites   450 words  strong
+[fast] q02 r1 ...    0.56 s  4 cites   485 words  strong
+[fast] q03 r1 ...    0.63 s  4 cites   494 words  moderate
+[fast] q04 r1 ...    0.51 s  4 cites   655 words  strong
+[fast] q05 r1 ...    0.92 s  0 cites    18 words  insufficient
+[fast] q06 r1 ...    0.51 s  4 cites   585 words  strong
+[fast] q07 r1 ...    0.54 s  4 cites   539 words  insufficient
+[fast] q01 r2 ...    0.33 s  4 cites   450 words  strong
+[fast] q02 r2 ...    0.42 s  4 cites   485 words  strong
+[fast] q03 r2 ...    1.13 s  4 cites   494 words  moderate
+[fast] q04 r2 ...    0.53 s  4 cites   655 words  strong
+[fast] q05 r2 ...    1.79 s  0 cites    18 words  insufficient
+[fast] q06 r2 ...    1.13 s  4 cites   585 words  strong
+[fast] q07 r2 ...    1.21 s  4 cites   539 words  insufficient
+[fast] drained escalated jobs: {'cancelled_jobs': 6, 'queue_depth_after_drain': 0}
+[deep] warm-up (q01) ...
+[deep] q01 r0 ...   29.59 s  4 cites   339 words  moderate
+[deep] q02 r0 ...   48.06 s  6 cites   362 words  moderate
+[deep] q03 r0 ...   64.38 s  7 cites   387 words  strong
+[deep] q04 r0 ...   45.97 s  6 cites   363 words  strong
+[deep] q05 r0 ...   42.85 s  0 cites    15 words  insufficient
+[deep] q06 r0 ...   52.00 s  3 cites   275 words  moderate
+[deep] q07 r0 ...   44.89 s  2 cites   354 words  moderate
+[deep] q01 r1 ...   45.98 s  4 cites   339 words  moderate
+[deep] q02 r1 ...   48.97 s  6 cites   362 words  moderate
+[deep] q03 r1 ...   60.18 s  7 cites   387 words  strong
+[deep] q04 r1 ...   46.93 s  6 cites   363 words  strong
+[deep] q05 r1 ...   48.95 s  0 cites    15 words  insufficient
+[deep] q06 r1 ...   50.00 s  3 cites   275 words  moderate
+[deep] q07 r1 ...   42.85 s  2 cites   354 words  moderate
+[deep] q01 r2 ...   45.94 s  4 cites   339 words  moderate
+[deep] q02 r2 ...   52.14 s  6 cites   362 words  moderate
+[deep] q03 r2 ...   62.34 s  7 cites   387 words  strong
+[deep] q04 r2 ...   47.88 s  6 cites   363 words  strong
+[deep] q05 r2 ...   48.89 s  0 cites    15 words  insufficient
+[deep] q06 r2 ...   52.97 s  3 cites   275 words  moderate
+[deep] q07 r2 ...   45.80 s  2 cites   354 words  moderate
+
+Wrote /Users/sripathidhruvreddy/Documents/MAJOR PROJECT/docs/evidence/gates/v6-final/latency.json
+{
+  "deep": {
+    "end_to_end_ms": {
+      "count": 21,
+      "max": 64382.81,
+      "mean": 48931.87,
+      "min": 29590.59,
+      "p50": 48057.3,
+      "p95": 62344.98
+    },
+    "llm_calls_per_query": {
+      "count": 21,
+      "max": 3.0,
+      "mean": 2.71,
+      "min": 2.0,
+      "p50": 3.0,
+      "p95": 3.0
+    },
+    "llm_decode_ms": {
+      "count": 21,
+      "max": 30041.6,
+      "mean": 26787.82,
+      "min": 24684.59,
+      "p50": 26062.5,
+      "p95": 29773.46
+    },
+    "llm_decode_tokens_per_second": {
+      "count": 21,
+      "max": 27.24,
+      "mean": 26.1,
+      "min": 25.34,
+      "p50": 26.01,
+      "p95": 26.87
+    },
+    "llm_output_tokens_per_query": {
+      "count": 21,
+      "max": 770.0,
+      "mean": 698.86,
+      "min": 659.0,
+      "p50": 677.0,
+      "p95": 770.0
+    },
+    "llm_prefill_ms": {
+      "count": 21,
+      "max": 23243.9,
+      "mean": 14726.16,
+      "min": 95.14,
+      "p50": 14301.72,
+      "p95": 22453.35
+    },
+    "llm_prompt_tokens_per_query": {
+      "count": 21,
+      "max": 14427.0,
+      "mean": 10047.86,
+      "min": 7457.0,
+      "p50": 8974.0,
+      "p95": 14427.0
+    },
+    "quality": {
+      "abstention_rate": 0.1429,
+      "answer_words": {
+        "count": 21,
+        "max": 387.0,
+        "mean": 299.29,
+        "min": 15.0,
+        "p50": 354.0,
+        "p95": 387.0
+      },
+      "citations_per_query": {
+        "count": 21,
+        "max": 7.0,
+        "mean": 4.0,
+        "min": 0.0,
+        "p50": 4.0,
+        "p95": 7.0
+      },
+      "distinct_source_titles_per_query": {
+        "count": 21,
+        "max": 6.0,
+        "mean": 2.71,
+        "min": 0.0,
+        "p50": 2.0,
+        "p95": 6.0
+      },
+      "published_but_graded_insufficient_rate": 0.0,
+      "unsupported_claims_per_query": {
+        "count": 21,
+        "max": 6.0,
+        "mean": 2.43,
+        "min": 0.0,
+        "p50": 2.0,
+        "p95": 6.0
+      },
+      "verification_score": {
+        "count": 21,
+        "max": 1.0,
+        "mean": 0.76,
+        "min": 0.32,
+        "p50": 0.85,
+        "p95": 1.0
+      }
+    },
+    "stage_p50_ms": {
+      "query_understanding": 0.24,
+      "reasoning": 32904.82,
+      "response_generation": 1.38,
+      "retrieval": 385.87,
+      "retrieval_enrichment": 1076.72,
+      "role_context": 0.1,
+      "timing:query_understanding_ms": 6.51,
+      "timing:reasoning_0_ms": 32912.58,
+      "timing:response_generation_ms": 8.67,
+      "timing:verification_0_ms": 13641.68,
+      "timing:workflow_total_ms": 47260.26,
+      "verification": 13633.19
+    },
+    "stage_p95_ms": {
+      "query_understanding": 4214.05,
+      "reasoning": 36216.69,
+      "response_generation": 2.89,
+      "retrieval": 783.74,
+      "retrieval_enrichment": 3049.44,
+      "role_context": 0.49,
+      "timing:query_understanding_ms": 4222.66,
+      "timing:reasoning_0_ms": 36230.69,
+      "timing:response_generation_ms": 14.48,
+      "timing:verification_0_ms": 24669.39,
+      "timing:workflow_total_ms": 61633.56,
+      "verification": 24653.52
+    },
+    "time_to_first_final_output_ms": {
+      "count": 21,
+      "max": 64280.1,
+      "mean": 48656.82,
+      "min": 29044.84,
+      "p50": 48157.83,
+      "p95": 62579.95
+    },
+    "time_to_first_useful_output_ms": {
+      "count": 21,
+      "max": 7686.41,
+      "mean": 3214.33,
+      "min": 1060.01,
+      "p50": 2099.28,
+      "p95": 6665.27
+    }
+  },
+  "fast": {
+    "end_to_end_ms": {
+      "count": 21,
+      "max": 1786.98,
+      "mean": 767.39,
+      "min": 290.25,
+      "p50": 581.71,
+      "p95": 1679.89
+    },
+    "llm_calls_per_query": {
+      "count": 21,
+      "max": 0.0,
+      "mean": 0.0,
+      "min": 0.0,
+      "p50": 0.0,
+      "p95": 0.0
+    },
+    "llm_decode_ms": {
+      "count": 21,
+      "max": 0.0,
+      "mean": 0.0,
+      "min": 0.0,
+      "p50": 0.0,
+      "p95": 0.0
+    },
+    "llm_decode_tokens_per_second": {
+      "count": 0,
+      "max": null,
+      "mean": null,
+      "min": null,
+      "p50": null,
+      "p95": null
+    },
+    "llm_output_tokens_per_query": {
+      "count": 21,
+      "max": 0.0,
+      "mean": 0.0,
+      "min": 0.0,
+      "p50": 0.0,
+      "p95": 0.0
+    },
+    "llm_prefill_ms": {
+      "count": 21,
+      "max": 0.0,
+      "mean": 0.0,
+      "min": 0.0,
+      "p50": 0.0,
+      "p95": 0.0
+    },
+    "llm_prompt_tokens_per_query": {
+      "count": 21,
+      "max": 0.0,
+      "mean": 0.0,
+      "min": 0.0,
+      "p50": 0.0,
+      "p95": 0.0
+    },
+    "quality": {
+      "abstention_rate": 0.0,
+      "answer_words": {
+        "count": 21,
+        "max": 655.0,
+        "mean": 460.86,
+        "min": 18.0,
+        "p50": 494.0,
+        "p95": 655.0
+      },
+      "citations_per_query": {
+        "count": 21,
+        "max": 4.0,
+        "mean": 3.43,
+        "min": 0.0,
+        "p50": 4.0,
+        "p95": 4.0
+      },
+      "distinct_source_titles_per_query": {
+        "count": 21,
+        "max": 4.0,
+        "mean": 3.43,
+        "min": 0.0,
+        "p50": 4.0,
+        "p95": 4.0
+      },
+      "published_but_graded_insufficient_rate": 0.2857,
+      "unsupported_claims_per_query": {
+        "count": 0,
+        "max": null,
+        "mean": null,
+        "min": null,
+        "p50": null,
+        "p95": null
+      },
+      "verification_score": {
+        "count": 0,
+        "max": null,
+        "mean": null,
+        "min": null,
+        "p50": null,
+        "p95": null
+      }
+    },
+    "stage_p50_ms": {
+      "timing:api_overhead_ms": 0.01,
+      "timing:api_total_ms": 573.73,
+      "timing:embedding_ms": 0.02,
+      "timing:followed_chunk_count": 1.0,
+      "timing:persistence_ms": 14.72,
+      "timing:qdrant_ms": 51.38,
+      "timing:rag_service_ms": 524.75,
+      "timing:request_setup_ms": 3.67,
+      "timing:reranking_ms": 0.0,
+      "timing:retrieval_enrichment_ms": 0.51,
+      "timing:retrieval_total_ms": 55.01,
+      "timing:safety_routing_ms": 0.15,
+      "timing:workflow_total_ms": 524.56
+    },
+    "stage_p95_ms": {
+      "timing:api_overhead_ms": 0.02,
+      "timing:api_total_ms": 1673.41,
+      "timing:embedding_ms": 173.3,
+      "timing:followed_chunk_count": 4.0,
+      "timing:persistence_ms": 22.29,
+      "timing:qdrant_ms": 154.09,
+      "timing:rag_service_ms": 1180.89,
+      "timing:request_setup_ms": 7.11,
+      "timing:reranking_ms": 0.0,
+      "timing:retrieval_enrichment_ms": 44.93,
+      "timing:retrieval_total_ms": 347.35,
+      "timing:safety_routing_ms": 312.73,
+      "timing:workflow_total_ms": 1180.74
+    },
+    "time_to_first_final_output_ms": {
+      "count": 0,
+      "max": null,
+      "mean": null,
+      "min": null,
+      "p50": null,
+      "p95": null
+    },
+    "time_to_first_useful_output_ms": {
+      "count": 21,
+      "max": 1786.98,
+      "mean": 767.39,
+      "min": 290.25,
+      "p50": 581.71,
+      "p95": 1679.89
+    }
+  }
+}

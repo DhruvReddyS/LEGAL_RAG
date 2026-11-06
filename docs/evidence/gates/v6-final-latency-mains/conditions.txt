@@ -1,0 +1,6 @@
+21:46
+8460b99
+Now drawing from 'AC Power'
+total = 17408.00M  used = 16911.31M  free = 496.69M  (encrypted)
+Now drawing from 'AC Power'
+total = 19456.00M  used = 18394.75M  free = 1061.25M  (encrypted)

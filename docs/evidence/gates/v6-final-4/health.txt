@@ -1,0 +1,39 @@
+
+Static checks
+  PASS  E-01  No instruction prefix on queries
+         no E5/BGE-v1.5 prefix pattern in the embedding or retrieval path
+  PASS  E-05  Chunks fit the model window
+         max_length=8192 set explicitly
+  PASS  E-07  Sane dtype per device
+         fp16 only on cuda/mps, fp32 on cpu
+  PASS  E-10  Sparse and dense from one pass over identical text
+         single encode() returns both; no second pass and no tokenizer drift
+  PASS  E-06  Cache key includes model identity
+         query cache key includes the model name and dimension
+  PASS  E-12  Fusion constant is reproducible
+         RRF runs server-side under pinned qdrant/qdrant:v1.18.2
+  PASS  E-08  Embedder and reranker reach an accelerator
+         resolved device is mps
+
+Index checks
+  PASS  E-02  Vector schema and sparse IDF modifier
+         dense size 1024 Cosine, sparse modifier IDF
+  PASS  E-17  Point count reconciles with the manifest
+         86127 points for 1593 canonical documents (1596 physical)
+  PASS  E-18  No empty chunk text
+         5120 chunks sampled, all carry text
+  PASS  E-20  Payload index on every filtered field
+         11 filter fields all indexed
+
+Model checks
+Fetching 30 files:   0%|          | 0/30 [00:00<?, ?it/s]Fetching 30 files: 100%|██████████| 30/30 [00:00<00:00, 11459.85it/s]
+pre tokenize:   0%|          | 0/1 [00:00<?, ?it/s]pre tokenize: 100%|██████████| 1/1 [00:00<00:00, 61.79it/s]
+You're using a XLMRobertaTokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
+Inference Embeddings:   0%|          | 0/1 [00:00<?, ?it/s]Inference Embeddings: 100%|██████████| 1/1 [00:00<00:00, 23.26it/s]
+pre tokenize:   0%|          | 0/1 [00:00<?, ?it/s]pre tokenize: 100%|██████████| 1/1 [00:00<00:00, 4215.38it/s]
+Inference Embeddings:   0%|          | 0/1 [00:00<?, ?it/s]Inference Embeddings: 100%|██████████| 1/1 [00:00<00:00, 33.27it/s]
+  PASS  E-03  Query and document embedding are symmetric
+         cosine 1.000000; vectors are L2-normalised
+
+12 passed, 0 failed, 0 blocked
+wrote /Users/sripathidhruvreddy/Documents/MAJOR PROJECT/docs/evidence/gates/v6-final-4/retrieval-health.json

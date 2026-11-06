@@ -1,0 +1,13 @@
+baseline: global_legal_corpus_v6 recorded 2026-11-05T09:33:17.995155+00:00; this run: global_legal_corpus_v6
+answer gate: against answer-quality-baseline.json
+  abstention_correct       0.931 -> 0.980  (+0.049)  ok
+  ground_coverage          0.540 -> 0.643  (+0.103)  ok
+  currency_correct         1.000 -> 0.889  (-0.111)  REGRESSION
+    advocate  coverage 0.500 -> 0.500 (+0.000)
+    citizen   coverage 0.577 -> 0.717 (+0.140)
+    police    coverage 0.504 -> 0.588 (+0.084)
+
+answer gate FAILED:
+  currency_correct: 1.000 -> 0.889 (-0.111)
+
+If this drop is intended, re-record with --record and say in the commit message why the new number is the right one.

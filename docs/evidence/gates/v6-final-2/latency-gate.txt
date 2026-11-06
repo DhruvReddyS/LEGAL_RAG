@@ -1,0 +1,20 @@
+{
+  "context_deep_decode_tokens_per_second_p50": 23.55,
+  "context_deep_end_to_end_p50_ms": 48884.91,
+  "context_deep_end_to_end_p95_ms": 65292.0,
+  "deep_abstention_rate": 0.0,
+  "deep_citations_per_query": 4.1429,
+  "deep_first_useful_output_p95_ms": 8660.45,
+  "deep_mean_verification_score": 0.7681,
+  "deep_non_model_overhead_p95_ms": 2302.41,
+  "deep_runs": 21,
+  "deep_ungrounded_published_answers": 0,
+  "deep_unsupported_claims_per_query": 2.5714,
+  "fast_abstention_rate": 0.0,
+  "fast_citations_per_query": 3.7143,
+  "fast_p95_ms": 1153.31,
+  "fast_runs": 21,
+  "query_set_version": "latency-v1"
+}
+
+Latency gate passed.

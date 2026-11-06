@@ -1,0 +1,23 @@
+
+Latency gate FAILED:
+  - fast_p95_ms is 2,758 ms against a limit of 1,758 ms (contract 1,172 ms)
+  - deep_non_model_overhead_p95_ms is 7,408 ms against a limit of 3,876 ms (contract 2,584 ms)
+  - deep_first_useful_output_p95_ms is 13,275 ms against a limit of 10,717 ms (contract 7,145 ms)
+{
+  "context_deep_decode_tokens_per_second_p50": 18.01,
+  "context_deep_end_to_end_p50_ms": 71776.8,
+  "context_deep_end_to_end_p95_ms": 88223.52,
+  "deep_abstention_rate": 0.1429,
+  "deep_citations_per_query": 4.0,
+  "deep_first_useful_output_p95_ms": 13274.76,
+  "deep_mean_verification_score": 0.8154,
+  "deep_non_model_overhead_p95_ms": 7408.17,
+  "deep_runs": 21,
+  "deep_ungrounded_published_answers": 0,
+  "deep_unsupported_claims_per_query": 2.6667,
+  "fast_abstention_rate": 0.0,
+  "fast_citations_per_query": 3.4286,
+  "fast_p95_ms": 2757.93,
+  "fast_runs": 21,
+  "query_set_version": "latency-v1"
+}

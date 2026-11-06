@@ -1,0 +1,13 @@
+Wrote /Users/sripathidhruvreddy/Documents/MAJOR PROJECT/docs/evidence/gates/v6-final/haystack.json
+corpus: 1593 docs / 86127 chunks  ->  1593 docs / 86127 chunks  (1.0x)
+Read every item growth below against that corpus figure, not against 1.0x.
+
+{
+  "items_newly_findable": 0,
+  "items_still_absent": 0,
+  "items_where_recall_change_is_attributable": 2,
+  "items_whose_haystack_grew": 0,
+  "items_with_no_before_baseline": 0
+}
+
+Items whose haystack grew most -- a recall change on these is volume, not ranking:
