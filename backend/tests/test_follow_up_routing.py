@@ -107,3 +107,31 @@ class TestOneDefinitionOfABackwardReference:
         assert is_self_contained("What is theft?", [])
         assert not is_self_contained("What is theft?", [{"role": "user", "content": "hi"}])
         assert not is_self_contained("what about that?", [])
+
+
+class TestAThatWhichDescribesSomething:
+    @pytest.mark.parametrize(
+        "query",
+        [
+            "The shop refused to replace my phone that stopped working. What can I do?",
+            "Which court hears a complaint that names a public servant?",
+            "What is the law that governs a lost cheque?",
+        ],
+    )
+    def test_it_points_at_nothing_said_before(self, query: str) -> None:
+        assert not refers_backwards(query)
+
+    @pytest.mark.parametrize(
+        "query",
+        [
+            "Is that allowed?",
+            "is that still true?",
+            "What offence is that?",
+            "Can the police do that without a warrant?",
+            "Is the same law that applied before still in force?",
+            "The shop refused my phone that they sold. What about that?",
+            "what about the order that was passed?",
+        ],
+    )
+    def test_a_real_reference_still_counts(self, query: str) -> None:
+        assert refers_backwards(query)

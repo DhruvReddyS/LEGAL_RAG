@@ -41,6 +41,13 @@ _BACKREFERENCE_RE = re.compile(
     re.IGNORECASE,
 )
 
+# "my phone that stopped working" describes the phone. It points at nothing said before,
+# and reading it as a reference cost a first question about 4.5 seconds of model time.
+_DESCRIBING_THAT_RE = re.compile(
+    r"(\b(?:my|a|an|the|our)\s+(?:[\w-]+\s+){0,2}?(?!(?:do|does|did|is|are|was|were|be|can|may|must)\s)[\w-]+\s+)that\s+(?=\w)",
+    re.IGNORECASE,
+)
+
 MAX_SELF_CONTAINED_WORDS = 60
 
 
@@ -52,7 +59,7 @@ def refers_backwards(query: str) -> bool:
     its harness have already drifted apart four times in this project, and
     each time the two behaved differently while looking identical.
     """
-    return bool(_BACKREFERENCE_RE.search(query))
+    return bool(_BACKREFERENCE_RE.search(_DESCRIBING_THAT_RE.sub(r"\1", query)))
 
 
 def is_self_contained(query: str, history: list) -> bool:
