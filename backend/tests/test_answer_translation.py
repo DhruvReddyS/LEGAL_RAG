@@ -77,3 +77,23 @@ async def test_languages_do_not_share_a_cached_translation() -> None:
     await translate_answer(_Model(GOOD), message_id="m", answer=ANSWER, language_code="hi")
     with pytest.raises(TranslationRejected):
         await translate_answer(_Model(GOOD), message_id="m", answer=ANSWER, language_code="te")
+
+
+def test_a_repeat_after_the_think_tag_is_cut_off() -> None:
+    once = "## సీధా\nసెక్షన్ 138 కింద 30 రోజుల్లో [Source 1]."
+    assert answer_translation._clean(f"{once} /no_think\n\n</think>\n\n{once}") == once
+
+
+def test_markers_are_shielded_and_restored() -> None:
+    shielded = answer_translation._shield(ANSWER)
+    assert "[Source" not in shielded and "[S1]" in shielded
+    assert answer_translation._unshield(shielded) == ANSWER
+
+
+def test_long_answers_split_and_headings_stay_with_their_text() -> None:
+    paragraph = ("Words about the law that go on for a while. " * 6).strip()
+    answer = "\n\n".join(["## First", paragraph, paragraph, "## Second", paragraph, paragraph])
+    pieces = answer_translation._pieces(answer)
+    assert len(pieces) > 1
+    assert all(not piece.rstrip().splitlines()[-1].startswith("#") for piece in pieces)
+    assert "\n\n".join(pieces) == answer
