@@ -86,15 +86,26 @@ def _consent(client: httpx.Client, headers: dict[str, str]) -> None:
 
 
 def _clear_earlier_warmups(client: httpx.Client, tokens: dict[str, dict[str, str]]) -> None:
-    """Each start asks these again, and the earlier chats filled the history with repeats."""
-    questions = {question for _, question in WARM}
+    """The demo accounts are fictional, and each start, rehearsal and evaluation left
+    its questions behind, so Recent chats opened on a page of repeats. Chats outside a
+    case are cleared before warming and again after it. The verified answers stay in
+    the answer cache, which does not depend on a chat, so the demo questions stay fast.
+    Case chats are kept: they belong to the demo cases."""
     for headers in tokens.values():
-        listed = client.get("/chat/sessions", headers=headers)
-        body = listed.json() if listed.status_code == 200 else []
-        sessions = body.get("sessions", []) if isinstance(body, dict) else body
-        for session in sessions:
-            if session.get("title") in questions and not session.get("case_id"):
-                client.delete(f"/chat/sessions/{session['id']}", headers=headers)
+        cursor: str | None = None
+        while True:
+            params: dict[str, str | int] = {"limit": 100}
+            if cursor:
+                params["cursor"] = cursor
+            listed = client.get("/chat/sessions", params=params, headers=headers)
+            body = listed.json() if listed.status_code == 200 else {}
+            sessions = body.get("items", []) if isinstance(body, dict) else []
+            for session in sessions:
+                if not session.get("case_id"):
+                    client.delete(f"/chat/sessions/{session['id']}", headers=headers)
+            cursor = body.get("next_cursor") if isinstance(body, dict) else None
+            if not cursor or not sessions:
+                break
 
 
 def _wait_for(client: httpx.Client, headers: dict[str, str], job_id: str, limit: float = 180) -> str:
@@ -209,6 +220,7 @@ def main() -> int:
             failures += answer.status_code != 200 or cited == 0
             # The per-user limit on Deep requests allows two a minute.
             time.sleep(31)
+        _clear_earlier_warmups(client, tokens)
     if failures:
         print(f"{failures} demo question(s) did not publish an answer: choose others or check them.")
     return 1 if failures else 0

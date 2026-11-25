@@ -4,7 +4,7 @@ set -euo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 COMPOSE_FILE="$PROJECT_ROOT/docker/docker-compose.yml"
 ENV_FILE="$PROJECT_ROOT/.env"
-MODEL_NAME="${OLLAMA_MODEL:-qwen3:14b}"
+MODEL_NAME="${OLLAMA_MODEL:-qwen3-14b-16k:latest}"
 
 fail() {
   printf 'Corpusil host setup: %s\n' "$1" >&2
