@@ -186,6 +186,10 @@
 .pro-tabs a[aria-current="page"] { border-bottom-color: var(--pro-accent); color: var(--ink); font-weight: 600; }
 .pro-tabs a[aria-current="page"] svg { color: var(--pro-accent); }
 .pro-tabs a:focus-visible { outline-offset: -2px; }
+/* Eight tabs with icons overflow a laptop-width window, and the one that went out of
+   sight was Ask. Below 1280px the icons go, which keeps every tab in one row down to
+   a 1024px window; narrower screens still scroll. */
+@media (max-width: 1279px) { .pro-tabs a { gap: 0; padding-inline: 8px; } .pro-tabs a svg { display: none; } }
 .pro-case-body { max-width: 1160px; margin: 0 auto; padding: 22px 40px 56px; display: grid; gap: 22px; min-width: 0; }
 .pro-case-body.has-tools { grid-template-columns: 186px minmax(0, 1fr); align-items: start; }
 .pro-case-pane { min-width: 0; }

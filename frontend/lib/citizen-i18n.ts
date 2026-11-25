@@ -389,7 +389,7 @@ export const UI = {
 
   // Chat: help when something is wrong
   helplinesLabel: l("Helplines", "हेल्पलाइन", "హెల్ప్‌లైన్లు"),
-  helplineLead: l("If you or someone near you is not safe right now, please call for help.", "अगर आप या आपके पास कोई अभी सुरक्षित नहीं है, तो कृपया मदद के लिए कॉल करें।", "మీరు లేదా మీ దగ్గర ఎవరైనా ఇప్పుడు సురక్షితంగా లేకపోతే, దయచేసి సహాయం కోసం కాల్ చేయండి."),
+  helplineLead: l("If you need help right now, these numbers are free.", "अगर आप या आपके पास कोई अभी सुरक्षित नहीं है, तो कृपया मदद के लिए कॉल करें।", "మీరు లేదా మీ దగ్గర ఎవరైనా ఇప్పుడు సురక్షితంగా లేకపోతే, దయచేసి సహాయం కోసం కాల్ చేయండి."),
   helplineRest: l("Your answer is still on its way below.", "आपका उत्तर नीचे आ रहा है।", "మీ సమాధానం కింద వస్తోంది."),
   helpHeading: l("You can still get help from a person", "आप अब भी किसी व्यक्ति से मदद ले सकते हैं", "మీరు ఇప్పటికీ ఒక వ్యక్తి సహాయం పొందవచ్చు"),
   helpLead: l("This system could not find enough support to answer safely. A lawyer or a legal aid office can look at your actual situation.", "यह प्रणाली सुरक्षित उत्तर के लिए पर्याप्त आधार नहीं ढूँढ सकी। वकील या विधिक सहायता कार्यालय आपकी वास्तविक स्थिति देख सकते हैं।", "సురక్షితంగా సమాధానం ఇవ్వడానికి ఈ వ్యవస్థకు తగిన ఆధారం దొరకలేదు. న్యాయవాది లేదా న్యాయ సహాయ కార్యాలయం మీ అసలు పరిస్థితిని చూడగలరు."),

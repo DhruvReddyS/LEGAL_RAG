@@ -82,7 +82,7 @@ function ActiveCases() {
                     <strong>{item.title}</strong>
                     <span className="pro-meta">
                       {coming
-                        ? <span>Next: {coming.title}, {coming.when}</span>
+                        ? <span>{coming.at !== null && coming.at < new Date().setHours(0, 0, 0, 0) ? "Overdue" : "Next"}: {coming.title.replace(/\.$/, "")}, {coming.when}</span>
                         : <span>{isPolice && nothing.has(item.id) ? "No dates recorded yet" : "Nothing due"}</span>}
                     </span>
                   </span>

@@ -152,8 +152,8 @@ export default function AuthModal({ onSuccess, progress }: { onSuccess: (user: U
           )}
           </>}
           {error && <p role="alert" className="auth-error">{error}</p>}
-          <button type="submit" disabled={loading} className="auth-submit">
-            {loading ? <Loader2 size={17} className="animate-spin" /> : <span>{needsCode ? "Continue" : mode === "login" ? "Sign in" : "Create account"}</span>}
+          <button type="submit" disabled={loading} aria-busy={loading} className="auth-submit">
+            {loading ? <><Loader2 size={17} className="animate-spin" aria-hidden="true" /><span>{mode === "login" ? "Signing in…" : "Please wait…"}</span></> : <span>{needsCode ? "Continue" : mode === "login" ? "Sign in" : "Create account"}</span>}
             {!loading && <ArrowRight size={17}/>}
           </button>
         </form>

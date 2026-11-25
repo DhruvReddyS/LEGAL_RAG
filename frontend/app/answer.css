@@ -42,6 +42,7 @@
 .source-pill:hover {border-color:var(--accent);background:var(--card);color:var(--ink);}
 .source-pill b {display:inline-grid;place-items:center;flex:none;min-width:18px;height:18px;padding:0 3px;border-radius:4px;background:var(--accent-soft);color:var(--accent);font-weight:600;}
 .source-pill span {overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.source-pill .source-part {flex:none;font-style:normal;color:var(--ink-soft);white-space:nowrap;}
 .source-chip[aria-expanded="true"] {border-color:var(--accent);outline:1px solid var(--accent);outline-offset:0;}
 .inline-source {min-width:20px;height:20px;background:var(--accent-soft);color:var(--accent);font-weight:600;border-radius:5px;transition:background .15s,color .15s;}
 .inline-source:hover {background:var(--accent);color:var(--paper);}

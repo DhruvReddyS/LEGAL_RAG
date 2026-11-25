@@ -133,7 +133,9 @@ export function CorpusilThinking({ deep = true, stageLabel, progress, startedAt,
     return () => window.clearInterval(timer);
   }, [startedAt]);
   const current = deepStageIndex(stageLabel);
-  const steps = deep ? [t("stageSearch"), t("stageRead"), t("stageCheck"), t("stageWrite")] : [t("stageSearch")];
+  // Past 8 seconds an Auto request has moved on to the close read the line below
+  // describes, so the one step it shows must not still say it is searching.
+  const steps = deep ? [t("stageSearch"), t("stageRead"), t("stageCheck"), t("stageWrite")] : [elapsed >= 8 ? t("stageCheck") : t("stageSearch")];
   return <div className="stages">
     <span className="sr-only" role="status">{stageLabel || (deep ? t("deepInProgress") : t("searchInProgress"))}</span>
     <div className="stages-head" aria-hidden="true">
