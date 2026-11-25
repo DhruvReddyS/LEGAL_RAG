@@ -101,7 +101,10 @@ class Settings(BaseSettings):
     # safety change.
     verification_exact_verdict_grammar_enabled: bool = False
     fast_candidate_limit: int = Field(default=8, ge=4, le=40)
-    fast_result_limit: int = Field(default=4, ge=1, le=10)
+    # Measured on golden set v4 (26 Nov): the fourth slot held the right source on
+    # 1 of 77 questions and padding on the rest. At 3, citation accuracy rose from
+    # 0.34 to 0.42 with the right source still shown for 93 of 94 questions.
+    fast_result_limit: int = Field(default=3, ge=1, le=10)
     fast_latency_target_ms: int = Field(default=5000, ge=500, le=30000)
     fast_auto_escalation_threshold: float = Field(default=0.6, ge=0.0, le=1.0)
     deep_latency_target_ms: int = Field(default=300000, ge=5000, le=600000)

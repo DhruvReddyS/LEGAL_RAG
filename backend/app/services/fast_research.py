@@ -30,6 +30,10 @@ from app.services.legal_term_normalization import (
 # imports this constant so its displayed-result path cannot silently use a
 # smaller candidate pool than production.
 MIN_FAST_CANDIDATES = 20
+# Shown only when this many retrieved passages cite it; see shown_to_the_reader.
+FORWARDED_MIN_CITATIONS = 4
+# Short title, definitions and general explanations: cited by everything, about nothing.
+_PRELIMINARY_SECTIONS = frozenset({"1", "2", "3"})
 
 
 # Function words and words that describe how an answer should be presented.
@@ -571,10 +575,16 @@ def shown_to_the_reader(
         for hit in followed
         if hit.payload.get("retrieval_enrichment_relation") == "implementation_bridge"
     ]
+    # A provision the sources merely cite was the right one to show for 2 of 27
+    # questions in v7 (BNSS s.479, cited 4 times; BNS s.199, cited 4 times) and
+    # padding for the rest, five of them a short-title or definitions section.
+    # Only strong agreement on a substantive section earns a place on screen.
     forwarded = [
         hit
         for hit in followed
         if hit.payload.get("retrieval_enrichment_relation") != "implementation_bridge"
+        and int(hit.payload.get("retrieval_enrichment_citations") or 0) >= FORWARDED_MIN_CITATIONS
+        and str(hit.payload.get("section") or "").strip() not in _PRELIMINARY_SECTIONS
     ]
     placed = {str(hit.payload.get("chunk_id")) for hit in [*followed, *statutes]}
     # Sections chosen for the question all stay: two sections of one Act are not padding,

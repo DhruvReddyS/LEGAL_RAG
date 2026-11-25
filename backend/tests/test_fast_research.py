@@ -155,9 +155,8 @@ async def test_fast_research_prefers_distinct_authorities_before_duplicate_passa
         "doc-a-1",
         "doc-b-1",
         "doc-c-1",
-        "doc-d-1",
     ]
-    assert result["agent_trace"][0].details["unique_document_count"] == 4
+    assert result["agent_trace"][0].details["unique_document_count"] == 3
 
 
 @pytest.mark.asyncio

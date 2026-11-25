@@ -110,7 +110,11 @@ async def _shown_to_the_reader(
     selected = shown_to_the_reader(
         relevant, followed, statutes, limit=settings.fast_result_limit, ruled_out=ruled_out
     )
-    return [hit.payload for hit in selected]
+    # Scores travel with each payload so a display rule can be judged on them.
+    return [
+        {**hit.payload, "_scores": {"fused": hit.fused_score, "dense": hit.dense_score, "sparse": hit.sparse_score}}
+        for hit in selected
+    ]
 
 
 async def _retrieve(
@@ -300,6 +304,9 @@ async def evaluate(
                                 "enrichment_relation": str(
                                     payload.get("retrieval_enrichment_relation") or ""
                                 ),
+                                "scores": payload.get("_scores") or {},
+                                "citations": payload.get("retrieval_enrichment_citations"),
+                                "via": payload.get("retrieval_enrichment_via"),
                             }
                             for payload in shown_payloads
                         ],

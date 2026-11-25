@@ -12,7 +12,7 @@ from app.services.fast_research import (
 )
 
 
-def _hit(chunk: str, document: str, *, relation: str | None = None, document_type: str = "bare_act", source_type: str = "ACT"):
+def _hit(chunk: str, document: str, *, relation: str | None = None, document_type: str = "bare_act", source_type: str = "ACT", citations: int = 0, section: str | None = None):
     return SimpleNamespace(
         point_id=chunk,
         payload={
@@ -22,6 +22,8 @@ def _hit(chunk: str, document: str, *, relation: str | None = None, document_typ
             "source_type": source_type,
             "text": "arrest arrest without warrant police officer",
             "retrieval_enrichment_relation": relation,
+            "retrieval_enrichment_citations": citations,
+            "section": section or f"s-{chunk}",
         },
     )
 
@@ -29,11 +31,25 @@ def _hit(chunk: str, document: str, *, relation: str | None = None, document_typ
 def test_the_order_is_bridge_then_statute_then_forwarded_then_the_rest() -> None:
     shown = shown_to_the_reader(
         [_hit("ranked", "a")],
-        [_hit("forwarded", "b", relation="citation_forwarding"), _hit("bridge", "c", relation="implementation_bridge")],
+        [_hit("forwarded", "b", relation="citation_forwarding", citations=4), _hit("bridge", "c", relation="implementation_bridge")],
         [_hit("statute", "d")],
         limit=4,
     )
     assert [hit.payload["chunk_id"] for hit in shown] == ["bridge", "statute", "forwarded", "ranked"]
+
+
+def test_a_provision_cited_in_passing_is_not_shown() -> None:
+    shown = shown_to_the_reader(
+        [],
+        [
+            _hit("weak", "b", relation="citation_forwarding", citations=3),
+            _hit("short-title", "c", relation="citation_forwarding", citations=6, section="1"),
+            _hit("strong", "d", relation="citation_forwarding", citations=4, section="479"),
+        ],
+        [],
+        limit=3,
+    )
+    assert [hit.payload["chunk_id"] for hit in shown] == ["strong"]
 
 
 def test_one_passage_per_document_still_holds() -> None:

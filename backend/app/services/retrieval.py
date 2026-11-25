@@ -940,6 +940,7 @@ class HybridRetrievalService:
                     else "citation_forwarding"
                 )
                 payload["retrieval_enrichment_via"] = provision.via
+                payload["retrieval_enrichment_citations"] = provision.citations
                 found.append(
                     RetrievalHit(
                         point_id=existing.point_id,
@@ -985,6 +986,7 @@ class HybridRetrievalService:
                     else "citation_forwarding"
                 )
                 payload["retrieval_enrichment_via"] = provision.via
+                payload["retrieval_enrichment_citations"] = provision.citations
                 found.append(
                     RetrievalHit(
                         point_id=str(point.id),
