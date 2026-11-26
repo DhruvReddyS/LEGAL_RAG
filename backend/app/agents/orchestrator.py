@@ -16,6 +16,7 @@ from app.agents.retrieval_agent import retrieval_node
 from app.agents.state import AgentState
 from app.agents.verification_agent import verification_node
 from app.services.answer_cache import AnswerCache, cacheable_request
+from app.core.config import settings
 from app.services.llm import OllamaClient
 from app.services.retrieval import HybridRetrievalService
 from app.agents.role_profiles import get_role_profile, select_specialist_agent
@@ -36,6 +37,13 @@ class LegalRAGWorkflow:
         self.answer_cache = AnswerCache()
         self.retrieval = retrieval
         self.llm = llm or OllamaClient()
+        # The verifier may run on its own model; see settings.ollama_verification_model.
+        # An injected llm (tests, the evaluation harness) is used for both, as before.
+        self.verification_llm = (
+            OllamaClient(model=settings.ollama_verification_model)
+            if llm is None and settings.ollama_verification_model
+            else self.llm
+        )
         graph = StateGraph(AgentState)
         graph.add_node("role_context", self._role_context)
         graph.add_node("query_understanding", self._understand)
@@ -151,7 +159,7 @@ class LegalRAGWorkflow:
     async def _verify(self, state: AgentState) -> dict:
         await self._notify("verification", "started")
         started = perf_counter()
-        result = await verification_node(state, self.llm)
+        result = await verification_node(state, self.verification_llm)
         verification = result.get("verification_result")
         await self._notify(
             "verification",

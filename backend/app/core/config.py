@@ -165,6 +165,11 @@ class Settings(BaseSettings):
     expect_accelerated_inference: bool = False
     ollama_base_url: str = "http://localhost:11434"
     ollama_model: str = "qwen3-14b-16k:latest"
+    # A separate, smaller model for the claim verifier only. Unset, the verifier
+    # uses ollama_model as it always has. Verification is the largest share of a
+    # Deep answer's model time, so this is the lever for speed; it is measured
+    # against the answer and latency gates before it is set anywhere.
+    ollama_verification_model: str | None = None
     ollama_generation_concurrency: int = Field(default=1, ge=1, le=4)
     # Retrieval warmup does not load Ollama. Keep the reasoning model resident
     # so the first Deep request after a short idle period does not pay for it.

@@ -63,6 +63,8 @@ class AnswerCache:
                     role,
                     settings.qdrant_global_collection,
                     settings.ollama_model,
+                    # The verifier decides what is published, so its model is part of the answer.
+                    settings.ollama_verification_model,
                     self._prompts,
                     sorted(quarantined_document_ids()),
                     _currency_version(),
