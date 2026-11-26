@@ -87,8 +87,12 @@ async def _shown_to_the_reader(
     )
     focus = _focus_tokens(question)
     _, distinctive = await service.distinctive_query_terms(focus, target=target)
+    from app.services.lay_vocabulary import domain_vocabulary
+
+    # The lane passes these only when the lay vocabulary route is on; so must this.
+    domain_tokens, _ = domain_vocabulary(question) if settings.lay_vocabulary_gate_enabled else (frozenset(), ())
     relevant = publishable_hits(
-        hits, query=question, focus_tokens=focus, distinctive_terms=set(distinctive)
+        hits, query=question, focus_tokens=focus, distinctive_terms=set(distinctive), domain_tokens=domain_tokens
     )
     try:
         followed = await service.fetch_followed_provisions(
@@ -172,48 +176,21 @@ async def _abstained(
     *,
     collection: str,
 ) -> bool:
-    """Whether the Fast lane's relevance gate would leave nothing to publish.
+    """Whether the Fast lane would publish nothing for this question.
 
-    Both halves of the gate, not just the floor. An earlier version applied
-    only `_lexical_coverage`, while claiming in a comment to measure deployed
-    behaviour -- so it scored an idealised lane and would have credited the
-    mandatory-term requirement with nothing.
+    The lane refuses exactly when its shown list is empty: off topic, foreign
+    law, or nothing left after the gate, the statute lookup and the bridge.
+    This used to re-apply the lexical gate to what was shown, which dated from
+    before statutes and bridged provisions joined after the gate. It reported
+    9 of 94 answerable questions as refused that the lane answers with the
+    governing provision (BNS s.303 for theft among them), and it could not
+    have seen a gap question the lane answers through those same routes.
     """
-    from app.services.fast_research import (
-        COVERAGE_FLOOR,
-        COVERAGE_FLOOR_WITHOUT_RARE_TERM,
-        _focus_tokens,
-        _lexical_coverage,
-        _locally_matched_focus_terms,
-        _mandatory_focus_match,
-    )
     from app.services.question_scope import asks_about_foreign_law, off_topic_check_for
-    from app.services.retrieval import RetrievalFilters, RetrievalTarget
 
     if asks_about_foreign_law(question) or await off_topic_check_for(service).is_off_topic(question):
         return True
-
-    if not payloads:
-        return True
-    focus = _focus_tokens(question)
-    _, distinctive = await service.distinctive_query_terms(
-        focus,
-        target=RetrievalTarget(
-            collection_name=collection,
-            filters=RetrievalFilters(corpus_tiers=["gold", "extended"]),
-        ),
-    )
-    required = set(distinctive)
-    # Mirrors the lane: with no rare term to prove a corpus gap, coverage is
-    # the only remaining signal and carries a higher bar.
-    floor = COVERAGE_FLOOR if required else COVERAGE_FLOOR_WITHOUT_RARE_TERM
-    return not any(
-        _lexical_coverage(focus, payload) >= floor
-        and _mandatory_focus_match(
-            required, _locally_matched_focus_terms(focus, payload)
-        )
-        for payload in payloads
-    )
+    return not payloads
 
 
 async def evaluate(
