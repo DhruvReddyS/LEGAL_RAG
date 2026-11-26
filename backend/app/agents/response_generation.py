@@ -379,7 +379,17 @@ def response_generation_node(state: dict) -> dict:
                 "One or more provisions cited above were repealed without "
                 "replacement:\n\n" + dropped + "\n\n"
             )
-        if unverified:
+        if unverified and str(state.get("role") or "citizen") == "citizen":
+            # A citizen was shown the manifest's own wording ("applicability
+            # requires review before promotion"), which tells them nothing they
+            # can act on. The repeal and renumbering notices above are unchanged;
+            # only this general caution is put plainly, and the per-source
+            # cataloguing notes stay with the professional roles.
+            answer += (
+                "We could not confirm that these sources include every recent change "
+                "to the law. Check the latest official version before you act on it."
+            )
+        elif unverified:
             answer += (
                 "The remaining cited material supports the statements above, but its "
                 "current-law status is not verified in the corpus metadata. Check the "

@@ -157,3 +157,28 @@ def test_one_old_section_names_every_section_it_moved_to() -> None:
     assert len({mapping.to_section for mapping in mappings}) > 1, "this test needs a one-to-many pair"
     for mapping in mappings:
         assert f"BNSS s.{mapping.to_section}" in answer
+
+
+def _generate_as(role: str, hit: RetrievalHit, claim: str) -> str:
+    state = {
+        "draft_answer": f"{claim} [SRC:{hit.payload['chunk_id']}]",
+        "retrieved_chunks": [hit],
+        "verification_result": VerificationResult(
+            score=1,
+            supported_claims=1,
+            total_claims=1,
+            claims=[ClaimVerification(claim=claim, chunk_id=hit.payload["chunk_id"], category="direct_answer", verdict="yes")],
+        ),
+        "agent_trace": [],
+        "role": role,
+    }
+    return response_generation_node(state)["final_answer"]
+
+
+@pytest.mark.parametrize("role, plain", [("citizen", True), ("police", False), ("advocate", False)])
+def test_an_unverified_source_is_put_plainly_to_a_citizen_only(role: str, plain: bool) -> None:
+    hit = _hit("u1", "The Example Rules, 2010", currency_note="Applicability requires review before promotion.")
+    assert resolve_currency(hit.payload).status is CurrencyStatus.UNVERIFIED
+    answer = _generate_as(role, hit, "The Example Rules, 2010 require a written application")
+    assert ("Check the latest official version before you act on it." in answer) is plain
+    assert ("requires review before promotion" in answer) is not plain
