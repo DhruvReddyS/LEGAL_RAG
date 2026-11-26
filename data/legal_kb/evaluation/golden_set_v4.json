@@ -4,7 +4,8 @@
   "notes": [
     "Items name the Act and section that govern the question. Each is verified against that section's text by scripts/build_golden_set_v4.py.",
     "A passage that merely mentions a provision does not count. Repealed-code equivalents do not count, since the question is what the law is.",
-    "Written from the statutes, not from retrieval output. Do not edit an item to suit a result."
+    "Written from the statutes, not from retrieval output. Do not edit an item to suit a result.",
+    "27 Nov 2026: grounds added to 20 more items (10 police, 6 citizen, 4 advocate), each written from the governing section's text in the corpus, not from any answer. Coverage is now measured on 30 items, so it is not comparable with the earlier 10-item figure."
   ],
   "items": [
     {
@@ -335,7 +336,46 @@
           "act": "nyaya sanhita",
           "section": "309"
         }
-      ]
+      ],
+      "grounds": [
+        {
+          "name": "names BNS s.309",
+          "any_of": [
+            "309"
+          ]
+        },
+        {
+          "name": "theft becomes robbery when the offender causes or attempts death, hurt or wrongful restraint",
+          "any_of": [
+            "hurt",
+            "wrongful restraint"
+          ]
+        },
+        {
+          "name": "or puts a person in fear of instant death, hurt or restraint",
+          "any_of": [
+            "fear of instant",
+            "instant death",
+            "instant hurt"
+          ]
+        },
+        {
+          "name": "the force is used to commit the theft or carry away the property",
+          "any_of": [
+            "carrying away",
+            "carry away",
+            "committing the theft",
+            "commit the theft"
+          ]
+        },
+        {
+          "name": "extortion can also be robbery when the person is present and put in fear",
+          "any_of": [
+            "extortion"
+          ]
+        }
+      ],
+      "grounds_source": "BNS s.309 text as held in global_legal_corpus_v6 (read 27 Nov 2026)"
     },
     {
       "id": "bns-kidnapping",
@@ -348,7 +388,50 @@
           "act": "nyaya sanhita",
           "section": "137"
         }
-      ]
+      ],
+      "grounds": [
+        {
+          "name": "names BNS s.137",
+          "any_of": [
+            "137"
+          ]
+        },
+        {
+          "name": "kidnapping from India",
+          "any_of": [
+            "from india",
+            "beyond the limits of india"
+          ]
+        },
+        {
+          "name": "kidnapping from lawful guardianship",
+          "any_of": [
+            "lawful guardianship",
+            "lawful guardian"
+          ]
+        },
+        {
+          "name": "a child or a person of unsound mind",
+          "any_of": [
+            "unsound mind"
+          ]
+        },
+        {
+          "name": "without the guardian's consent",
+          "any_of": [
+            "without the consent",
+            "without consent"
+          ]
+        },
+        {
+          "name": "punishable with up to seven years and fine",
+          "any_of": [
+            "seven years",
+            "7 years"
+          ]
+        }
+      ],
+      "grounds_source": "BNS s.137 text as held in global_legal_corpus_v6 (read 27 Nov 2026)"
     },
     {
       "id": "bnss-arrest-no-warrant",
@@ -361,7 +444,71 @@
           "act": "nagarik suraksha",
           "section": "35"
         }
-      ]
+      ],
+      "grounds": [
+        {
+          "name": "names BNSS s.35",
+          "any_of": [
+            "35"
+          ]
+        },
+        {
+          "name": "cognizable offence committed in the officer's presence",
+          "any_of": [
+            "in the presence of",
+            "in his presence",
+            "in their presence",
+            "in the officer's presence"
+          ]
+        },
+        {
+          "name": "reasonable complaint, credible information or reasonable suspicion",
+          "any_of": [
+            "credible information",
+            "reasonable suspicion",
+            "reasonable complaint"
+          ]
+        },
+        {
+          "name": "offences up to seven years need a necessity condition",
+          "any_of": [
+            "seven years",
+            "7 years"
+          ]
+        },
+        {
+          "name": "to prevent a further offence",
+          "any_of": [
+            "further offence"
+          ]
+        },
+        {
+          "name": "for proper investigation",
+          "any_of": [
+            "proper investigation"
+          ]
+        },
+        {
+          "name": "to stop evidence being destroyed or tampered with",
+          "any_of": [
+            "tamper",
+            "disappear"
+          ]
+        },
+        {
+          "name": "reasons recorded in writing",
+          "any_of": [
+            "in writing"
+          ]
+        },
+        {
+          "name": "notice to appear where arrest is not needed",
+          "any_of": [
+            "notice"
+          ]
+        }
+      ],
+      "grounds_source": "BNSS s.35 text as held in global_legal_corpus_v6 (read 27 Nov 2026)"
     },
     {
       "id": "bnss-arrest-current",
@@ -600,7 +747,53 @@
           "act": "nagarik suraksha",
           "section": "48"
         }
-      ]
+      ],
+      "grounds": [
+        {
+          "name": "police must tell a relative, friend or nominated person",
+          "any_of": [
+            "relative",
+            "friend"
+          ]
+        },
+        {
+          "name": "forthwith",
+          "any_of": [
+            "forthwith",
+            "immediately",
+            "without delay"
+          ]
+        },
+        {
+          "name": "including where the person is held",
+          "any_of": [
+            "being held",
+            "where he is held",
+            "where they are held",
+            "place where"
+          ]
+        },
+        {
+          "name": "and the designated police officer in the district",
+          "any_of": [
+            "designated police officer"
+          ]
+        },
+        {
+          "name": "an entry is made in a book at the police station",
+          "any_of": [
+            "book",
+            "register"
+          ]
+        },
+        {
+          "name": "the Magistrate checks this was done",
+          "any_of": [
+            "magistrate"
+          ]
+        }
+      ],
+      "grounds_source": "BNSS s.48 text as held in global_legal_corpus_v6 (read 27 Nov 2026)"
     },
     {
       "id": "bnss-produce-24h",
@@ -613,7 +806,37 @@
           "act": "nagarik suraksha",
           "section": "58"
         }
-      ]
+      ],
+      "grounds": [
+        {
+          "name": "names BNSS s.58",
+          "any_of": [
+            "58"
+          ]
+        },
+        {
+          "name": "no longer than twenty-four hours",
+          "any_of": [
+            "twenty-four hours",
+            "24 hours"
+          ]
+        },
+        {
+          "name": "excluding the journey to the Magistrate",
+          "any_of": [
+            "journey",
+            "travel"
+          ]
+        },
+        {
+          "name": "longer only on a Magistrate's order under s.187",
+          "any_of": [
+            "187",
+            "special order"
+          ]
+        }
+      ],
+      "grounds_source": "BNSS s.58 text as held in global_legal_corpus_v6 (read 27 Nov 2026)"
     },
     {
       "id": "bnss-medical-exam",
@@ -626,7 +849,46 @@
           "act": "nagarik suraksha",
           "section": "51"
         }
-      ]
+      ],
+      "grounds": [
+        {
+          "name": "reasonable grounds that examination will afford evidence",
+          "any_of": [
+            "afford evidence",
+            "reasonable grounds"
+          ]
+        },
+        {
+          "name": "by a registered medical practitioner at police request",
+          "any_of": [
+            "registered medical practitioner",
+            "medical practitioner"
+          ]
+        },
+        {
+          "name": "a woman is examined only by or under a female practitioner",
+          "any_of": [
+            "female registered medical practitioner",
+            "female medical practitioner",
+            "woman medical",
+            "female doctor"
+          ]
+        },
+        {
+          "name": "force only as reasonably necessary",
+          "any_of": [
+            "reasonably necessary"
+          ]
+        },
+        {
+          "name": "report forwarded to the investigating officer without delay",
+          "any_of": [
+            "without any delay",
+            "without delay"
+          ]
+        }
+      ],
+      "grounds_source": "BNSS s.51 text as held in global_legal_corpus_v6 (read 27 Nov 2026)"
     },
     {
       "id": "bnss-identification",
@@ -689,7 +951,68 @@
           "act": "nagarik suraksha",
           "section": "173"
         }
-      ]
+      ],
+      "grounds": [
+        {
+          "name": "names BNSS s.173",
+          "any_of": [
+            "173"
+          ]
+        },
+        {
+          "name": "may be given orally",
+          "any_of": [
+            "orally",
+            "oral"
+          ]
+        },
+        {
+          "name": "or by electronic communication",
+          "any_of": [
+            "electronic",
+            "e-mail",
+            "email",
+            "online"
+          ]
+        },
+        {
+          "name": "at any police station, whatever the area",
+          "any_of": [
+            "irrespective of the area",
+            "any police station",
+            "zero fir"
+          ]
+        },
+        {
+          "name": "written down and read over to the informant",
+          "any_of": [
+            "read over"
+          ]
+        },
+        {
+          "name": "signed by the informant",
+          "any_of": [
+            "signed",
+            "sign"
+          ]
+        },
+        {
+          "name": "an electronic FIR is signed within three days",
+          "any_of": [
+            "three days",
+            "3 days"
+          ]
+        },
+        {
+          "name": "certain offences against women recorded by a woman officer",
+          "any_of": [
+            "woman police officer",
+            "woman officer",
+            "female officer"
+          ]
+        }
+      ],
+      "grounds_source": "BNSS s.173 text as held in global_legal_corpus_v6 (read 27 Nov 2026)"
     },
     {
       "id": "bnss-fir-refused",
@@ -715,7 +1038,57 @@
           "act": "nagarik suraksha",
           "section": "192"
         }
-      ]
+      ],
+      "grounds": [
+        {
+          "name": "entered day by day",
+          "any_of": [
+            "day by day",
+            "every day",
+            "daily"
+          ]
+        },
+        {
+          "name": "time the information reached and investigation began and closed",
+          "any_of": [
+            "time at which",
+            "time the information"
+          ]
+        },
+        {
+          "name": "places visited",
+          "any_of": [
+            "places visited",
+            "place or places"
+          ]
+        },
+        {
+          "name": "statements of witnesses go into the diary",
+          "any_of": [
+            "statements of witnesses",
+            "witness statements"
+          ]
+        },
+        {
+          "name": "a volume, duly paginated",
+          "any_of": [
+            "paginated"
+          ]
+        },
+        {
+          "name": "court may use it to aid, not as evidence",
+          "any_of": [
+            "not as evidence"
+          ]
+        },
+        {
+          "name": "accused not entitled to call for it",
+          "any_of": [
+            "accused"
+          ]
+        }
+      ],
+      "grounds_source": "BNSS s.192 text as held in global_legal_corpus_v6 (read 27 Nov 2026)"
     },
     {
       "id": "bnss-final-report",
@@ -741,7 +1114,45 @@
           "act": "nagarik suraksha",
           "section": "194"
         }
-      ]
+      ],
+      "grounds": [
+        {
+          "name": "immediately inform the Executive Magistrate",
+          "any_of": [
+            "executive magistrate"
+          ]
+        },
+        {
+          "name": "in the presence of two or more respectable inhabitants",
+          "any_of": [
+            "respectable inhabitants",
+            "two or more"
+          ]
+        },
+        {
+          "name": "report of the apparent cause of death",
+          "any_of": [
+            "apparent cause of death",
+            "cause of death"
+          ]
+        },
+        {
+          "name": "describe wounds and marks of injury",
+          "any_of": [
+            "wounds",
+            "marks of injury",
+            "injuries"
+          ]
+        },
+        {
+          "name": "forward the report within twenty-four hours",
+          "any_of": [
+            "twenty-four hours",
+            "24 hours"
+          ]
+        }
+      ],
+      "grounds_source": "BNSS s.194 text as held in global_legal_corpus_v6 (read 27 Nov 2026)"
     },
     {
       "id": "bnss-custody-death",
@@ -767,7 +1178,39 @@
           "act": "nagarik suraksha",
           "section": "105"
         }
-      ]
+      ],
+      "grounds": [
+        {
+          "name": "recorded by audio-video electronic means",
+          "any_of": [
+            "audio-video",
+            "audio video",
+            "videograph"
+          ]
+        },
+        {
+          "name": "preferably on a mobile phone",
+          "any_of": [
+            "mobile phone"
+          ]
+        },
+        {
+          "name": "covers the seizure list and its signing by witnesses",
+          "any_of": [
+            "list of",
+            "seizure list",
+            "signing",
+            "signed by"
+          ]
+        },
+        {
+          "name": "recording forwarded to the Magistrate without delay",
+          "any_of": [
+            "without delay"
+          ]
+        }
+      ],
+      "grounds_source": "BNSS s.105 text as held in global_legal_corpus_v6 (read 27 Nov 2026)"
     },
     {
       "id": "bnss-search-officer",
@@ -793,7 +1236,48 @@
           "act": "nagarik suraksha",
           "section": "106"
         }
-      ]
+      ],
+      "grounds": [
+        {
+          "name": "property alleged or suspected to be stolen",
+          "any_of": [
+            "stolen"
+          ]
+        },
+        {
+          "name": "found in circumstances creating suspicion of an offence",
+          "any_of": [
+            "suspicion"
+          ]
+        },
+        {
+          "name": "seizure reported forthwith to the Magistrate",
+          "any_of": [
+            "magistrate"
+          ]
+        },
+        {
+          "name": "a subordinate officer reports to the officer in charge",
+          "any_of": [
+            "officer in charge"
+          ]
+        },
+        {
+          "name": "custody may be given to a person on a bond",
+          "any_of": [
+            "bond"
+          ]
+        },
+        {
+          "name": "perishable property under five hundred rupees may be auctioned",
+          "any_of": [
+            "auction",
+            "five hundred",
+            "500"
+          ]
+        }
+      ],
+      "grounds_source": "BNSS s.106 text as held in global_legal_corpus_v6 (read 27 Nov 2026)"
     },
     {
       "id": "bnss-produce-document",
@@ -937,7 +1421,62 @@
           "act": "nagarik suraksha",
           "section": "480"
         }
-      ]
+      ],
+      "grounds": [
+        {
+          "name": "names BNSS s.480",
+          "any_of": [
+            "480"
+          ]
+        },
+        {
+          "name": "bail is at the court's discretion",
+          "any_of": [
+            "may be released"
+          ]
+        },
+        {
+          "name": "not if reasonable grounds of an offence punishable with death or life",
+          "any_of": [
+            "imprisonment for life",
+            "life imprisonment"
+          ]
+        },
+        {
+          "name": "not on certain previous convictions",
+          "any_of": [
+            "previously convicted",
+            "previous conviction"
+          ]
+        },
+        {
+          "name": "exception for a woman",
+          "any_of": [
+            "woman"
+          ]
+        },
+        {
+          "name": "exception for the sick or infirm",
+          "any_of": [
+            "sick",
+            "infirm"
+          ]
+        },
+        {
+          "name": "release if a magistrate trial does not end within sixty days",
+          "any_of": [
+            "sixty days",
+            "60 days"
+          ]
+        },
+        {
+          "name": "reasons recorded in writing",
+          "any_of": [
+            "in writing"
+          ]
+        }
+      ],
+      "grounds_source": "BNSS s.480 text as held in global_legal_corpus_v6 (read 27 Nov 2026)"
     },
     {
       "id": "bnss-bail-high-court",
@@ -963,7 +1502,69 @@
           "act": "nagarik suraksha",
           "section": "479"
         }
-      ]
+      ],
+      "grounds": [
+        {
+          "name": "names BNSS s.479",
+          "any_of": [
+            "479"
+          ]
+        },
+        {
+          "name": "released on bail after half the maximum sentence",
+          "any_of": [
+            "one-half",
+            "half"
+          ]
+        },
+        {
+          "name": "a first-time offender after one-third, on bond",
+          "any_of": [
+            "one-third",
+            "third"
+          ]
+        },
+        {
+          "name": "first-time offender",
+          "any_of": [
+            "first-time offender",
+            "first time offender"
+          ]
+        },
+        {
+          "name": "not for offences punishable with death or life imprisonment",
+          "any_of": [
+            "life imprisonment",
+            "imprisonment for life"
+          ]
+        },
+        {
+          "name": "never beyond the maximum sentence",
+          "any_of": [
+            "maximum period"
+          ]
+        },
+        {
+          "name": "delay caused by the accused is excluded",
+          "any_of": [
+            "delay"
+          ]
+        },
+        {
+          "name": "not if several cases are pending",
+          "any_of": [
+            "more than one offence",
+            "multiple cases"
+          ]
+        },
+        {
+          "name": "the jail superintendent applies to the court",
+          "any_of": [
+            "superintendent"
+          ]
+        }
+      ],
+      "grounds_source": "BNSS s.479 text as held in global_legal_corpus_v6 (read 27 Nov 2026)"
     },
     {
       "id": "bnss-bailable",
@@ -976,7 +1577,49 @@
           "act": "nagarik suraksha",
           "section": "478"
         }
-      ]
+      ],
+      "grounds": [
+        {
+          "name": "names BNSS s.478",
+          "any_of": [
+            "478"
+          ]
+        },
+        {
+          "name": "shall be released on bail, as of right",
+          "any_of": [
+            "shall be released on bail",
+            "right to bail",
+            "entitled to bail",
+            "must be released"
+          ]
+        },
+        {
+          "name": "at any time in custody or at any stage before the court",
+          "any_of": [
+            "any stage",
+            "at any time"
+          ]
+        },
+        {
+          "name": "an indigent person is released on a bond without surety",
+          "any_of": [
+            "indigent",
+            "without surety",
+            "without sureties",
+            "unable to furnish surety"
+          ]
+        },
+        {
+          "name": "unable to give bail within a week presumes indigence",
+          "any_of": [
+            "within a week",
+            "one week",
+            "seven days"
+          ]
+        }
+      ],
+      "grounds_source": "BNSS s.478 text as held in global_legal_corpus_v6 (read 27 Nov 2026)"
     },
     {
       "id": "bsa-current",
@@ -1067,7 +1710,41 @@
           "act": "sakshya adhiniyam",
           "section": "23"
         }
-      ]
+      ],
+      "grounds": [
+        {
+          "name": "names BSA s.23",
+          "any_of": [
+            "23"
+          ]
+        },
+        {
+          "name": "a confession to a police officer cannot be proved against the accused",
+          "any_of": [
+            "not admissible",
+            "inadmissible",
+            "cannot be proved",
+            "shall not be proved",
+            "shall be proved",
+            "cannot be used"
+          ]
+        },
+        {
+          "name": "a confession in police custody only if made before a Magistrate",
+          "any_of": [
+            "presence of a magistrate",
+            "before a magistrate"
+          ]
+        },
+        {
+          "name": "information leading to a discovered fact may be proved",
+          "any_of": [
+            "discovered",
+            "discovery"
+          ]
+        }
+      ],
+      "grounds_source": "BSA s.23 text as held in global_legal_corpus_v6 (read 27 Nov 2026)"
     },
     {
       "id": "bsa-electronic",
@@ -1132,7 +1809,49 @@
           "act": "sexual offences",
           "section": "19"
         }
-      ]
+      ],
+      "grounds": [
+        {
+          "name": "any person, including the child, must report",
+          "any_of": [
+            "any person"
+          ]
+        },
+        {
+          "name": "apprehension that an offence is likely, or knowledge of one",
+          "any_of": [
+            "apprehension",
+            "likely to be committed"
+          ]
+        },
+        {
+          "name": "report to the Special Juvenile Police Unit",
+          "any_of": [
+            "special juvenile police unit",
+            "sjpu"
+          ]
+        },
+        {
+          "name": "or to the local police",
+          "any_of": [
+            "local police"
+          ]
+        },
+        {
+          "name": "recorded in writing and read over",
+          "any_of": [
+            "read over"
+          ]
+        },
+        {
+          "name": "reported to the Child Welfare Committee and Special Court within twenty-four hours",
+          "any_of": [
+            "twenty-four hours",
+            "24 hours"
+          ]
+        }
+      ],
+      "grounds_source": "POCSO s.19 text as held in global_legal_corpus_v6 (read 27 Nov 2026)"
     },
     {
       "id": "pocso-assault",
@@ -1262,7 +1981,46 @@
           "act": "contract act",
           "section": "73"
         }
-      ]
+      ],
+      "grounds": [
+        {
+          "name": "names s.73",
+          "any_of": [
+            "73"
+          ]
+        },
+        {
+          "name": "loss that naturally arose in the usual course of things",
+          "any_of": [
+            "usual course",
+            "naturally arose",
+            "naturally arising"
+          ]
+        },
+        {
+          "name": "or that the parties knew was likely when contracting",
+          "any_of": [
+            "knew",
+            "contemplat"
+          ]
+        },
+        {
+          "name": "not remote or indirect loss",
+          "any_of": [
+            "remote",
+            "indirect"
+          ]
+        },
+        {
+          "name": "the means of remedying the breach are taken into account",
+          "any_of": [
+            "means which existed",
+            "remedying",
+            "mitigat"
+          ]
+        }
+      ],
+      "grounds_source": "ICA s.73 text as held in global_legal_corpus_v6 (read 27 Nov 2026)"
     },
     {
       "id": "consumer-complaint",
@@ -1379,7 +2137,63 @@
           "act": "hindu marriage",
           "section": "13"
         }
-      ]
+      ],
+      "grounds": [
+        {
+          "name": "adultery",
+          "any_of": [
+            "adultery",
+            "sexual intercourse with any person other"
+          ]
+        },
+        {
+          "name": "cruelty",
+          "any_of": [
+            "cruelty"
+          ]
+        },
+        {
+          "name": "desertion for two years",
+          "any_of": [
+            "desert"
+          ]
+        },
+        {
+          "name": "conversion to another religion",
+          "any_of": [
+            "conver",
+            "ceased to be a hindu"
+          ]
+        },
+        {
+          "name": "unsound mind or mental disorder",
+          "any_of": [
+            "unsound mind",
+            "mental disorder"
+          ]
+        },
+        {
+          "name": "venereal disease",
+          "any_of": [
+            "venereal"
+          ]
+        },
+        {
+          "name": "renounced the world",
+          "any_of": [
+            "renounced",
+            "religious order"
+          ]
+        },
+        {
+          "name": "not heard of for seven years",
+          "any_of": [
+            "seven years",
+            "not been heard"
+          ]
+        }
+      ],
+      "grounds_source": "HMA s.13 text as held in global_legal_corpus_v6 (read 27 Nov 2026)"
     },
     {
       "id": "hma-maintenance",
@@ -1431,7 +2245,59 @@
           "act": "negotiable instruments",
           "section": "138"
         }
-      ]
+      ],
+      "grounds": [
+        {
+          "name": "names s.138 of the NI Act",
+          "any_of": [
+            "138"
+          ]
+        },
+        {
+          "name": "cheque presented within six months or its validity",
+          "any_of": [
+            "six months",
+            "6 months",
+            "validity"
+          ]
+        },
+        {
+          "name": "written notice within thirty days of the bank's information",
+          "any_of": [
+            "thirty days",
+            "30 days"
+          ]
+        },
+        {
+          "name": "drawer fails to pay within fifteen days of notice",
+          "any_of": [
+            "fifteen days",
+            "15 days"
+          ]
+        },
+        {
+          "name": "up to two years' imprisonment",
+          "any_of": [
+            "two years",
+            "2 years"
+          ]
+        },
+        {
+          "name": "or fine up to twice the cheque amount",
+          "any_of": [
+            "twice the amount",
+            "twice",
+            "double"
+          ]
+        },
+        {
+          "name": "for a legally enforceable debt",
+          "any_of": [
+            "legally enforceable"
+          ]
+        }
+      ],
+      "grounds_source": "NI Act s.138 text as held in global_legal_corpus_v6 (read 27 Nov 2026)"
     },
     {
       "id": "limitation-bar",
@@ -1444,7 +2310,45 @@
           "act": "limitation act",
           "section": "3"
         }
-      ]
+      ],
+      "grounds": [
+        {
+          "name": "names s.3 of the Limitation Act",
+          "any_of": [
+            "section 3",
+            "s.3",
+            "s. 3"
+          ]
+        },
+        {
+          "name": "a late suit, appeal or application shall be dismissed",
+          "any_of": [
+            "dismissed"
+          ]
+        },
+        {
+          "name": "even if limitation is not raised as a defence",
+          "any_of": [
+            "set up as a defence",
+            "raised as a defence",
+            "not raised",
+            "not pleaded"
+          ]
+        },
+        {
+          "name": "subject to sections 4 to 24",
+          "any_of": [
+            "4 to 24"
+          ]
+        },
+        {
+          "name": "a suit is instituted when the plaint is presented",
+          "any_of": [
+            "plaint"
+          ]
+        }
+      ],
+      "grounds_source": "Limitation Act s.3 text as held in global_legal_corpus_v6 (read 27 Nov 2026)"
     },
     {
       "id": "cpc-jurisdiction",
