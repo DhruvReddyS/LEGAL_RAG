@@ -206,6 +206,11 @@ def main() -> int:
         _record_police_dates(client, tokens["police"], police_case)
         advocate_case = _seed_case(client, tokens["advocate"], ADVOCATE_CASE, ADVOCATE_FILES)
         _record_advocate_dates(client, tokens["advocate"], advocate_case)
+        # The helpline check runs on the first question anyone asks. Cold, it ran past
+        # its five-second limit, failed safe, and showed helplines beside a cheque
+        # question after a nine-second wait.
+        for headers in tokens.values():
+            client.post("/chat/safety-check", json={"query": "What does the law say?"}, headers=headers)
         print("Warming demo questions")
         _clear_earlier_warmups(client, tokens)
         failures = 0
