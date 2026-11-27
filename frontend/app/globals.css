@@ -357,9 +357,13 @@
 .case-status {border:1px solid var(--border);border-radius:8px;padding:4px 8px;background:var(--paper);color:var(--ink);font-size:13px;}
 .draft-action {display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border:1px solid var(--border);border-radius:7px;color:var(--ink-soft);font-size:12px;transition:border-color .15s,color .15s;}
 .draft-action:hover {border-color:var(--accent);color:var(--ink);}
-.helpline-notice {margin:0 0 14px;padding:12px 14px;border:1px solid var(--state-warn-line);border-radius:10px;background:var(--state-warn-bg);color:var(--ink);font-size:13px;line-height:1.55;}
-.helpline-notice ul {display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px;list-style:none;padding:0;}
-.helpline-notice a {display:inline-flex;align-items:center;gap:5px;color:var(--state-warn-text);min-height:32px;}
+.helpline-notice {margin:0 0 16px;padding:10px 12px;border:1px solid var(--border);border-left:3px solid var(--state-warn-line);border-radius:10px;background:var(--card);color:var(--ink-soft);font-size:12.5px;line-height:1.5;animation:soft-in .3s ease;}
+.helpline-notice p strong {color:var(--ink);font-weight:600;}
+.helpline-notice ul {display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;list-style:none;padding:0;}
+.helpline-notice a {display:inline-flex;align-items:center;gap:6px;min-height:28px;padding:0 10px;border:1px solid var(--border);border-radius:999px;color:var(--ink-soft);transition:border-color .15s,color .15s,background .15s;}
+.helpline-notice a strong {color:var(--ink);font-variant-numeric:tabular-nums;}
+.helpline-notice a:hover {border-color:var(--state-warn-line);background:var(--hover);color:var(--ink);}
+.helpline-notice a svg {color:var(--state-warn-text);}
 .source-currency {margin-top:20px;padding:12px 14px;border:1px solid var(--state-warn-line);border-radius:10px;background:var(--state-warn-bg);font-size:13px;line-height:1.6;}
 .source-currency h3 {margin:0 0 6px;font-size:13px;font-weight:600;color:var(--state-warn-text);}
 .source-currency p+p,.source-currency ul {margin-top:6px;}

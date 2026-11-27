@@ -182,3 +182,33 @@
   .fast-excerpt.is-collapsed {display:block;overflow:visible;}
   .fast-card {break-inside:avoid;}
 }
+
+/* The wait. Modelled on how the major assistants show work in progress: no box, a
+   small mark that moves, one line that says what is happening now, and the detail
+   underneath for anyone who wants it. */
+.thinking {display:flex;align-items:flex-start;gap:12px;max-width:560px;padding:4px 0;animation:soft-in .3s ease;}
+.thinking-mark {position:relative;display:grid;place-items:center;flex:none;width:28px;height:28px;border-radius:50%;color:var(--accent);background:var(--accent-soft);}
+.thinking-mark::before {content:"";position:absolute;inset:-2px;border-radius:50%;padding:2px;background:conic-gradient(from 0deg,transparent 0 55%,var(--accent) 80%,transparent 100%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:thinking-spin 1.4s linear infinite;}
+.thinking-mark svg {animation:thinking-breathe 2.4s ease-in-out infinite;}
+.thinking-body {display:grid;gap:6px;min-width:0;padding-top:4px;}
+.thinking-line {display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin:0;font-size:14.5px;line-height:1.45;}
+.thinking-text {font-weight:500;color:transparent;background:linear-gradient(90deg,var(--ink-soft) 0%,var(--ink-soft) 35%,var(--ink) 50%,var(--ink-soft) 65%,var(--ink-soft) 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;animation:thinking-shimmer 2.2s linear infinite,thinking-swap .35s ease;}
+.thinking-time {font-size:12px;color:var(--ink-soft);font-variant-numeric:tabular-nums;opacity:.8;}
+.thinking-note {margin:0;font-size:12.5px;line-height:1.5;color:var(--ink-soft);}
+.thinking-steps {display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 0;padding:0;list-style:none;}
+.thinking-steps li {display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 9px 0 6px;border:1px solid var(--border);border-radius:999px;font-size:12px;color:var(--ink-soft);transition:color .25s,border-color .25s,background .25s;}
+.thinking-steps li[data-state="active"] {border-color:color-mix(in srgb,var(--accent) 55%,var(--border));background:var(--accent-soft);color:var(--ink);}
+.thinking-steps li[data-state="done"] {color:var(--ink);}
+.thinking-step-dot {display:grid;place-items:center;width:12px;height:12px;border:1.5px solid var(--border);border-radius:50%;color:var(--paper);}
+.thinking-steps li[data-state="done"] .thinking-step-dot {border-color:var(--accent);background:var(--accent);}
+.thinking-steps li[data-state="active"] .thinking-step-dot {border-color:var(--accent);}
+.thinking-steps li[data-state="active"] .thinking-step-dot::after {content:"";width:5px;height:5px;border-radius:50%;background:var(--accent);animation:stage-pulse 1.4s ease-in-out infinite;}
+.thinking .thinking-progress {max-width:320px;margin-top:2px;}
+@keyframes thinking-spin {to{transform:rotate(360deg)}}
+@keyframes thinking-breathe {50%{transform:scale(.88);opacity:.75}}
+@keyframes thinking-shimmer {from{background-position:100% 0}to{background-position:-150% 0}}
+@keyframes thinking-swap {from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce) {
+  .thinking-mark::before,.thinking-mark svg,.thinking-text {animation:none;}
+  .thinking-text {color:var(--ink);background:none;}
+}

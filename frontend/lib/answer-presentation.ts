@@ -176,8 +176,20 @@ type SourceFields = {
 };
 
 /** Act and section, as a person would name the source. */
+const SMALL_WORDS = new Set(["a", "an", "and", "as", "at", "by", "for", "from", "in", "into", "of", "on", "or", "the", "to", "under", "with"]);
+
+/** "THE BHARATIYA NYAYA SANHITA, 2023" as "The Bharatiya Nyaya Sanhita, 2023". The corpus
+ *  holds both forms of one Act, and side by side they read as two different laws. Text
+ *  that is not entirely capitals is left exactly as the source has it. */
+export function readableActName(name: string): string {
+  const letters = name.replace(/[^A-Za-z]/g, "");
+  if (letters.length < 4 || letters !== letters.toUpperCase()) return name;
+  return name.toLowerCase().replace(/[a-z][a-z'’]*/g, (word, offset: number) =>
+    offset > 0 && SMALL_WORDS.has(word) ? word : word[0].toUpperCase() + word.slice(1));
+}
+
 export function sourceHeading(source: SourceFields) {
-  const act = (source.act_name || source.title).trim();
+  const act = readableActName((source.act_name || source.title).trim());
   const raw = (source.section ?? "").trim().replace(/^(?:section|sec\.?|s\.)\s*/i, "");
   const key = (text: string) => text.toLowerCase().replace(/^the\s+/, "").replace(/[^a-z0-9]+/g, " ").trim();
   const sameDocument = key(source.title).includes(key(act)) || key(act).includes(key(source.title));

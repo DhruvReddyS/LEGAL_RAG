@@ -216,8 +216,9 @@ export default function MessageBubble({ message, onRegenerate, onForgetDocuments
         // Two passages of one section read as the same source twice, which looks like a
         // mistake. Each keeps its own number; a repeat is told apart by its passage.
         const labels = citations.map(item => { const heading = sourceHeading(item); return `${heading.section ? `${heading.sectionIsNumber ? "s." : ""}${heading.section}, ` : ""}${heading.act}`; });
+        const same = (label: string) => label.toLowerCase();
         const seen = new Map<string, number>();
-        return citations.map((item, index) => { const label = labels[index]; const repeats = labels.filter(other => other === label).length > 1; const passage = (seen.get(label) ?? 0) + 1; seen.set(label, passage); return <button key={item.chunk_id} className="source-chip source-pill" onClick={() => toggle(`S${item.number}`)} aria-expanded={active === `S${item.number}`} aria-label={`${text("previewSource")} ${item.number}: ${item.title}`}><b>{item.number}</b><span>{label}</span>{repeats && <i className="source-part">part {passage}</i>}</button>; });
+        return citations.map((item, index) => { const label = labels[index]; const repeats = labels.filter(other => same(other) === same(label)).length > 1; const passage = (seen.get(same(label)) ?? 0) + 1; seen.set(same(label), passage); return <button key={item.chunk_id} className="source-chip source-pill" onClick={() => toggle(`S${item.number}`)} aria-expanded={active === `S${item.number}`} aria-label={`${text("previewSource")} ${item.number}: ${item.title}`}><b>{item.number}</b><span>{label}</span>{repeats && <i className="source-part">part {passage}</i>}</button>; });
       })()}
       {!citations.length && !declined && <span>{text("noCitedAuthority")}</span>}
       {message.documents?.map((doc, index) => <button key={doc.id} className="document-chip" onClick={() => toggle(`D${index + 1}`)} aria-expanded={active === `D${index + 1}`} title={`Your document: ${doc.filename}`}>D{index + 1}</button>)}

@@ -133,23 +133,30 @@ export function CorpusilThinking({ deep = true, stageLabel, progress, startedAt,
     return () => window.clearInterval(timer);
   }, [startedAt]);
   const current = deepStageIndex(stageLabel);
-  // Past 8 seconds an Auto request has moved on to the close read the line below
-  // describes, so the one step it shows must not still say it is searching.
-  const steps = deep ? [t("stageSearch"), t("stageRead"), t("stageCheck"), t("stageWrite")] : [elapsed >= 8 ? t("stageCheck") : t("stageSearch")];
-  return <div className="stages">
-    <span className="sr-only" role="status">{stageLabel || (deep ? t("deepInProgress") : t("searchInProgress"))}</span>
-    <div className="stages-head" aria-hidden="true">
-      <strong>{deep ? t("deepInProgress") : t("searchInProgress")}</strong>
-      {!!startedAt && <span>{typeof progress === "number" && deep ? `${progress}% · ` : ""}{clockLabel(elapsed)}{deep ? ` ${t("elapsedUsual")}` : ""}</span>}
+  const steps = [t("stageSearch"), t("stageRead"), t("stageCheck"), t("stageWrite")];
+  // A Fast or Auto request reports no stages of its own. Past 8 seconds it has moved
+  // on to the close read, so its one line must not still say it is searching.
+  const line = deep
+    ? (current >= 0 ? steps[current] : stageLabel || t("deepInProgress"))
+    : (elapsed >= 8 ? t("stageCheck") : t("stageSearch"));
+  const showQueue = current < 0 && !!stageLabel && deep;
+  return <div className="thinking" data-deep={deep || undefined}>
+    <span className="sr-only" role="status">{stageLabel || line}</span>
+    <span className="thinking-mark" aria-hidden="true"><Scale size={14} strokeWidth={2} /></span>
+    <div className="thinking-body" aria-hidden="true">
+      <p className="thinking-line">
+        <span key={line} className="thinking-text">{line}</span>
+        {!!startedAt && <span className="thinking-time">{typeof progress === "number" && deep ? `${progress}% · ` : ""}{clockLabel(elapsed)}</span>}
+      </p>
+      {showQueue && <p className="thinking-note">{stageLabel}</p>}
+      {!deep && elapsed >= 8 && <p className="thinking-note">{t("stageLonger")}</p>}
+      {deep && <ol className="thinking-steps">
+        {steps.map((step, index) => {
+          const state = current < 0 ? "pending" : index < current ? "done" : index === current ? "active" : "pending";
+          return <li key={step} data-state={state}><span className="thinking-step-dot">{state === "done" && <Check size={9} strokeWidth={3} />}</span><span className="thinking-step-label">{step}</span></li>;
+        })}
+      </ol>}
+      {deep && typeof progress === "number" && <div className="thinking-progress" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label={t("deepProgress")}><span style={{ width: `${Math.max(2, progress)}%` }} /></div>}
     </div>
-    {deep && typeof progress === "number" && <div className="thinking-progress" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label={t("deepProgress")}><span style={{ width: `${Math.max(2, progress)}%` }} /></div>}
-    {current < 0 && stageLabel && <p className="stages-queue" aria-hidden="true">{stageLabel}</p>}
-    {!deep && elapsed >= 8 && <p className="stages-queue" role="status">{t("stageLonger")}</p>}
-    <ol className="stages-list" aria-hidden="true">
-      {steps.map((step, index) => {
-        const state = current < 0 ? "pending" : index < current ? "done" : index === current ? "active" : "pending";
-        return <li key={step} data-state={state}><span className="stages-dot">{state === "done" && <Check size={11} strokeWidth={2.6} />}</span>{step}</li>;
-      })}
-    </ol>
   </div>;
 }

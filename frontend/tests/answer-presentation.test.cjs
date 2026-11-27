@@ -163,3 +163,12 @@ test('each stage the job reports lands on its step of the wait', () => {
   assert.equal(deepStageIndex('Writing your answer'), 3);
   assert.equal(deepStageIndex('Waiting in line, position 2'), -1);
 });
+
+test('an Act in capitals reads as the same Act in title case', () => {
+  const p = moduleScope.exports;
+  assert.equal(p.readableActName('THE BHARATIYA NYAYA SANHITA, 2023'), 'The Bharatiya Nyaya Sanhita, 2023');
+  assert.equal(p.readableActName('THE PROTECTION OF CHILDREN FROM SEXUAL OFFENCES ACT, 2012'), 'The Protection of Children from Sexual Offences Act, 2012');
+  assert.equal(p.readableActName('The Code on Wages, 2019'), 'The Code on Wages, 2019');
+  assert.equal(p.readableActName('IT Act'), 'IT Act');
+  assert.equal(p.sourceHeading({ title: 'THE BHARATIYA NYAYA SANHITA, 2023', act_name: 'THE BHARATIYA NYAYA SANHITA, 2023', section: '103' }).act, 'The Bharatiya Nyaya Sanhita, 2023');
+});
