@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 800" width="1400" height="800" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+  <title>Corpusil — how a question becomes a verified answer</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#3F4A57"/>
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2E5E8C"/>
+    </marker>
+    <style>
+      .group  { fill: #F4F5F7; stroke: #C5CBD3; stroke-width: 1.2; }
+      .box    { fill: #FFFFFF; stroke: #4A5563; stroke-width: 1.4; }
+      .lane   { fill: #EDF2F8; stroke: #2E5E8C; stroke-width: 1.6; }
+      .store  { fill: #FFFFFF; stroke: #4A5563; stroke-width: 1.4; }
+      .gtitle { font-size: 16px; font-weight: 700; fill: #4A5563; }
+      .btitle { font-size: 16px; font-weight: 700; fill: #1F2933; }
+      .line   { font-size: 14px; fill: #3E4A56; }
+      .label  { font-size: 14px; fill: #3E4A56; }
+      .step   { font-size: 14px; fill: #1F2933; }
+      .wire   { fill: none; stroke: #3F4A57; stroke-width: 1.6; marker-end: url(#arrow); }
+      .flow   { fill: none; stroke: #2E5E8C; stroke-width: 1.8; marker-end: url(#arrow-blue); }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1400" height="800" fill="#FFFFFF"/>
+
+  <!-- Title -->
+  <text x="30" y="58" font-size="26" font-weight="700" fill="#1F2933">Corpusil — how a question becomes a verified answer</text>
+
+  <!-- ============ Column A: clients ============ -->
+  <rect class="group" x="30" y="110" width="200" height="320" rx="6"/>
+  <text class="gtitle" x="46" y="138">Clients</text>
+
+  <rect class="box" x="40" y="160" width="180" height="70" rx="5"/>
+  <text class="btitle" x="130" y="189" text-anchor="middle">Web app</text>
+  <text class="line" x="130" y="211" text-anchor="middle">Next.js</text>
+
+  <rect class="box" x="40" y="250" width="180" height="70" rx="5"/>
+  <text class="btitle" x="130" y="279" text-anchor="middle">Desktop app</text>
+  <text class="line" x="130" y="301" text-anchor="middle">Tauri · macOS, Windows</text>
+
+  <text class="line" x="130" y="366" text-anchor="middle">Role apps:</text>
+  <text class="line" x="130" y="388" text-anchor="middle">Citizen · Police</text>
+  <text class="line" x="130" y="410" text-anchor="middle">Advocate · Admin</text>
+
+  <!-- ============ Column B: API ============ -->
+  <rect class="group" x="310" y="110" width="280" height="370" rx="6"/>
+  <text class="gtitle" x="326" y="138">FastAPI backend</text>
+  <text class="line" x="326" y="160">sign-in · role permissions · audit</text>
+
+  <rect class="box" x="325" y="180" width="250" height="80" rx="5"/>
+  <text class="btitle" x="450" y="212" text-anchor="middle">Safety pre-check</text>
+  <text class="line" x="450" y="236" text-anchor="middle">crisis helplines · out-of-scope</text>
+
+  <rect class="box" x="325" y="290" width="250" height="70" rx="5"/>
+  <text class="btitle" x="450" y="319" text-anchor="middle">Answer cache</text>
+  <text class="line" x="450" y="341" text-anchor="middle">repeat question → stored answer</text>
+
+  <rect class="box" x="325" y="390" width="250" height="70" rx="5"/>
+  <text class="btitle" x="450" y="419" text-anchor="middle">Job queue</text>
+  <text class="line" x="450" y="441" text-anchor="middle">Deep jobs · progress to app</text>
+
+  <!-- ============ Column C: answer lanes ============ -->
+  <rect class="lane" x="660" y="170" width="330" height="100" rx="6"/>
+  <text class="btitle" x="680" y="201">Fast lane</text>
+  <text class="line" x="680" y="226">hybrid search → evidence brief</text>
+  <text class="line" x="680" y="248">under a second · no model</text>
+
+  <rect class="lane" x="660" y="300" width="330" height="180" rx="6"/>
+  <text class="btitle" x="680" y="330">Deep pipeline (LangGraph)</text>
+  <text class="step" x="680" y="358">1  Understand the question</text>
+  <text class="step" x="680" y="380">2  Retrieve passages</text>
+  <text class="step" x="680" y="402">3  Write claims with citations</text>
+  <text class="step" x="680" y="424" font-weight="700">4  Verify each claim against its passage</text>
+  <text class="step" x="680" y="446">5  Publish with sources, or refuse</text>
+
+  <!-- ============ Column D: retrieval ============ -->
+  <rect class="group" x="1060" y="110" width="310" height="370" rx="6"/>
+  <text class="gtitle" x="1076" y="138">Retrieval (shared by both lanes)</text>
+
+  <rect class="box" x="1075" y="160" width="280" height="120" rx="5"/>
+  <text class="btitle" x="1215" y="196" text-anchor="middle">Hybrid search</text>
+  <text class="line" x="1215" y="222" text-anchor="middle">BGE-M3 dense + sparse vectors</text>
+  <text class="line" x="1215" y="244" text-anchor="middle">fused with RRF in Qdrant</text>
+
+  <rect class="box" x="1075" y="300" width="280" height="160" rx="5"/>
+  <text class="btitle" x="1215" y="336" text-anchor="middle">Statute lookup + law bridge</text>
+  <text class="line" x="1215" y="362" text-anchor="middle">exact section by citation</text>
+  <text class="line" x="1215" y="392" text-anchor="middle">repealed → new law</text>
+  <text class="line" x="1215" y="414" text-anchor="middle">IPC → BNS · CrPC → BNSS</text>
+  <text class="line" x="1215" y="436" text-anchor="middle">IEA → BSA</text>
+
+  <!-- ============ Bottom row: local services ============ -->
+  <rect class="store" x="30" y="570" width="200" height="90" rx="5"/>
+  <text class="btitle" x="130" y="606" text-anchor="middle">MinIO</text>
+  <text class="line" x="130" y="630" text-anchor="middle">case files</text>
+
+  <rect class="store" x="310" y="570" width="280" height="90" rx="5"/>
+  <text class="btitle" x="450" y="606" text-anchor="middle">PostgreSQL</text>
+  <text class="line" x="450" y="630" text-anchor="middle">users, cases, chats, jobs, audit</text>
+
+  <rect class="store" x="660" y="570" width="330" height="90" rx="5"/>
+  <text class="btitle" x="825" y="606" text-anchor="middle">Ollama · qwen3-14b</text>
+  <text class="line" x="825" y="630" text-anchor="middle">local model: writes and verifies claims</text>
+
+  <rect class="store" x="1060" y="570" width="310" height="90" rx="5"/>
+  <text class="btitle" x="1215" y="606" text-anchor="middle">Qdrant</text>
+  <text class="line" x="1215" y="630" text-anchor="middle">1,593 documents · 86,127 passages</text>
+
+  <rect class="box" x="1060" y="700" width="310" height="70" rx="5"/>
+  <text class="btitle" x="1215" y="729" text-anchor="middle">Corpus ingestion</text>
+  <text class="line" x="1215" y="751" text-anchor="middle">official sources → chunk → embed</text>
+
+  <!-- ============ Arrows ============ -->
+  <!-- clients <-> API over Tailscale -->
+  <path class="wire" d="M232,290 L308,290" marker-start="url(#arrow)"/>
+  <text class="label" x="270" y="280" text-anchor="middle">HTTPS</text>
+  <text class="label" x="270" y="312" text-anchor="middle">Tailscale</text>
+
+  <!-- answer path -->
+  <path class="flow" d="M575,220 L660,220"/>
+  <text class="label" x="617" y="211" text-anchor="middle">fast</text>
+  <path class="flow" d="M450,260 L450,290"/>
+  <text class="label" x="460" y="280">deep</text>
+  <path class="flow" d="M450,360 L450,390"/>
+  <text class="label" x="460" y="380">not cached</text>
+  <path class="flow" d="M575,425 L660,425"/>
+
+  <path class="flow" d="M990,220 L1060,220"/>
+  <path class="flow" d="M990,340 L1060,340"/>
+
+  <!-- to local services -->
+  <path class="wire" d="M825,480 L825,570"/>
+  <path class="wire" d="M1215,480 L1215,570"/>
+  <path class="wire" d="M450,480 L450,570"/>
+  <path class="wire" d="M310,460 L130,460 L130,570"/>
+  <path class="wire" d="M1215,700 L1215,660"/>
+
+  <!-- Legend -->
+  <text class="label" x="30" y="745">Blue: the path of a question. Everything runs locally on the host Mac; remote users connect over private Tailscale.</text>
+</svg>
