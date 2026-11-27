@@ -63,10 +63,10 @@ Requirements: Windows 10 or 11, 64-bit, an internet connection.
 ### 2. Install Corpusil
 
 1. Open <https://github.com/DhruvReddyS/LEGAL_RAG/releases/latest>.
-2. Under **Assets**, download the file ending in **`_x64-setup.exe`**.
+2. Under **Assets**, download **`Corpusil-<version>-Windows-Setup.exe`**.
 3. Run it. Because the installer is not code-signed, Windows SmartScreen may say
-   "Windows protected your PC". Choose **More info → Run anyway**. The release page lists a
-   checksum for each file if you want to confirm the download.
+   "Windows protected your PC". Choose **More info → Run anyway**. GitHub lists a
+   SHA-256 checksum beside each file if you want to confirm the download.
 4. Finish the installer and open **Corpusil** from the Start menu.
 
 ### 3. Connect to the host
@@ -86,8 +86,8 @@ That is all. Questions, cases and files stay on the host Mac.
 
 ## macOS users
 
-Same steps, with the **`.dmg`** from the release page: `aarch64` for Apple-chip Macs, `x64` for
-Intel Macs. The first time, macOS may refuse to open an app from an unidentified developer:
+Same steps, with the **`.dmg`** from the release page: **`Mac-Apple-Silicon`** for Apple-chip Macs,
+**`Mac-Intel`** for Intel Macs. The first time, macOS may refuse to open an app from an unidentified developer:
 open **System Settings → Privacy & Security** and press **Open Anyway**.
 
 ---

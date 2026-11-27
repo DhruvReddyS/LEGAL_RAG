@@ -129,18 +129,26 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # Each target ships exactly one installer, under a name a person can
+          # pick without knowing what aarch64 or nsis means.
           - label: macOS arm64
             runner: macos-15
             rust_target: aarch64-apple-darwin
             bundles: app,dmg
+            installer_glob: dmg/*.dmg
+            asset_suffix: Mac-Apple-Silicon.dmg
           - label: macOS x64
             runner: macos-15-intel
             rust_target: x86_64-apple-darwin
             bundles: app,dmg
+            installer_glob: dmg/*.dmg
+            asset_suffix: Mac-Intel.dmg
           - label: Windows x64
             runner: windows-latest
             rust_target: x86_64-pc-windows-msvc
             bundles: nsis
+            installer_glob: nsis/*-setup.exe
+            asset_suffix: Windows-Setup.exe
     steps:
       - name: Check out source
         uses: actions/checkout@v7
@@ -188,46 +196,92 @@ jobs:
           TAURI_UPDATER_PUBLIC_KEY: ${{ secrets.TAURI_UPDATER_PUBLIC_KEY }}
         run: node scripts/create_tauri_release_config.mjs frontend/ci-release-config.json
 
-      - name: Build signed bundles and update manifest
+      - name: Build signed bundles
+        # Build only. The release is created by publish-draft, which uploads the
+        # three installers and nothing else: no updater archives, signatures or
+        # latest.json, so installed copies update by downloading a new installer.
         uses: tauri-apps/tauri-action@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           projectPath: frontend
           tauriScript: npm run tauri
-          tagName: ${{ env.RELEASE_TAG }}
-          releaseName: Corpusil ${{ env.RELEASE_TAG }}
-          releaseBody: |
-            Scalable four-user capstone preview for macOS arm64, macOS x64, and Windows x64.
-
-            The desktop can select and test a private Corpusil backend at runtime. Friends do not install the corpus, databases, embedding models, Docker, or Ollama when using the shared-host deployment.
-
-            This preview is not Apple-notarized or Windows Authenticode-signed. Confirm the asset and checksum before using the operating system's explicit Open Anyway / Run Anyway flow. Tauri updater artifacts are cryptographically signed.
-
-            This release is a draft until application tests, updater signatures, and latest.json pass review.
-          releaseDraft: true
-          prerelease: false
-          generateReleaseNotes: true
-          uploadUpdaterJson: true
-          updaterJsonPreferNsis: true
-          uploadUpdaterSignatures: true
-          uploadWorkflowArtifacts: true
-          workflowArtifactNamePattern: "[platform]-[arch]-[bundle]"
           retryAttempts: 2
           args: >-
             --target ${{ matrix.rust_target }}
             --bundles ${{ matrix.bundles }}
             --config ci-release-config.json
 
+      - name: Name the installer
+        shell: bash
+        run: |
+          shopt -s nullglob
+          found=(frontend/src-tauri/target/${{ matrix.rust_target }}/release/bundle/${{ matrix.installer_glob }})
+          if [ "${#found[@]}" -ne 1 ]; then
+            echo "Expected one installer for ${{ matrix.label }}, found ${#found[@]}: ${found[*]}" >&2
+            exit 1
+          fi
+          mkdir -p installer
+          cp "${found[0]}" "installer/Corpusil-${RELEASE_TAG#v}-${{ matrix.asset_suffix }}"
+          ls -l installer
+
+      - name: Keep the installer for the release
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer-${{ matrix.rust_target }}
+          path: installer/
+          if-no-files-found: error
+          retention-days: 7
+
+  publish-draft:
+    name: Create draft release
+    needs: build-release
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Collect the installers
+        uses: actions/download-artifact@v4
+        with:
+          pattern: installer-*
+          path: installers
+          merge-multiple: true
+
+      - name: Create the draft with the installers only
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version="${RELEASE_TAG#v}"
+          notes="docs/releases/${RELEASE_TAG}.md"
+          if [ -f "$notes" ]; then
+            title="$(head -n 1 "$notes" | sed 's/^# *//')"
+            tail -n +2 "$notes" > release-notes.md
+          else
+            title="Corpusil ${version}"
+            echo "Desktop installers for Corpusil ${version}." > release-notes.md
+          fi
+          ls -l installers
+          gh release create "$RELEASE_TAG" installers/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --draft \
+            --title "$title" \
+            --notes-file release-notes.md \
+            --verify-tag
+
   verify-draft:
     name: Verify draft release assets
-    needs: build-release
+    needs: publish-draft
     if: >-
       always() &&
       ((github.event_name == 'workflow_dispatch' && inputs.audit_only == true) ||
-      needs.build-release.result == 'success')
+      needs.publish-draft.result == 'success')
     runs-on: ubuntu-24.04
     permissions:
       # GitHub hides unpublished draft releases from read-only installation
@@ -259,16 +313,18 @@ jobs:
             exit 1
           fi
 
-          asset_names="$(jq -r '.assets[].name' <<<"$release_json")"
-          if ! grep -qx 'latest.json' <<<"$asset_names"; then
-            echo "Draft release is missing latest.json." >&2
+          version="${RELEASE_TAG#v}"
+          expected="$(printf '%s\n' \
+            "Corpusil-${version}-Mac-Apple-Silicon.dmg" \
+            "Corpusil-${version}-Mac-Intel.dmg" \
+            "Corpusil-${version}-Windows-Setup.exe" | sort)"
+          actual="$(jq -r '.assets[].name' <<<"$release_json" | sort)"
+          if [ "$actual" != "$expected" ]; then
+            echo "Draft release must hold exactly the three installers." >&2
+            echo "Expected:" >&2; echo "$expected" >&2
+            echo "Found:" >&2; echo "$actual" >&2
             exit 1
           fi
 
-          updater_signature_count="$(grep -Ec '\.sig$' <<<"$asset_names" || true)"
-          if [ "$updater_signature_count" -lt 3 ]; then
-            echo "Expected updater signatures for all three desktop targets." >&2
-            exit 1
-          fi
-
-          echo "Draft release contains latest.json and ${updater_signature_count} updater signatures."
+          echo "Draft release holds exactly the three installers:"
+          echo "$actual"
