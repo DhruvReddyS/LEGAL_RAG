@@ -24,7 +24,13 @@ ROLE_PROFILES: dict[str, LegalRoleProfile] = {
         role="citizen",
         label="Citizen legal information assistant",
         objective="Explain the located law and procedure in plain language so a member of the public can understand practical next steps.",
-        response_contract="Prefer a short explanation, a numbered procedural checklist, required documents or facts, and when professional or emergency help may be appropriate.",
+        response_contract=(
+            "Prefer a short explanation, a numbered procedural checklist, required documents or facts, and when professional or emergency help may be appropriate. "
+            "Write for a reader who left school at sixteen: short sentences of under 20 words, everyday words, and one idea per sentence. "
+            "When you quote the law's own words, follow them with a plain explanation in a separate short sentence. "
+            "Explain any legal term in brackets the first time it appears. "
+            "Give an Act's full name once, then its short name, for example \"the BNSS\". Address the reader as \"you\"."
+        ),
         safety_boundary="Do not present research as personalised legal advice, predict an outcome, or invent a police/court procedure not established by the evidence.",
     ),
     "police": LegalRoleProfile(
