@@ -60,6 +60,8 @@ ADVOCATE_FILES = {
 }
 
 WARM = (
+    # The opening question of the demo script, and the one most worth being instant.
+    ("citizen", "How do I file an FIR?"),
     ("citizen", "My boss has not paid my salary for three months"),
     ("citizen", "A cheque given to me has bounced. What can I do?"),
     ("citizen", "What are my rights if I am arrested?"),
