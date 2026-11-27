@@ -319,6 +319,7 @@ _ACT_NAME_FRAGMENTS = {
     "IDA": "Divorce Act, 1869",
     "SMA": "Special Marriage Act",
     "DMMA": "Dissolution of Muslim Marriages",
+    "PMDA": "Parsi Marriage and Divorce Act",
     "LSA": "Legal Services Authorities",
 }
 

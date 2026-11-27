@@ -122,12 +122,15 @@ class TestLinkedSections:
             ("We had a court marriage and now want a divorce", {("SMA", "27")}),
             ("Our interfaith marriage is over; can we get a mutual divorce?", {("SMA", "28")}),
             ("I am a Muslim woman and want a divorce from my husband", {("DMMA", "2")}),
+            ("We are Parsis and want a divorce", {("PMDA", "32")}),
+            ("We are Parsis and want a divorce by mutual consent.", {("PMDA", "32B")}),
+            ("My Parsi husband deserted me and will not come back", {("PMDA", "36")}),
         ],
     )
     def test_each_community_reaches_its_own_sections(
         self, question: str, expected: set[tuple[str, str]]
     ) -> None:
-        marriage = {key for key in _linked(question) if key[0] in {"HMA", "IDA", "SMA", "DMMA"}}
+        marriage = {key for key in _linked(question) if key[0] in {"HMA", "IDA", "SMA", "DMMA", "PMDA"}}
         assert marriage == expected
 
     @pytest.mark.parametrize(

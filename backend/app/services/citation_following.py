@@ -93,12 +93,13 @@ _CURRENCY_CUES = (
 # Terms are word prefixes, so "christian" covers "Christians" and "parsi" "Parsis".
 _CHRISTIAN = ("christian", "church", "catholic", "protestant")
 _MUSLIM = ("muslim", "islam", "nikah", "talaq", "khula")
+_PARSI = ("parsi", "parsee", "zoroastrian")
 _SPECIAL_MARRIAGE = (
     "special marriage", "court marriage", "civil marriage", "interfaith", "inter faith",
     "inter religio", "different religion",
 )
 # A question naming another community's marriage law is not a Hindu Marriage Act question.
-_OTHER_PERSONAL_LAW = (*_CHRISTIAN, *_MUSLIM, *_SPECIAL_MARRIAGE, "parsi", "parsee", "zoroastrian", "divorce act")
+_OTHER_PERSONAL_LAW = (*_CHRISTIAN, *_MUSLIM, *_PARSI, *_SPECIAL_MARRIAGE, "divorce act")
 
 _CONCEPTS: tuple[_Concept, ...] = (
     # BNSS s.187's proviso creates the entitlement, and the passages that rank
@@ -360,6 +361,33 @@ _CONCEPTS: tuple[_Concept, ...] = (
     _Concept(
         "IDA", "19", "christian-nullity implementation",
         all_of=(_CHRISTIAN, ("annul", "nullity", "void", "impoten", "not consummat", "non consummat")),
+        none_of=(_SPECIAL_MARRIAGE,),
+    ),
+    # Parsi couples: the Parsi Marriage and Divorce Act, 1936. Its sections after
+    # s.6 were indexed without numbers until the Act was re-chunked on 28 Nov 2026.
+    _Concept(
+        "PMDA", "32", "parsi-divorce-grounds implementation",
+        all_of=(_PARSI, ("divorce",)),
+        none_of=(_SPECIAL_MARRIAGE, ("mutual",)),
+    ),
+    _Concept(
+        "PMDA", "32B", "parsi-mutual-consent implementation",
+        all_of=(_PARSI, ("divorce", "separation", "separate"), ("mutual",)),
+        none_of=(_SPECIAL_MARRIAGE,),
+    ),
+    _Concept(
+        "PMDA", "34", "parsi-judicial-separation implementation",
+        all_of=(_PARSI, ("judicial separation",)),
+        none_of=(_SPECIAL_MARRIAGE,),
+    ),
+    _Concept(
+        "PMDA", "36", "parsi-restitution implementation",
+        all_of=(_PARSI, ("restitution", "conjugal", "come back", "left me", "deserted", "return home")),
+        none_of=(_SPECIAL_MARRIAGE,),
+    ),
+    _Concept(
+        "PMDA", "30", "parsi-nullity implementation",
+        all_of=(_PARSI, ("annul", "nullity", "void", "impoten", "not consummat", "non consummat")),
         none_of=(_SPECIAL_MARRIAGE,),
     ),
     # A court, civil or interfaith marriage is governed by the Special Marriage Act

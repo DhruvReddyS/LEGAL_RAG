@@ -42,6 +42,26 @@ _ACT_HEADING = re.compile(
     r"APPENDIX|Appendix|ANNEXURE|Annexure)\s+"
     r"(?P<label>[0-9IVXLC]+[A-Z]?)(?:\s*[-—:.]\s*|\s+|$)(?P<title>(?![a-z]).*)$"
 )
+# A schedule heading is a short line: "SCHEDULE II", "THE FIRST SCHEDULE",
+# "Schedule I - Offences". A wrapped sentence can also begin with the word:
+# the Parsi Marriage and Divorce Act's s.6 ends "...in the form contained in
+# \nSchedule  II. The certificate shall be signed by the said priest, ...", and
+# reading that as a heading put s.7-52 into schedule mode, so every section of
+# the Act after s.6 -- its divorce law included -- was indexed with no number.
+_SCHEDULE_KINDS = frozenset({"SCHEDULE", "APPENDIX", "ANNEXURE"})
+_MAX_SCHEDULE_TITLE_WORDS = 10
+
+
+def _act_heading(line: str) -> re.Match[str] | None:
+    """A Part, Chapter, Section or Schedule heading, but not a sentence naming one."""
+    heading = _ACT_HEADING.match(line)
+    if heading and heading.group("kind").upper().rstrip(".") in _SCHEDULE_KINDS:
+        title = heading.group("title").strip()
+        if len(title.split()) > _MAX_SCHEDULE_TITLE_WORDS and not title.isupper():
+            return None
+    return heading
+
+
 _SCHEDULE_LINE = re.compile(
     r"^\s*(?:THE\s+)?(?:[A-Z]+\s+)?SCHEDULE(?:\s+[IVXLC\d]+)?\s*[.:—-]?\s*$"
 )
@@ -260,7 +280,7 @@ def _accepted_sections(lines: list[tuple[int, str]]) -> dict[int, str]:
     # The Constitution has no "Short title" to end that, and lost 209 articles.
     earliest_schedule = int(len(lines) * _SCHEDULES_START_AFTER)
     for index, (_, line) in enumerate(lines):
-        heading = _ACT_HEADING.match(line)
+        heading = _act_heading(line)
         if heading:
             kind = heading.group("kind").upper().rstrip(".")
             if kind in {"SCHEDULE", "APPENDIX", "ANNEXURE"}:
@@ -392,7 +412,7 @@ def _parse_acts(document: ExtractedDocument) -> list[StructuralUnit]:
     lines = _lines(document)
     accepted = _accepted_sections(lines)
     for line_index, (page_number, line) in enumerate(lines):
-        heading = _ACT_HEADING.match(line)
+        heading = _act_heading(line)
         schedule_line = None if heading else _SCHEDULE_LINE.match(line)
         numbered = marginal = None
         if line_index in accepted and not heading:
