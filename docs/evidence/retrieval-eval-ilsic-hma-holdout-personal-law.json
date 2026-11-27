@@ -1,0 +1,4506 @@
+{
+  "generated_at": "2026-11-27T17:41:49.095755+00:00",
+  "collection": "global_legal_corpus_v6",
+  "golden_set": "ilsic-hma-holdout.json",
+  "limit": 20,
+  "config": {
+    "embedding_model": "BAAI/bge-m3",
+    "embedding_dimension": 1024,
+    "generation_model": "qwen3-14b-16k:latest",
+    "reranker_input_characters": 2500,
+    "repealed_rank_penalty": 3,
+    "abstain_coverage_floor": 0.34,
+    "fast_min_candidate_limit": 20,
+    "prompt_versions": {
+      "query_understanding": "3bd57cb79f3e",
+      "reasoning": "ff0c9cc5cd22",
+      "verification": "83463a0dd4d3",
+      "drafting_fact_extraction": "26bf93f7493e",
+      "defence_strategy": "8884175dd1f7",
+      "document_analysis": "090c2b8c8849",
+      "advocate_claim_verification": "71ce2ed0c9c8",
+      "advocate_grounds": "9377aa68cadf",
+      "advocate_brief": "0f79b10dd18e",
+      "advocate_comparison": "6967dc6f373d",
+      "advocate_debate": "11a1614a1b11"
+    }
+  },
+  "configs": {
+    "hybrid": {
+      "summary": {
+        "recall_at_1": 0.017094017094017096,
+        "recall_at_5": 0.08547008547008547,
+        "recall_at_20": 0.452991452991453,
+        "mrr": 0.07003229174777956,
+        "ndcg_at_10": 0.10304880398359229,
+        "citation_accuracy_at_5": 0.24643874643874644,
+        "abstention_accuracy": null,
+        "false_abstention_rate": 0.017094017094017096,
+        "seconds_per_query": 0.5722040423846547,
+        "by_role": {
+          "citizen": {
+            "items": 117,
+            "recall_at_5": 0.085,
+            "recall_at_20": 0.453,
+            "citation_accuracy_at_5": 0.246
+          }
+        }
+      },
+      "items": [
+        {
+          "id": "ilsic-lay-test-022",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 6,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-027",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "303",
+              "chunk_id": "gold-chunk-0302a06db7defe3cbe3736243e0ccda8",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "theft implementation"
+            },
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "303",
+              "chunk_id": "gold-chunk-ddcd9f24dfd34f2c1606b4052fdd1069",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "theft implementation"
+            },
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.11111111,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-029",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 10,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "act_name": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "section": "63",
+              "chunk_id": "gold-chunk-8337c7f14c7b4e45f44bc48db861caec",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "electronic-record implementation"
+            },
+            {
+              "title": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "act_name": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "section": "63",
+              "chunk_id": "gold-chunk-602509a5fdc5c84a93078ef5492f814f",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "electronic-record implementation"
+            },
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "24",
+              "chunk_id": "gold-chunk-f2751d0f5513d28501277d8ce92ff55f",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "interim-maintenance implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-036",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.6666666666666666,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-fe305acbe33c9ab5f3820df07d0892f2",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-e66ec012d2ee01ee0562cf5e42bc063c",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.5,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 8,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-042",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 4,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "24",
+              "chunk_id": "gold-chunk-f2751d0f5513d28501277d8ce92ff55f",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "interim-maintenance implementation"
+            },
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13B",
+              "chunk_id": "gold-chunk-618c5ec0f7cc7156a24f085a5a1f0d68",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.8333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "mutual-consent-divorce implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-6295dccff72abcdbae93c51955c474ee",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 5,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-046",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Divorce Act, 1869",
+              "act_name": "The Divorce Act, 1869",
+              "section": "10",
+              "chunk_id": "gold-chunk-678a0299e134ae7419fcc84957bc022c",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "christian-divorce-grounds implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-048",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13B",
+              "chunk_id": "gold-chunk-618c5ec0f7cc7156a24f085a5a1f0d68",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.083333336,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "mutual-consent-divorce implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-051",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 9,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.3333333333333333,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "act_name": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "section": "63",
+              "chunk_id": "gold-chunk-8337c7f14c7b4e45f44bc48db861caec",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "electronic-record implementation"
+            },
+            {
+              "title": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "act_name": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "section": "63",
+              "chunk_id": "gold-chunk-602509a5fdc5c84a93078ef5492f814f",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "electronic-record implementation"
+            },
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.16666667,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-053",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 1.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-6295dccff72abcdbae93c51955c474ee",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "concordance: CrPC s.125"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-e66ec012d2ee01ee0562cf5e42bc063c",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "concordance: CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-054",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.6666666666666666,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-fe305acbe33c9ab5f3820df07d0892f2",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-6295dccff72abcdbae93c51955c474ee",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 7,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-069",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 19,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.6666666666666666,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-e66ec012d2ee01ee0562cf5e42bc063c",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.07692308,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "concordance: CrPC s.125"
+            },
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "24",
+              "chunk_id": "gold-chunk-f2751d0f5513d28501277d8ce92ff55f",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "interim-maintenance implementation"
+            },
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-070",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "act_name": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "section": "63",
+              "chunk_id": "gold-chunk-8337c7f14c7b4e45f44bc48db861caec",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "electronic-record implementation"
+            },
+            {
+              "title": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "act_name": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "section": "63",
+              "chunk_id": "gold-chunk-602509a5fdc5c84a93078ef5492f814f",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "electronic-record implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-072",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 13,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.3333333333333333,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-fe305acbe33c9ab5f3820df07d0892f2",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-e66ec012d2ee01ee0562cf5e42bc063c",
+              "relevant": true,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.125,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 5,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-075",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Bharatiya Nyaya Sanhita, 2023",
+              "act_name": "The Bharatiya Nyaya Sanhita, 2023",
+              "section": "83",
+              "chunk_id": "gold-chunk-2d633daef5639fdb3c15d63106606d39",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.5833334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-080",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 8,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.3333333333333333,
+          "shown_sources": [
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "9",
+              "chunk_id": "gold-chunk-c75c19ffa9d91146669055838c95ad75",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "restitution-of-conjugal-rights implementation"
+            },
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "12",
+              "chunk_id": "gold-chunk-514de3d6b2b7a2cb880822341b54df1f",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.25,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "voidable-marriage implementation"
+            },
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-2e50de54e65a400b6eadd768d34c2910",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.55,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-082",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-fe305acbe33c9ab5f3820df07d0892f2",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-086",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 4,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 1.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.42424244,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-6295dccff72abcdbae93c51955c474ee",
+              "relevant": true,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 4,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-091",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.5,
+          "shown_sources": [
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-7067b93dcfee2f2a1ca3b35e897d3072",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.38596493,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "9",
+              "chunk_id": "gold-chunk-c75c19ffa9d91146669055838c95ad75",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "restitution-of-conjugal-rights implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-092",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "84",
+              "chunk_id": "gold-chunk-1e021ece2a523148d198f1ec5661078f",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 5,
+              "via": "IPC s.498"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-096",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 15,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 1.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.11111111,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-105",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-114",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.5,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.32692307,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-6295dccff72abcdbae93c51955c474ee",
+              "relevant": true,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 4,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-117",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.25,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "9",
+              "chunk_id": "gold-chunk-c75c19ffa9d91146669055838c95ad75",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "restitution-of-conjugal-rights implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-6295dccff72abcdbae93c51955c474ee",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 4,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-125",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-fe305acbe33c9ab5f3820df07d0892f2",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "12",
+              "chunk_id": "gold-chunk-514de3d6b2b7a2cb880822341b54df1f",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "voidable-marriage implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-132",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": true
+        },
+        {
+          "id": "ilsic-lay-test-136",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-6295dccff72abcdbae93c51955c474ee",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 9,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-137",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13B",
+              "chunk_id": "gold-chunk-618c5ec0f7cc7156a24f085a5a1f0d68",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "mutual-consent-divorce implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-148",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Indian Penal Code Act, 1860",
+              "act_name": "The Indian Penal Code Act, 1860",
+              "section": "498",
+              "chunk_id": "gold-chunk-bff70beb7578c56959cca37c089a4c5d",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.75,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "84",
+              "chunk_id": "gold-chunk-1e021ece2a523148d198f1ec5661078f",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 7,
+              "via": "IPC s.498"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-150",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.5,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13B",
+              "chunk_id": "gold-chunk-618c5ec0f7cc7156a24f085a5a1f0d68",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.1,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "mutual-consent-divorce implementation"
+            },
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "9",
+              "chunk_id": "gold-chunk-c75c19ffa9d91146669055838c95ad75",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "restitution-of-conjugal-rights implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-161",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 9,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 1.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.16666667,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-169",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.6666666666666666,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-fe305acbe33c9ab5f3820df07d0892f2",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "9",
+              "chunk_id": "gold-chunk-c75c19ffa9d91146669055838c95ad75",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "restitution-of-conjugal-rights implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-174",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 12,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Special Marriage Act 1954",
+              "act_name": "The Special Marriage Act 1954",
+              "section": "28",
+              "chunk_id": "gold-chunk-5cf4bc02062fb03c60cc9ab2c40a4af1",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "special-marriage-mutual-consent implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-180",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 15,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Indian Contract Act, 1872",
+              "act_name": "The Indian Contract Act, 1872",
+              "section": "10",
+              "chunk_id": "gold-chunk-77272d9afea0a5b5c21cc6d6d73fc766",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "valid-contract implementation"
+            },
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-fe305acbe33c9ab5f3820df07d0892f2",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-185",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-186",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 10,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-192",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 7,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 1.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.2,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-194",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 20,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13B",
+              "chunk_id": "gold-chunk-618c5ec0f7cc7156a24f085a5a1f0d68",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "mutual-consent-divorce implementation"
+            },
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "9",
+              "chunk_id": "gold-chunk-c75c19ffa9d91146669055838c95ad75",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "restitution-of-conjugal-rights implementation"
+            },
+            {
+              "title": "The Hindu Adoptions and Maintenance Act, 1956",
+              "act_name": "The Hindu Adoptions and Maintenance Act, 1956",
+              "section": "23",
+              "chunk_id": "gold-chunk-c468ee5dd2f553df84ea005ec98456d5",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.39583334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-195",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The National Service Act, 1972",
+              "act_name": "The National Service Act, 1972",
+              "section": "23",
+              "chunk_id": "gold-chunk-ee85f31d6dabb8457ed376c0b8d36bd7",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.33333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "The Andhra Pradesh Shops and Establishments Act, 1988",
+              "act_name": "The Andhra Pradesh Shops and Establishments Act, 1988",
+              "section": "48",
+              "chunk_id": "gold-chunk-9a94c69144e9b8b3e27d78f8f0777147",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.25,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-203",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 13,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "24",
+              "chunk_id": "gold-chunk-f2751d0f5513d28501277d8ce92ff55f",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "interim-maintenance implementation"
+            },
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13B",
+              "chunk_id": "gold-chunk-618c5ec0f7cc7156a24f085a5a1f0d68",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 1.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "mutual-consent-divorce implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-207",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 14,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 1.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.11111111,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-223",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-7067b93dcfee2f2a1ca3b35e897d3072",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.11111111,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-6295dccff72abcdbae93c51955c474ee",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 4,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-230",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "318",
+              "chunk_id": "gold-chunk-16a91d0d07d33b92dd0556fdc36db265",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "cheating implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-242",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13B",
+              "chunk_id": "gold-chunk-618c5ec0f7cc7156a24f085a5a1f0d68",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "mutual-consent-divorce implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-e66ec012d2ee01ee0562cf5e42bc063c",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.1,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 11,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-252",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 6,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.09090909,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-274",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-283",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 15,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013",
+              "act_name": "The Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013",
+              "section": "3",
+              "chunk_id": "gold-chunk-e3b4db155a5795f0b174c114fc4d35af",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.5,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-284",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-6295dccff72abcdbae93c51955c474ee",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 5,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-294",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.3333333333333333,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "act_name": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "section": "63",
+              "chunk_id": "gold-chunk-8337c7f14c7b4e45f44bc48db861caec",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "electronic-record implementation"
+            },
+            {
+              "title": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "act_name": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "section": "63",
+              "chunk_id": "gold-chunk-602509a5fdc5c84a93078ef5492f814f",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "electronic-record implementation"
+            },
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-302",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Special Marriage Act, 1954",
+              "act_name": "The Special Marriage Act, 1954",
+              "section": "28",
+              "chunk_id": "gold-chunk-9e404d2ea1facab2bd6bc1cb279c47ee",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.4166667,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "special-marriage-mutual-consent implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-6295dccff72abcdbae93c51955c474ee",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 4,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-304",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "303",
+              "chunk_id": "gold-chunk-0302a06db7defe3cbe3736243e0ccda8",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "theft implementation"
+            },
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "303",
+              "chunk_id": "gold-chunk-ddcd9f24dfd34f2c1606b4052fdd1069",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "theft implementation"
+            },
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-326",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 9,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 1.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.16666667,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-330",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 18,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.6666666666666666,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-fe305acbe33c9ab5f3820df07d0892f2",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-6295dccff72abcdbae93c51955c474ee",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 4,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-348",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 9,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13B",
+              "chunk_id": "gold-chunk-618c5ec0f7cc7156a24f085a5a1f0d68",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.53333336,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "mutual-consent-divorce implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-352",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 8,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13B",
+              "chunk_id": "gold-chunk-618c5ec0f7cc7156a24f085a5a1f0d68",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.45,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "mutual-consent-divorce implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-362",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "9",
+              "chunk_id": "gold-chunk-c75c19ffa9d91146669055838c95ad75",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "restitution-of-conjugal-rights implementation"
+            },
+            {
+              "title": "The Indian Succession Act 1925",
+              "act_name": "The Indian Succession Act 1925",
+              "section": "45",
+              "chunk_id": "gold-chunk-f7372a2d9f4a88e954edd9c36c0ec031",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.7,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-374",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 5,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.3333333333333333,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "193",
+              "chunk_id": "gold-chunk-ac98f17e3c219bdffee470ccc58d2a0c",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "final-report implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "193",
+              "chunk_id": "gold-chunk-12d8419151ff9fc8d87fda7afdf2601b",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "final-report implementation"
+            },
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "24",
+              "chunk_id": "gold-chunk-f2751d0f5513d28501277d8ce92ff55f",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "interim-maintenance implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-380",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.3333333333333333,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.36666667,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "12",
+              "chunk_id": "gold-chunk-514de3d6b2b7a2cb880822341b54df1f",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "voidable-marriage implementation"
+            },
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "318",
+              "chunk_id": "gold-chunk-16a91d0d07d33b92dd0556fdc36db265",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "cheating implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-387",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Dissolution of Muslim Marriages Act, 1939",
+              "act_name": "The Dissolution of Muslim Marriages Act, 1939",
+              "section": "2",
+              "chunk_id": "gold-chunk-edecb3a0c7b5a999ba4c7fa938e23ad6",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "muslim-wife-divorce implementation"
+            },
+            {
+              "title": "The Muslim Women (Protection of Rights on Marriage) Act, 2019",
+              "act_name": "The Muslim Women (Protection of Rights on Marriage) Act, 2019",
+              "section": "3",
+              "chunk_id": "gold-chunk-3c71ca7ad56b16d92fcbdca5b1dbe7e4",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.6,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-389",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-7067b93dcfee2f2a1ca3b35e897d3072",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.1,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-412",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 20,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.6666666666666666,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-fe305acbe33c9ab5f3820df07d0892f2",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "9",
+              "chunk_id": "gold-chunk-c75c19ffa9d91146669055838c95ad75",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "restitution-of-conjugal-rights implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-422",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Dissolution of Muslim Marriages Act, 1939",
+              "act_name": "The Dissolution of Muslim Marriages Act, 1939",
+              "section": "2",
+              "chunk_id": "gold-chunk-edecb3a0c7b5a999ba4c7fa938e23ad6",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "muslim-wife-divorce implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-e66ec012d2ee01ee0562cf5e42bc063c",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.083333336,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 8,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-426",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-430",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 17,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13B",
+              "chunk_id": "gold-chunk-618c5ec0f7cc7156a24f085a5a1f0d68",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.33333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "mutual-consent-divorce implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-6295dccff72abcdbae93c51955c474ee",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 4,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-433",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 6,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.5,
+          "shown_sources": [
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-7067b93dcfee2f2a1ca3b35e897d3072",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.25,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "9",
+              "chunk_id": "gold-chunk-c75c19ffa9d91146669055838c95ad75",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "restitution-of-conjugal-rights implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-449",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 1.0,
+          "shown_sources": [
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "9",
+              "chunk_id": "gold-chunk-c75c19ffa9d91146669055838c95ad75",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "restitution-of-conjugal-rights implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-466",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 1.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-fe305acbe33c9ab5f3820df07d0892f2",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-496",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Bharatiya Nyaya Sanhita, 2023",
+              "act_name": "The Bharatiya Nyaya Sanhita, 2023",
+              "section": "137",
+              "chunk_id": "gold-chunk-9b518573ce15738080965550d3b9b6ad",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.5,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-502",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "9",
+              "chunk_id": "gold-chunk-c75c19ffa9d91146669055838c95ad75",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "restitution-of-conjugal-rights implementation"
+            },
+            {
+              "title": "The Indian Penal Code Act, 1860",
+              "act_name": "The Indian Penal Code Act, 1860",
+              "section": "494",
+              "chunk_id": "gold-chunk-c9fa2689a256b28be501a8e588bbe200",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.5,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-506",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 17,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 1.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.1,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "9",
+              "chunk_id": "gold-chunk-c75c19ffa9d91146669055838c95ad75",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "restitution-of-conjugal-rights implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-509",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 1.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "33",
+              "chunk_id": "gold-chunk-777a865bd6d3853173649f6905cf1d06",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "concordance: CrPC s.39"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-511",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13B",
+              "chunk_id": "gold-chunk-618c5ec0f7cc7156a24f085a5a1f0d68",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.45,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "mutual-consent-divorce implementation"
+            },
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "9",
+              "chunk_id": "gold-chunk-c75c19ffa9d91146669055838c95ad75",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "restitution-of-conjugal-rights implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-515",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Protection of Women from Domestic Violence Act, 2005",
+              "act_name": "The Protection of Women from Domestic Violence Act, 2005",
+              "section": "17",
+              "chunk_id": "gold-chunk-8856217bbc7e7166cfaba801ca1a19c4",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.33333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-521",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 12,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-530",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.19642857,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "318",
+              "chunk_id": "gold-chunk-16a91d0d07d33b92dd0556fdc36db265",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "cheating implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-e66ec012d2ee01ee0562cf5e42bc063c",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.09090909,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 4,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-533",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 4,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.6666666666666666,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13B",
+              "chunk_id": "gold-chunk-618c5ec0f7cc7156a24f085a5a1f0d68",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "mutual-consent-divorce implementation"
+            },
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "9",
+              "chunk_id": "gold-chunk-c75c19ffa9d91146669055838c95ad75",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "restitution-of-conjugal-rights implementation"
+            },
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": true,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.38333336,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-541",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.31111112,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-547",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 5,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.3333333333333333,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.26666668,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "12",
+              "chunk_id": "gold-chunk-514de3d6b2b7a2cb880822341b54df1f",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.5,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "voidable-marriage implementation"
+            },
+            {
+              "title": "The Bharatiya Nyaya Sanhita, 2023",
+              "act_name": "The Bharatiya Nyaya Sanhita, 2023",
+              "section": "82",
+              "chunk_id": "gold-chunk-fbedddf72e26e5c8efecb41345f041ec",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.33333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-558",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 12,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 1.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.125,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-563",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "act_name": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "section": "63",
+              "chunk_id": "gold-chunk-8337c7f14c7b4e45f44bc48db861caec",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "electronic-record implementation"
+            },
+            {
+              "title": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "act_name": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "section": "63",
+              "chunk_id": "gold-chunk-602509a5fdc5c84a93078ef5492f814f",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "electronic-record implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-570",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "9",
+              "chunk_id": "gold-chunk-c75c19ffa9d91146669055838c95ad75",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "restitution-of-conjugal-rights implementation"
+            },
+            {
+              "title": "The Indian Succession Act, 1925",
+              "act_name": "The Indian Succession Act, 1925",
+              "section": "",
+              "chunk_id": "gold-chunk-32c09297667c8d242bd4140692509934",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.33333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-574",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.6666666666666666,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "82",
+              "chunk_id": "gold-chunk-921db346f459c06a01ec70ee9ff03165",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "concordance: IPC s.494"
+            },
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "1",
+              "chunk_id": "gold-chunk-7a3660d09c7b80f378ca125eaecedb61",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "concordance: IPC s.5"
+            },
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "318",
+              "chunk_id": "gold-chunk-16a91d0d07d33b92dd0556fdc36db265",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "concordance: IPC s.415"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-579",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.3333333333333333,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "82",
+              "chunk_id": "gold-chunk-921db346f459c06a01ec70ee9ff03165",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "concordance: IPC s.494"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "193",
+              "chunk_id": "gold-chunk-ac98f17e3c219bdffee470ccc58d2a0c",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "final-report implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "193",
+              "chunk_id": "gold-chunk-12d8419151ff9fc8d87fda7afdf2601b",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "final-report implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-589",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 9,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 1.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.16666667,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-591",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 19,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.5,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.09090909,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-6295dccff72abcdbae93c51955c474ee",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 5,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-613",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.5,
+          "shown_sources": [
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "9",
+              "chunk_id": "gold-chunk-c75c19ffa9d91146669055838c95ad75",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "restitution-of-conjugal-rights implementation"
+            },
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "84",
+              "chunk_id": "gold-chunk-1e021ece2a523148d198f1ec5661078f",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 7,
+              "via": "IPC s.498"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-635",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 19,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.5,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.09090909,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "12",
+              "chunk_id": "gold-chunk-514de3d6b2b7a2cb880822341b54df1f",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "voidable-marriage implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-641",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 9,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 1.0,
+          "shown_sources": [
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-7067b93dcfee2f2a1ca3b35e897d3072",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.16666667,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-647",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-652",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 6,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 1.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-e66ec012d2ee01ee0562cf5e42bc063c",
+              "relevant": true,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.14285715,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 13,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-654",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "9",
+              "chunk_id": "gold-chunk-c75c19ffa9d91146669055838c95ad75",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "restitution-of-conjugal-rights implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-663",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "act_name": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "section": "63",
+              "chunk_id": "gold-chunk-8337c7f14c7b4e45f44bc48db861caec",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "electronic-record implementation"
+            },
+            {
+              "title": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "act_name": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "section": "63",
+              "chunk_id": "gold-chunk-602509a5fdc5c84a93078ef5492f814f",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "electronic-record implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-667",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 5,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": true
+        },
+        {
+          "id": "ilsic-lay-test-670",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-6295dccff72abcdbae93c51955c474ee",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 4,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-682",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 11,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13B",
+              "chunk_id": "gold-chunk-618c5ec0f7cc7156a24f085a5a1f0d68",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.75,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "mutual-consent-divorce implementation"
+            },
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "9",
+              "chunk_id": "gold-chunk-c75c19ffa9d91146669055838c95ad75",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "restitution-of-conjugal-rights implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-684",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "187",
+              "chunk_id": "gold-chunk-0ba095ad2d0df9239efc0a398a26bdc0",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "default-bail implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "187",
+              "chunk_id": "gold-chunk-ce92e1769cd13a77133c6a3cd8c545b3",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "default-bail implementation"
+            },
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "303",
+              "chunk_id": "gold-chunk-0302a06db7defe3cbe3736243e0ccda8",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "theft implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-707",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 17,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "303",
+              "chunk_id": "gold-chunk-0302a06db7defe3cbe3736243e0ccda8",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "theft implementation"
+            },
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "303",
+              "chunk_id": "gold-chunk-ddcd9f24dfd34f2c1606b4052fdd1069",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "theft implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-710",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.15882353,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-712",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 12,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Dowry Prohibition Act, 1961 (as amended in 1986)",
+              "act_name": "The Dowry Prohibition Act, 1961 (as amended in 1986)",
+              "section": "6",
+              "chunk_id": "gold-chunk-d0e64d111e64819506e49707ff1c2fe3",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.5,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-719",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-760",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-fe305acbe33c9ab5f3820df07d0892f2",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-761",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "84",
+              "chunk_id": "gold-chunk-1e021ece2a523148d198f1ec5661078f",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 7,
+              "via": "IPC s.498"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-762",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 5,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13B",
+              "chunk_id": "gold-chunk-618c5ec0f7cc7156a24f085a5a1f0d68",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.39285713,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "mutual-consent-divorce implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-764",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 12,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-fe305acbe33c9ab5f3820df07d0892f2",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.3809524,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-768",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 6,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.5,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13B",
+              "chunk_id": "gold-chunk-618c5ec0f7cc7156a24f085a5a1f0d68",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "mutual-consent-divorce implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-e66ec012d2ee01ee0562cf5e42bc063c",
+              "relevant": true,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.25,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 6,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-770",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 13,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13B",
+              "chunk_id": "gold-chunk-618c5ec0f7cc7156a24f085a5a1f0d68",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.8333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "mutual-consent-divorce implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-773",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 14,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.5,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "173",
+              "chunk_id": "gold-chunk-f9323d381560a3f5877c1080cae185d8",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "first-information implementation"
+            },
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-7067b93dcfee2f2a1ca3b35e897d3072",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.11111111,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-774",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-fe305acbe33c9ab5f3820df07d0892f2",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "9",
+              "chunk_id": "gold-chunk-c75c19ffa9d91146669055838c95ad75",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "restitution-of-conjugal-rights implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-777",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "303",
+              "chunk_id": "gold-chunk-0302a06db7defe3cbe3736243e0ccda8",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "theft implementation"
+            },
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "303",
+              "chunk_id": "gold-chunk-ddcd9f24dfd34f2c1606b4052fdd1069",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "theft implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "47",
+              "chunk_id": "gold-chunk-ca86f4412fb34e9e0350c4a6d4f32865",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "arrest-right implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-781",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "173",
+              "chunk_id": "gold-chunk-f9323d381560a3f5877c1080cae185d8",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "first-information implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "193",
+              "chunk_id": "gold-chunk-ac98f17e3c219bdffee470ccc58d2a0c",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "final-report implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "193",
+              "chunk_id": "gold-chunk-12d8419151ff9fc8d87fda7afdf2601b",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "final-report implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-789",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "2",
+              "chunk_id": "gold-chunk-0cc6a4da234e64594d95efcab8618ad6",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "concordance: IPC s.21"
+            },
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "2",
+              "chunk_id": "gold-chunk-a67b145fd0bfa417586107326325dfa5",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "concordance: IPC s.21"
+            },
+            {
+              "title": "The Bharatiya Nyaya Sanhita, 2023",
+              "act_name": "The Bharatiya Nyaya Sanhita, 2023",
+              "section": "141",
+              "chunk_id": "gold-chunk-035dad94a533cc8ca096e681e57b7755",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.33333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-797",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 11,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 1.0,
+          "shown_sources": [
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-7067b93dcfee2f2a1ca3b35e897d3072",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.16666667,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-803",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 9,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13B",
+              "chunk_id": "gold-chunk-618c5ec0f7cc7156a24f085a5a1f0d68",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.75,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "mutual-consent-divorce implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-816",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 9,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Indian Contract Act, 1872",
+              "act_name": "The Indian Contract Act, 1872",
+              "section": "10",
+              "chunk_id": "gold-chunk-77272d9afea0a5b5c21cc6d6d73fc766",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "valid-contract implementation"
+            },
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "13B",
+              "chunk_id": "gold-chunk-bbc9469e0accaf8174daf08459fec745",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.2,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "mutual-consent-divorce implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-6295dccff72abcdbae93c51955c474ee",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 4,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-822",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13B",
+              "chunk_id": "gold-chunk-618c5ec0f7cc7156a24f085a5a1f0d68",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.6666667,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "mutual-consent-divorce implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-827",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-fe305acbe33c9ab5f3820df07d0892f2",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-829",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 6,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13B",
+              "chunk_id": "gold-chunk-618c5ec0f7cc7156a24f085a5a1f0d68",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.4,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "mutual-consent-divorce implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-835",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.3333333333333333,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.25,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "divorce-grounds implementation"
+            },
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "9",
+              "chunk_id": "gold-chunk-08d09cb810c6a3dab91cb56a4846bfb7",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.8333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "restitution-of-conjugal-rights implementation"
+            },
+            {
+              "title": "Hindu Adoptions Maintenance 1956",
+              "act_name": "Hindu Adoptions Maintenance 1956",
+              "section": "18",
+              "chunk_id": "gold-chunk-96e4ba4bc50cd6da4f75f74c19f1e2f4",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.25,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        }
+      ]
+    }
+  }
+}

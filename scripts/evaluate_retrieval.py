@@ -112,7 +112,8 @@ async def _shown_to_the_reader(
     if asks_about_foreign_law(question) or await off_topic_check_for(service).is_off_topic(question):
         return []
     selected = shown_to_the_reader(
-        relevant, followed, statutes, limit=settings.fast_result_limit, ruled_out=ruled_out
+        relevant, followed, statutes, limit=settings.fast_result_limit, ruled_out=ruled_out,
+        query=question,
     )
     # Scores travel with each payload so a display rule can be judged on them.
     return [

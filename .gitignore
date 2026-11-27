@@ -74,3 +74,4 @@ node_modules
 
 # Local backups hold private case material.
 backups/
+user-credentials.md

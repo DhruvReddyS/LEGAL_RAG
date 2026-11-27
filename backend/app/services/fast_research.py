@@ -18,6 +18,7 @@ from app.services.retrieval import (
     _base_forms,
 )
 from app.services.lay_vocabulary import domain_vocabulary
+from app.services.personal_law import unasked_personal_law
 from app.services.question_scope import asks_about_foreign_law, off_topic_check_for
 from app.services.legal_term_normalization import (
     LEGAL_ACRONYM_EXPANSIONS,
@@ -564,12 +565,21 @@ def shown_to_the_reader(
     *,
     limit: int,
     ruled_out: frozenset[str] = frozenset(),
+    query: str = "",
 ) -> list:
     """What the brief shows, in order. The evaluation harness calls this too.
 
     A provision the question itself points at comes first, then primary law found
     for it, then law its sources rely on, then whatever else earned its place.
+    Another community's marriage law is left out when the question names no
+    community (see app.services.personal_law).
     """
+    unasked = unasked_personal_law(query, [*ranked_relevant, *followed, *statutes])
+    if unasked:
+        ranked_relevant, followed, statutes = (
+            [hit for hit in hits if str(hit.payload.get("chunk_id")) not in unasked]
+            for hits in (ranked_relevant, followed, statutes)
+        )
     bridged = [
         hit
         for hit in followed
@@ -909,6 +919,7 @@ class FastLegalResearchService:
                 statutes,
                 limit=settings.fast_result_limit,
                 ruled_out=ruled_out,
+                query=query,
             )
         )
         relevant_hits = [*followed, *statutes, *ranked_relevant_hits]

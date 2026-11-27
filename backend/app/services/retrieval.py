@@ -314,6 +314,11 @@ _ACT_NAME_FRAGMENTS = {
     "ICA": "Contract Act",
     "RTI": "Right to Information",
     "HMA": "Hindu Marriage Act",
+    # Each names one Act only: "Divorce Act" alone also matches the Parsi
+    # Marriage and Divorce Act.
+    "IDA": "Divorce Act, 1869",
+    "SMA": "Special Marriage Act",
+    "DMMA": "Dissolution of Muslim Marriages",
     "LSA": "Legal Services Authorities",
 }
 

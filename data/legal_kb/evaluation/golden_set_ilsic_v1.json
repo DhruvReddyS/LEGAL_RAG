@@ -1,0 +1,1844 @@
+{
+ "version": "ilsic-v1",
+ "created": "2026-11-27",
+ "notes": [
+  "External test set: questions and labels from ILSIC (EACL 2026, MIT licence), layperson test split. Built by scripts/build_golden_set_ilsic.py; not tuned to Corpusil.",
+  "Labels are the sections forum lawyers cited, extracted by the ILSIC authors with an LLM. They are often incomplete, so precision and citation accuracy understate quality; Recall@k is the fair measure.",
+  "IPC/CrPC/IEA labels converted to BNS/BNSS/BSA with the NCRB table; one-to-many conversions accept any target. Every source was checked to exist in the collection.",
+  "Kept 698 of 836 test questions; sampled 100 (50 civil, 50 criminal), seed 20261127."
+ ],
+ "items": [
+  {
+   "id": "ilsic-lay-test-003",
+   "question": "Hi, I have given my car for lease for 5 months. he had paid the money for 4 months and one month rent need to pay. He suppose to return the car on 28.08.15. When i called him for car. He said he will giving/coming next day. He did't turn up and didn't answer the call. I went to his residence and came to know by his house land lord, he absconded since one month since his landlord asked him to pay the house rent. i have collected the below doc's before giving the car. 1. Company id(later came to know, its fake) 2.Present and perm add proof. 3. His pan card Filed a private complaint and it did give a fruit full result. as police did not take it as serious. police called that guy he said he will be coming and then never turned up after following him up 10 times. * Background Story 1. he claims to be a pilot but checked the orgarnisation. it s fake claim. 2. Never saw the car with him during 5 months period. 3.Registered owner of car is my friend. 4. it is MH Registered car. Kindly suggest. Is it come under cheating case. What is the procedure to file a cheating case in court? Thanks",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nagarik suraksha",
+     "section": "175"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "316"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "318"
+    }
+   ],
+   "note": "ILSIC labels: Section 156 of The Code of Criminal Procedure, 1973; Section 405 of The Indian Penal Code, 1860; Section 406 of The Indian Penal Code, 1860; Section 409 of The Indian Penal Code, 1860; Section 415 of The Indian Penal Code, 1860; Section 420 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-010",
+   "question": "Hi Sir, I need an urgent advise , please advise me. I have got married newly with a girl .The girl and their parents said before marriage that girl have IT job experience and job is in hold although currently not working they have given us some fake job joining letter. But after marriage I came to know that her whole expereince of IT job is fake and she doesn't hold any offer. When I found her guilty and asked her strictly , she went back to her hometown with her parents on the fourth day after marriage .and not communicated with us from then. It happened three weeks ago. We havent gone any intercourse for the three days which I spent with her after marriage. I came to know that she and her parents has cheated in many other things. I just want to leave her and dont want to continue life.. Please let me know how I can get divorce from her as I and my family were misguided by them with their fake words. Also please let me know the scope of 498 in my case and how I can get rid of it. I can confirm that marriage has not been conusmated since girl is afraid of having intercourse. I am confident she might not get IT job anywhere as she doesn't have experience and skills at all. If I apply for annulment how can I prove that marriage is not consummated ? What is the maximum~ period in which marriage should be consumated according to law? I strongly feel that girl is having some health problems... so their parents and the girl not willing to come back to my home by saying some reasons like currently the girl mother is ill. Also they have taken some video and photo of taking some money from them. I can understand that I cannot find anything legally opposite her. But I don't want to continue life with her as she cheated in all things including health. Please suggest me",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "12"
+    }
+   ],
+   "note": "ILSIC labels: Section 12 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-062",
+   "question": "Our house was locked for 2 days. During that time valuable Jewellaries and money were stolen from our house.... But during the process all locks of the house remained intact.. The local police refused to lodge theft complaint saying any house members be involved in it.. We strongly suspect one of our neighbors to be one of the accomplice in that theft.. But without proof and police help we couldn't approach.. What should we do to get the thief and get back the jewelleries?",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nagarik suraksha",
+     "section": "175"
+    }
+   ],
+   "note": "ILSIC labels: Section 156 of The Code of Criminal Procedure, 1973"
+  },
+  {
+   "id": "ilsic-lay-test-079",
+   "question": "Dear Sir, My husband is an OCI who passed away recently. I have a probate certificate from US court after going through the probate process with his Will. What is required to sell the property in his name in India? Please guide me. Thank you",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "indian succession act",
+     "section": "213"
+    }
+   ],
+   "note": "ILSIC labels: Section 213 of The Indian Succession Act, 1925"
+  },
+  {
+   "id": "ilsic-lay-test-098",
+   "question": "with reference to my previous question on maintainability of partition suit by daughter against her father during his lifetime in Guwahati Assam, advocates in the kaanoon panel have given some diverse arguments. Some has said it is maintainable and some has said it is not maintainable , because Assam is governed by Dayabhaga rule. Now as a common citizen I want to put the following arguments against the Validity of Dayabhaga rule- 1. The preamble of the HSA 1956 says\" it is an Act to codify the law relating to intestate succession among Hindus \" so in my opinion the Dayabhaga rule, which is not codified by Parliament of India is null & void. 2. overriding effect of HSA 1956 under section 4 (b)\" is any other law in force immediately before the commencement of this Act shall cease to apply to Hindus in so far as it is inconsistent with any of the provisions contained in this Act\". so in my opinion Dayabhaga is null & void in Assam. 3. When it comes to custom in conflict with the Act, the Supreme Court in Sheela Devi case felt that SEC.6 WILL PREVAIL OVER the old Hindu law. It was noticed by the Court that the Parliament enacted the Hindu Succession Act, 2005 with a view to confer right upon the female heirs, even in relation to the joint family property. Please comment very specifically on this issue with supporting act and argument.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu succession act",
+     "section": "6"
+    }
+   ],
+   "note": "ILSIC labels: Section 6 of The Hindu Succession Act, 1956"
+  },
+  {
+   "id": "ilsic-lay-test-107",
+   "question": "I am looking for assistance in eviction of our rented property which was rented approx 30 years ago by my grandfather without any legal agreement. We are receiving rent on those premises and issue Rent receipts to the tenant every month.He has filed false cases u/s 145 in the metropolitan court for which we have filed a quashing request in sessions court)and also lodged false complaints against my family so that i should settle for any small amount and discharge the property for peanuts.The property is of great importance to me since my (late)mother was closely attached and i need someone very honest to guide me in this situation as to what can be done. Thanks",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nagarik suraksha",
+     "section": "164"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "438"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "528"
+    }
+   ],
+   "note": "ILSIC labels: Section 145 of The Code of Criminal Procedure, 1973; Section 397 of The Code of Criminal Procedure, 1973; Section 482 of The Code of Criminal Procedure, 1973"
+  },
+  {
+   "id": "ilsic-lay-test-115",
+   "question": "Hi, My wife had filed 498a, DV and 406; three cases against me. We entered into compromise and filed for MCD. 406 and DV case was withdrawn on the same day and I have given her two checks of 2.5 lacs each. One of the same day and other on hearing date of Divorce, dated 6 months later. I am in US and she has not withdrawn her 498a case in Hyderabad saying she will withdraw only once I come back. Now my next hearing of 498a is after divorce. Should I stop check ? What should I do.. is it good to go for divorce before having 498a withdrawn. Please assist.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "indian contract act",
+     "section": "23"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "528"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 23 of The Indian Contract Act, 1872; Section 482 of The Code of Criminal Procedure, 1973; Section 498A of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-127",
+   "question": "I am a victim of hit & run case (without any loss of life to involved or 3rd party). The culprit vehicle(BIG SUV) fled from the scene of accident. Its vehicle Registration plate fell at the spot of accident. FIR lodged & got the car released for repairs on Courts order (Superdaari). My car was in police station for a month but the culprit vehicle (costly SUV), as per my information, has not been brought to police despite, not even for a day. How can I claim compensation for losses incurred due to the accident, namely; 1. Being without car for 2 months. 2. Workshop expenses incurred after settlement of Insurance claim. 3. Loss of No claim Bonus for insurance renewal. 4. Litigation expenses for getting the car released on Court order. 5. Mental harassment. Given the alarming rise in such hit & run cases (which have resulted in major fatality to the involved & also to the third parties), can the H'able court take a strict view & allow compensation as a more severe penalty (apart from the stipulated penalty of paying fine only)?",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "motor vehicles act",
+     "section": "166"
+    }
+   ],
+   "note": "ILSIC labels: Section 166 of The Motor Vehicles Act, 1988"
+  },
+  {
+   "id": "ilsic-lay-test-133",
+   "question": "Can a person after being arrested approach session court for bail (accused of 467, 468, 471), and ask HC under 482 to set him free at the same time?",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nagarik suraksha",
+     "section": "483"
+    }
+   ],
+   "note": "ILSIC labels: Section 439 of The Code of Criminal Procedure, 1973"
+  },
+  {
+   "id": "ilsic-lay-test-139",
+   "question": "Sir am a doctor, working in a hospital, (owner is proprietor) and he has not paid me professional charges for 2 years which now stands at 12 lakhs. He has given me cheques worth 10 lakhs and they got bounced. Meanwhile i came to know that he has sold the hospital to someone else. The bank has told me that the reason for rejection of cheques is signature mismatch. Can ownership be transferred without clearing old dues? Can i recover my dues from the new owner? Can i file case against propreitor for cheque bounce and cheating for changing his signature? Whats the time limit to proceed after the cheque bounce date? what else can i do?",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "negotiable instruments act",
+     "section": "138"
+    }
+   ],
+   "note": "ILSIC labels: Section 138 of The Negotiable Instruments Act, 1881"
+  },
+  {
+   "id": "ilsic-lay-test-160",
+   "question": "Many years back, almost thirty -- when I was barely a teenager---my father's business partner in a city in Maharashtra, duped my father of lakhs of rupees --saying the money had to be paid to a top Maharashtra politician; else the business will close down (small scale industry).My father trusted and gave the partner about 8 lakhs which is equivalent to about 4 crores of today. The partner whom my father trusted was lying (about the money to the politician) and deceiving and defrauding my dad to steal his money, despite knowing my father was a heart patient with severe angina and heart disease. When few days later my father learned that his partner had deceived him, he went into a shock and suffered repeated heart attacks (3) in span of 30 days and thereby died....heartbroken and betrayed. He was an HONORED FREEDOM FIGHTER of the country. Now thirty years have passed, but a horrible crime was committed. Is there any chance that the culprit, who is still there, should be booked under sections of IPC, Cr.PC and investigated? I am sure the police will learn lots of shocking details once an honest investigation takes place. Can an FIR be registered and a police case initiated against the man who stole my father's money and caused his death? If yes what's the way to go about it? He is now squatting (encroaching) on our ancestral property! My father had fought valiantly for India's freedom and was honored by Sanman Patra by the state government in recognition of his services to the nation. The freedom fighter, his children and his widow deserve justice...Please advise, please help.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nagarik suraksha",
+     "section": "514"
+    }
+   ],
+   "note": "ILSIC labels: Section 468 of The Code of Criminal Procedure, 1973"
+  },
+  {
+   "id": "ilsic-lay-test-163",
+   "question": "My wife has left me and my parents around 2 months before to her parents place , we were married for 4 years and have a daughter , i with my parents live in Bangalore and her parents live in haryana , we went twice to take her back and she refused by giving silly reasons, they are pressing us to give things in writing and most of the points which they are asking is related to money , based on the discussions and the way they are behaving i see the matter is heading towards divorce and its mostly related to money , I have sufficient proof to prove that , what preventive step can i take to reduce the impact on me?",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-165",
+   "question": "Hi I have property behind another person private property and I do not have any road access to my property unless the front land owner allow me to access his road in his property. Can you please suggest what would be the best approach for getting access to my property? Thanks",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "easements act",
+     "section": "13"
+    },
+    {
+     "act": "easements act",
+     "section": "35"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Indian Easements Act, 1882; Section 35 of The Indian Easements Act, 1882"
+  },
+  {
+   "id": "ilsic-lay-test-167",
+   "question": "My wife file 125 case in 12 Jan 2019 I have been x party in 125 maintainance case in April Recovery order started in june I come to know about this case in Aug and appear in it. In x party case judge consider my salary as 1.5 lkh per month which is 40 k in hand only. Judge ordered maintainance of 30k per month. I did restore of case using 126 and case again started but judge imposed decision to pay arrear amount of 1.2 lkh as per 30k per month. I went HC with order 1 but no change in order of arrear recovery. Please advice what to do as awarded amount is so much high.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "25"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "146"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 127 of The Code of Criminal Procedure, 1973; Section 25 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-170",
+   "question": "I got married in Feb 2017,Since then I am living with my wife along with my parents at my parental house. Our relations are tensed due to following reasons. 1. She has very arrogant behaviour towards my parents since day one. 2. She doesn't show any sign of affection towards anyone in the family including me. 3. She remians sad and angry most of the time. When questioned for the same she gets irretated and doesn't reply or reply very irrelavent and illogical. 4. No positive attitude towards life. 5. She always complains against her parents about her raising. 6. My whole family feels mentally tortured and suffocated due to her acts and behaviour. 7. Besides her ill behaviour with me and my parents we never harmed her physically or mentally, even supported her in all possible manner to make her comfortable. And we have sufficient proofs for the same. In a recent event she tried to commit sucide, but was saved because the liquid she consumed couldn't affect her to that level. And the reason of comminting sucide was an objection by my father about her ill behaviour with guest at our house. Next morining we called her parents to discuss the situation. But my in-laws misbehaved with me and my parents, imposed irrelavent allegations and took her along with them. It is now 20 days since she had gone. Now they are insisting me to call her back but I am affraid that she might commit suicide again. Please suggest 1. if we take her back and she commits sucide again (by chance) how I can be legaly safe of this situation. I feel she has that tendency or some psycological disorder. In other words what step I can take before bringing her. 2. There is possibility that under some planning my in laws may file a legal suit of domestic violence under section 498A etc after she reaches us. 3. As a whole I am not willing to continue this relationship, so please suggest if this matter is sufficient to file a divorce. 4. My wife is professionaly qualified, so how can I save myslfe from paying maintenance after filling divorce.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nyaya sanhita",
+     "section": "109"
+    }
+   ],
+   "note": "ILSIC labels: Section 307 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-172",
+   "question": "Based on a writ petition filed by my friend, the Honourable High Court of Karnataka had dismissed a case filed against him under the Atrocities Act, Sec 3 (P) and (Q). The Honourable High court had exercised its powers under Article 226 of the Constitution on the grounds that the complainant had not suffered any consequences. However, the court while doing so did not say the complaint was false nor it pointed out any flaws in filing the FIR nor investigation. What sort of defamation case can my friend file against the complainant?",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nyaya sanhita",
+     "section": "356"
+    }
+   ],
+   "note": "ILSIC labels: Section 499 of The Indian Penal Code, 1860; Section 500 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-173",
+   "question": "I worked in a private IT company for 5.7 years, and due to ongoing financial issues management asked me and lot other employees to leave. As per their requirement we have served the one month notice as well. At the time of leaving company, they needs to pay my 2 months salary, gratuity and 1 year annual component. They have even promised to clear that with in a month as well. However its already more then 4 months and they only paid 1 month salary. On asking for further dues they give new tentative date every time but not paid anything. And now they stopped even responding on messages and emails too. I have mailed to company CEO, financial head, accounts department and HR but nobody is responding. How I can proceed now? Do I take some legal action?",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "indian contract act",
+     "section": "73"
+    }
+   ],
+   "note": "ILSIC labels: Section 73 of The Indian Contract Act, 1872"
+  },
+  {
+   "id": "ilsic-lay-test-177",
+   "question": "PF amount was deducted for Dec 20, Jan 21 and Feb 21 but those are still not reflecting in my PF passbook. Company says that this was deposited as DD for all the employees during COVID time and PF office has not been able to reconcile as yet. I left the company in November 21. The issue is still unresolved. I am not able to withdraw full amount. Company has been assuring of resolution, but it has been +1 year they have not been able to do anything in this regard. Please advise my options.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nyaya sanhita",
+     "section": "316"
+    }
+   ],
+   "note": "ILSIC labels: Section 406 of The Indian Penal Code, 1860; Section 409 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-179",
+   "question": "Dear Sirs, My wife has a daughter from her first marriage which was divorced in 2011. The decree had clearly stated that the court has given full custody to the mother and she will solely maintain the daughter. The father is disappeared and as per my latest sources it is understood he is in Malaysia enjoying. As per the decree he is suppose to pay certain amount for daughter till the time she is married on which he hasnt been doing so since the time of divorce. My question is as follows : 1. I want to legally adopt the daughter and for that do I need a registered Deed of Adoption?. After 2010 amendment, can my wife give her daughter for adoption to me? Or we still need the biological fathers NOC where he is already disappeared since 2011... Awaiting yours in anticipation. Thank You.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu adoptions and maintenance act",
+     "section": "5"
+    },
+    {
+     "act": "hindu adoptions and maintenance act",
+     "section": "6"
+    },
+    {
+     "act": "hindu adoptions and maintenance act",
+     "section": "9"
+    }
+   ],
+   "note": "ILSIC labels: Section 5 of The Hindu Adoptions And Maintenance Act, 1956; Section 6 of The Hindu Adoptions And Maintenance Act, 1956; Section 9 of The Hindu Adoptions And Maintenance Act, 1956"
+  },
+  {
+   "id": "ilsic-lay-test-184",
+   "question": "Hi Sir, I am looking for legal help for my sister in lay who get married last year march. Groom is working as engineer and my sister in law family from Bihar. Last year in march my SIL get mairrage from a 5 star hotel which groom side has pressure to do only from delhi at any cost. Anyways everything get done according to the need of groom side but very next day of mairrage they complain that GIRL is not respecting anyone in the family and his father in law said that my boy has not liked you still i manage to marry with you. Family side has complaind the middleman and relatives that girl has changed during mairrage and till engagement everything was fine. Middleman said they needed some dowry which they hesitate to say directly like all household things etc etc. their groom father and groom forsen to live the girl without any phone and a home which does not even have any balcony or she was not even allowed to talk to anybody. She was in complete mental shock even we tried to calm the things but they are not accepting anything from our side. any one can understand that if a girl live in a house where she even can't talk to anyone can't even go anywhere husband never stay in weekends they what a new girl will do. few months girl family has bring her to home for few weeks but after Boy family is taking her to home and complaing the stories in their relatives. Now few days back his boy father has called and askign to settle down the mairrage and when we request to bring her to his home then they keep execusing every month for next month. few weeks ago boy side has a function in his family and they have not called the girl at home which we got to know through some source. Now things are: please suggest as we tried everything to settle the mairrage but their whole family npt taking tthe girl at home. Boy father is keep saying that girl has not bring anything at home and girl side has changed the girl in mairrage. its been 5 months and they are not picking up phone and even they are missing from home where they use to live so we are not able trace them. ONly boy father pick up the phone either try make use wrong or give next month date for opinion. please suggest i am trying to settle the everything so that atleast my sister in law get settle down in life ... because court case is still social respect issue and girls always have to wear the pain. Boy side is not listening any word.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 498A of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-188",
+   "question": "Sir, I am Shovan. i belong to SC Community(Namasudra). I joined West Bengal State Electricity Transmission Company Ltd on 25th June 2014. But on September 15 i got a show cause notice that the SDO office has returned the caste certificate with comment that the certificate was not issued from that office. But i originally belong to SC Community. just after knowing this i again applied for a SC certificate and met to Our BDO directly. he promptedly took action and i got my sc certificate within one month. I submitted the new certificate to the company on 16-12-15 with a letter requesting to consider this certificate. but i got my termination letter also ( dated 16-12-15) on 21th december. Then i met to the assistant general manager of my company and she said that they have nothing to do and i will not get any govt. jobs further. she said that the company will not file any case against me and also advised me to try for private jobs. i really did not know that my caste certificate was fake as i am originally SC and i had all the genuine documents which is required to obtain a caste certificate, which i submitted to a agent at BDO office who assured me to obtain the certificate quickly as it takes more than 1/2 year in normal procedure. i was in hurry as my joint entrance exam was just two month away. now though i can understand that i have been cheated by the agent. as a result i have been terminated from my job as my certificate is fake though i am genuine sc. please suggest me what to do now. Should any criminal case will must be filed against me? and will i able to get any govt jobs in future? please help me. one of my friend's uncle is a lawyer, he suggested me to file a Writ petition on Calcutta High Court but i am afraid if i take any action the company or Intelligence Branch (IB) may then file a criminal case against me. plz suggest me what to do now.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "sakshya adhiniyam",
+     "section": "121"
+    }
+   ],
+   "note": "ILSIC labels: Section 115 of The Indian Evidence Act, 1872"
+  },
+  {
+   "id": "ilsic-lay-test-193",
+   "question": "I will tell the brief details of my friend's case below: There was a false case filed against my friend last year u/s 376, 307, 323, 504, 506 in UP which is outside their jurisdiction of Delhi NCR where my friend and his family reside. They approached Allahabad high Court for quash of the same but the judgement came below: \"...after considering the various decisions including State of Haryana v. Bhajan Lal (AIR 1992 SC 604) that there can be no interference with the investigation or order staying arrest unless cognizable offence is not ex-facie discernible from the allegations contained in the F.I.R. or there is any statutory restriction operating on the power of the Police to investigate a case. From the perusal of the FIR, prima facie it cannot be said that no cognizable offence is made out. Hence, no ground exists for quashing of the F.I.R or staying the arrest of the petitioners. \" After this verdict they joined the investigation under compliance of 41A and IO taking witness statement(he came to delhi NCR to do the investigation which is outside his jurisdiction). IO found that no rape has been commited and he dropped the charges of 376 and 307 and added 498A for verbal fight between both parties. Now the case is submitted in UP court u/s 498A, 406,506 and removal of 376 and 307 and magistrate took cognizance and issue summon is in process Now the opposite party, to harass them more filed a new complaint case in court u/s 406,418,420 recently after 7 months. Seems police declined for FIR and they put 406,418,420 in court for complaint case and statement u/s 202 will take soon. what is statement u/s 202 sir? What should my friend and his family do..please advise us.. 1. can they approach high court again since 376 and 307 were dropped, for quashing of proceedings which are taking place outside the jurisdiction.. 2. can they approach high court for new complaint case and earlier case where charges were dropped telling that malafide intention and harassament.. can high court quash 498A, 406,506 as investigation found nothing for 376 and 307? can high court make decision that it is indeed to harass the party they filed new complaint case u/s 420 should they approach high court that outside jurisdiction both old and new cases are filed.. they don't know what to do anymore.. they are really confused and broken as opposition is repeatedly filing case to harass them in court. if any other advice please help us",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nagarik suraksha",
+     "section": "225"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "356"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "64"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "65"
+    }
+   ],
+   "note": "ILSIC labels: Section 202 of The Code of Criminal Procedure, 1973; Section 376 of The Indian Penal Code, 1860; Section 500 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-212",
+   "question": "Respected sir, my husband has relations with other girl (wife of his late brother). After many efforts to make my wedding successful now i give up and wanted to take divorce from him. now i m at my parental home from 2 months we are not in communication. i want to know that how can i take a step to get rid of this relation.?",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-231",
+   "question": "One of my employee working for more than 5 years is claiming to be my business partner.when I denied and asked for any proofs he started abusing and threatening me. I have lodged 3 ncr against him and then initiated chapter case against him.he has signed a bond of 10000 inr in acp office and said he would never trouble me again.on the same time I filed a court case under Crpc 202 against him,the case is in process but judge still has not called him.Now the issue is a police constable from his area is calling me for last 2 months and asking me to come to police station.on being asked why he said the other person has lodged ncr and a written police complaint and I need to come there.i fear my employee has bribed him and he will do any wrong to me.when my lawyer send his junior to police station a couple of days ago,the concerned constable did not show any ncr or written complaint to my lawyer.he said a small civil ncr complaint is filed and I need to come there.i found it a little fishy and don’t want to go there.also constable has sent a letter signed by him to my home stating I have to come there.please help as the constable is insisting again and again to come there for a mere ncr.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nagarik suraksha",
+     "section": "35"
+    }
+   ],
+   "note": "ILSIC labels: Section 41 of The Code of Criminal Procedure, 1973; Section 41 of The Code of Criminal Procedure, 1973"
+  },
+  {
+   "id": "ilsic-lay-test-232",
+   "question": "Will there be any problem for buyer in under construction property agreement registration??",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "transfer of property act",
+     "section": "53"
+    },
+    {
+     "act": "transfer of property act",
+     "section": "54"
+    },
+    {
+     "act": "transfer property 1882",
+     "section": "53"
+    },
+    {
+     "act": "transfer property 1882",
+     "section": "54"
+    }
+   ],
+   "note": "ILSIC labels: Section 53 of The Transfer Of Property Act, 1882; Section 54 of The Transfer Of Property Act, 1882"
+  },
+  {
+   "id": "ilsic-lay-test-234",
+   "question": "I sold my car to a person, who now is not interested in transferring it in his name. I received payment in cash. I have his ID (DL Photocopy) I have Delivery Note (just a paper form with basic information - not on stamp paper) I have photocopy of the RC Book The RC-Book was handed over to him, and i signed some transfer related forms. Everytime I call him, he gives a new excuse. I have been following up for 2 months now without any success. I told him.that I will report the matter to police, he says he doesn't care. I have no idea how to proceed now. Even if I go to police or court, he will just repeat the lies like: he will do it soon or he has no address proof or he wants to register in some other city or state. Full of clever excuses and expert at that. I even offered to do the transfer on his behalf - but he doesn't care. I have read that i can inform RTO etc - but practically i hear it does not help. Ultimately without a clear transfer - its no good. I need practical advice please.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "motor vehicles act",
+     "section": "50"
+    }
+   ],
+   "note": "ILSIC labels: Section 50 of The Motor Vehicles Act, 1988"
+  },
+  {
+   "id": "ilsic-lay-test-238",
+   "question": "I met a girl and we fall in love each other. She told me that she is from genral cast and i am from st cast so we have to run away from here and marry each other after this i realize that our marriage will not work so i told her to choose her family decision. But she started blackmailing me for marriage. I have good earning and i spend lots of money on her. She blackmail me and force me to marriage. We got married in arya samaj without telling someone. After 1and half month later her father came to know about it and he file a case on me. He took my mobile and send some of our videos on his mobile of us and after it he give this mobile to police. As he is also a rich person he bribe all police and deleted all chat of before which she blackmailed me for marriage. He file a charge of 376, 384, 366, 354a, 66e it act. I am on bail now after slending 99 days in jail. And as i have apple that was time so i recoved all the chat which she is use to blackmail me like i will sucide and all. I have all marriage cirtificate, photos, videos, photos with her mom. what to do now. In charge sheet they mention that i have edited photos of my wife and started blackmailing her. After it i kidnep her to delhi in unknown place and raped her. It is mention. As her father came to know about marriage he took my mobile and send some massages to himself and complained after 3 days. This wrong is happened with me but i have all chat which the girl blackmailing me for marriage. Sending me picture of poision by saying that stay with me otherwise i will die.after blackmailed 1 month we got married in arya samaj. I am 22 years and she is 24 year. I am diploma only and she is m.com done. I spend 99 days in jail after being blackmailed. in charge sheet there is 18 witness there family member and police only. I have all chat of blackmailing can i file a case on her. I got bail on 31st may.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nagarik suraksha",
+     "section": "173"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "175"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "223"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "528"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "308"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "316"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "318"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "351"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "356"
+    }
+   ],
+   "note": "ILSIC labels: Section 154 of The Code of Criminal Procedure, 1973; Section 156 of The Code of Criminal Procedure, 1973; Section 200 of The Code of Criminal Procedure, 1973; Section 383 of The Indian Penal Code, 1860; Section 406 of The Indian Penal Code, 1860; Section 420 of The Indian Penal Code, 1860; Section 482 of The Code of Criminal Procedure, 1973; Section 500 of The Indian Penal Code, 1860; Section 503 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-247",
+   "question": "Https://www.kaanoon.com/162104/how-to-start-the-procedure-for-divorce. Above Link is the question I asked some time ago. I have been married 10 months ago. The status has not changed till today. My wife deserted me after one week of marriage with out informing me. Since then there is no communication from their side. I met his father this year January and After arguing for some time I told him either to send her to my house or otherwise don't waste my time and initiate the process for divorce. He said he needs time but didn't say how many days he needed. After 3 months, in the month of May, I called him and he started avoiding me. With great difficulty I arranged a meeting with the girls parents and my parents including me (my wife didn't attend the meeting). He said recklessly he is not in a hurry to decide about our Problem and said he may further need 3 to 6 months of time or More than that. He said he didn't like my behavior and he should first get convinced with my behavior. They never talked a single sentence about her daughter. Myself and my wife hardly stayed together for 4 days after our marriage. She hardly talked to me. We didn't have any physical relationship. She is extremely introvert and highly stubborn in her behavior. We didn't even sleep together in one room. She has a younger sister who is currently unmarried. What is the solution for this problem. How to get divorce without maintenance. They don't seemed to be ready for mutual divorce (my guess). How many days it will take for me to get divorce without maintenance.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-250",
+   "question": "When husband got abroad work opportunity, took me there with dependent visa and after 10 days he asked to live separate and sent me back to India in next 5 days. Now he says he want one year to figure out and settle down and divorce to be applied after one year.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "10"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 10 of The Hindu Marriage Act, 1955; Section 125 of The Code of Criminal Procedure, 1973; Section 13 of The Hindu Marriage Act, 1955; Section 13 of The Hindu Marriage Act, 1955; Section 498A of The Indian Penal Code, 1860; Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-255",
+   "question": "As per above",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu succession act",
+     "section": "8"
+    }
+   ],
+   "note": "ILSIC labels: Section 8 of The Hindu Succession Act, 1956"
+  },
+  {
+   "id": "ilsic-lay-test-260",
+   "question": "My divorce is taken place, all the court procedure is now over I have also transferred final alimony amount. Within next week I am getting the Judgement Order letter from court. But Divorce Decree will be issued by court after 4 Months (Say December - 2017). I just want to know, after receive the Judgement order letter from court can I able to remarry even though Divorce Decree not received. In simple word I want to know from all respected Advocates from Kaanoon.com that before December - 2017 can I remarry on Court Judgement Order. And if after receive Court Decree, can I remarry soon ? Requesting to all Respected Advocates to please solve my query, I am very much in confusion. Thank you very much in advance.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-287",
+   "question": "Hi Advocates, 1. Can somebody allege that the husband is impotent just because the marriage is non-consummated? 2. What if marriage is non-consummated? Is it a crime? or a punishable offence? 3. Does the petitioner need to provide evidence for all the allegations made in the petition? Or few things can be skipped? 4. When will the judge order the husband to undergo a medical test? And is it forcible? Regards and Thanks in advance.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "12"
+    }
+   ],
+   "note": "ILSIC labels: Section 12 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-293",
+   "question": "I have a rcr put up by my wife against me in family court. I have given a written purshis that I am ready to go back and stay with her. Decision pending. I want to be the key decision maker for my daughter. I am about to file a custody case for my daughter. Is the custody case admissible if the court agrees to my purshis and allows me to stay with my wife? I want to be the key decision maker for my daughter even if I am staying with my wife. P.S. there is no divorce case pending in any court of law against me or by me. I also have none other cases registered against me.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    }
+   ],
+   "note": "ILSIC labels: Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-297",
+   "question": "Without any fir and medical report petioner file case at cjm court....we got bail...and gone to high court for quashing....high court judge going to reject the wuashing but my advocate took one more date.....what will be next",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nagarik suraksha",
+     "section": "528"
+    }
+   ],
+   "note": "ILSIC labels: Section 482 of The Code of Criminal Procedure, 1973"
+  },
+  {
+   "id": "ilsic-lay-test-299",
+   "question": "Hi, My sister is married to a person. Everything was okay until we gave them whatever they asked. Now we stopped paying them they showed their real colour. They dropped my sister to our place and always saying we will come tomorrow and tomorrow. Now her husband is also saying same. He changed his company and city this year. Whenever we ask about his company and his current residenal address he doesn’t provide. What we have his phone number and his family also hides his details. Under which law and section we can ask them to provide his work and residential addresses. I believe our sister is his wife till today then there should be some fundamental right of wife to know details of husband. Pls advise.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973"
+  },
+  {
+   "id": "ilsic-lay-test-307",
+   "question": "1.Criminal proceedings challenged on the ground that the accused being public servant was entitled to protection u/s 197 of the Cr.PC. No documents marked or witnesses examined at that stage. Trial court dismissed the petition basing its order only on the allegations in the charge sheet. 2. The case is now at the stage of recording statements u/s 313 of the Cr.PC, all the exhibits marked and witnesses examined. All the allegation stand negatived by the prosecution evidence itself. 3. Query: can the question of Sanction u/s 197 be again agitated in the light of the facts thrown up in the prosecution evidence. Would need case law in support in case the answer to the query is in positive",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nagarik suraksha",
+     "section": "218"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "528"
+    }
+   ],
+   "note": "ILSIC labels: Section 197 of The Code of Criminal Procedure, 1973; Section 482 of The Code of Criminal Procedure, 1973"
+  },
+  {
+   "id": "ilsic-lay-test-328",
+   "question": "Wife filed complaint of cruelty against husband and in-laws in women cell. After one year of mediation no settlement could be reached and therefore FIR under section 498A registered against husband and in-laws. Three months after that husband filed Divorce petition on grounds of cruelty - non consummation of marriage. Wife filed reply with documentary evidence and denied the allegations of non-consummation. More than two years have passed after filing of the complaint and both husband and wife are living separately continuously for more than two years. Can the wife file a parallel divorce petition on grounds of desertion ?",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-334",
+   "question": "I got married on 11th feb 2016. Since first night I have not had any sexual relations with my wife.. She told me that I have to live like this life long.. Now 4 months are over, and we did not have any sexual relation till now.. Then she had hidden facts from me like, she was engaged already with some one. Her first engagement was broken due to some reason.. All facts were hidden from me.. And when I asked her about her first engagement.. She left my home in anger.. I don't want to live with her anymore.. Plz help... She has accepted that she did not have any relation with me and I have a audio recording of that",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "12"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "14"
+    }
+   ],
+   "note": "ILSIC labels: Section 12 of The Hindu Marriage Act, 1955; Section 14 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-343",
+   "question": "My father is an adulterer and my mother wants to file for divorce. He is also an alcoholic with a history of abuse. However, my mother doesn't want to pay him alimony and her assets are more than his.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "24"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 13 of The Hindu Marriage Act, 1955; Section 24 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-346",
+   "question": "I Married on March 2011, it was a love converted to arrange marriage. Marriage registration was not done before marriage & we were about to register immediately after marraige but since from the first day of myself & all my family members, relatives & parents find very wrong in her behavior, not mad but have some problem, very cruel, quarreling all the time, that cannot be described in few lines. for all this Registration was not done then, & after few months when things gone very wrong I our family decided to get separate from this, but her parents refused to accept her & sent back our home, then there was a family meeting & on writing she accepted all her misdeeds & promised not to do all this further. But it was just for some days & things went wrong repeatedly.we also went to a Doctor who suggested for a counselling but only after two seating she refused to continue further & her parents supported. days & years passed but i did'nt plan for baby as she cannot take care of the baby, but last year we had a baby (daughter) as many said things will be good if a baby comes in your family & now things gone more bad, She is now very cruel to her own baby sometimes, when the baby was just two months she use to hit her for crying when hungry, when she was around 10 months & was suffering some stomach problem & not take her meal she use to press her neck & shouts to kill her & surrender to police, this she done several times, never takes care of them baby as a mother should do. Never gives her medicine to the baby when i am not at home. Meanwhile, my mother takes care to the baby & my wife goes to breast feed the baby only after telling her several times. So, Now i have finally taken decision that i have to divorce & its a meaningless relation with a destructive future for me & my Daughter. My daughter is 18 months old now, breast feeding & i want to get out of this relation at the earliest but mutually she & her parents will not agree as her parents too will not accept her & let her inn there house as they know her very good. Please suggest the best possible way to get me a peaceful & a life with dignity",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-347",
+   "question": "Good morning sir in the year 2018 after The dissolution of our marriage my ex wife and my in laws , had filed a false case ,false fir in FIR in the local police stating that I as well as my parents and brother had troubled her in the Promises of the court when we had come to summons , at that time myself and my colleague were both present. The FIR was lodged in 2018 and after 3 years the charge sheet was filed and presented into the court now the trial is running in the district court. The IO investigating officer from police dept has removed my father name stating that he is not involved. Now kindly guide me as to what type of cases can be filed against them as well as against the so called false witnesses as sort of retaliation for involving innocent person and naming as an accused and filing and FIR . The cases filed against them are ipc section 341,506,109,34 of IPC . neither of my family members have done anything , still as a part of vengeance and using muscle power and political power my ex father in law had filed this FIR. My father is relieved from the chargesheet . 1.Kindly guide me as to what type of cases can be filed against them by my father. 2. Is it necessary to move high court for removal of name from FIR as police IO had themselves removed from chargesheet, any separate move needed before filing any case. 3. What type of cases, i mean criminal cases can be filed by my father towards my in laws and my wife for troubling my family. Kindly guide me.. thanks and regards",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nagarik suraksha",
+     "section": "514"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "356"
+    }
+   ],
+   "note": "ILSIC labels: Section 468 of The Code of Criminal Procedure, 1973; Section 500 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-350",
+   "question": "Respected Sir, We have booked a flat in a under construction project in Thane, Maharashtra. This project Booking was Started in May 2011, I Booked by Flat in August 2011. It has been more than 11 years there is no building, In fact No Plinth of the Building we booked was constructed. The CC (Commencement Certificate ) to the Developer was Issued Somewhere around 2014, Our Agreements were Registered under MOFA in 2014 with a Possession date of 2018 which has been overshot by Nearly 4 years now. Project was RERA registered After RERA Came around 2016. It was RERA registered in 2018 with RERA Completion date of 2023. Now we are nearly Passed 2022, The Building Construction has not even being Started. There is No way in 2023 this project can get over. Its been 11 years with ought Flats and any kind of Compensation and the Developer is in no financial Position to Complete the Project neither refund Money with Interest to Buyers. The Developer also went to Jail on duplicate registration FIR and currently is out on Bail. there are more than 2-3 orders from RERA to refund to few buyers which itself are not honored. The Developer has messed up funds etc, He has also messed up Agreements with Land owners. We have Formed a Society now for investors per RERA, our question is there are few other developers who are interested in the Project who can complete this project. The Problem is as a society we are helpless the Project and MOU lies with the Developer who does not have any fund to complete the project nor he is stepping out so that other developers can complete this project. Is there any way where any Authority Like RERA, High Court etc can Intervene and Do a forceful convenience to the Society or Probably Appoint any Project Management Firms Like SBI Caps to Step in so that Project can get completed under the supervision of the Authority and the Builder has no control or Say with the New Developer. Right Now the Developer has vested interest in the project so neither he is completing the project, He has no funds to do so nor he is co operating to ensure a smooth take over by Other developers so investors are badly stuck, we have already waited for 11 years now for a 50 storied tower to be constructed it will still take about 4 years, so how many years can we just keep waiting. Question from us is what can be the way out. we need to get the developer out of this Project asap. Thanks a lot for your responses.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "real estate (regulation and development) act",
+     "section": "18"
+    },
+    {
+     "act": "real estate (regulation and development) act",
+     "section": "31"
+    }
+   ],
+   "note": "ILSIC labels: Section 18 of Real Estate (Regulation And Development) Act, 2016; Section 31 of Real Estate (Regulation And Development) Act, 2016"
+  },
+  {
+   "id": "ilsic-lay-test-378",
+   "question": "Person from delhi cheated 34.6 lakhs in ct scan deal .now arrested under 420 ipc. he is now applied for bail in court. 1.he is regular fraud. presently i have one fir copy (2019)another case and arrest warrant copy(2013) from court in another case 2.and his age around 56 years and diabetic but health condition good 3.he did fraud activities through multiple companies and almost all states of india 4.now he saying no money or property with him in enquiry-currently two fir(two states) on him q1.how to object bail? q2.minimum deposit amount for bail? q3.any other possiblities for bail? q4.i know this person wont return in this case?how recover my money q5.even his lawyer knows about him,but he applied bail.how to deal him? please guide me .hardly earned money.now iam scared about law",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nagarik suraksha",
+     "section": "480"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "316"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "318"
+    }
+   ],
+   "note": "ILSIC labels: Section 409 of The Indian Penal Code, 1860; Section 420 of The Indian Penal Code, 1860; Section 437 of The Code of Criminal Procedure, 1973"
+  },
+  {
+   "id": "ilsic-lay-test-386",
+   "question": "I am Sonia 20 yrs doing BA LLB from Jaipur. We had a small family of four mummy papa me and my elder sister.My father retired from Indian navy in 2001 and joined merchant navy after that.My mother expired in 2010.Father left his job at age of 45. After 1.5 years in 2012 he remarried to a 25 years old lady who was a divorcee herself and had a 2 years daughter from her first marriage. My step mother didn't like us at all and taking advantage of my father's drinking habit used to get us beaten up. My father started neglecting us slowly due to her. My sister got married in May 2013. Now I was alone to face everything. I was treated like a maid in my house and my health and studies got deteriorated over time. I completed my 10+2 in 2013.My sister took a bold decision and got me admitted to Jaipur in hostel for this law course.untill today all my fees are paid by my brother in law .Now I am in fourth year and my father don't even know name of my college. My brother in law has also two unmarried sisters and my education and later on marriage is going to have a great financial impact on him. My teachers and friends have advised me to seek compensation for education and marriage. My father has a monthly pension of 26000 and our Bunglow which is in 600 yards and double storied where he has let iut the upper floor on rent which is in pilani was on name of my deceased mother.He has agricultural income from VILLAGE LAND.He also owns a plot who he has sold last month in 35 lakhs and purchased a new four wheeler and a bike. I badly require some guidance on my case . Plz help. 1.Can a case of maintenance be filed and if yes how much .My annual fees is 1.2 lakhs. 2.Also what about my marriage expenditure and our share(my and my sister's) in house which is in name of my deceased mother.and how we can claim our share. 3. Our share in ancestral agricultural land in VILLAGE. 4. Does my step mother has or will have any share in house or agricultural ancestral land in future after my fathers death. 5. Any family lawyers in Jaipur to contact with.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu adoptions and maintenance act",
+     "section": "20"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 20 of The Hindu Adoptions And Maintenance Act, 1956"
+  },
+  {
+   "id": "ilsic-lay-test-388",
+   "question": "Hi! I am staying in Canada right now. I have a PR. I want a divorce from my husband . How to proceed. He is in India right now. What is the procedure, how much time it takes and what are the costs. Thanks MOnika",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-395",
+   "question": "Hi, i was married 4.5 years back.I want to file a divorce case against my wife. my permanent address is in delhi malviya nagar but for last 1.5 years i ve been living in noida on rent with my family. When we shifted to noida my wife stayed here for a month only, and then went back to her family in bulandshahr, since than she kept asking me to get separate from my parents. Recently i went to visit her and brought my daughter with me to my house. She made a false complaint of kidnapping of our daughter, and came to my house with police in night 2.30, they arrested me and kept me in thana. the next day she agreed to take the case back and i was released by police. As she has has been harrasing me for last 1.5 yrs, i want file divorce case against her. My question is , can i file the case from delhi as there is our permanant house(which we have rented-out to some students). And before 1.5 yrs she also lived there only with me and my family.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "19"
+    }
+   ],
+   "note": "ILSIC labels: Section 19 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-398",
+   "question": "I have been tortured mentally by members and Chairman and Secretary of Society. They blocked my vehicle carrying construction material for balcony roofing, whereas after8 days only my neighbor constructed she'd in balcony.There was no any objection on him, whereas after that almost 25% people constructed balcony roofing in society. I feel I am been given discriminated behaviour without any reason. They had also damaged my construction material.So to recover the cost I had not paid 4months maintainance charges. And again started paying for later months. But Now they have stopped my deprived services like cleanliness in my porch, not lifting garbage using common amenities etc. Also they are threatening to put maintainance due in court. I can pay the amount, but I need justice against discrimination Happening with me. I feel like I am been mentally tortured.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nyaya sanhita",
+     "section": "324"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "351"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "352"
+    }
+   ],
+   "note": "ILSIC labels: Section 427 of The Indian Penal Code, 1860; Section 504 of The Indian Penal Code, 1860; Section 506 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-405",
+   "question": "Hello Sir i am a doctor, i had a friend in Bangalore who had borrowed money from me in 2008 amounting to 1,10,000 INR, he initially avoided my calls and later in June 2009 he transferred money to my SBI account in Mumbai. i was surprised to find in July that my account was freezed for the aforesaid amount as soon as a letter reached the bank from a police station in Bangalore saying that the amount that has been transferred to my account has been transferred from his then girlfriend's account without informing her and she had lodged an FIR against him in Bangalore police station. i think she mentioned my name too in that FIR. I called up the Police Officer in-charge and assured my full cooperation but since then the case didn't move an inch. i stopped following that and the officer also changed in due course. Now nobody is bothered except me..for past 8 years i have not been able to use my hard earned money for a reason i am not responsible for....kindly help",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nagarik suraksha",
+     "section": "528"
+    }
+   ],
+   "note": "ILSIC labels: Section 482 of The Code of Criminal Procedure, 1973"
+  },
+  {
+   "id": "ilsic-lay-test-425",
+   "question": "Dear all, during m.p.election dec2018.i was on way to home .a perosn on election duty .i had argument on my personal bag of clothe .immediately police lodged FIR on me and my brother 353/186/188/506/34.police shown arrested and then released. Police has placed chargesheet and magistrate given bail.my borther recordered all in mobile .there was not a single word was wrong.no force use..kindly suggest how to process ahead to quash .Regards Mukesh",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nagarik suraksha",
+     "section": "528"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "132"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "351"
+    }
+   ],
+   "note": "ILSIC labels: Section 353 of The Indian Penal Code, 1860; Section 482 of The Code of Criminal Procedure, 1973; Section 506 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-427",
+   "question": "I was divorce in US During our marriage we had bought LAND in India and in the divorce documents it was mentioned that the land is supposed to be sold and put all the money in my son's trust My ex husband did not sell land at that time, and now after 10 years he is ready to sell the land but asking for his share of 50% Can I show the divorce decree in India and force him to transfer the land in my son's name The dastavej (documents of land ) are not done, but my ex husband name is on some financial paper of the land for the money we paid for the land what are my options",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "code of civil procedure",
+     "section": "44A"
+    }
+   ],
+   "note": "ILSIC labels: Section 44A of The Code of Civil Procedure, 1908"
+  },
+  {
+   "id": "ilsic-lay-test-455",
+   "question": "I am living aborad, I have filed mendentroy injunction suit against my daughter in law for my self acquired home , I did it after she filed false 498a case against me, (Police added my name for disowning my son & daughter in law in 2018 & no charge sheet filed yet) and she filed permanent injunction suit. We didn't take any single spoon in dowry. Now She is in possession of my house and court case is going on. Now she selling my old furniture and buying new one to show that she received in dowry. What remedy can I seek ?",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nyaya sanhita",
+     "section": "303"
+    }
+   ],
+   "note": "ILSIC labels: Section 378 of The Indian Penal Code, 1860; Section 379 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-459",
+   "question": "I joined a IT company based in Pune as Assistant Manager in 30th September 2013 and resigned on by sending mail from my official mail id on 4th December 2017 (citing personal reasons) by giving a notice of 2 days (my notice is 3 months). The company didnot accept the resignation in writing. Verbally, the HR and top management communicated the following to me: - They cannot accept my resignation - They didnot agree to my proposal of buying the notice period and issue experience and reliving letter Notice period clause in my employment contract is as below: \"You may quit the company at any time with a notice period of 3 months. Company may also conclude its employment relationship with you at any time without assigning any reasons with due notice or salary in lieu thereof. The Company reserves the right to pay or recover salary in lieu of notice period and to relieve you before the expiry of the notice period\". There is no reference of notice period calculation in the HR policy. During my tenure from September 2013 to November 2017, on an average, I have worked 70 hours a week (as per HR policy, I need to complete 45 hours in a week). I have printout of my attendance record for my personal record. However, I have never been paid any overtime by the company. On the date of resignation, I had 50 days of leave. Leave encashment policy of the company states that the encashment would be on monthly basic salary. Recently, I have received a letter from the company asking for notice period recovery (and have threaten to take legal action if not paid within 15 days) . The recovery of notice period is done to my Total Monthly Salary (employment letter has used the word salary and is silent whether it means basic salary or total salary). In the recovery amount they have adjusted the leave encashment. Queries are as below: 1. Can they initiate any legal action? 2. As per various Acts like PF, etc. salary means Basic Salary and DA. And I am willing to pay the notice period on Basic Salary and DA. Is it wise to approach them with this idea? 3. Can I send them a letter asking for overtime for the 4 years?",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "indian contract act",
+     "section": "73"
+    }
+   ],
+   "note": "ILSIC labels: Section 73 of The Indian Contract Act, 1872"
+  },
+  {
+   "id": "ilsic-lay-test-461",
+   "question": "Sir, one of my Friend has a jointly owned residential property with his wife, which he had given as a collateral for Bank Finance for Company where he is Director. Now his company's Account is declared as NPA by Bank and his residential property is now being attached... Please advise relief he can sought Regards Harish",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "securitisation and reconstruction",
+     "section": "17"
+    }
+   ],
+   "note": "ILSIC labels: Section 17 of The Securitisation And Reconstruction Of Financial Assets And Enforcement Of Security Interest Act, 2002"
+  },
+  {
+   "id": "ilsic-lay-test-463",
+   "question": "Hi sir My mother has been feeling threatened in my locality that the few neighbours will kill/kidnap or do something bad to her. Briefly why is she feeling threatened My mom goes to the rooftop of our house to do exercise as usual as she has been doing for past many years specially since she is daibetic patient and due to corona virus we do not allow to her to got outside.her age is 63 years. Now when she goes on the rooftop one day at a visible distance in our neighborhood someone is standing in the balcony and sees her.now that particular standing person at a visible distance assumes that my mother is watching him and she is interested in me.that persons family now decides that we will take revenge in the form of either kidnapping her or killing her or anyother manner and hence she feel threatened. All the above things was said to me by my mother. I myself not so sure that this is actually what happened because no one was their.but because of this issue we had to consult psycritist and started her medication because she is not sleeping properly. My question is what are our legal options according to above situation if we assume that my mother is saying all things correctly",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nagarik suraksha",
+     "section": "175"
+    }
+   ],
+   "note": "ILSIC labels: Section 156 of The Code of Criminal Procedure, 1973"
+  },
+  {
+   "id": "ilsic-lay-test-470",
+   "question": "Can a woman say no to marry a man even after she said yes once? Can a man used that statement against the woman?",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nyaya sanhita",
+     "section": "78"
+    }
+   ],
+   "note": "ILSIC labels: Section 354D of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-473",
+   "question": "Sir, my mother who is widow working as assistant in govt college. My uncle took my mother salary slip and Aadhaar card copy from my house and made my mother as surety in Sriram chits pvt ltd without my mother signature/consent. My mother never went to Sriram chits company to make any signature nor company people never verified any records for surety. Now Sriram chits company people came to my mother house as my uncle failed to pay the dues...my uncle took the money in 2013. These Sriram chits people are also telling that why you are responding now like that... but my mother thought that she was not signed any document so thats why she was not responded at that time...What action we should initiate to safeguard my mother as the company people told that they went to court now.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nyaya sanhita",
+     "section": "318"
+    }
+   ],
+   "note": "ILSIC labels: Section 420 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-477",
+   "question": "i(husband) applied for divorce on the ground of cruelty and desertion. additional ws is awaiting from respondent on my amendment petition of her prior marriage.as her prior was discovered during prosecution which was performed on gandharva rites and finally marriage affidavit/ declaration was made by her before notary public. her earlier husband also got married and alive. my respondent cheated me by suppressing her prior marriage. her prior marriage is not dissolved as per court of law. she is not only cheated about her prior marriage but also cheated educational qualification..For her cheating, forgery and misappropriation of govt fund , a police case was registered and charge sheeted. can her prior gandharav marriage be proven as valid marriage or not. can my marriage be proven as null and void in the lieu of her prior marriage. we stayed together for 4 months only and we have no child.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "12"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "82"
+    }
+   ],
+   "note": "ILSIC labels: Section 12 of The Hindu Marriage Act, 1955; Section 494 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-483",
+   "question": "My wife is not leaving wd me from past 1year.even after contacting her thru watsapp and phone she clearly says in watsapp messages that she wont come to leave wd me .and further she has blamed for all the things which i hvnt done wd her.Now she and her family members have started demanding huge money from me and harassing me . She is working in a school as a teacher on B.E.D course base and i am unable to get her income proof .whether it is better to file divorce directly for mental harassing me and my family under sec 13or to file R.C.R Sec 9 .please answer me in details.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-484",
+   "question": "My wife went to her in laws in starting of march this month. everything was fine when she went. after few days when i tried to contact her she disconnected my calls, did not reply to the messages. i got very worried. When i asked her father reagrding this he told that she wont return unti we donot have a peacefu environment in my house. I am being constantly tortured and mentally harassed by my in- laws to provide their gir all sort of luxuries unless they will damge my social image. My daughter is having cochlear implant she needs regular speech therapy and my son s schools have already started. I am really conerned about the future of my children. Please guide what are the legal perspectives of this issue . Can i meet my kids if they are in their mothers custody ? do i have some right on them?",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    }
+   ],
+   "note": "ILSIC labels: Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-494",
+   "question": "My mother was married 20 yrs ago to my father. he is mentally unstable and takes physchiatric medicines and sedatives. he is a smoker and alcoholic. for past 20 yr he and his family members are torturing me, my sister and mother. my father occasionally beats my mother and has given death threats too, they are are very rich and own a jewellery shop in chennai. i am a boy 14yrs old and my sister is 18 yrs old. my sister had to consult to psychiatrist because she developed ocd and severe depression because of all this trauma, past 2 days have been hell for me, mother and sister, we need urgent advice and help. we are being tortured and my father is having an affair too. he is spending all money on her and we have no money at home, i was having 103 fever for 10 days and i was admitted on 12th day in hospital where my father and his brothers forcibily discharged me with incomplete treatment and are not allowing me to get treatment from doctor at all. my health is deteriorating as i have viral infection i have not gone to school for more than 20 day please help us we want divorce as soon as possible but we cant stay at home during the process as my father will murder us. today one of the brother of my father went to my mothers fathers house and tortured him and he is threatening us that he will not give even one rupee to us from now onwards. please tell me our rights and what will be the case duration for divorce and abuse i have a few videos and audio of them fighting and us suffering please help",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973"
+  },
+  {
+   "id": "ilsic-lay-test-534",
+   "question": "I am currently working with an MNC in USA. I was married in November, 2014 in India. I moved to US in June, 2015. My wife joined me there in September, 2015. After a few days itself she started quarreling with me over various issues. These issues ranged from trivial issues like lack of personal hygiene (her) to serious false claims of infidelity (citing my late work hours). After 4.5 months in US she demanded to be sent back to India. She left US in January, 2016. After coming back to India, she and her father started spreading rumors about me and my family (residing in India) claiming that we demanded a dowry of Rs 10 Lakhs (!!!) and forcibly evicted her from the marital home in US. After some time (April, 2016), her father came to visit my family with a crowd of relatives and demanded that I be asked to come to India and have a face to face discussion with them. I agreed but owing to work reasons could only come in August, 2016. I informed my wife's mother in July, 2016 that I will be arriving in India 3rd Week of August. I informed my wife's family of my arrival (through one of her cousin brother). There was no response. We started to call her and her family members to set up a meeting but no one ever picked up the phone!!. Out of desperation, we contacted several of our relatives to try and call them but still no response. Eventually, I returned to US after wasting 3 weeks in this chaos. On advise of some of our family members (lawyers), I sent her a final email and on receiving no reply, filed for a divorce in US. She replied back to the divorce notice claiming the following: - I asked her for dowry (Rs 10 Lakhs) and when she denied, tortured her - I threw her out of my home and asked her to return back to India and only come back once she can bring back Rs 10 Lakhs dowry - That she had filed DV and Maintenance case against me in August, 2016 (10 days before my arrival) Now I am facing these cases in Indian court and am at serious legal and financial risk. I have some specific questions (requests) regarding the maintenance case: 1. My monthly pre-Tax salary is around $8K. She has cited this as my income and asked for Rs 75000/ month maintenance. 2. She has mentioned in her complaint that she has no independent source of income BUT we know that she is working with a company in Faridabad and making a salary of around Rs 50K/ month (She has an M.Tech from IIT BHU). We also have some meager evidence - linkedin profile snapshot (now changed), recorded conversations with her mom and cousin Questions - 1. Can the court still award her maintenance? 2. How much maintenance can the court award her? 3. Is it worth to hire a detective to gather more evidence of her employment? 4. I have evidence that she left US on her own accord (whatsapp messages). Would this be useful? 5. In general, how should I approach this case and what kind of evidence/documents should I gather to make a strong response",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "24"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "25"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 24 of The Hindu Marriage Act, 1955; Section 25 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-537",
+   "question": "I have registered one property roof which was in the name of my brother to one person due to threatening pressure on 15.10.2015 by power of attorney. The ground floor and first floor was already registered on 16.08.2013 At the time of registry the purchaser promised by way of agreement in Rs 100/- stamp paper to return my cheque which he has aquired by cheating. but after 8 days he is not returning my cheque and trying to misuse it by bouncing from my banker. Please guide the process to cancel the registry immediately before mutation. After submitting objection who will be in better title i.e. Can I sell that roof to any body despite having earlier one registry. For objection do I need any lawyer or I can send the application directly to whom. Any proper format or simple application.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "constitution of india",
+     "section": "226"
+    },
+    {
+     "act": "negotiable instruments act",
+     "section": "138"
+    }
+   ],
+   "note": "ILSIC labels: Section 138 of The Negotiable Instruments Act, 1881; Section 226 of Constitution of India"
+  },
+  {
+   "id": "ilsic-lay-test-545",
+   "question": "Hi , I have a paid 300000 as an initial 20% contribution to buy a 30*40 land in Kolar. I have taken a confirmation in mail from the directors of the company and there sales head that by 20-Dec-2017 i would confirm i want to proceed with registration or not . They have confirmed to me in mail that if i cancel by booking by 20-dec-2017 they will refund the entire amount without any deduction. This there mail to me after which is released the payment : Hi Imran, You would be sending the downpayment of xxxx anytime between Monday 13th of November to Wednesday 15th of November 2017. You are also going ahead with the Loan and processing the same simultaneously. However, if your Contract in is not renewed you are going to withdraw and we are going to refund the complete down payment. The latest you would let us know is by the 20-Dec-2017 I have already communicated that my contract is not extending and i want to withdraw on 9-dec-2017. I have not signed any agreement or any document . All the conversation is on mail from there official mail ids . 1.I am an NRI , how should i go about getting back my money. 2. legally can they deduct my money , not pay entire money . 3. Have i done a mistake by paying them without getting into an agreement. 4. How can file a case and whats the probability i will get back my money . 5 What do u suggest i do immediately , i am trying not be very aggressive as they have orally confirmed they will pay back and have said by Monday they will confirm exact date . 6. Can they delay my payment by stating they need 75 days to refund When should i consider legal action and what would be the resolution time , practically speaking can they delay returning my booking amount. Considering i am not currently in India what do you suggest. Does my case stand a good chance. Do i need to be present in India to file case (my entire family stays in with me in Thailand) Please suggest , what should be point of action.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nyaya sanhita",
+     "section": "316"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "318"
+    }
+   ],
+   "note": "ILSIC labels: Section 406 of The Indian Penal Code, 1860; Section 420 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-546",
+   "question": "Sir, I am govt. empoyee , A women empoyee file complaint of sextual harasment against my colleague ,in which she mention that i have taken her phone and format the phone (she have proof of sextual harasment in her phone) , which is baseless and false alligation. 1. what should i do in this case . 2. what are legal consequences. i am very greatfull for your suggestion.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nagarik suraksha",
+     "section": "215"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "379"
+    }
+   ],
+   "note": "ILSIC labels: Section 195 of The Code of Criminal Procedure, 1973; Section 340 of The Code of Criminal Procedure, 1973"
+  },
+  {
+   "id": "ilsic-lay-test-560",
+   "question": "After the death of my mom, dad married another women who is divorcee with her 1st husband. she had 2 children with her 1st husband. She doesn't given any dowry at the time of marriage but in petition she mentioned that she had given 3 lakhs of cash and much of gold. My dad had 3 daughters and 2 sons with his 1st wife(my mom) and no children with his 2nd wife(divorcee of her 1st husband). i opposed that 2nd marriage of my dad and made him live else where from my home. he does it and made his own home else where in the same city. After 2 years of marriage, Due to some financial issues dad have to change his house which is suitable to his earnings then the divorcee left my dad for not earning much and made a false 498A against the whole family including us stating that me and my sisters thrown her outside the home after snatching all her gold ornaments from her. in fact we live separate but she mentioned the false statements in police station and filed FIR on 27-6-2016. she mentioned the names of whole family in FIR. Please suggest me how to handle this.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "528"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 482 of The Code of Criminal Procedure, 1973; Section 498A of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-564",
+   "question": "My wife physically assaulted me and my mother about a month and half ago.I suffered bruises and scratch injuries but restrained from getting an MLC done or calling the police due to lack of knowledge and state of shock.Since then she has been living at her parents house. Me and my mother do not feel safe with her any more. Can she enter our home lawfully/legally?? This property is not an ancestral property and has been bought by my mother by her hard earned money and the property is in her name. We have not initiated any divorce proceedings yet. If I file for divorce will it then restrain her from entering the house?? Or can she still enter the house while the divorce proceedings are underway?",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "domestic violence act",
+     "section": "12"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "17"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "18"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "19"
+    }
+   ],
+   "note": "ILSIC labels: Section 12 of The Protection of Women from Domestic Violence Act, 2005; Section 17 of The Protection of Women from Domestic Violence Act, 2005; Section 18 of The Protection of Women from Domestic Violence Act, 2005; Section 19 of The Protection of Women from Domestic Violence Act, 2005"
+  },
+  {
+   "id": "ilsic-lay-test-568",
+   "question": "Dear Sir/ Madam, The housing association I live in is in Bangalore and is registered under KSRA. The last AGM (for the year 2016-2017) was held on 31st July 2016 with a followup EGM on January 2017 (increasing the AMC rate for 2016-2017). The AGM for this year (2017-2018) has not yet been scheduled, but the managing committee has already issued an AMC (Annual Maintenance Charge) demand for 2017-2018 and also threatened to levy a penalty on anyone who does not pay within 25 days of the demand. When asked the Managing Committee have responded with \"An EGM or AGM decides the AMC applicable for the year and until another AGM or EGM revises it , the previously decided AMC remains valid\".and are using this as justification to carryover and use previous year's AMC this year. My understanding is that the AMC decided is for a fixed time period (last year's AMC is valid for 2016-2017 and is minuted as such) and cannot be carried over to this year, without majority approval in the AGM for 2017-2018. Given your experience and expertise in the laws and bye-laws of the KSRA and KAOA, could you help us in this matter by answering the following questions? 1) Is the association's.demand for AMC without holding an AGM, without presenting the accounts for previous year and without presenting the budget for this year valid and legal? Is the AGM not essential to authorize the AMC? If for any reason the AGM for this financial year gets skipped, will the AMC decided for 2016-2017 be valid till next year's AGM? 2) The association has threatened a penalty for non-payment of AMC demanded. Given the current context, is that legal and enforceable? A penalty of 1% on non-payment of dues was decided in one of the past AGM's, but given that this year's AMC demand is raised without an AGM, can the penalty be enforced? 3) If a member requests details of the incomes, expenditures and the sinking fund, by when should the information be made available to him/ her? A week? 15 days? 4) Should the managing committee share with members and residents information on the statement of accounts, incomes, expenditures, sinking fund and planned budget for the ensuing year while calling for an AGM? Right now, all we get is a notice for the AGM with financial information being shared only in the AGM. A printed record of financial information is passed around in the AGM for 2 - 3 minutes and we barely have time to make understand the details, before it is taken back. We have had problems in the past, with the managing committee trying to unilaterally take financial decisions without the proper forum of AGM/ EGM and hence we take a cautious approach to matters affecting the residents financially. Answers to these queries will help us decide the way forward and your advice is invaluable in this regard.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "constitution of india",
+     "section": "226"
+    }
+   ],
+   "note": "ILSIC labels: Section 226 of Constitution of India"
+  },
+  {
+   "id": "ilsic-lay-test-595",
+   "question": "Hi, Married in May 11,2013. Wife Joined to Live with me in Dec 28,2013. Left my house in April 2014. When she was with me at my house for 4 months she harresed that she will file cases on me in court. Finally filed 498A case on me in September 2014. I was arrested on Sep 19, 2014 and got bail in 6 days and came out. I filed divorce case. She filed DV case. On December 10,2014 Order was issued to pay maintenance before 10th of Every month. They haven't shared account number till January 19,2015.In next hearing our lawyer told to court that we are ready to pay maintenance, however she should co-operate for case proceedings. she said she is not prepared. After that we applied in high court that maintenance is high on the other hand she gave a petition saying maintenance amount is low. And then She filed a petition to reject the bail because the passport is not submitted. But when they came to arrest me cops asked for passport and I gave them right away. From then my passport was with them. I told the same in the court. But Cops said it is not with them. But internally when we spoke with cops they said it was with them but they did not submit to court that means it is a issue to them. I don't that I should take a memo when I gave my passport to cops. As I don't have any proof to show that I submitted passport to the cops, with great difficulty I took my passport from cops and submitted to the court. Court warned me by saying that I have to attend all the hearing in person by coming to the court. (Finding difficulty to take leave in office to travel from Bangalore to Hyderabad every time to these hearings) I am paying maintenance for her every month now. She gave all the false evidence of Jewellary bills and also a document saying her father took loan from his friends and gave to me and my dad. All these documents of proof which she gave did not include a Number which says it is valid or not. Thats what my lawyer said in court and to me as well and to the Judge also and asked the judge the same they are all duplicates with no exact purchased bills. Now My lawyer demanded for original bills when the jewellery bought. Wife also kept my CIBIL report. My question is How can a person take the other person CIBIL report by any third party and submit as evidence in the court. In Domestic violence case my wife submitted my CIBIL report in the court as evidence. Can I file different case on theft of my CIBIL report with out my knowledge and shown as evidence in the court? To pay the maintenance fee for her every month which was very huge and I have to do my living with dependencies of my parents the Land which I purchased before marriage with loan on my name I saled it and using that money to pay the maintenance and lawyers fees and so on.. Now by this CIBIL Report she knows that and kept that as evidence I have no idea how this works to the court. Please clarify this. Thanks in advance and your help. Regards Wanted to know will there be any issues if we don't pay maintenance? I want to move my divorse Case fast but she is not attending to the hearings and moving this maintence and 498A case fast in such a way that hearings are every alternative day or next day itself. Please helpppp Asked 28 days ago in Family Law from United States",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "21B"
+    }
+   ],
+   "note": "ILSIC labels: Section 21B of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-598",
+   "question": "Investment of 2 crs in buying a flat in Mumbai was done over a period of 2012 to 2015. Flat delivery was supposed to be given in Dec 2015. Construction activity at site stopped since last 3 yrs. Matters discussed with the Builder. MOU signed in Feb 2017 wherein PDCs spanning over a year were given by the Builder. All PDCs bounced except for two. No paymt coming for months. Decided to file a Summary Suit. The amount agreed with the builder in MOU is 2.82 crs. Question 1 if i go the Summary route what is Court fees, assuming we will have to for the said Amount of 2.82 cr. Question 2 Can the court fee be paid by cheque /or demand draft or Online or Cash.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "negotiable instruments act",
+     "section": "138"
+    }
+   ],
+   "note": "ILSIC labels: Section 138 of The Negotiable Instruments Act, 1881"
+  },
+  {
+   "id": "ilsic-lay-test-601",
+   "question": "I am from Delhi and work abroad and maintain a NRI account with a Bank in Gurgaon ( Haryana) under NCR. One of my relatives living in Chennai was in distress after conducting his daughter's marriage and sought a short term loan from me. I transferred him the money from my NRI account to his account in another Bank in Chennai. The recipient had assured me that he would return back the money within 3 months. Due to relationship, I did not seek any other guarantee instruments or Promissory note. Now it is nearing 3 years and that he has no intention to repay. After some months of my lending, he had answered my phone calls in 2 occasions to seek more time to refund. As of now, he completely avoid my phone calls and does not even reply to SMS messages to return my money. Recently I sent a registered letter demanding immediate refund of my money failing which I will seek legal action to recover my money. He has received the letter and has not bothered to reply or return my money. Due to my work abroad, I visit my home in Delhi only once in a year. Anticipating breach of trust from the relative borrower, I have given (1 )an authorisation letter to my father in this regard and (2) A blank 'Vakalatnama ' duly signed to engage an advocate to resort to legal steps to recover the money. Now that I live abroad due to my work ( with a Foreign address ) and an Indian permanent address in Delhi, and my NRI Bank account in Gurgaon ( Haryana ) Kindly advice me the next course of action that I should take through my father in Delhi. 1. Through which court should I file a petition. 2. This is a breach of trust. Does this come under Civil or Criminal offence. 3. Should I lodge any complaint with the Police before I approach an advocate ?",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nyaya sanhita",
+     "section": "314"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "316"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "351"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "352"
+    }
+   ],
+   "note": "ILSIC labels: Section 403 of The Indian Penal Code, 1860; Section 406 of The Indian Penal Code, 1860; Section 504 of The Indian Penal Code, 1860; Section 506 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-603",
+   "question": "I am an American citizen, an NRI who , after visiting my family in India last year, an unknown person filed an FIR against me stating I slapped him and beat him up in a Mall and threatened him. Written in a dramatic Bollywood style, this gentleman who filed the FIR, appears to be an uneducated person. At least his language suggests that. Anyway I have never seen him in my life, neither have I hit him or any other human in my life. I believe the motive was to extort money from me/ my family in India. My question is what is the legal remedy against such blatantly false and frivolous FIR. What best can be done to quash / get the FIR to be withdrawn by law. I believe this is nothing but pure harrassment by the person who filed FIR. I am an elderly person, close to becoming a senior citizen.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nagarik suraksha",
+     "section": "438"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "528"
+    }
+   ],
+   "note": "ILSIC labels: Section 397 of The Code of Criminal Procedure, 1973; Section 482 of The Code of Criminal Procedure, 1973"
+  },
+  {
+   "id": "ilsic-lay-test-605",
+   "question": "I have given Rs.3,60,000/- in cash in various part payments for business need to one of my relative in Delhi. He promised me to return the money in parts from time to time and issued Receipt for an amount to Rs.3,60,000/- confirming the friendly loan taken by him and a blank cheque in the month of February, 2014. I demanded repayment of my money in parts as much he can pay as per his convenience. But he only promised to pay to some amount every time but never paid. He left Delhi without intimating me in the year 2015. But we both are in touch on phone. Now a days he has started his business in Jarmundi, Dumka district of Jharkhand. I am also a permanent resident of Saraiyahat, Dumka District of Jharkhand. He is a permanent resident of Bahula, Burdhman district of West Bengal. Now I want to present the cheque for encashment and want to file a case to recover the amount. Please guide the course of action to get my money back to the extent of principal amount which is my hard earned money. I am an Income-tax payee",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "negotiable instruments act",
+     "section": "138"
+    }
+   ],
+   "note": "ILSIC labels: Section 138 of The Negotiable Instruments Act, 1881"
+  },
+  {
+   "id": "ilsic-lay-test-606",
+   "question": "It has been 4 months to my marriage. My family don't respect me or my family. I transferred from my city to bhopal for her profession. She is running art classes in bhopal. She even misbehaved with me, threaten to cut her hand and throw me out of our rented house. I am not living with her now. What should I do now? Should I take divorce? How much alimony will I have to pay? She is making 15-20k per month and I am earning 30-35k per month?",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "14"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 14 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-624",
+   "question": "We are four children to my parents(elder sister, me, younger sister and brother). My mother died in road accident in the year 2008. From that year my father got addicted to depression tablets. In 2019, My father registered his self acquired property (settlement deed) on me and my brother (joint registration). In July 2021, both my sister's came and they manipulated my father and they made him to revoke the property. So, he revoked the given property without our consent. How we can proceed legally with this issue ? My father age is 67 years.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "registration 1908",
+     "section": "32"
+    },
+    {
+     "act": "registration act, 1908",
+     "section": "32"
+    }
+   ],
+   "note": "ILSIC labels: Section 32 of The Registration Act, 1908"
+  },
+  {
+   "id": "ilsic-lay-test-640",
+   "question": "Hello Sir, My Father-In law gifted a Property in name of My son(Minor) in 2014 with a Guardian Ship of my Husband , and Me and my husband got divorced in 2015, But In 2016 gift deed has been revocated , with out any order from Competent Court. As everyone knows that the, gift deed can't be cancelled without court order, How can a Registrar can do the revocation? How to challenge the case ? In a court ? In case in court -- Do we need to do Civil case or Criminal case against officials. OR going to the Officer like( RDO , Collector level ) Could you please help me with this. Thank you",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "transfer of property act",
+     "section": "126"
+    },
+    {
+     "act": "transfer property 1882",
+     "section": "126"
+    }
+   ],
+   "note": "ILSIC labels: Section 126 of The Transfer Of Property Act, 1882"
+  },
+  {
+   "id": "ilsic-lay-test-643",
+   "question": "My wife abusing me for having relationship with my sister in law .She don't want to have any relationship with my family members. I have left my home and live with rented property for more than 6 months. But still her behaviour have no changed .she is under medication of schiziophinia for more than one year and have sucidial tendency. I have recorded her voice for future legal issues. Can I get divorce ? If she file false 498 against my family members than what precaution I have to take ? During the court proceding where she stay bacause she has sucidial tendency? And what evidence I have to collect to accept the court ? the Please advice me.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "175"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "482"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 156 of The Code of Criminal Procedure, 1973; Section 438 of The Code of Criminal Procedure, 1973; Section 498A of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-649",
+   "question": "Hi, After joining a company A, after 1 year they asked all employees to sign a non-competent contract. Which states that you cannot join any competitor company after 6 months from last day in office. Contract also has list of companies and a sentence that company is not limited to this list. After leaving from company A, I joined a company B which works in same domain but is not in the list in contract. Now, they are not giving full and final amount, relieving & experience letters, as HR said that I have joined a competitor company and might take legal action against me. Please suggest if they are right and I will not get fnf, letters and i might also get in trouble.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "indian contract act",
+     "section": "27"
+    }
+   ],
+   "note": "ILSIC labels: Section 27 of The Indian Contract Act, 1872"
+  },
+  {
+   "id": "ilsic-lay-test-656",
+   "question": "I represent River Residency, Chikhali. It's a township of 1300 residents, 800 plus in Phase I and 470 in Phase II. My question is as under: 1. Our agreement contains a clause for condominium formation. However, majority of residents in Phase II want to go for a society, not a condominium. If builder does not cooperate and still wants to force a condominium, what is the recourse available to us? Can we still form a society if majority residents sign a representation? 2. There are total 17 buildings. Can we form a separate society of each building or club few buildings into one society? Builder says that we need to form a uniform condominium of both Phase I and Phase II, not a society.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nyaya sanhita",
+     "section": "316"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "318"
+    }
+   ],
+   "note": "ILSIC labels: Section 406 of The Indian Penal Code, 1860; Section 420 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-673",
+   "question": "My wife filed a case against me, charge sheet filed, CC number allotted and recently I got a copy of the charge sheet from the court. Charges are 498a, sec 4 & 6 of DP act on A1(Myself), A2(My Father), A3My Mother). Charges dropped on A4, A5, A6, A7(my brother, his wife and my uncle and his wife who are living in some other cities). LW1 complainant wife LW2 Her father LW3 Her Mother LW4 to LW9 are some independent witnesses. I received all the statements of witness and most of them are lies and stories. Material Evidence submitted to the court is as follows 1. Wedding card 2. Marriage photos 3. Copy of Bank Statements 4. Copy of other photos.(Drinking and party photos). Now I have two Questions 1. Is there any chance that A4 to A7 can be charge sheeted again as I was threatened by the other party that they will put efforts to file charge sheet on A4 to A7. A4 to A7 has no connection to this case. The case file is out of the police station and CC number is also allocated. 2. There are some voice recordings with them and(2 to 3 CD's). Please let me know is there any chance that these CD's can be added to the material evidence later during trails or during the examination or if any petition filed by the complainant party in court submitting the CD's as additional evidence, as the case has already been sent to court and as per the current charge sheet, there is no CD attached to material evidence.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nagarik suraksha",
+     "section": "193"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "358"
+    },
+    {
+     "act": "sakshya adhiniyam",
+     "section": "60"
+    }
+   ],
+   "note": "ILSIC labels: Section 173 of The Code of Criminal Procedure, 1973; Section 319 of The Code of Criminal Procedure, 1973; Section 65 of The Indian Evidence Act, 1872"
+  },
+  {
+   "id": "ilsic-lay-test-679",
+   "question": "My mother died in 2001 leaving an unregistered will. The WILL has come to know only 15 days back. The WILL is on plain paper and it bears two witness. The WILL relates to house, she was owning. Earlier she has made a registered WILL about this house. She has referred the Registered WILL in subsequent WILL. Both WILL registered as well as unregistered are not known earlier. What is the status of unregistered WILL?",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "registration 1908",
+     "section": "17"
+    },
+    {
+     "act": "registration act, 1908",
+     "section": "17"
+    }
+   ],
+   "note": "ILSIC labels: Section 17 of The Registration Act, 1908"
+  },
+  {
+   "id": "ilsic-lay-test-687",
+   "question": "Sir I may relationship with one of girl and she also love me now her parents know about our relationship Now girl telling to her parents that she is not love me and she is just friend and he force me to talk with him Can her parents file complain against me",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nyaya sanhita",
+     "section": "74"
+    }
+   ],
+   "note": "ILSIC labels: Section 354 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-696",
+   "question": "My father died in 1999. We are two brothers and three sisters. We have 0.5 acres of ancestral property and 2.0 acres of father's self earned agricultural property. I am eldest son.in the family. All my sisters are married off before my father's death. I wanted to dispose a part of land to build a house in the memory of our parents. Last month (March, 2018), . My sisters asking for property share. Since my father died before the amendment of law 2005,, can they claim share in the property?. Kindly advice",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu succession act",
+     "section": "6"
+    },
+    {
+     "act": "hindu succession act",
+     "section": "8"
+    }
+   ],
+   "note": "ILSIC labels: Section 6 of The Hindu Succession Act, 1956; Section 8 of The Hindu Succession Act, 1956"
+  },
+  {
+   "id": "ilsic-lay-test-702",
+   "question": "Please advise Dear Advocates: My brother In-law's (hereon referred as BIL) wife (my sister's brother) has filed a false 498a/406 (in Kolkata) against him and has added my wife, my father in-law and my name as well. They got married in 2015 The situation is me and my wife have lived in Pune since 2009 and for last 1 year are in Australia. We have never visited their house after their marriage as she (the girl) never liked us. For last 2.5 years + we have never spoken to her or called her/texted her on anything, no interference at all (we had and have no reason to do so), yet she has added our name. We are dragged now. My BIL needs to visit the police station to file chargesheet etc. Please can you advise: 1. Will there be any impact on my passport renewal (due in June 2018)? 2. If I have to get an India PCC for my wife, self and son (5 years) for my Australian visa, will there be any issues? 3. What should be my next step, should I worry about anything, hire a lawyer and send a POA so that they can apply for me and my wife's anticipatory Bail (if required) or attack or challenge the case, or just wait as I have no involvement and police should understand this etc. 4. Anything that I need to do immediately to safeguard my family and our stay in Australia. We are worried these days as it seems a Bollywood movie is being replayed and we are constantly tensed. Many Thanks for your help in advance. Regards, Rahul M",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 498A of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-715",
+   "question": "If I delete messages on my iPhone will those messages be deleted on my whatspp on my other device?",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "sakshya adhiniyam",
+     "section": "60"
+    }
+   ],
+   "note": "ILSIC labels: Section 65 of The Indian Evidence Act, 1872; Section 65 of The Indian Evidence Act, 1872"
+  },
+  {
+   "id": "ilsic-lay-test-718",
+   "question": "We had purchased a flat in 2011. My father is unable to move owing to physical disability. So he gave me a power of attorney for the flat in Sarjapur-Attibele house in Bidarguppe. When I searched for the folder to pledge the flat, the document is missing. Can I get an affidavit equivalent to that?",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "sakshya adhiniyam",
+     "section": "58"
+    },
+    {
+     "act": "sakshya adhiniyam",
+     "section": "60"
+    }
+   ],
+   "note": "ILSIC labels: Section 63 of The Indian Evidence Act, 1872; Section 65 of The Indian Evidence Act, 1872"
+  },
+  {
+   "id": "ilsic-lay-test-730",
+   "question": "My wife want legal agreement she want to give her salary to her parents what should i do?",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "24"
+    }
+   ],
+   "note": "ILSIC labels: Section 24 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-733",
+   "question": "hello sir; I am rajeev from indore. my friend name sushil age 29 .he is in mp police as constable(indore) and one girl name pooja,age 30 .she is also a constable(satna). and she belongs to our family relation. the fact is that they had both talked with phone from six month. and in 2 march 2014 , physical relation has occured between them. after 20 days she told to him and insisted to marriage. but sushil told to her if our famiy agreed we will marry. but finally family has refused their proposal. and sushil reduced to talked with her by picking her call and she told if he will not marry , she will registered a case of rape and dowry.means now she wants to take revenge and making pressure to marry. and she registered a case of rape on 26 april 2014 and told that she is having evidence condom i.e he used at that tym and single hair.(not confirm that all she is having or not) but if she feels that a case of rape so why she registered case after 1.5 month, why she had not register case after 2 days or a week from 2 march. means she is blackmailing to him and wants revenge.second thing is that in her first complain application on 16 april 2014 she has written that only she saved almost and sushil is not a good person.he is a double dealer but not mention any kind of physical relation or rape and dowry. but after one week she again submitt another application and mention that sushil done rape. so in first application and second applicatio, she used different thing so plz suggest me what should we do. girls parents also wants to stop the case and they are in favour with us and everyone trying to convience her from both families.but she is not agree and said she wants revenge. and S.P police told to both that its a case of department so it is good to compromise otherwise both you will suffer. so what we have to do now, means if we go with law so we are in safe side or not. and i want to know if she is having condom dat used in 2 march. so there any detection will out dat condom used by dat person.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nyaya sanhita",
+     "section": "308"
+    }
+   ],
+   "note": "ILSIC labels: Section 383 of The Indian Penal Code, 1860; Section 384 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-734",
+   "question": "Our sister in-law is living separately in a rental accommodation since last 4 months in nearby town with her two daughters aged 8 &15 years studying in 3rd and 9th standard. She was living under joint family with her husband and parents [in-laws] since last 14 years under same roof. Since last 2.4 years she started taking training for cloth stitching in nearby town [where she is residing now] and started objecting house jobs and field jobs and spending most of time in shop 9am-6pm, which was earlier 4-5 hours. Thereafter she started sleeping separately from her husband, with her daughters. Her husband and all family members tried a lot to console her but she started blaming 1- Her husband is drinker so she will not stay with her. 4 months back one fine day she started quarrel with month in law in morning and we called Panchayat members for amicable settlement of issue but she given WRITTEN STATEMENT that she is leaving house at her own will and she take responsibility of my daughters upbringing. She came to home and taken up all her belongings and shifted to Rental accommodation. During this discussion she clearly told in Panchayat and in front of villagers and her mother that she is leaving house at her own will. Question: 1- Now she submitted complaint in Panchayat and in police station [may be] that her in-laws are harassing her for dowry. 2- She is complaining that her all gold ornaments has been taken by in-laws. 3- Her husband used to beat her daughters after drinking. Now Family Background- 1-Father in-laws- Army retired getting pension 16,000 per month- age-72 yrs. 2-Mother in-law house wife-age- 69 yrs 3- Her Husband is vegetable hawker daily wages worker earning Rs 200/- day. now he is jobless due to family /social situation-Age- 44 Yrs. 4- Sister in-law is earning Rs 3500/- per month through stitching-Age 39 yrs.. We are trying for settlement of this issue since last 3 months, against which she put allegation for harassment- so we stopped to visit her shop. Family is under pressure due to such false allegation- please suggest way out to settle this issue.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "356"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 498A of The Indian Penal Code, 1860; Section 500 of The Indian Penal Code, 1860; Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-736",
+   "question": "The property in question is in Jaipur. This House property is presently occupied by one of the class 1 Legal Heir. Other Class 1 legal heirs are 2. So overall 3 Class one Legal Heirs are there. I would like to know the legal rights of other 2 legal Heirs under Hindu Succession Act in terms of : 1. if other 2 legal heirs are living in other towns hence are interested to get the share by way of sell, can they insist and legally get it done. 2.The person occupying the house is interested to buy the others share but not ready to pay the money immediately and has put the condition to pay on retirement ( after 3 years). Whereas the other legal Heir is ready to pay immediately others share valued at offer received by outsider. But the occupier is demanding much higher valuation. In Short his intention is to create dispute or demand unreasonable valuation so that he can enjoy the benefits of occupying the house 3. Even if the unreasonable valuation suggested by occupier is accepted, he is not ready to give possession of house, stating that he will not go on rental. First from receipt money he will search for buying house and then vacant. Please advise legal recourse.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "transfer of property act",
+     "section": "44"
+    },
+    {
+     "act": "transfer property 1882",
+     "section": "44"
+    }
+   ],
+   "note": "ILSIC labels: Section 44 of The Transfer Of Property Act, 1882"
+  },
+  {
+   "id": "ilsic-lay-test-740",
+   "question": "Summary Delhi residents, married for 8 years with no Children and both working. Husband (I) seeking for a divorce. Staying apart for 14 Months (during which we tried staying together but it didn't work) Journey - We stayed with my family in the first year - My brother got married, and we had to move to a bigger house. I refused to shift and decided to stay in Old House. My entire family (Mom, Dad, Brother, his wife and my grandmother) moved to a new place. And we both were staying alone in old house. We used to visit the new house only during weekends/festivals. - She was not willing to take on any relationship/household responsibilities. - During the initial years, I tried to work things out, but when I realized that she had no intention to put any kind of effort, I started doing everything on my own which resulted to emotional and functional disassociation. - In order to make things work, I experimented: - Stayed in my inlaws property for 8 months - Stayed with my inlaws at their home for 1.5 years (before corona) - The entire corona duration (Starting from March 2020) i was staying with my inlaws and as we both were working from home still the relationship was going great. The freedom was always misused. - She initiated a Marriage counsellor (in 2019 and I am still taking her guidance), however, all the activities/solutions suggested by the counsellor were not implemented by her. - On January 2021 my brother moved abroad. And I had to shift with my Parents and grandmother as I have to take care of them (both financially and functionally). Till Aug 15 2021 she gave all kind of reasons and excusing of not staying with me (and my parents). She shifted to my place on Aug. 15 - On first week of Sep 2021 she finally decided to leave me. - Sep2021 - Sep2022 : We were staying separately, though we tried to work out. We went for a vacation for 10 days in order to restart things and she had also stayed with me 4-5 times for 4-7 days each. But things didn't work out. - Sep 2022 - till date: No contact Next Steps I am looking for divorce, what should be my next steps, precautions and things to do",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-747",
+   "question": "I have agriculture land at villlage Ottu Teh Rania Distt Sirsa Haryana Pin-125055, I have 4 acre piece of land. My land is not connected to any path. It is cultivated by a approach path which is owned by my uncle and some other man. They generally challenge to cross the path. But that path is 35 year old running path.is there any revenue rule that i can get authority to use this existing path. Or give any legal solution. I want to get connect this path with my land. Which is 18 karam away from my land. If this path is connected to my land it has to cross from my uncle land ie 18 karam distance",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "easements act",
+     "section": "15"
+    },
+    {
+     "act": "easements act",
+     "section": "32"
+    },
+    {
+     "act": "easements act",
+     "section": "35"
+    },
+    {
+     "act": "easements act",
+     "section": "4"
+    }
+   ],
+   "note": "ILSIC labels: Section 15 of The Indian Easements Act, 1882; Section 32 of The Indian Easements Act, 1882; Section 35 of The Indian Easements Act, 1882; Section 4 of The Indian Easements Act, 1882"
+  },
+  {
+   "id": "ilsic-lay-test-749",
+   "question": "I married in 2006 n stayed with wife in gulf until 2013 and have three children one son aged 9 and daughters aged 7 6 years. Due to financial crisis I shifted my wife n children back to hyderabad in 2013 n kept her in seperate rental flat on her demand n assurance of her sisters about safety n security. I kept working in Gulf for livelihood and kept sending house n education expenses to her regularly and was visiting once every year on leave and during my stay on leave we use to stay in my parents home. When I came on leave during September 2016 I was shocked on knowing from my children's that some one who was later found out to be Black magician and my wife are involved in illicit sexual relationship in rental flat where she staying alone with children. My 9 yrs son on noticing these illegal relationship encounter objected to his mother and black magician and consequently he was kidnapped n tortured mercilessly n harassed n intoxicated n thertened to not to reveal this secret to me or anyone elders. When I was coming on leave a gave her surprise news just prior to 2 days of my arrival and requested her to go and stay in my parent home as to celebrate Eid and receive me. Fearing exposure of crime my son was released from kidnapped by my wife n her BF and brutally thertened to not reveal anything to anyone otherwise they will kill him after I go back. It is only when I requested my wife to go to rental flat and stay there for completion of kids quarterly exams in nearby school my son n daughters shiveringly narrated all about and pleaded not to send them as both black magician and their mother will kill them. Upon hearing this my wife tried to deny and ran away from my home leaving children with me. I filed a police complaint against black magician and my wife and upon investigation police arrested both and booked under 307 320b 526 posco drug & magic act and other various acts and as per Muslim shariya I divorced her by settling her Maher n iddat amount. Accused No. 1 blackmagician also booked under pd act and Accused No. 2 my wife granted interim bail after two month of arrest and a criminal case is ongoing in Metropolitan court hyd. Now on bail she is filing false cases against me, firstly she filed a maintenance case against me in January 2017 which till now I didn't received notice as I'm back to livelihood in Gulf by leaving my children's with my parents. Secondly now I heard that she filed DV case against me n my father n my mother in Special Magistrate Court hyderabad. I'm totally shattered that despite ruining me n my children's life career how come she is allowed to file such cases to harass my whole family. Kindly advice how do i protect myself and my children and parent from her cruel tentacles.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "domestic violence act",
+     "section": "25"
+    }
+   ],
+   "note": "ILSIC labels: Section 25 of The Protection of Women from Domestic Violence Act, 2005"
+  },
+  {
+   "id": "ilsic-lay-test-751",
+   "question": "I have 4 acre of land in village ottu teh Rania Distt Sirsa Haryana. But my farm/agri land have no path to access it. i was using the path which is owned by my uncle and one other party. i have no ownership right over the said path. The owner parties are always claiming their ownership right and many time they challenge me to use this path. I am serving in Army. In view of this problem, i informed my District DC (Deputy commissioner) in this regard through a site seeking resolution. He forwarded my complaint to concerned officer (Tehsildar) for remedial action. Now two months have been past but no fruitful result came out. Is this is the correct method to find permanent solution to my problem ? It is for your information that I already ask you in this regard. please refer my previous correspondence to guide me: https://www.kaanoon.com/11596/regarding-agriculture-path thanks",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "easements act",
+     "section": "32"
+    },
+    {
+     "act": "easements act",
+     "section": "35"
+    }
+   ],
+   "note": "ILSIC labels: Section 32 of The Indian Easements Act, 1882; Section 35 of The Indian Easements Act, 1882"
+  },
+  {
+   "id": "ilsic-lay-test-755",
+   "question": "There is a private path adjacent to our plot. The same is being used by 3 families who had bought the land from the original owner of the plot(Inclusive of path). The said 3 families are having only the right to use the path as the ownership still with the original owner. The successors of the Original owner are ready to give the right to use the path for us also. 1) Does the 3 families have any right to obstruct the same. 2) Is their (3 families) permission required for the same. 3) Does the 3 families have any right to approach the court to deny us from getting the right. 4) What should be the legal procedure for getting the right to use the pathway for our use?",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "easements act",
+     "section": "32"
+    }
+   ],
+   "note": "ILSIC labels: Section 32 of The Indian Easements Act, 1882"
+  },
+  {
+   "id": "ilsic-lay-test-772",
+   "question": "498A- Biased and Deficient Investigation - Discharge Application Investigation by IO was completely Biassed and Deficient. IO has mentioned only those facts in FIR which are in complainant favour. IO has not raised any fact which can be against complainant and which can be in favour of accused. Overall investigation was done very carefully and with lot of calculation to benefit the complainant. Also accused no.2 told many facts to IO. but IO recorded wrong statement of accused no.1. Other 2 accused didnt went to IO to give their statement but in their absence IO recorded fake and manipulative statement. Except recording the statement of Complainant, Witnesses and wrong and manipulative statement of Accused IO hasnt mentioned anything in Charge Sheet. We have filed Discharge application and one of the ground for Discharge is Biased, faulty and Deficient investigation. We dont want reinvestigation since it will be same cycle of manipulation. How to make good use of Faulty and Deficient investigation in Discharge in 498A case?",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "code of civil procedure",
+     "section": "9"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "25"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "175"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "242"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "327"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "331"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "332"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 156 of The Code of Criminal Procedure, 1973; Section 205 of The Indian Penal Code, 1860; Section 25 of The Hindu Marriage Act, 1955; Section 437 of The Indian Penal Code, 1860; Section 451 of The Indian Penal Code, 1860; Section 457 of The Indian Penal Code, 1860; Section 498A of The Indian Penal Code, 1860; Section 9 of The Code of Civil Procedure, 1908; Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-795",
+   "question": "Dear Sir or Madam, My Wife and I have applied for separation on mutual grounds in the Principal Family court, Chennai in the month of November(2019). We were given a cooling period of 6 months. Its past 4 months and we have decided to request to waive off the cooling period. The advocate(common for both) says that we can file a petition to advance the second motion but a mediation is mandatory in this regard. I'm writing to seek your advise in the following. What happens if we request to advance the date of cooling period, and mediation is mandatory for this process ? Your valuable replies are highly appreciated.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "family courts act",
+     "section": "9"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 9 of The Family Courts Act, 1984"
+  },
+  {
+   "id": "ilsic-lay-test-800",
+   "question": "Me and my parents have been accused of 4 IPCs 323/506/509/34, by my aunt, in women PS, following a family dispute that happened few days back. We did not harm her in any way, my father only raised his voice against constant torture that my uncle and aunt are imposing on us since last 2 years. There is a civil suit for partition of house already going on in which he is somehow not responding at all. That is a different story, but we are harassed by these 2 in short almost on daily basis. Now we find ourselves accused with FIR on our head. We received a notice under section 41a to appear before police within 3 days, which we did. We found out that she has somehow managed to get a medical report and charged us with above sections. Police is asking to get a bail, but court is not open. I am a sincere software engineer with no such history, but afraid it will spoil my career, my uncle has threatened to destroy my career when I came home. We have a recording of my uncle abusing us verbally and saying he will destroy our lives if we move to court for property issue, but this is a bit old. In actuality he does this all the time and we do not have any recent recording. Police is also not listening to it. We didn't do anything wrong. Please suggest what we can do!! Please sir.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "nagarik suraksha",
+     "section": "193"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "35"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "528"
+    },
+    {
+     "act": "sakshya adhiniyam",
+     "section": "6"
+    }
+   ],
+   "note": "ILSIC labels: Section 173 of The Code of Criminal Procedure, 1973; Section 41 of The Code of Criminal Procedure, 1973; Section 41 of The Code of Criminal Procedure, 1973; Section 482 of The Code of Criminal Procedure, 1973; Section 8 of The Indian Evidence Act, 1872"
+  },
+  {
+   "id": "ilsic-lay-test-802",
+   "question": "Hi, My father is a retd. Govt employee, he has some ancestral property and he also purchased some lands in the heart of Bhubaneswar 30 years back. He lives in that land in a house, with his 2 daughters ( one married & divorced and the other unmarried) and his wife. The married daughter has a 6 yr old kid who also lives in the same house. I am the youngest kid who lives outside India and an eldest son who lives in Bhubaneswar with his in-laws since 8 years. My father has purchased the land, built the house with his own money and effort without any help from my brother. My brother got married 1 year after the house was built and brother & his wife couldn't live in our family home because my sister-in-law wanted the house & land on my brother's name right after they got married. My father didn't want to give the whole land to my brother and he never accepted their proposal even after they asking so many times. After 2 years brother and sister-in-law left our family home and started living with sister-in-law's parents. Now my father is bed-ridden, mother is not doing well and both my sisters take care of them & the house matters. My father has a made a will that after him the property will be divided into 5 parts. But my brother has been troubling my sisters every single day by creating fights in the family home by visiting the house, instigating them and threatening them by different means. He doesnt help in any of the house matter, but keeps doing cheap issues like asking someone to leak air from my sister's scooty, not letting way into the house gate, bad-mouthing us in front of all relatives etc. We are so troubled that we filed a partition suit against him in Odisha court as well, he doesn't respect law & order, does not care what we ask him to do. He continues to misbehave with my sisters every alternate day. What can be done to stop him? What should we do to make sure he stays in his boundary and show some level of respect to his father & sisters.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "code of civil procedure",
+     "section": "95"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "33"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "296"
+    },
+    {
+     "act": "specific relief act",
+     "section": "36"
+    },
+    {
+     "act": "specific relief act",
+     "section": "37"
+    },
+    {
+     "act": "specific relief act",
+     "section": "38"
+    },
+    {
+     "act": "specific relief act",
+     "section": "39"
+    }
+   ],
+   "note": "ILSIC labels: Section 294 of The Indian Penal Code, 1860; Section 36 of The Specific Relief Act, 1963; Section 37 of The Specific Relief Act, 1963; Section 38 of The Specific Relief Act, 1963; Section 39 of The Code of Criminal Procedure, 1973; Section 39 of The Specific Relief Act, 1963; Section 95 of The Code of Civil Procedure, 1908"
+  },
+  {
+   "id": "ilsic-lay-test-823",
+   "question": "I had a couple of beers day before yesterday, but the reading showed 420 in the machine, near Medchal, Hyderabad. Don't know the reason, and i couldn't contend that because this is my first offence and i was too afraid to talk back with police,that this reading might be abnormal. I was quite and stayed silent.Immediately next day I went to counseling, on Monday i have to attend the court in Medchal, at 730 Am..I am afraid that I may end up in the jail..Police said it might be only fine...But i Don't know what to do here. What happens to my career, if I go to jail and for how long..Please give me a consult.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "motor vehicles act",
+     "section": "185"
+    }
+   ],
+   "note": "ILSIC labels: Section 185 of The Motor Vehicles Act, 1988"
+  },
+  {
+   "id": "ilsic-lay-test-828",
+   "question": "Hello All, i am a 40 yr old male, i was married 15 years ago. one year back i filed for divorce on the ground on mental cruelty. my file filed DV act, 125, 24, 26 and other cases. she got immediate maintenance of 35000 pm under DV act. later on she got increased maintenance 50,000 pm. i have two kids, those are staying with mother. i run my business and earn around 1, 25, 000 pm. My question is... 1) can i file any application or case to reduce maintenance in higher court, what are the chances of my success in reducing maintenance in higher court. 2) my mother was suffering from liver cancer since past six months and recently she passed away. due to this loss i am mentality unstable and not able to focus on my work, my financial condition has been worsen. i am finding myself to pay this huge maintenance. can i file any application to revise maintenance. 3) can i file application in high court stating while she already got maintenance in DV act , she can not be awarded maintenance twice. Please Help.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "domestic violence act",
+     "section": "25"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "24"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "146"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 127 of The Code of Criminal Procedure, 1973; Section 24 of The Hindu Marriage Act, 1955; Section 25 of The Protection of Women from Domestic Violence Act, 2005"
+  }
+ ]
+}

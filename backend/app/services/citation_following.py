@@ -89,6 +89,17 @@ _CURRENCY_CUES = (
     "in force", "after", "which law", "what law", "which act", "valid",
 )
 
+# Which community a marriage question is about; see app.services.personal_law.
+# Terms are word prefixes, so "christian" covers "Christians" and "parsi" "Parsis".
+_CHRISTIAN = ("christian", "church", "catholic", "protestant")
+_MUSLIM = ("muslim", "islam", "nikah", "talaq", "khula")
+_SPECIAL_MARRIAGE = (
+    "special marriage", "court marriage", "civil marriage", "interfaith", "inter faith",
+    "inter religio", "different religion",
+)
+# A question naming another community's marriage law is not a Hindu Marriage Act question.
+_OTHER_PERSONAL_LAW = (*_CHRISTIAN, *_MUSLIM, *_SPECIAL_MARRIAGE, "parsi", "parsee", "zoroastrian", "divorce act")
+
 _CONCEPTS: tuple[_Concept, ...] = (
     # BNSS s.187's proviso creates the entitlement, and the passages that rank
     # for bail questions cite CrPC ss.437/437A instead, so citation forwarding
@@ -290,6 +301,92 @@ _CONCEPTS: tuple[_Concept, ...] = (
             ("divorce", "matrimonial"),
             ("while", "during", "pending", "interim", "until"),
         ),
+    ),
+    # Marriage questions rarely name the Act, and the four communities' divorce
+    # sections share their wording, so search alone picks whichever reads closest.
+    # These stand down when the question names another community's law; see
+    # app.services.personal_law for why the Hindu Marriage Act is the default.
+    _Concept(
+        "HMA", "13", "divorce-grounds implementation",
+        all_of=(("divorce",),),
+        none_of=(_OTHER_PERSONAL_LAW, ("mutual",)),
+    ),
+    _Concept(
+        "HMA", "13B", "mutual-consent-divorce implementation",
+        all_of=(("divorce", "separation", "separate"), ("mutual",)),
+        none_of=(_OTHER_PERSONAL_LAW,),
+    ),
+    _Concept(
+        "HMA", "9", "restitution-of-conjugal-rights implementation",
+        all_of=(
+            ("wife", "husband", "spouse"),
+            ("left me", "left our house", "left the house", "left home", "come back", "return home",
+             "not returning", "refuses to return", "refused to return", "restitution", "conjugal",
+             "living separately", "went to her parents", "went to his parents", "deserted"),
+        ),
+        none_of=(_OTHER_PERSONAL_LAW,),
+    ),
+    _Concept(
+        "HMA", "12", "voidable-marriage implementation",
+        all_of=(
+            ("marriage", "married"),
+            ("annul", "voidable", "impoten", "not consummat", "non consummat", "unconsummat",
+             "concealed", "hid the fact", "hidden from"),
+        ),
+        none_of=(_OTHER_PERSONAL_LAW,),
+    ),
+    _Concept(
+        "HMA", "10", "judicial-separation implementation",
+        all_of=(("judicial separation",),),
+        none_of=(_OTHER_PERSONAL_LAW,),
+    ),
+    # The same questions from a Christian couple go to the Divorce Act, 1869. Its
+    # s.10A (mutual consent, 2001) is not indexed, so mutual consent stays with s.10.
+    _Concept(
+        "IDA", "10", "christian-divorce-grounds implementation",
+        all_of=(_CHRISTIAN, ("divorce",)),
+        none_of=(_SPECIAL_MARRIAGE,),
+    ),
+    _Concept(
+        "IDA", "22", "christian-judicial-separation implementation",
+        all_of=(_CHRISTIAN, ("judicial separation", "separation")),
+        none_of=(_SPECIAL_MARRIAGE,),
+    ),
+    _Concept(
+        "IDA", "32", "christian-restitution implementation",
+        all_of=(_CHRISTIAN, ("restitution", "conjugal", "come back", "left me", "deserted", "return home")),
+        none_of=(_SPECIAL_MARRIAGE,),
+    ),
+    _Concept(
+        "IDA", "19", "christian-nullity implementation",
+        all_of=(_CHRISTIAN, ("annul", "nullity", "void", "impoten", "not consummat", "non consummat")),
+        none_of=(_SPECIAL_MARRIAGE,),
+    ),
+    # A court, civil or interfaith marriage is governed by the Special Marriage Act
+    # whatever the spouses' religion.
+    _Concept(
+        "SMA", "27", "special-marriage-divorce implementation",
+        all_of=(_SPECIAL_MARRIAGE, ("divorce",)),
+        none_of=(("mutual",),),
+    ),
+    _Concept(
+        "SMA", "28", "special-marriage-mutual-consent implementation",
+        all_of=(_SPECIAL_MARRIAGE, ("divorce", "separation", "separate"), ("mutual",)),
+    ),
+    _Concept(
+        "SMA", "23", "special-marriage-judicial-separation implementation",
+        all_of=(_SPECIAL_MARRIAGE, ("judicial separation",)),
+    ),
+    _Concept(
+        "SMA", "22", "special-marriage-restitution implementation",
+        all_of=(_SPECIAL_MARRIAGE, ("restitution", "conjugal", "come back", "left me", "deserted", "return home")),
+    ),
+    # A Muslim wife's grounds for divorce through the court. Talaq itself is
+    # personal law rather than a section of an Act.
+    _Concept(
+        "DMMA", "2", "muslim-wife-divorce implementation",
+        all_of=(_MUSLIM, ("divorce", "dissolution", "khula", "end the marriage", "end my marriage")),
+        none_of=(_SPECIAL_MARRIAGE,),
     ),
     _Concept(
         "LSA", "12", "free-legal-aid implementation",

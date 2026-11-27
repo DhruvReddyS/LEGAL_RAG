@@ -1,0 +1,3398 @@
+{
+  "generated_at": "2026-11-27T16:57:13.173025+00:00",
+  "collection": "global_legal_corpus_v6",
+  "golden_set": "golden_set_ilsic_v1.json",
+  "limit": 20,
+  "config": {
+    "embedding_model": "BAAI/bge-m3",
+    "embedding_dimension": 1024,
+    "generation_model": "qwen3-14b-16k:latest",
+    "reranker_input_characters": 2500,
+    "repealed_rank_penalty": 3,
+    "abstain_coverage_floor": 0.34,
+    "fast_min_candidate_limit": 20,
+    "prompt_versions": {
+      "query_understanding": "3bd57cb79f3e",
+      "reasoning": "ff0c9cc5cd22",
+      "verification": "83463a0dd4d3",
+      "drafting_fact_extraction": "26bf93f7493e",
+      "defence_strategy": "8884175dd1f7",
+      "document_analysis": "090c2b8c8849",
+      "advocate_claim_verification": "71ce2ed0c9c8",
+      "advocate_grounds": "9377aa68cadf",
+      "advocate_brief": "0f79b10dd18e",
+      "advocate_comparison": "6967dc6f373d",
+      "advocate_debate": "11a1614a1b11"
+    }
+  },
+  "configs": {
+    "hybrid": {
+      "summary": {
+        "recall_at_1": 0.02,
+        "recall_at_5": 0.06,
+        "recall_at_20": 0.2,
+        "mrr": 0.049741124072006426,
+        "ndcg_at_10": 0.06368961183551383,
+        "citation_accuracy_at_5": 0.06833333333333333,
+        "abstention_accuracy": null,
+        "false_abstention_rate": 0.02,
+        "seconds_per_query": 2.093873921659979,
+        "by_role": {
+          "citizen": {
+            "items": 100,
+            "recall_at_5": 0.06,
+            "recall_at_20": 0.2,
+            "citation_accuracy_at_5": 0.068
+          }
+        }
+      },
+      "items": [
+        {
+          "id": "ilsic-lay-test-003",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.3333333333333333,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "318",
+              "chunk_id": "gold-chunk-16a91d0d07d33b92dd0556fdc36db265",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "cheating implementation"
+            },
+            {
+              "title": "The Indian Stamp Act, 1899",
+              "act_name": "The Indian Stamp Act, 1899",
+              "section": "",
+              "chunk_id": "gold-chunk-913a385ceff32dc202d29e157955cbf9",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.33333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "The Code of Civil Procedure, 1908",
+              "act_name": "The Code of Civil Procedure, 1908",
+              "section": "",
+              "chunk_id": "gold-chunk-34fbca9b458cca45cb71b762488665dc",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.25,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-010",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "318",
+              "chunk_id": "gold-chunk-16a91d0d07d33b92dd0556fdc36db265",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "cheating implementation"
+            },
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.64285713,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-6295dccff72abcdbae93c51955c474ee",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 5,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-062",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "303",
+              "chunk_id": "gold-chunk-ddcd9f24dfd34f2c1606b4052fdd1069",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.1,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "theft implementation"
+            },
+            {
+              "title": "The Wealth-tax Act, 1957",
+              "act_name": "The Wealth-tax Act, 1957",
+              "section": "37A",
+              "chunk_id": "gold-chunk-7a788ed0e8967ea7d099d6a730be8181",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.5,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-079",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Indian Succession Act 1925",
+              "act_name": "The Indian Succession Act 1925",
+              "section": "",
+              "chunk_id": "gold-chunk-05f268863aea053b18249168ce4e6dc3",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.33333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-098",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 5,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "Hindu Succession Act 1956",
+              "act_name": "Hindu Succession Act 1956",
+              "section": "15",
+              "chunk_id": "gold-chunk-560545b1e32919ba575c5dca9c803d3b",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.6,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-107",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Andhra Pradesh Residential and Non-Residential Premises Tenancy Act, 2017",
+              "act_name": "The Andhra Pradesh Residential and Non-Residential Premises Tenancy Act, 2017",
+              "section": "21",
+              "chunk_id": "gold-chunk-d97de181b818a0d60e7832575d8678ef",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.5,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "The Andhra Pradesh Residential and Non-Residential Premises Tenancy Act, 2017",
+              "act_name": "The Andhra Pradesh Residential and Non-Residential Premises Tenancy Act, 2017",
+              "section": "2",
+              "chunk_id": "gold-chunk-dc6bd0de07c5ab1662b6991e8261a15c",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.33333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-115",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Parsi Marriage and Divorce Act, 1936",
+              "act_name": "The Parsi Marriage and Divorce Act, 1936",
+              "section": "",
+              "chunk_id": "gold-chunk-ccaf06de06165571c83636e4847abde0",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.3703704,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "84",
+              "chunk_id": "gold-chunk-1e021ece2a523148d198f1ec5661078f",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 4,
+              "via": "IPC s.498"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-6295dccff72abcdbae93c51955c474ee",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 4,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-127",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 7,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "173",
+              "chunk_id": "gold-chunk-f9323d381560a3f5877c1080cae185d8",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "first-information implementation"
+            },
+            {
+              "title": "Motor Vehicles Act, 1988",
+              "act_name": "Motor Vehicles Act, 1988",
+              "section": "163",
+              "chunk_id": "gold-chunk-41dd66983d2f649070c07471f8357c0d",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.5833334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "Motor Vehicles Act, 1988",
+              "act_name": "Motor Vehicles Act, 1988",
+              "section": "161",
+              "chunk_id": "gold-chunk-5e799508e82c65074db0a4ade1a9e059",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 1.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-133",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "482",
+              "chunk_id": "gold-chunk-956d6ad680f3035178e106a160cbcea0",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.75,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "480",
+              "chunk_id": "gold-chunk-4332e1a836116f7bf0dc785907cff332",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.32142857,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-139",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.5,
+          "shown_sources": [
+            {
+              "title": "Negotiable Instruments Act, 1881",
+              "act_name": "Negotiable Instruments Act, 1881",
+              "section": "138",
+              "chunk_id": "gold-chunk-11bb7dd01ed533df64dfce9e300e253d",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "dishonoured-cheque implementation"
+            },
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "318",
+              "chunk_id": "gold-chunk-16a91d0d07d33b92dd0556fdc36db265",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "cheating implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-160",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "303",
+              "chunk_id": "gold-chunk-0302a06db7defe3cbe3736243e0ccda8",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "theft implementation"
+            },
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "303",
+              "chunk_id": "gold-chunk-ddcd9f24dfd34f2c1606b4052fdd1069",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "theft implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "173",
+              "chunk_id": "gold-chunk-f9323d381560a3f5877c1080cae185d8",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "first-information implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-163",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-165",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-167",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 1.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-6295dccff72abcdbae93c51955c474ee",
+              "relevant": true,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 17,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-170",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Special Marriage Act, 1954",
+              "act_name": "The Special Marriage Act, 1954",
+              "section": "27",
+              "chunk_id": "gold-chunk-11956525b2d0ad3b79eeefbb0871925e",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.43333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13",
+              "chunk_id": "gold-chunk-327b04b249442c17917dcdf5735bb069",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.34285715,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-172",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 10,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.3333333333333333,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "173",
+              "chunk_id": "gold-chunk-f9323d381560a3f5877c1080cae185d8",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "first-information implementation"
+            },
+            {
+              "title": "The Scheduled Castes and the Scheduled Tribes (Prevention of Atrocities) Act, 1989",
+              "act_name": "The Scheduled Castes and the Scheduled Tribes (Prevention of Atrocities) Act, 1989",
+              "section": "14",
+              "chunk_id": "gold-chunk-4f4276135a83594fd8e798b4e9f9235f",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "atrocities-court implementation"
+            },
+            {
+              "title": "The Bharatiya Nyaya Sanhita, 2023",
+              "act_name": "The Bharatiya Nyaya Sanhita, 2023",
+              "section": "356",
+              "chunk_id": "gold-chunk-af4ad56bf60a78939a9f52e2bbfeebb0",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.16666667,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "defamation implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-173",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-177",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-179",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 6,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": true
+        },
+        {
+          "id": "ilsic-lay-test-184",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-188",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE ANDHRA PRADESH (SCHEDULED CASTES, SCHEDULED TRIBES AND BACKWARD CLASSES) REGULATION OF ISSUE OF COMMUNITY CERTIFICATES ACT, 1993",
+              "act_name": "THE ANDHRA PRADESH (SCHEDULED CASTES, SCHEDULED TRIBES AND BACKWARD CLASSES) REGULATION OF ISSUE OF COMMUNITY CERTIFICATES ACT, 1993",
+              "section": "11",
+              "chunk_id": "gold-chunk-c6e392cf807e350283689fd9ea01dcbf",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.33333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "THE ANDHRA PRADESH (SCHEDULED CASTES, SCHEDULED TRIBES AND BACKWARD CLASSES) REGULATION OF ISSUE OF COMMUNITY CERTIFICATES ACT, 1993",
+              "act_name": "THE ANDHRA PRADESH (SCHEDULED CASTES, SCHEDULED TRIBES AND BACKWARD CLASSES) REGULATION OF ISSUE OF COMMUNITY CERTIFICATES ACT, 1993",
+              "section": "12",
+              "chunk_id": "gold-chunk-c82188fa1f0bc002d2f5ab1a451af52c",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.25,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-193",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "47",
+              "chunk_id": "gold-chunk-ca86f4412fb34e9e0350c4a6d4f32865",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "arrest-right implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "48",
+              "chunk_id": "gold-chunk-3b5f3482e4196ad9d17fb50be1d47d49",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "informing-relatives implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "427",
+              "chunk_id": "gold-chunk-927aa11446a99c824a6cb9d88671c4b8",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.5,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-212",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-231",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "225",
+              "chunk_id": "gold-chunk-2c6135077ca355a4c40ed410ab51c371",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "concordance: CrPC s.202"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-232",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-234",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 1.0,
+          "shown_sources": [
+            {
+              "title": "Motor Vehicles Act, 1988",
+              "act_name": "Motor Vehicles Act, 1988",
+              "section": "50",
+              "chunk_id": "gold-chunk-bfcd1d3e9245d5a72186020eaf191a4a",
+              "relevant": true,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.5,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-238",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "187",
+              "chunk_id": "gold-chunk-0ba095ad2d0df9239efc0a398a26bdc0",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "default-bail implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "187",
+              "chunk_id": "gold-chunk-ce92e1769cd13a77133c6a3cd8c545b3",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "default-bail implementation"
+            },
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "303",
+              "chunk_id": "gold-chunk-0302a06db7defe3cbe3736243e0ccda8",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "theft implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-247",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 11,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Special Marriage Act, 1954",
+              "act_name": "The Special Marriage Act, 1954",
+              "section": "27",
+              "chunk_id": "gold-chunk-11956525b2d0ad3b79eeefbb0871925e",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.6,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-6295dccff72abcdbae93c51955c474ee",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 6,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-250",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 11,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-255",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": true
+        },
+        {
+          "id": "ilsic-lay-test-260",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 17,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "15",
+              "chunk_id": "gold-chunk-2f3b588803d10b46d9dcbd480232cbb7",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.3703704,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-287",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 13,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.3333333333333333,
+          "shown_sources": [
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "12",
+              "chunk_id": "gold-chunk-16edbeef3bbb8bea49e71ed54e4dd2f1",
+              "relevant": true,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.32692307,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "The Divorce Act, 1869",
+              "act_name": "The Divorce Act, 1869",
+              "section": "",
+              "chunk_id": "gold-chunk-a68d0dd432b33da1898054a7e45185ca",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.5,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "act_name": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "section": "116",
+              "chunk_id": "gold-chunk-923293ae285291d5f0e873fab511a9d2",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 6,
+              "via": "IEA s.112"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-293",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-297",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-299",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Indian Succession Act 1925",
+              "act_name": "The Indian Succession Act 1925",
+              "section": "16",
+              "chunk_id": "gold-chunk-ad20bcc47455b58705a65f00605e199e",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.33333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-307",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.3333333333333333,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "218",
+              "chunk_id": "gold-chunk-7bee05a78cf6150216cac42613eb05ed",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "concordance: CrPC s.197"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "351",
+              "chunk_id": "gold-chunk-2b4b2772d686e140093bb0cfa9ba518e",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "concordance: CrPC s.313"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "193",
+              "chunk_id": "gold-chunk-ac98f17e3c219bdffee470ccc58d2a0c",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "final-report implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-328",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 7,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "173",
+              "chunk_id": "gold-chunk-f9323d381560a3f5877c1080cae185d8",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "first-information implementation"
+            },
+            {
+              "title": "The Parsi Marriage and Divorce Act, 1936",
+              "act_name": "The Parsi Marriage and Divorce Act, 1936",
+              "section": "",
+              "chunk_id": "gold-chunk-ba49d7510e28302b5b7b1cfd35002020",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.3409091,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "The Special Marriage Act, 1954",
+              "act_name": "The Special Marriage Act, 1954",
+              "section": "27",
+              "chunk_id": "gold-chunk-11956525b2d0ad3b79eeefbb0871925e",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.75,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-334",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-343",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Parsi Marriage and Divorce Act, 1936",
+              "act_name": "The Parsi Marriage and Divorce Act, 1936",
+              "section": "",
+              "chunk_id": "gold-chunk-ccaf06de06165571c83636e4847abde0",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.33333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "The Divorce Act, 1869",
+              "act_name": "The Divorce Act, 1869",
+              "section": "11",
+              "chunk_id": "gold-chunk-5ee73d3f5889557140d25bcafedd01f2",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.2769231,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-346",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 6,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Divorce Act, 1869",
+              "act_name": "The Divorce Act, 1869",
+              "section": "",
+              "chunk_id": "gold-chunk-3bbd2d7a53d14025ff62bc5f92a105d5",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.5344828,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-6295dccff72abcdbae93c51955c474ee",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 4,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-347",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "126",
+              "chunk_id": "gold-chunk-0a540eeb9dd1265ca1497eded868b91c",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "concordance: IPC s.341"
+            },
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "351",
+              "chunk_id": "gold-chunk-0488c6b7b9c0debe3d28190ee0070043",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "concordance: IPC s.506"
+            },
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "49",
+              "chunk_id": "gold-chunk-66d7604b87a57060d95649806ed42fda",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "concordance: IPC s.109"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-350",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-378",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 15,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.5,
+          "shown_sources": [
+            {
+              "title": "The Bharatiya Nyaya Sanhita, 2023",
+              "act_name": "The Bharatiya Nyaya Sanhita, 2023",
+              "section": "318",
+              "chunk_id": "gold-chunk-b07ff5f85a11ef6a2ccb685c52e6c209",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.11111111,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "concordance: IPC s.420"
+            },
+            {
+              "title": "The Legal Services Authorities Act, 1987",
+              "act_name": "The Legal Services Authorities Act, 1987",
+              "section": "12",
+              "chunk_id": "gold-chunk-c3ae69a23fb733dce214444e5f7ed431",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "free-legal-aid implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-386",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 3,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.5,
+          "shown_sources": [
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "24",
+              "chunk_id": "gold-chunk-f2751d0f5513d28501277d8ce92ff55f",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "interim-maintenance implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-e66ec012d2ee01ee0562cf5e42bc063c",
+              "relevant": true,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.33333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 4,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-388",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-395",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Parsi Marriage and Divorce Act, 1936",
+              "act_name": "The Parsi Marriage and Divorce Act, 1936",
+              "section": "",
+              "chunk_id": "gold-chunk-ccaf06de06165571c83636e4847abde0",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.53846157,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "The Special Marriage Act, 1954",
+              "act_name": "The Special Marriage Act, 1954",
+              "section": "27",
+              "chunk_id": "gold-chunk-11956525b2d0ad3b79eeefbb0871925e",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.3888889,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-6295dccff72abcdbae93c51955c474ee",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 4,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-398",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-405",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "173",
+              "chunk_id": "gold-chunk-f9323d381560a3f5877c1080cae185d8",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "first-information implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-425",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-427",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Indian Trusts Act, 1882",
+              "act_name": "The Indian Trusts Act, 1882",
+              "section": "63",
+              "chunk_id": "gold-chunk-1278aa29de55b91c7d29a6773bec0629",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.5,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "The Delhi Land Holdings (Ceiling) Act, 1960",
+              "act_name": "The Delhi Land Holdings (Ceiling) Act, 1960",
+              "section": "7",
+              "chunk_id": "gold-chunk-1a2dbfe3756beb97c2028a0442669240",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.33333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-455",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "193",
+              "chunk_id": "gold-chunk-ac98f17e3c219bdffee470ccc58d2a0c",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "final-report implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "193",
+              "chunk_id": "gold-chunk-12d8419151ff9fc8d87fda7afdf2601b",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "final-report implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-459",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Companies Act, 2013",
+              "act_name": "The Companies Act, 2013",
+              "section": "168",
+              "chunk_id": "gold-chunk-e67aa3dd803df4da168476fc604264af",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.3888889,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "The Industrial Relations Code, 2020",
+              "act_name": "The Industrial Relations Code, 2020",
+              "section": "70",
+              "chunk_id": "gold-chunk-610da2dbd02bd44ba5f4348136f8484e",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.33333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-461",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Banking Regulation Act, 1949",
+              "act_name": "The Banking Regulation Act, 1949",
+              "section": "45H",
+              "chunk_id": "gold-chunk-b033c43511abdf9cf9d9b10d6206722a",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.33333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "The Income-tax Act, 1961 (legacy text as amended by the Finance Act, 2026)",
+              "act_name": "The Income-tax Act, 1961 (legacy text as amended by the Finance Act, 2026)",
+              "section": "",
+              "chunk_id": "gold-chunk-108c6f1af08c430868150cd625b4ffae",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.6666667,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-463",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "140",
+              "chunk_id": "gold-chunk-d22c9a3a8e40ad277090ba84ba1bbe61",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.5,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "The Indian Penal Code Act, 1860",
+              "act_name": "The Indian Penal Code Act, 1860",
+              "section": "364A",
+              "chunk_id": "gold-chunk-55de261d530dca6a926f7ef415a56d99",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.33333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-470",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-473",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "303",
+              "chunk_id": "gold-chunk-0302a06db7defe3cbe3736243e0ccda8",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "theft implementation"
+            },
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "303",
+              "chunk_id": "gold-chunk-ddcd9f24dfd34f2c1606b4052fdd1069",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "theft implementation"
+            },
+            {
+              "title": "The Chit Funds Act, 1982",
+              "act_name": "The Chit Funds Act, 1982",
+              "section": "20",
+              "chunk_id": "gold-chunk-e52941df230b35a62bc23049e5b4f3ea",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.5,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-477",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 2,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "193",
+              "chunk_id": "gold-chunk-ac98f17e3c219bdffee470ccc58d2a0c",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "final-report implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "193",
+              "chunk_id": "gold-chunk-12d8419151ff9fc8d87fda7afdf2601b",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "final-report implementation"
+            },
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "318",
+              "chunk_id": "gold-chunk-16a91d0d07d33b92dd0556fdc36db265",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "cheating implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-483",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 8,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-484",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-494",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Divorce Act, 1869",
+              "act_name": "The Divorce Act, 1869",
+              "section": "",
+              "chunk_id": "gold-chunk-23306a0d438e653d577e6a325ae6aff5",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.33333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "The Mental Healthcare Act, 2017",
+              "act_name": "The Mental Healthcare Act, 2017",
+              "section": "89",
+              "chunk_id": "gold-chunk-881f869ac21e7ebcaac41dc7dc66910e",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.33333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-534",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "47",
+              "chunk_id": "gold-chunk-ca86f4412fb34e9e0350c4a6d4f32865",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "arrest-right implementation"
+            },
+            {
+              "title": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "act_name": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "section": "63",
+              "chunk_id": "gold-chunk-8337c7f14c7b4e45f44bc48db861caec",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "electronic-record implementation"
+            },
+            {
+              "title": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "act_name": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "section": "63",
+              "chunk_id": "gold-chunk-602509a5fdc5c84a93078ef5492f814f",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "electronic-record implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-537",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.5,
+          "shown_sources": [
+            {
+              "title": "Negotiable Instruments Act, 1881",
+              "act_name": "Negotiable Instruments Act, 1881",
+              "section": "138",
+              "chunk_id": "gold-chunk-11bb7dd01ed533df64dfce9e300e253d",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "dishonoured-cheque implementation"
+            },
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "318",
+              "chunk_id": "gold-chunk-16a91d0d07d33b92dd0556fdc36db265",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "cheating implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-545",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-546",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013",
+              "act_name": "The Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013",
+              "section": "9",
+              "chunk_id": "gold-chunk-7b7d60a46250b3f711157022fb7988b4",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.22619048,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "The Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013",
+              "act_name": "The Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013",
+              "section": "19",
+              "chunk_id": "gold-chunk-7fa9b6a26e1d3afb50a8e44e27084267",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.38596493,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-560",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "173",
+              "chunk_id": "gold-chunk-f9323d381560a3f5877c1080cae185d8",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "first-information implementation"
+            },
+            {
+              "title": "The Divorce Act, 1869",
+              "act_name": "The Divorce Act, 1869",
+              "section": "",
+              "chunk_id": "gold-chunk-23306a0d438e653d577e6a325ae6aff5",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.5,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "The Divorce Act, 1869",
+              "act_name": "The Divorce Act, 1869",
+              "section": "",
+              "chunk_id": "gold-chunk-ace8e9d3c46a33f70fc01bce614feb1f",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.4047619,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-564",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 16,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Protection of Women from Domestic Violence Act, 2005",
+              "act_name": "The Protection of Women from Domestic Violence Act, 2005",
+              "section": "3",
+              "chunk_id": "gold-chunk-2a127953e672fef74b51a5cea0da1f87",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.33333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-568",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The National Housing Bank Act, 1987",
+              "act_name": "The National Housing Bank Act, 1987",
+              "section": "29B",
+              "chunk_id": "gold-chunk-6b1e7816cc4611f1de9d9211994c53d9",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.2,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "The National Housing Bank Act, 1987",
+              "act_name": "The National Housing Bank Act, 1987",
+              "section": "52A",
+              "chunk_id": "gold-chunk-ec23e7e9a03d75d3206916285370e46b",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.31666666,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-595",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "303",
+              "chunk_id": "gold-chunk-0302a06db7defe3cbe3736243e0ccda8",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "theft implementation"
+            },
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "303",
+              "chunk_id": "gold-chunk-ddcd9f24dfd34f2c1606b4052fdd1069",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "theft implementation"
+            },
+            {
+              "title": "The Special Marriage Act, 1954",
+              "act_name": "The Special Marriage Act, 1954",
+              "section": "27",
+              "chunk_id": "gold-chunk-11956525b2d0ad3b79eeefbb0871925e",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.5,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-598",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.5,
+          "shown_sources": [
+            {
+              "title": "Negotiable Instruments Act, 1881",
+              "act_name": "Negotiable Instruments Act, 1881",
+              "section": "138",
+              "chunk_id": "gold-chunk-11bb7dd01ed533df64dfce9e300e253d",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "dishonoured-cheque implementation"
+            },
+            {
+              "title": "The Andhra Pradesh Court-fees and Suits Valuation Act, 1956",
+              "act_name": "The Andhra Pradesh Court-fees and Suits Valuation Act, 1956",
+              "section": "39",
+              "chunk_id": "gold-chunk-1ed0065b168a34029e0552ee4f2201e2",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.24545455,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-601",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "",
+              "chunk_id": "gold-chunk-c7798a570b3199f46e18e9467ee61ca6",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.5,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "The Companies Act, 2013",
+              "act_name": "The Companies Act, 2013",
+              "section": "",
+              "chunk_id": "gold-chunk-cf9db9eae1fa8858b5790813e53fc566",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.5,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-603",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "act_name": "THE BHARATIYA SAKSHYA ADHINIYAM, 2023",
+              "section": "6",
+              "chunk_id": "gold-chunk-359a3b191940d75196e49d24985f7e38",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.25,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "The Bharatiya Nyaya Sanhita, 2023",
+              "act_name": "The Bharatiya Nyaya Sanhita, 2023",
+              "section": "133",
+              "chunk_id": "gold-chunk-0a7c08b4dc1a0215779d52418f69aef2",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.33333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "199",
+              "chunk_id": "gold-chunk-476fd30f7df5fc3497928eabf3ead77b",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 4,
+              "via": "IPC s.166a"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-605",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Banning of Unregulated Deposit Schemes Act, 2019",
+              "act_name": "The Banning of Unregulated Deposit Schemes Act, 2019",
+              "section": "2",
+              "chunk_id": "gold-chunk-13b1becc72fe4fb7c7087d68c1117ef1",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.5,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-606",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-6295dccff72abcdbae93c51955c474ee",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 4,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-624",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-640",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-643",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Special Marriage Act, 1954",
+              "act_name": "The Special Marriage Act, 1954",
+              "section": "27",
+              "chunk_id": "gold-chunk-11956525b2d0ad3b79eeefbb0871925e",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.8333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "144",
+              "chunk_id": "gold-chunk-6295dccff72abcdbae93c51955c474ee",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 4,
+              "via": "CrPC s.125"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-649",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Indian Contract Act, 1872",
+              "act_name": "The Indian Contract Act, 1872",
+              "section": "11",
+              "chunk_id": "gold-chunk-fcb79bcafae5fea9df28482724c6afb1",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.25,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "The Indian Contract Act, 1872",
+              "act_name": "The Indian Contract Act, 1872",
+              "section": "",
+              "chunk_id": "gold-chunk-37f04586daa2cf491bd3dbd103b9cb6e",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.5,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-656",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-673",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.6666666666666666,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "193",
+              "chunk_id": "gold-chunk-ac98f17e3c219bdffee470ccc58d2a0c",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "final-report implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "193",
+              "chunk_id": "gold-chunk-12d8419151ff9fc8d87fda7afdf2601b",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "final-report implementation"
+            },
+            {
+              "title": "The Divorce Act, 1869",
+              "act_name": "The Divorce Act, 1869",
+              "section": "",
+              "chunk_id": "gold-chunk-23306a0d438e653d577e6a325ae6aff5",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.5,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-679",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-687",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-696",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 15,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Indian Succession Act 1925",
+              "act_name": "The Indian Succession Act 1925",
+              "section": "45",
+              "chunk_id": "gold-chunk-f7372a2d9f4a88e954edd9c36c0ec031",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.39285713,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-702",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "482",
+              "chunk_id": "gold-chunk-956d6ad680f3035178e106a160cbcea0",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "anticipatory-bail implementation"
+            },
+            {
+              "title": "The Indian Penal Code Act, 1860",
+              "act_name": "The Indian Penal Code Act, 1860",
+              "section": "498",
+              "chunk_id": "gold-chunk-bff70beb7578c56959cca37c089a4c5d",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.33333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "The Muslim Women (Protection of Rights on Marriage) Act, 2019",
+              "act_name": "The Muslim Women (Protection of Rights on Marriage) Act, 2019",
+              "section": "",
+              "chunk_id": "gold-chunk-6899e1bb401ac788ea8aaf3e38d4c1d4",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.25,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-715",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-718",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-730",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Divorce Act, 1869",
+              "act_name": "The Divorce Act, 1869",
+              "section": "24",
+              "chunk_id": "gold-chunk-81e0ce2961011e1637716d1d473f33cf",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.16666667,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-733",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-734",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Divorce Act, 1869",
+              "act_name": "The Divorce Act, 1869",
+              "section": "",
+              "chunk_id": "gold-chunk-ace8e9d3c46a33f70fc01bce614feb1f",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 1.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-736",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Hindu Succession Act, 1956",
+              "act_name": "The Hindu Succession Act, 1956",
+              "section": "22",
+              "chunk_id": "gold-chunk-d044815c78a83d9e9c72809fabd8dc23",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.6666667,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-740",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 12,
+          "recall_at_5": 0.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Parsi Marriage and Divorce Act, 1936",
+              "act_name": "The Parsi Marriage and Divorce Act, 1936",
+              "section": "",
+              "chunk_id": "gold-chunk-ccaf06de06165571c83636e4847abde0",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.5,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "The Hindu Marriage Act, 1955",
+              "act_name": "The Hindu Marriage Act, 1955",
+              "section": "13B",
+              "chunk_id": "gold-chunk-618c5ec0f7cc7156a24f085a5a1f0d68",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.42424244,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-747",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Tripura Land Revenue and Land Reforms Act, 1960",
+              "act_name": "The Tripura Land Revenue and Land Reforms Act, 1960",
+              "section": "2",
+              "chunk_id": "gold-chunk-9b16badb820d7495b3ac816aecd22468",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 1.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "The Income-tax Act, 1961 (legacy text as amended by the Finance Act, 2026)",
+              "act_name": "The Income-tax Act, 1961 (legacy text as amended by the Finance Act, 2026)",
+              "section": "2",
+              "chunk_id": "gold-chunk-d4f345b49f674e3a11aab8ee2f80b189",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.33333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-749",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "187",
+              "chunk_id": "gold-chunk-0ba095ad2d0df9239efc0a398a26bdc0",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "default-bail implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "187",
+              "chunk_id": "gold-chunk-ce92e1769cd13a77133c6a3cd8c545b3",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "default-bail implementation"
+            },
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "24",
+              "chunk_id": "gold-chunk-f2751d0f5513d28501277d8ce92ff55f",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "interim-maintenance implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-751",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-755",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "126",
+              "chunk_id": "gold-chunk-0a540eeb9dd1265ca1497eded868b91c",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.5,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-772",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "173",
+              "chunk_id": "gold-chunk-f9323d381560a3f5877c1080cae185d8",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "first-information implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "193",
+              "chunk_id": "gold-chunk-ac98f17e3c219bdffee470ccc58d2a0c",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "final-report implementation"
+            },
+            {
+              "title": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023",
+              "section": "193",
+              "chunk_id": "gold-chunk-12d8419151ff9fc8d87fda7afdf2601b",
+              "relevant": false,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "final-report implementation"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-795",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Divorce Act, 1869",
+              "act_name": "The Divorce Act, 1869",
+              "section": "23",
+              "chunk_id": "gold-chunk-9f867750da1b0087cc4935001a8aa371",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.30952382,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "The Special Marriage Act, 1954",
+              "act_name": "The Special Marriage Act, 1954",
+              "section": "23",
+              "chunk_id": "gold-chunk-1e1e291fa128eb74656a56855a55019e",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.53333336,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-800",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "act_name": "THE BHARATIYA NYAYA SANHITA, 2023",
+              "section": "84",
+              "chunk_id": "gold-chunk-1e021ece2a523148d198f1ec5661078f",
+              "relevant": false,
+              "enrichment_relation": "citation_forwarding",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 6,
+              "via": "IPC s.498"
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-802",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Divorce Act, 1869",
+              "act_name": "The Divorce Act, 1869",
+              "section": "",
+              "chunk_id": "gold-chunk-23306a0d438e653d577e6a325ae6aff5",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.5625,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-823",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": 1,
+          "recall_at_5": 1.0,
+          "recall_at_20": 1.0,
+          "citation_accuracy_shown": 0.0,
+          "shown_sources": [
+            {
+              "title": "The Indian Penal Code Act, 1860",
+              "act_name": "The Indian Penal Code Act, 1860",
+              "section": "420",
+              "chunk_id": "gold-chunk-4bf5b5e9c6cbc392ea5de298f658ea3b",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.5,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        },
+        {
+          "id": "ilsic-lay-test-828",
+          "role": "citizen",
+          "expectation": "answer",
+          "first_rank": null,
+          "recall_at_5": 0.0,
+          "recall_at_20": 0.0,
+          "citation_accuracy_shown": 0.3333333333333333,
+          "shown_sources": [
+            {
+              "title": "Hindu Marriage Act 1955",
+              "act_name": "Hindu Marriage Act 1955",
+              "section": "24",
+              "chunk_id": "gold-chunk-f2751d0f5513d28501277d8ce92ff55f",
+              "relevant": true,
+              "enrichment_relation": "implementation_bridge",
+              "scores": {
+                "fused": 0.0,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": 0,
+              "via": "interim-maintenance implementation"
+            },
+            {
+              "title": "The Special Marriage Act 1954",
+              "act_name": "The Special Marriage Act 1954",
+              "section": "27",
+              "chunk_id": "gold-chunk-2ed641062b7c1a1d6c319384f2e5db67",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.33333334,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            },
+            {
+              "title": "The Maintenance And Welfare Of Parents And Senior Citizens Act 2007",
+              "act_name": "The Maintenance And Welfare Of Parents And Senior Citizens Act 2007",
+              "section": "5",
+              "chunk_id": "gold-chunk-4a24504a6ba304e64b6c3c8223148634",
+              "relevant": false,
+              "enrichment_relation": "",
+              "scores": {
+                "fused": 0.5,
+                "dense": null,
+                "sparse": null
+              },
+              "citations": null,
+              "via": null
+            }
+          ],
+          "wrongly_abstained": false
+        }
+      ]
+    }
+  }
+}

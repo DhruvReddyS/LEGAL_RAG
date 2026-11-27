@@ -1,0 +1,2875 @@
+{
+ "version": "ilsic-hma-holdout-v1",
+ "created": "2026-11-27",
+ "notes": [
+  "Holdout for the personal-law change: every ILSIC lay-test question whose labels include the Hindu Marriage Act and that is not in golden_set_ilsic_v1.json (117 items). Built with scripts/build_golden_set_ilsic.py --sample 10000, then filtered. Used to check the change was not tuned to the 100 it was designed from."
+ ],
+ "items": [
+  {
+   "id": "ilsic-lay-test-022",
+   "question": "I am married to a girl but immediately after marriage she opted to be with her parents. As I was studying and working for my career, initially I did not raise objection as she was also working and supporting financially. Later, after my job, I somehow convinced her to be together but the life was never comfortable as she always tried to be concerned and connected with her parents. There is no harm in that but when I asked my parents to be with me, she raised the alarm and started showing tantrums that finally lead to our separation. We have 8 years old son who was born after 1 year of marriage and since last 4 years she is staying with her Parents and our son. She don’t respond to my call and stopped interacting in any form to me or my family members. Initially, we tried to get the things resolved but I have lost all hope and now I want full and final settlement. Please advise me how to proceed legally. I have been living alone since last 4-5 years but now i have lost all hope and patience. Please advise!!",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-027",
+   "question": "It was a love marriage its been 1 year and my husband used to listen to his mother everytime who wanted us to get divorced , he never took a stand post marriage and used to hit me often and when i responded sh eused to call my family members and say that this girl is not worth of gtng married to anybody .girls should not resist and to save the marriage should stay quiet,husband will understand on his own, she used to be unhappy if my husband did anything fr me and when we used to have arguements she used to interfere and instigate my husband to give me divorce and leave me.they changed the house locks and did not let me in and threatened me for divorce . i also conceived and she tried to shame me by asking whose it was.my husband was fully in control and never thought as a husband.i was in depression and had to abort the child after informing my husband.my husband took me back home and my MIL left the house. we shifted in a 1BHk apt and since then she used to emotionally blackmail him that he left his single mother because of a girl. he used to get aggressive and hit me many a times and break the house articles in fit of anger and always threatened me for divorce and he would run away. recently he again assaulted with the curtain rod and dragged me by my hair 2 floors down the stairs i had to call the police ,when i defended and tried to stop him he too got scratches,police took us to the police station where my MLC was conducted and he ran away with his stuff back to his mother its been over a month and he has also done a mlc the next day and filed a complain that i tried to hit him,instead of feeling guilty he said i deserved it and is threatening for a divorce and is projecting everywhere that he is the victim.though he ran away before i reached home he is also blming me for his pan card and net dongle theft .we both were earning and i used to manage the finances and bought every article of the house .he is now claiming that its his appliances that ive stolen. im staying alone now and he has blocked me from everywhere and wants a divorce. police has filed an IPC323 as mlc was simple . i want to9 reconcile as divorce will scar my life but he is adamant and so are my family members as they have see nme suffer. i know he didi all this because of his mother who herself left the house but blamed me for all this. kindly suggest as he has filed a domestic violence case against me .he used to abuse my parents and when i used to reply he used to record things as well.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "domestic violence act",
+     "section": "12"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "316"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 12 of The Protection of Women from Domestic Violence Act, 2005; Section 406 of The Indian Penal Code, 1860; Section 498A of The Indian Penal Code, 1860; Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-029",
+   "question": "My daughter was married to my relative's son who is employed in New Zealand on 26/02/2018. He came to India for marriage and was here with my daughter just for 23 days and left to Newzealand back. 1. During those 23 days he has never been in sexual relationship with my daughter. 2. He and his parents promised to take my daughter to Newzealand within 3 months after marriage. 3. From the 3 rd day of the marriage, he started demanding jewels from us through my daughter. We have already given 30 sovereigns of gold jewellery and 10 sovereigns to the groom apart from 2 lakhs cash and 4 kg Silver items. 4. He left to Newzealand on 25/03/2018 leaving my daughter with his parents. 5. He never talked to my daughter and communicating through Whatsapp only. Their parents treated my daughter as a maid and torturing with verbal abuse and all type of ill treatment. 6. Parents refused to send my daughter to Newzealand. And in July 18 we bring our daughter from the matrimonial house. After that she refused to go back to the matrimonial house and demanded the groom to take her to Newzealand through Whatsapp texts. He blocked her mobile and we parents tried to talk to him and he blocked our mobiles too. 7. We demanded through our mutual relatives to ask the groom to come to India for sorting out the issues. He never responded and we sent him mails and asked him to come to India before 31/07/2019. for reconciliation. But he never responded directly either to my daughter or to us. After waiting for 18 months we served legal notice demanding divorce with charges of harrasment, dowry demand, impotency and desertion. They responded that they are ready to prove that the groom is potent and ready for medical checkup and they are not interested in divorce. We filed a divorce petition in October 2019. Summon served to the India address and returned with the reason Left India. After we found his Newzealand address and summon is served. He is to be present in the Honourable court on 03/02/2020 but as he didn't come, the petition is done as Ex party. Due to Covid lockdown, the case is pending now. In between we demanded the gold, silver ornaments and dresses which my daughter left at the matrimonial house through our mutual relatives, and even lodged a written complaint to the District Collector. His parents agree to handover the jewels. But demanding my daughter to give in writing to Amend the impotency reason in the divorce petition, Not to file any criminal cases against the groom, Not to demand any maintenance. My daughter refused. Kindly guide us to get back our jewels and to proceed further.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "dowry prohibition act",
+     "section": "3"
+    },
+    {
+     "act": "dowry prohibition act",
+     "section": "4"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "316"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "351"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 13 of The Hindu Marriage Act, 1955; Section 3 of The Dowry Prohibition Act, 1961; Section 4 of The Dowry Prohibition Act, 1961; Section 406 of The Indian Penal Code, 1860; Section 498A of The Indian Penal Code, 1860; Section 506 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-036",
+   "question": "We have been married since Feb 2004. we have a 10 year old daughter. it feels like we are unable to live together lot of misunderstandings which now we think can not be resolved relationship has proved to be totally incompatible. I have tried my level best to carryon but it does not seem to work . He is also an alcoholic though earning well. But all these things are of no use. 1. My question is how to proceed with filling a divorce ? can I get a guidance and help what are the charges . 2. I want to keep my daughter with me and want her maintenance as I do not earn enough to give the life that she is living now and do not want to take away that from her so I would also need as sum every month for my daughter education clothing and other as any other growing child needs dont want to punish her for something that we are not able to solve.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-042",
+   "question": "My wife and I have been going through martial problems for quite a few years and now we both have decided to part away amicably via mutually-consented divorce. We have been married for 12 years under the Hindu Marriage Act and have a son of 6 years from this marriage. We are living in separate places (the child lives with the mom). Though she is working, her income is much less than mine. I have no idea how the mutually-consented divorce works under the Hindu Marriage Act and so I have the following queries: 1. How to start the process and what are the main steps ? 2. Do we have to appear in court ? 3. How much time does it take from the day of filing ? 4. Is there any pre-condition like husband and wife have to stay separate for certain time before the divorce can be filed ? 5. How much alimony will I have to pay and for how long ? 6. How much child support will I have to pay and for how long ? 7. I have a couple of properties, one purchased before marriage and the other after marriage, but both are in my name only. What does the law say regarding properties owned by husband ? 8. What does the law say regarding other assets of husband, like bank accounts, car etc. that are acquired during marriage ? 9. Any other suggestion/advice ?",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-046",
+   "question": "Dear Sir, I have applied for contested divorce in the Family court Bangalore (Christian Marriage) in June 2019. My next hearing is on 8 January 2021 next week. Can this contested divorce be converted into a mutual divorce on the same hearing day? What about the cooling period? Do we still need to wait for 6 months even after converting the existing case to mutual divorce? Which would be easier? Converting the existing case to mutual divorce or filing a fresh case for mutual divorce? I am waiting to do my second marriage but without the divorce I cannot do it.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-048",
+   "question": "girl belong to city a. boy to city b.marriage in city c.mutual divorce filed in city a where girl is permanent resident.family court judge wants to know how it is his jurisdiction.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "19"
+    }
+   ],
+   "note": "ILSIC labels: Section 19 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-051",
+   "question": "I was married in 2011 and in this marriage we had 2 daughters. In 2019 I found out that wife was in an extra marital affair. I have CCTV footage and audio recordings which can prove it and also her own admission for the same in an audio messsge. She and her family reassured me that it will not happen again. So for the sake of kids, I forgave her and accepted her. But recently I found out that she is again in an affair with some other person. I confronted her and told her it’s best that we separate and get a divorce. I also told her that I can take care of the kids if she feels it’s a huge responsibility. She agreed and asked me if she could stay at her parents. I approved and she went. But since she has been staying at her parents, her tone has changed and seems like she and her family want to steer complications. Although I have all proofs of her adultery but if I file a petition for contested divorce what chance do I have with a the proof and what kind of counter attacks can she allege.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "domestic violence act",
+     "section": "12"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "17"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "18"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "19"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "20"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "21"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "22"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "26"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "3"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "316"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 12 of The Protection of Women from Domestic Violence Act, 2005; Section 125 of The Code of Criminal Procedure, 1973; Section 13 of The Hindu Marriage Act, 1955; Section 17 of The Protection of Women from Domestic Violence Act, 2005; Section 18 of The Protection of Women from Domestic Violence Act, 2005; Section 19 of The Protection of Women from Domestic Violence Act, 2005; Section 20 of The Protection of Women from Domestic Violence Act, 2005; Section 21 of The Protection of Women from Domestic Violence Act, 2005; Section 22 of The Protection of Women from Domestic Violence Act, 2005; Section 26 of The Hindu Marriage Act, 1955; Section 34 of The Indian Penal Code, 1860; Section 406 of The Indian Penal Code, 1860; Section 498A of The Indian Penal Code, 1860; Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-053",
+   "question": "Can someone file 125 crpc case while residing abroad and asking to pay the money for her higher studies in abroad and she also mentioned same in assets and liabilities in 2022. And the actual fact is she already completed her higher studies in abroad(money paid by her husband for her studies and he has proofs for that) and she is doing job since 2019 and earning salary. Husband has her degree certificate and offer letter(signed by her), bank statements from 2019 which has salary details. Also, in 498a which was registered in 2020 she mentioned that she completed masters and got job and earning 2 lakh per month. Husband came to india, lost his job and attending courts since 1 year.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "24"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 24 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-054",
+   "question": "Sir, Meri wife mujhse 2 saal se alag reh rahi hai, mera 3+ years ka ek beta bhi hai. Shaadi ke baad wo mere saath lagatar 1 month bhi nahi rahi hai har bar apne ghar chali jati hai aur baar baar jane ka bahana banati rahi, uska result ye raha ki wo ab aana hi nahi chahti aur kuch din tak to wo mujhe bere bete se milne diya ab milne bhi nahi deti hai. Mein delhi mein rehta hoon papa ka ghar chandigarh mein hai aur agra mein lekin wo hamare saath hi bhai aur bhabhi ke ghar mein hi rehtein hai aur mein bhi shaadi se pehle se yahi rehta hoon lekin wo ab mujh par blame karti hai ki aap bhabhi ke saath kyun rehte hai, galat rishta bhi bolti hai, uske papa blind hai (70+ years old), mummy expire ho gayi hai, 3 sister hai above 35+ dono aur ek meri wife hai ab uske papa bhi usse wahin rakna chahte hai lekin mein alag rehna chahta hoon. Meri salary 10000/- plus hai mein jyada affort nahi nahi kar sakta. kuch saal tak uske papa ne paise diye rent ke makan ke liye. 3 saal tak mein raha lekin mein affort nahi kar saka aur meine rent ka house khaali kar diya tab se ab tak wo nahi aati aur na hi uske papa usse bhejte. Ek din mein bete se milne gaya to milne nahi diya aur 100 no. se police bula li ke ye yahan fight kar raha hai tab police walon ne mujhe lejakar mara bhi , ab dahej ka case karne ki dhamki bhi dete hai isliye kya divorce file karna theek hoga aur kya mera beta mujhe mil sakta hai ya usska admission boarding school mein karwane ki permission mil sakti hai after divorce ke baad.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "26"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 26 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-069",
+   "question": "My brother was marriage in the year 2001 and that out of the wedlock between my brother and his wife, a child was born in the year 2002 and by birth the child was in her custody. Before the birth of said child she went her paternal house when she was carrying 5/6 months. At that time her paternal house was situated at patna. After the birth of the child she once came to her in law house on the occasion of Annaprashan and leaving her husband permanently in the year 2002. After living separately from her husband and in laws for six years she initiated a false 498A/34 case against her husband and other in laws. And trail court was acquitted her husband and other in laws. At that time her permanent resident in kolkata. In the year 2016 my brother was tried to restore his conjugal life but failed. Now she was create disturbance in the daily normal life of my brother by using massage in most vulgar languages and threatened my brother and other in laws. Once she came to my brother's house and demanding his full salary and one flat in her name. Now my brother wants divorce. Also noted that my brother regularly send maintenance after leaving her husband. Now my brother sent maintenance at rate Rs.20000.00 p.m. It noted that my brother gross salary is Rs. 62082.00 p.m. My brother is living with me and my family. Now my question are that 1. Can his wife lodge any criminal case against me and my family? 2. Can by brother got divorce on the ground of cruelty? 3. If she filed 125 Crpc /DV for higher maintenance? 4. And what amount will fixed as interim maintenance? Both of them. 5. Can she make over the custody of the child in without writing in accordance with the law of the land? It is noted that the child is in her custody. So she can claim higher maintenance in this ground? Can she claim any share accommodation under PWDV Act?",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 13 of The Hindu Marriage Act, 1955; Section 498A of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-070",
+   "question": "I have been married for 2 months and my husband and me used to regular fight with each other..one day i was asked to leave my matrimony house stating that he needs a cool off period and i can return after 4-5 days.. when tried to return house i was not taken back.. my father in law and my husband told me that they will brimg restrainning order from.court. i went to police after few days to lodge a complaint.. upon request i also submitted my written complain about the torture and harassement took place in the house.. but the lady police did question me left right centre and asked me to come after 2 days. again she called me for enquiry where she was on a civil dress despite being on duty in her cabin named didi...i also felt she was recording my statement in her mobile... today my husband and father in law has given an written complaint which she lodged in her diary... she called me to police station stating that she will counsel between us but on arriving started enquiring me and taking my husbands side..i dont understand wat should i do..?? also can that lady police officer use the voice recording against me as proof in the cpurt",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "domestic violence act",
+     "section": "12"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "18"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "19"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "20"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "21"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "22"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "24"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 12 of The Protection of Women from Domestic Violence Act, 2005; Section 13 of The Hindu Marriage Act, 1955; Section 18 of The Protection of Women from Domestic Violence Act, 2005; Section 19 of The Protection of Women from Domestic Violence Act, 2005; Section 20 of The Protection of Women from Domestic Violence Act, 2005; Section 21 of The Protection of Women from Domestic Violence Act, 2005; Section 22 of The Protection of Women from Domestic Violence Act, 2005; Section 24 of The Hindu Marriage Act, 1955; Section 498A of The Indian Penal Code, 1860; Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-072",
+   "question": "I am doctor by profession having very flexible timings of work and my wife is software engineer working 9.5 hours a day plus travelling time. i have small boy of 2.7months old whose complete care used to be taken by me and my parents, as wife was going all the day to office. Since 7 months we live seperately and she took away my child forcibly and didnt allow me to meet me, ( CHild is very attached to me) then i filed for divorce and child custody, from court i only got interim relief of visting my child only once i a month that to for only 2 hours, plz guide me how can i get custody of my child. Also my wife is earning75k per month which is more than my income and she has applied for interim money of 5ok for her and child. how should i fight to avoid the maintainance as she is highly qualified, also i am asking to get custody of child so that i will maintain him and in return i dont want a single penny from my wife...... plz guide as me and my son are very much attached to each other.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "24"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "94"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 24 of The Hindu Marriage Act, 1955; Section 91 of The Code of Criminal Procedure, 1973"
+  },
+  {
+   "id": "ilsic-lay-test-075",
+   "question": "I had a relationship with the girl since from 1year , Girl and their family forcefully married me in the temple without my parents and the marriage is done on without culture and rituous as per hindu act, and they had taken photos and video record and we had given a written documents in police station that we had married and we are not registered legally, now can i go for court that the marriage is done forcefully",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "11"
+    }
+   ],
+   "note": "ILSIC labels: Section 11 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-080",
+   "question": "Hello I am a Hindu by religion got married in the year 2019(Nov) but my wife left me within the next 6 months our marriage was also not consummated(this she has accepted in her plea) as she didn't let me touch her ,thus I have filed for annulment of our marriage (within the very first year)in response to this my wife has filed 498 , domestic violence against my family and 354 against my father, but the court granted us bail as she had filed after me and took four months to do so. Now she is leaving the country for further education to delay the annulment of marriage, what should I do?",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "12"
+    }
+   ],
+   "note": "ILSIC labels: Section 12 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-082",
+   "question": "Hi Team, we got married August 2018 and we stayed for 6 months and she left me and went to her home by saying \"I will be back in a week\". Still now she hasn't come and since 2 years we were physically separated and not living together... I convened in all possible ways and finally sent lawyer notice and asked her to come and continue matrimonial life, but with her brother's support she replied to the notice with all false allegations against me... This was happened a year ago... Since 1 year there was no communication. I still have interest on her, but she neither showing interest to stay with me nor giving divorce... I am missing and wasting my valuable life... I am 35 year old... Please advise me on this problem.. Thank you Satish Y",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    }
+   ],
+   "note": "ILSIC labels: Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-086",
+   "question": "Hi, I have been married since 2013 and it was a love marriage. My family accepted our marriage first but her family was rigid about it. A year later, her family also accepted our marriage after understanding that I am a good guy and having government job. Everything was good for 04 years and then we started to plan for family. But my wife could not conceive, we also consulted a gynaecologist and she said everything is normal. After 5-6 months she had severe pelvic pain and when we consulted an other gynaecologist, we came to know that she had severe uterian infection. She had a laproscopic surgery for it and she started to blame me for not having babies. She has always been very wild since her childhood as she and her parents told me. I also took her to a psychiatrist in the 4th year of marriage due to her violent behaviour. All these years I had ardently followed her and supported her in her business financially and physically. Further, she was never comfortable being at my parents house or if they came to visit us. She loved shopping, travelling and of course I always spent it for her. Which sometimes affected my financial situation. I was posted in Khargone district where she shown her violent behaviour and even banged my head on the door once in which I nearly could have lost my eye. My landlord knew about it. But since I loved her, I remained silent about it. Her family, my family, my landlords family who cared for her like their own daughter, all of them tried to change his behaviour, and she never changed her behaviour. Since she never liked to live in a small city and her medical condition gave her an opportunity to move to a big city. She started pushing me to get a transfer. Due to her, continuous push and abusive behaviour I could not help but ultimately applied for the transfer. Since I am in government organisation, getting a transfer takes time, she said that if you are not getting your transfer done, just shift me to Indore and you may come whenever you get your transfer orders. To save my marriage, I had no choice but to agree to her condition. She started living alone and started to mentally harass me everyday for being busy and not calling her many times a day or having long phone call talks. Later in December 2019 she started fighting with me, interrogating about my finances claiming that I am having an affair or I am going to prostitutes, since we did not had physical relations since Feb 2019. As it was not comfortable for me to have physical intimacy with someone who fought daily with me. Since I couldn't take it anymore, I told her that it would good for both of us to get separated and after that from past 3 months she is threatening me of filing a police complaint against me for mental harassment and that she will destroy my career and family. I want a divorce but she is lingering it. What should I do? What are my rights? What can she do legally. Can I file the divorce and police complaint against her for cruelty",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "domestic violence act",
+     "section": "18"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "19"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "20"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "22"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 13 of The Hindu Marriage Act, 1955; Section 18 of The Protection of Women from Domestic Violence Act, 2005; Section 19 of The Protection of Women from Domestic Violence Act, 2005; Section 20 of The Protection of Women from Domestic Violence Act, 2005; Section 22 of The Protection of Women from Domestic Violence Act, 2005; Section 498A of The Indian Penal Code, 1860; Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-091",
+   "question": "My husband deserted me and my son over 5 years ago and has not been in touch ever since. Now he is asking for Divorce based on my condition (I am suffering from Multiple Sclerosis) . This is a neurological disease not a mental one, I cant walk properly but I can take care of my own needs. He came to know about my condition over 5 years ago and so far we tried to re connect but he was never interested, now he is saying I cant do household chores so he needs a divorce. Please advice if he can get this divorce? Also what options do my little son and I have ? I dont want my Son to suffer , he has always been with me and received no call or visit from his father. I dont want divorce but can we take legal action against my husband?",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "domestic violence act",
+     "section": "23"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 23 of The Protection of Women from Domestic Violence Act, 2005; Section 498A of The Indian Penal Code, 1860; Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-092",
+   "question": "Hello sir/Madem My elder brother got married to a village girl 1.6 y ago .She belongs to a former family near by our city . From day one of marriage she never behave like a married women . Never cook , never wash dresses ,never touch/fold even bed sheet after woke up at 9 AM daily . Never treat my parents as in-laws . She always torture my brother about property and land . Not even spending time with my brother until gets property on her name . Mother is a sugar patient ,once she down from sofa due to low sugar . sister-in-law sitting in front of my mom only ,but didn't help her working up/giving some sweet untill my father comes from bazar (after two-three hours later). My mother almost was in coma . Now my brother has to stop his job to take care of my parents , as his wife in plan of killing my parents emotionally ,mentally ,behave like make their BP (my both patents have High BP ). trying to break lockers and find home properties documents.She made my parents to feel insecure in our home it self . My parents go any relatives home , sister-in-law bring her family friends and making new sense things at our home .if my bother say something , she calling her father ,he is an real idiot . he started blackmailing like will go to policy station and will put harassment case ,will send all to jail , etc . always have eye on property . she is not letting to have kids and torturing my brother like anything . My parents and brother seeing really mental torture .She is not ready to go out from our home and stay with my brother even if he is ready go and stay away . so that we have we can have hope that my parents will not die in her hands and by her torture . her father not letting her to go out ,bringing local people and making new sense ,blackmailing with 498A and will kill you all etc . I AM FEELING TO KILL BOTH OF THEM .we are three brothers. elder is facing this problem with sister-in-law. second one is in abroad , my self in hyderabad . always worrying about parents and brother . he was very innocent . father was retired Govt employee .She is not going out and torturing parents by sitting our home . if we proceed for diverse , again thats a point for them to demand more money/property . we have only one home ,constructed recently after my father retirement and taking personal loans . elder one was not spent even a single rupee since he does not have any job . All money from my father and we two brother only spent . now they are living with my father pension and rent . they have eye on that house and doing like this . we cant send her out home with my brother (she and her father not willing to step out ) and not giving diverse . when nobody was there she will say that she dont want to stay give dowry money and throw taali . when her father and relatives come ,she will say that she wanted to stay here but in-laws and husband didn't wanted /letting her to stay .playing dual role with duel tongue . (3 L dowry money was in bank with my bro and her name only , we didnt touch that ) how can i send her with my brother to stay out in different home , or how can we get diverse where she is not ready to give .Feeling us to give and get money and property .How can we save my parents and our self from blackmailing with 498A .( i see in gogle 99% 498A section was misused only like these people ).Please suggest",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "domestic violence act",
+     "section": "17"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "19"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "2"
+    },
+    {
+     "act": "hindu adoptions and maintenance act",
+     "section": "18"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "24"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "25"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "175"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "308"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "356"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 13 of The Hindu Marriage Act, 1955; Section 156 of The Code of Criminal Procedure, 1973; Section 17 of The Protection of Women from Domestic Violence Act, 2005; Section 18 of The Hindu Adoptions And Maintenance Act, 1956; Section 19 of The Protection of Women from Domestic Violence Act, 2005; Section 2 of The Protection of Women from Domestic Violence Act, 2005; Section 24 of The Hindu Marriage Act, 1955; Section 25 of The Hindu Marriage Act, 1955; Section 383 of The Indian Penal Code, 1860; Section 384 of The Indian Penal Code, 1860; Section 499 of The Indian Penal Code, 1860; Section 500 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-096",
+   "question": "I am a 29 year old female , married for 4 years with a 9 month old daughter. I want to divorce my husband but dont know how to do it. Or what should be my first step. I have spoken to my husband, he is in consent with me about divorce. I stay in a joint family. I am financially independent.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-105",
+   "question": "Hello . Its my mail id can you plz contact me here or its my phone no . +[deleted] Whats aap no also this one . Will explain more when i get call from lowyer . Vikash patel",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-114",
+   "question": "My Sister 45 Years old got married to a US Indian Citizen, Doctor who is 48 Years old, divorced to a american lady and living with 2 boys aged 11 & 8 years old. They got to know each other through matrimonial site and after couple of interaction, they decided to get married and he flew from US to chennai to get married, from the groom side only his parents came for wedding since they live in chennai and none of the other relatives came, the marriage happened in 5 star hotel with all expenses paid by girl family. The groom never took any dowry from the girl family Immediately after 2 days the groom left to US after marriage saying that he will apply for Visa for the girl, this happened in June 2019 and after he left they both were talking over phone and one point for a small petty issue, the guy stopped talking to the girl and there is no response for the messages too, their parents living in chennai also went to US and staying with him, Now they also not responding for any of the messages or calls, they all blocked all of our family members no and till now no response from them? Now the quetsion is.... What all the legal ways to make her to live with him? If that doesnt work what are all the legal ways she can bring him before justice and seek remedy?",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "208"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 188 of The Code of Criminal Procedure, 1973; Section 498A of The Indian Penal Code, 1860; Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-117",
+   "question": "Hi Lawyers, My wife wants to file for a contested divorce. We got married in Baroda (girl's hometown) on 27/12/2020, following which we lived in our marital home in Kolkata with my parents up-to 20/3/2021 (3 months) following which we immigrated to the United States. We lived together until 07/11/2021 (7 months) following which she left for India and deserted me. I have following questions: 1. Does the party that files for divorce first have any upper hand? 2. Considering that Kolkata was the last city that we lived together in, would Kolkata have jurisdiction? 3. In case the petition gets filed in Baroda first, can we move to Kolkata on the ground that my senior citizens parents (69 - father and 65 - mother) would represent with Power of Attorney as I am residing in United States? I am aware that jurisdiction is based on where (1) where the marriage took place (Baroda), (2) where the couple last resided (Kolkata) and where the girl currently resides (Baroda). Due to conflicts, seeking clarity on whether Kolkata courts would have jurisdiction in this dispute. Thanks in advance.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "19"
+    }
+   ],
+   "note": "ILSIC labels: Section 19 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-125",
+   "question": "I married a girl in 2013 without taking divorce from my first wife. Now my second wife's parents came to know about our marriage. Girl was aware of my first marriage and she somehow convinced her family to not take a legal action against me. My question is can court punish me even if girl doesn't want. Can we proove impotency instead of Bigamy after 7 years, as i am not in favour to go through bigamy. They just want to void the marriage.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "16"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "17"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "82"
+    }
+   ],
+   "note": "ILSIC labels: Section 16 of The Hindu Marriage Act, 1955; Section 17 of The Hindu Marriage Act, 1955; Section 494 of The Indian Penal Code, 1860; Section 495 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-132",
+   "question": "Hello there. I am separated from wife who is living in Jaipur and I am in UK. She does not plan to return and I have tried reconciling with her in 2018. She has always and still living in parent's home. I was married in 2010 and I wife has lived with me all but for 1 year before separating for 6 years then since 2018. Kindly advice me if divorce is possible in this situation when she has refused outright that she will destroy my life by not giving me divorce and threatened fake dowry complain for me and my family if I divorce her. I am seeking an able and understanding lawyer to help me. So far it has been difficult as lawyers have asked for extreme amount of fees to help me, ie Rs 25000 for 15 min advice. I feel very disheartened and hope this website can give me some advice.Many thanks for your help in advance!",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-136",
+   "question": "Sir, Mr.A has two wives the first wife Mrs.B files a case for maintenance in court . The maintenance is agreed upon in village panchayat duly signed in muchili by all panchayat members in 1975 including the chairman by granting 2 acres of land . Mrs. B remains seperated from the family and yeilds a child Mr. C to someone else. Mr. A is in his death bed under sedation due to cancer. Mrs.C gets a building gift deed registered in register office from Mr.A . My doubts 1] if Mrs.B has got maintenance and stated that she will not have any interest in rest of the property and her child being born to someone else have property right in ancestral property. 2] Mr.C being non blood line , will the dhana settlement ( gift deed ) be valid 3] how to go through the sedation aspect 4] DNA testing on Mr.C",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "17"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "82"
+    }
+   ],
+   "note": "ILSIC labels: Section 17 of The Hindu Marriage Act, 1955; Section 494 of The Indian Penal Code, 1860; Section 495 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-137",
+   "question": "Hello, My brother got married in April,2015.Since I live abroad working fulltime with an infant, soon after his marriage my mother joined me to help me to look after the baby. While my mother is with me my dad and the newly wed couple stayed in India at our place. My father and the bride’s father were friends and without any questions and enquiries on either sides and with their mutual consent they got married. There were no dowry transactions in the marriage as my father is against that.They were okay for about a month and immediately after which the girl conceived and my brother shared the news with all of us including her parents which annoyed her as she doesn’t want to start the family that soon and was adamant that she will abort the baby but my brother and her parents and we all convinced her to carry on with the pregnancy as we all are there to take care of the new born. After that she said yes to keep the baby and from on her attitude towards us and my brother changed and started torturing my brother with questions and fighting with him for small small things saying that he doesn’t care for her words.This girl always wants to go out till late night and eat outside and also pester my brother to take leave from work very often which my brother can not afford as he works for a private sector. She shared each and everything even the bed room matters with her mother and her mother comes and asks my mom why he is like this and all which is weird. After 6 months she left to her parents place where she delivered a baby girl and as her mother don’t know how to take care of the new born my mom went back to India and stayed at their place for couple of weeks and came back home ...after 3 months when my parents went to bring her and the baby she refused to come saying that she underwent c section and cannot manage the baby again at 6 months my parents and ny brother asked her to come then she refused saying she will not as she wants my brother to come and stay with her at her parents place for which my brother refused.from then on she is living with her parents and even refusing to show the baby to us. In this case ,what are my brother’s options and rights towards his daughter as he is in depression with his daughter being away from him. We tried to amicably solve the issue but then no use as she said she need some time to think over if she want to come back or not and never responded. My father is now 65 and mum is over 55 and they both have health issues and brother is not willing to leave them and go separately. Through our friends we got to know that she wanted money now and not willing to join our family. Please help!",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "26"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 13 of The Hindu Marriage Act, 1955; Section 26 of The Hindu Marriage Act, 1955; Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-148",
+   "question": "My brother was harassed by his advocate wife, he already launched the NC to the nearest police station, but still, police inspector harnesses my brother often. she always said I am a lawyer and trap you and ur family in 498 case",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "223"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 200 of The Code of Criminal Procedure, 1973; Section 498A of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-150",
+   "question": "Hi Sir, The situation: Wife is not willing to live with husband. Wife is not willing to give divorce to the husband. She is keeping total custody of the child and is not allowing the husband to see the child. My friend got married in 2010. He is from lower-middle income group. His wife is also working and is of much higher income than my friend. Due to petty issues now and then, his wife deserted him within 5 months of marriage. She was pregnant at that time and eventually gave birth to a male child in 2011. My friend (The Husband) wants to live together with wife and child and made several efforts. But all in vain. He was never allowed see the child, even at the time of birth Eventually, in 2015, he filed for Restitution of Conjugal Rights. The trial is about to begin. His wife is totally reluctant to join him (Counter filed to that effect). So, even if the court passes an order in his favour, his wife is not going to join him for sure. In addition, the wife would continue the fight in upper courts. At this point, he came to accept reality and want to seek divorce on the grounds of “Desertion”. The wife is not willing to join him in marital life. She is not willing to give him divorce unless he gives up the child. The husband is not willing to lose the child altogether. So there is no possibility for mutual consent. So, for child, he decided to file application for joint custody. The husband is in a dilemma as to how to go about the divorce. His advocate suggested him to withdraw the RCR and file a Divorce petition with Desertion as ground. My friend wants to seek second opinion from this forum as to the right approach. Is it possible to file Divorce petition with desertion as ground and stating that he is more than willing to live with wife and child and if that is not acceptable to the wife then he would like to get divorced ? Can the husband file Divorce petition without withdrawing his RCR petition ? Or should he absolutely withdraw the RCR petition in order to have the divorce petition admitted ? Can the husband file a Divorce petition and ask that it be heard together with RCR petition ? He really wants to live with his wife and child. But if that is not possible, he wants divorce. Whatever it is, the wife is contesting RCR. And she would contest Divorce as well. She just wants to trouble the husband and keep the child to herself. Would really appreciate if you can provide any suggestions or recommendations.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    }
+   ],
+   "note": "ILSIC labels: Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-161",
+   "question": "Good Evening Adv. My name is Deepika. I have been married for 3.5 years. I have a 2.5 year of son. I am looking to file for a divorce. Can you please advice how do i go about it? Regards Deepika",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 13 of The Hindu Marriage Act, 1955; Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-169",
+   "question": "My wife left the house 2 months back saying that she wanted my flat in her second name which is only in my name as loan is going on. I am only working and earning person for family.she took aways all the documents licence policy n bank document currently she withdraws all the FDS calling amount in lacs n I had those money as had sold my property n got flat n few amount saved for child future.Now I want to know can she file stayorder in my flat as now I only have job n flat as my lifetime assets.what ways can I get the divorce done",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-174",
+   "question": "Hi, I am an IT consultant & I live in London. I got married to my second wife last year October. We met through matrimony website. After marriage I moved in with her. I had a job offer from London so I was planning to fly to London soon. When I moved in with her I realised she lied to me about her past. I came across a message on her phone from April 2013 where she had texted her friend that she got married to this xxx guy. So I tried to dig in more and found some pictures of her on her laptop. After confronting her she told me she was engaged to this person and apparently they had court marriage but she told me it doesn't stand valid as she didn't go for second signature. I didn't know anything about court marriage and 30 day period etc. As she had studies law I believed her and forgot about the matter. But after I moved to London she decided to stay in India as she wanted to pursue her acting career in Bollywood. She said I want divorce and doesn't want alimony or anything from me. I did try to convince her but she didn't budge. So finally I decided to seek mutual consent divorce, but now since she failed in her career & out of money, she told me she won't divorce me. Her parents called my parents asking for money. The other important thing is she said I don't want to have divorce process in Mumbai & will only apply if it is done in Pune. 1. What does the first sign and 30 day period and then 2nd sign in court marriage mean? 2. Does marrying in court but not registering still considered one as married? 3. I want to know if her marriage before ours is still valid & does that make my marriage with her void? 4. On what grounds can I file divorce? Or I can file for annulment of marriage? 5. Can I file a fraud case against her & her parents? Your help is much appreciated so I can proceed in the right direction. Thanks",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "12"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "318"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "82"
+    }
+   ],
+   "note": "ILSIC labels: Section 12 of The Hindu Marriage Act, 1955; Section 420 of The Indian Penal Code, 1860; Section 494 of The Indian Penal Code, 1860; Section 495 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-180",
+   "question": "I have got a divorce notice from my wife on forth week of March 2019 ( around 25th March 2019). As per notice I have to appear at the family court Trivindarum on 25th June 2019. I have appeared the court on 25th as per the order, but my wife, the applicant not appeared and court asked for appearance on 26th September 2019. But after appearing the court, people from the applicant's advocate came to meet me and my advocate and we can try for a joint application settle the case at the earliest. They wanted me to deposit an amount to my daughter's name as one time settlement. My wife do not want any money for the divorce. My question is whether the said deposit in the child's name as one time settlement is legally valid in the Indian Law under Hindus Marriage Act? They told if I made the fixed deposit I do not have to pay monthly payment for the child expenses. Is it a legally valid agreement for Joint application for the divorce in India?",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "25"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 25 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-185",
+   "question": "My wife staying away from me since 2 years.my marriage was done on 2013.and after that she stayed with me for 2 years.her motive was to separate me from my parents.i denied.she is staying with her parents.i want my wife back.what are the legal action should I took to get my wife back?",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    }
+   ],
+   "note": "ILSIC labels: Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-186",
+   "question": "Good evening Sirs, We have a worker in our village where his son was married forcibly at the age of 18 and couple are living separately since then. Now the Bride side are threatening the boy to pay an amount to get seperated.. This happened 2 years back... Is this marriage Valid? (bridegroom age was less than 21 and he is still only 20). How should we proceed with this in the court of law? Please guide us.. Thank you",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "3"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "5"
+    }
+   ],
+   "note": "ILSIC labels: Section 3 of The Hindu Marriage Act, 1955; Section 5 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-192",
+   "question": "Hello, I'm a British citizen and got married to my wife in India in December 2016 under the Hindu Marriage act. We both now reside in UK (She moved here in January 2017). Our marriage has broken down due to various reasons, and I would like to file a divorce. My wife is an Indian citizen, I am a UK citizen. I have contacted lawyers in the UK who have said I can file for a divorce in the UK itself, but I'm not sure if this will be recognized in India as well? My questions then is do I need to file for divorce in both India and UK, or will filing and getting divorce in India be sufficient? It seems the laws and grounds for divorce are quite different in both countries and I'm not sure where the proceedings should be started. Regards Kunal",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "code of civil procedure",
+     "section": "13"
+    },
+    {
+     "act": "dowry prohibition act",
+     "section": "3"
+    },
+    {
+     "act": "dowry prohibition act",
+     "section": "4"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "12"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 12 of The Hindu Marriage Act, 1955; Section 13 of The Code of Civil Procedure, 1908; Section 13 of The Hindu Marriage Act, 1955; Section 3 of The Dowry Prohibition Act, 1961; Section 4 of The Dowry Prohibition Act, 1961; Section 498A of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-194",
+   "question": "My wife is living with her parents along with two sons aged 19 and 14 years for about a year. I had to shut down my business due to heavy losses. I am trying to revive business. I was doing a job for 30000/- (rupees thirty thousands) monthly salary. I am leaving the job this month. My wife and kids have declined to come back and live with me. A. In case of divorce how much maintenance she can claim as I will have no fixed income. B. Is number of years in marriage also a factor in deciding maintenance. C. In case she doesn't agree to divorce with mutual consent what are options available.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-195",
+   "question": "We had filed MCD in jan 2015and the first motion was completed. The second motion was to be in july2016 but due to request by the husband to grant him dates the second motion was to be in jan 2016. But on that day my husband withdrew his consent.so the case was dismissed as withdrawl . Due to intervention of police and respectable members of society the husband is ready for second motion . Is it possible to reinstate the MCD case and waive off the 6 month waiting period as already 12 months have been passed from the date of second motion. The judge is asking that on what grounds can such case be reinstated or the waiting period be waived off?",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "code of civil procedure",
+     "section": "151"
+    },
+    {
+     "act": "constitution of india",
+     "section": "142"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 142 of Constitution of India; Section 151 of The Code of Civil Procedure, 1908"
+  },
+  {
+   "id": "ilsic-lay-test-203",
+   "question": "Dear Legal Experts As both the party agreed to apart on Mutual Consent Divorce, Would like to know the detail process how this would work Step by Step Since our place of marriage was in Mumbai, I’m based in Abroad on work purpose, I'm visiting mumbai for this process completion • Should we got to the Family court directly or via appointed lawyer • Do we need the witness at the time of filing the divorce • How much time does it takes for the filing the divorce 3 days, weeks etc. • Do I need to re appear on court on hearing multiple times, Is there any fast track on one time complete formalities as I’m working abroad and can’t come multiple times • Can I appoint POA ( Friends or Cousins) • 6 months is mandatory, can’t be reduced if both parties want to amicably dissolve at earliest . Do I need to protection from Poilce / Laywer as her family would come with some false case or if they increase there alimony or maintenance Alimony / Maintenance • My Ex demanding the Property from me on her name to transfer 1 X Flat, Which I agreed , would that can be done on the same time of after wait period of 6 months once divorce granted through court this need to be done • What is the best process to make registration without paying the Property Tax or Gift Deed, or the Divorce court paper is ok with this for Future Ownership • We have one more property additional where we holding joint ownership, How about that how can I take her name completely out of it from the ownership, do I need to have some legal paper work for that. • Our Child has PPF account , What should be done ? • What happens due to unforeseen if My Ex death or she re marry would that be transferred to my daughter or her parents? Or back to me • Is it wise to keep the property on her name or make it joint Her and My Daughter • She is demanding monthly expense of 30 k , Do I need to support Day one on her monthly expense or after the MCD granted Child Visitation • What is the best Father right protect for Child Visitation ( Girl Child 11 years) after the divorce as I do take my daughter on her Vacation with me abroad during holidays for 3-4 weeks, Do I need to mention that on the MCD filing • What is the normal visitation process works for Father for Girl Child",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-207",
+   "question": "Dear sir myself ashish goyal (male) 29 age and i am from hisar haryana . i have got married 6 years ago and i have a daughter of 5 years. we have no understanding between us and my wife does not care and respect my family , and whenever we fight about all this she blackmails me that she will die or she will go anywhere without telling and you will be liable . so with the fear of all this and our image in the society i say sorry and everytime i close the matter. what should i do now and if i say to her that i want divorce and she commit suicide then what would be my part on that .",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-223",
+   "question": "Hi, I am in critical situation after 1 and half month marriage..after marriage my wife is telling I am not interested in this marriage because of my parents force I accepted this offer. Only 2 days she stays in my home only. After this she started staying in her sister house..now both side aggred to separte what is best way get divorce within short time",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "12"
+    }
+   ],
+   "note": "ILSIC labels: Section 12 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-230",
+   "question": "Hi, I got married on April,2016. Mine was arrange marriage. After marriage bcoz of my job(Bangalore) I had to stay away from my husband for 2 months..but from July I started staying with him in Hyderabad. I left my job,career everything. But there was nothing normal between us àfter marriage.he used to fight with me for money,he used to ask for money. He never behaved like a responsible and sensible husband. From July when I started staying with him, somehow I had doubt that there is something that he is hiding from me. I started checking his personal file and everything. Then I came to knew that whatever information he had given regarding his job, salary,education everything was lie. Also he was having an affair with a girl. And unfortunately he didn't Inform that girl that he is married. I am really pissed off now. I don't know what legal step I should take..he has made my life hell from last 4 months. He always used to demand money directly or indirectly,he cheated on me, he and his family lied everything about himself,also he and his whole family insulted me and my parents . Also he used to threaten me. He was having an affair after marriage.kindly suggest what should I do..I want to punish him and get rid of this person",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "dowry prohibition act",
+     "section": "3"
+    },
+    {
+     "act": "dowry prohibition act",
+     "section": "4"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "12"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "316"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "351"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 12 of The Hindu Marriage Act, 1955; Section 3 of The Dowry Prohibition Act, 1961; Section 4 of The Dowry Prohibition Act, 1961; Section 406 of The Indian Penal Code, 1860; Section 498A of The Indian Penal Code, 1860; Section 506 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-242",
+   "question": "Sir After 15 years of marriage me and my wife filled mutual divorce in court .i have 14 years of daughter who is my custody.i want to inquire and get your valuable suggestions on a clause added in petition My wife who is government servant earning more than me ,with no liabilities added a clause in petition Clause: Wife will forego all her claims on a condition that child will be in custody of husband and same will be utilised for welfare of child and in future wife will Not claim any maintaince etc from me or my relatives Sir I want to your suggestions after agreeing to this clause “will I be able to claim maintaince from her for my child in future” And if I claim can she claim any thing after divorce And if yes I can claim what arguments can I put in court to counter this clause",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "24"
+    }
+   ],
+   "note": "ILSIC labels: Section 24 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-252",
+   "question": "Hi, I have been married for 5 months now, however, we have not registered our marriage yet. Now, both of us are contemplating divorce, however, I am not sure as I am worried as the wife may ask for alimony post marriage. My question is: if my wife is also a working lady, is she still entitled for Alimony and can I also file for alimony too?",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "24"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "25"
+    }
+   ],
+   "note": "ILSIC labels: Section 24 of The Hindu Marriage Act, 1955; Section 25 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-274",
+   "question": "We are married since Nov 2018, staying at my 2BHK parental home in Navi Mumbai along with my parents. My wife is highly biased towards her parents and quarrels with me and my parents over petty issues. Last year she quarreled with us and then called her parents to take her to their home. We did not give consent as my in-laws refused to give their address. Yet they left and she came back a month later. This time she fled to in-laws home with our 26 days old son. Despite repeated calls/messages to my wife and her parents, they are not revealing their whereabouts, effectively preventing me from seeing my child which is emotionally taxing for me. What can I do to meet my child everytime she takes my child to in-laws? What action can I take against her or her parents?",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "100"
+    }
+   ],
+   "note": "ILSIC labels: Section 9 of The Hindu Marriage Act, 1955; Section 97 of The Code of Criminal Procedure, 1973"
+  },
+  {
+   "id": "ilsic-lay-test-283",
+   "question": "Hello I'm a 34 year working women .have a girl kid with 5 year old.my marriage got over 13 year back.its was a love marriage.from the first month onwards after marriage Im getting both mental and physical harassment from my husband.he is a drunkard..but I never inform dis to anyone bcz all my relatives are not interested in my relation.but nowadays I can't afford him anymore bcz nowadays his behaviour is like dat..and also I found some illegal relation with some other ladies.i have the chat history of the same....so kindly suggest me what to do.......",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 13 of The Hindu Marriage Act, 1955; Section 498A of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-284",
+   "question": "I was married 2 years back after marriage I came to know she is getting treatment of neuro disease and she went to her father's home and till now her parents are not ready to give divorse. Can divorse can be granted even after 2 years of marriage on the grounds of fraud?? We have no children's.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "12"
+    }
+   ],
+   "note": "ILSIC labels: Section 12 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-294",
+   "question": "Hello Sir, I would like to inquire about the case, where i am married since 3 years now, it would be three in November badically. 1. I have found my wife telling lies to me and not sharing details with me. 2. She believes more on her few friends in local who are in contact since 1.5 years only and that too most of them are cheating her of utilizing her for making meals from my wife while she used to go office. 3. Her family from panipat and elder sister from bangalore keeps asking her to send miney to them, hence she sends amd never ever informs me of this transactions from her account of her hard earned money. And on it, her parents call us and says thay she is taking load of work here and all. Where as i help in all activities of household work equally and even more than her. I bring all household items at home. 4. She arranges her friends to comment on me like, you should take care of her and all. Well, i do take care at my best. But my wife makes such arrangement of taunts and comments from her friend circle. 5. She gets call from her old friend at 10pm also and he ask her to meet after office and all. He continuosly texts her on whatsapp to meet meet and meet. And she does meet and never informs me, just says, i have some work, would be late. So why such lies and all with me? 6. She does not talks proper with my elder sister, and talks so rudly. 7. Her elder sister basicslly guides her with tricks and all to trick us and harass us. As same ways her elder sister has done to her husband too. My wife's middle sister, i.e. 2 years elder sister is already facing divorce case since 3 years just because of her wife's nature and her tantrums. So i am finding her too.of same nature amd feelimg threat that she may cheat with me and family at any point in life. Hence i would like to safe guard me. As these days i am seeing so many cases where girls and their family are chesting with boys family. 8. We have got married without any dowry, not a single penny we took nor we expect either, as we are strictly against the dowry system, infact we gave dowry while marrying my sister. Her family members, father mother snd brother and sisters have no affection of being their sister and dsughter, as they never ever did any riwaz for her daughter post wedding, simply got her married and forgot her, just want money from her for their work. This is really not fair ways. Well, i do not expect even a single penny nor any gift from her family, but they should not believe without beeing seen the home and facility here, well her parents never visited her post marriage.is this the affection. Amd they are living in a n abandoned home in some government quarters in thermal plant and they all.have lived there only since childhood. And now when they came to city post wedding they are not able to digest the luxury, comfort, life and all. Kindly help me to safeguard. Many thanks",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-302",
+   "question": "I had done court marriage in asansole in 2008, i am living in banglore.we want divorce on mutual understanding. Can it be taken from Banglore ? Or i have to file in asansole.How much time it will take to separate legally. Now we are living sepratly from six months.we don't have any children.I am full tensed and affecting my health. She is at present ready to give divorce.I am hindu.please suggest good legal adviser in banglore for divorce purpose. Thanks",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-304",
+   "question": "My marriage is 8 year old, I work in private sector & my wife is govt employee(BANK PO) with pension benefits. My wife left all of the sudden in 8th years of our marriage on pretext of attending family function at Jaipur and took my 7 yrs old son along. Now she doesn't want to come back & want to stay separate in same city. My son studies in 2nd class due this he is not attending any school as my in-laws are bases out at Jaipur and my wife is posted in Delhi. Now she has filled case against me in Women cell, to retaliate the same my lawyer is suggesting to file RCR & for child custody on the grounds of kids education as my wife is staying in rented apartment & can't take care my son appropriately plus 2 months gap in studies prove she is not concern abt the kids education & well being. He is also suggesting in child custody case we can request court to put stay on my wife's transfer to other location till the time child custody case is resolved.I belong to Meena Community but I haven't use the ST certificate for any benefits can I take the benefit now & contest in court that I don't come under HMA. - Should i file RCR & Child Custody or Divorce & Child Custody -Incase if she refuse to come back can I file the Divorce from my side on RCR refusal ground. -What are the chances of getting my kids custody as currently my son is with my in-laws. - What are PRO & CONS of not covering under HMA. Need your opinion on above queries.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    }
+   ],
+   "note": "ILSIC labels: Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-326",
+   "question": "I got married in 2009 year i I have a child. since 2 years getting trouble from her against extra effairs and her blaming me as well beating with some one and her daily scolding as ur a schedschedule cast broot and as well my family so I need realiafe from her kindly suggest me how can I get divorce from her",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "356"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 500 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-330",
+   "question": "Hello, My wife is harassing my mother and me everyday. She picks up fights on small matters. She also has taken the help of the local Mahila Mandal , politicians and police to threaten and intimidate us. She has warned us of adverse consequences if we file for divorce and that she will bring the Mahila Mandal people, police and politicians again and will \"show us who she is\". The Mahila Mandal lady also warned of bringing TV channels to our residence if we try to divorce. We are planning to file for divorce. 1. Is it advisable for us to make the first move for divorce? 2. My wife is still living in our home. What will happen if she gets the divorce petition when she is still in our house? 3. My wife is not working and is therefore in the house all day. My elderly mother who also is at home, stays in fear all day of her. What can I do to safeguard my mother? 4. Can the Mahila Mandal people still threaten us once we file our petition in the court? 5. We have not demanded or taken dowry. What can we do to protect ourselves from false cases? 6. My sisters who live abroad call my mother and me to enquire about our welfare and how we are faring in this situation. My wife is therefore claiming that my sisters are interfering in our married life. Can she name my sisters in false complaints? What should be sisters do in such a case? Will they be able to travel to India?",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "domestic violence act",
+     "section": "12"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "18"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "316"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 12 of The Protection of Women from Domestic Violence Act, 2005; Section 13 of The Hindu Marriage Act, 1955; Section 18 of The Protection of Women from Domestic Violence Act, 2005; Section 406 of The Indian Penal Code, 1860; Section 498A of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-348",
+   "question": "Hii My sister married a person with out family concern she felt that she has been decieved after few days of her marriage i have heard that their is a supreme court order that if couple agree for mutual consent divorce can be given with out waiting for one year after the marriage is it true if not is their any way to get divorced as soon as possible",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "constitution of india",
+     "section": "227"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "14"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 14 of The Hindu Marriage Act, 1955; Section 227 of Constitution of India"
+  },
+  {
+   "id": "ilsic-lay-test-352",
+   "question": "Hi, need clarity on the \"mandatory 1 year separation before filing\" clause. Does it mean that we have to live in two different houses before we can file 'mutual consent divorce' .... is there a way around this? I and my spouse are married for almost 7 years and have been living together. And have decided to part ways now through mutual consent. If the above clause is mandatory, then one of us will have to move out to a different apartment? Please advise.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-362",
+   "question": "My brother in law passed away last month. He left two children and his wife behind. My husband went back home but I stayed as I have higher expenses than him. He has been there for 2 months and his parents are not letting him come back. His friends told me that he is getting married to his sister in law in India and its common practice in punjab villages. I am already married in Gurudwara in England with my husband. We live in Canada now. We don't have kids together. I saw my husband's bonding with his brother's kids. He has been going very often to their school to meet their teachers and principal. He said he goes there because school will reduce the fees for children because their father passed away. I suspect something fishy. One day I saw my husband was on the bed and his sister in law was on the manji next to him and my mother in law sleeping far in the room. They all sleep in one room due to having one AC in the house. How do I find if he has married his sister in law? Can someone help me finding records from the school?",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "17"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "82"
+    }
+   ],
+   "note": "ILSIC labels: Section 17 of The Hindu Marriage Act, 1955; Section 494 of The Indian Penal Code, 1860; Section 495 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-374",
+   "question": "I am 32 years old my marriage lasted for 9 months, me and my spouse were not happy with the arrange marriage, she left for her home and charged me and my parents under 498 a, stating that we have treated her badly and have taken dowry etc. The case is pending at kolkata high court (salt lake city). Charge sheet has been given by the police to court. Also spouse party has asked for alimony in another court in kolkata and for divorce. My wife is a working woman working with royal orchid 5 star hotel as assistant manager front office. I also have facebook pictures to prove that and she is also with another boy in some of pics. Comment says that \"he is my life\", please assist me what to be done in this case? How much the alimony can be as my current salary is 20k. No other income. My father is also retired. Thank you.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "24"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "25"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "379"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "356"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 24 of The Hindu Marriage Act, 1955; Section 25 of The Hindu Marriage Act, 1955; Section 340 of The Code of Criminal Procedure, 1973; Section 500 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-380",
+   "question": "Hi, I am 29 and I live in USA. But, I am an Indian citizen and I was married to an Indian women(age 25) in India (Hyderabad). I have been married for 2 years. But, I have not consumated my marriage (I was able to only partially consumate). I dont get erections when I look at my wife. But, I can get erection when I watch p*rn videos. My wife keeps saying that I am impotent and keeps threatening me that she will go for a divorce and jail me. she gave me 3 weeks of deadline to consummate the marriage. Even her father gave a warning to me once that he will file a case in court and I need to pay 40 lakh rupees (which he says is the amount he spent for the marriage. I am not sure if this is correct or not) I and my wife both do jobs and stay in the same home. She never pays a single dollar out of her income for the expenses (like rent shopping and other bills) She says it is my responsiblity to pay for the expenses. I am being financially drained too. I feel helpless. I am trying my best to consumate my marriage. But erections wont happen when I look at her. I have love on her . But I dont get any s*xual feelings towards her. What she also told me was that she was not interested to marry me . But, she had to because her father convinced her. Another issue is that my father told her that I had 2 crore worth of inherited property before marriage. But, actually I have only 1 crore of inherited property which is not yet written on my name. This happened wihout my knowledge. She says this is also cheating I sometimes talk to myself. She said that I had mental problems and took me to psychiatrist . He told I had depression through psychosis and gave me some medicines. She says this is also a ground for divorce. If my marriage goes for a divorce , it will create severe social problems to me and also career problems. Can you please give me any legal advice. What should I do in my case? What other problems will the divorce create to me? What most likely the court will tell? Is this a mental cruelty? Will this result in imprisonment too? How much alimony and maintenance I have to pay. I am highly worried. Please help",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "12"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    }
+   ],
+   "note": "ILSIC labels: Section 12 of The Hindu Marriage Act, 1955; Section 125 of The Code of Criminal Procedure, 1973"
+  },
+  {
+   "id": "ilsic-lay-test-387",
+   "question": "How can I give Talaq , without getting into false allegation of triple Talaq. What proof should I need that I have given only single Talaq not triple Talaq. Second thing does muslims India also have to go through , 6 months counseling process first and then court procedure or Talaq is the provision under muslim marriage act. I have already given Mehar at the time of nikah , do I have to give maintenance/ alimony as what I read under muslim marriage act Mehar is the supposed Alimony which is decided before nikah. Can I move abroad and send a letter of Talaq to be in safe zone and come back after iddat period. My wife's mother ie my mother in law is not a good woman, she is a divorce and knows how to play with laws. I got married from jeevansaathi matrimonial and thus bearing the burnt of it. Everything was anonymous to me and I got into the trap now. Why I am asking all this , within 10 months of my marriage my life became hell. My wife is a very unreasonable women with a long tongue and she is always under the influence of her divorced mother. She doesn't know what's the respect of husband, how to talk .She blackmailed me doing suicide attempt. I almost lost my job because of escalations as I can't focus, had an accident because of mental torture. I can't bear any more burnt. I feel suffocated in my own home. I have an old mother which I can't even take care because of all this. I do not want to live with this woman , please help me the best way to get out of this mess. As now she is threating beyond her limits. I have a self respect, I can't live this miserable life anymore.i feel like I should jump out of my window.its 5:46 AM I haven't slept whole night.Please try to understand my agony.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-389",
+   "question": "Hi, Currently me and my husband are undergoing separation and haven't filed for divorce. My salary is 3 times higher than my husband. If I file divorce can my husband claim Maintenance? Also if I purchase any property will it be considered as marital asset? Can my husband claim property owned by me and my shares? Thanks, Dipika",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "25"
+    }
+   ],
+   "note": "ILSIC labels: Section 25 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-412",
+   "question": "Hello, Me and my husband married in India in 2005. We went to UK in 2006. Our son born in UK and we both of us were Indian. Then in Nov 2010 my husband sent me back to India. He got his citizenship in UK in 2012. He got his divorce on the ground of broken down of marriage. I got notice from Ipswich court n I hired a lawyer saying that I am unable to come and attend court there as no valid visa and fund. But his divorce was granted in March 2013. Now I want to file divorce in India saying that my husband already got divorce from UK and v r living separately since 2010, almost 5 years. So what are my chances to get divorce and how much time will it take? Child is living with me and my husband never bother for custody or contacted us.I would also like to ask for maintenance for my child. So what should I do in this scenario? Under what clause I should ask settlement for maintenance and Do I need to file any kind of application stating my divorce done in UK and I want it to get notified by HMA. So what if I want to remarry and settlement for my child?",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "code of civil procedure",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "25"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 13 of The Code of Civil Procedure, 1908; Section 13 of The Hindu Marriage Act, 1955; Section 25 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-422",
+   "question": "Can I put an RCR if my marriage is not registered I only have nikha nama. My wife wants me to buy separate house only then she will come back. She is at her father house for past 8 months , now they have come for khula on a condition to pay mehr and 10 lakh marriage expense they did or else they will put DV and maintenance case on me. What should I do?",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-426",
+   "question": "I got married in Feb , after which my husband family asked me and my family to pay for the house they wanted to buy . I denied and had an argument after which my in-laws nvr called me back. Its been 3 months now , they are no ready to call me back and keep delaying things. My husband is not ready to talk to me and now after 3 months , he is saying that he would not like to keep any relation with me . My marriage has not been registered in court . Pls help me and let me know my rights under such circumstances.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "12"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "7"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "80"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "84"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 12 of The Hindu Marriage Act, 1955; Section 125 of The Code of Criminal Procedure, 1973; Section 304B of The Indian Penal Code, 1860; Section 498 of The Indian Penal Code, 1860; Section 498A of The Indian Penal Code, 1860; Section 7 of The Hindu Marriage Act, 1955; Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-430",
+   "question": "Hi, I got married 6 years back to my wife. But we have been living apart due to differences for the past 2 years now. I want to get divorced so that I can start looking for another girl. My wife has accepted for mutual divorce. Questions: 1) What is the best procedure to get this done? 2) How much would it cost me and how long will it take? 3) Also my wife is ready to give no objection certificate - will it be ok for me to get married to another girl legally?",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "82"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 494 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-433",
+   "question": "If a wife uses the sperm of husband stored at sperm bank without the consent/knowledge of husband and have baby through IVF with the help of the nominee of the stored sperm( here, it is the husband's mother) , can the husband file for contested divorce on the ground of cruelty against the wife and get divorce? The husband and wife had no conjugal relation for the past 2 years. Also, can the doctors and nursing home be held responsible for not taking any permission of the husband? The mother of the husband signed all documents for IVF procedure and father of the wife signed on papers of delivery matter. Now, the mother of the husband and wife are not sharing details of how the whole process took place . It is to be noted that the wife already suffered cancer in uterus and went for chemotheraphy 5 years ago. Resulting which , one fallopian tube was removed.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "223"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "316"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "324"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "61"
+    }
+   ],
+   "note": "ILSIC labels: Section 120B of The Indian Penal Code, 1860; Section 13 of The Hindu Marriage Act, 1955; Section 200 of The Code of Criminal Procedure, 1973; Section 405 of The Indian Penal Code, 1860; Section 425 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-449",
+   "question": "Hi I am having disoute with my wife due to her past affair and being in touch with her ex love in present. It has reached to a level where her dad is asking for her financial security so that she can come back to me (she is at her parents place with my kid since one month now). I doubt that her dad may not send her back even after I tranfer some property as financial security. Worst come, he may file false cases against me / my family. If she is coming back or not is her choice but I want to save myself from false allegations and drama. Please let me know if some document can be made stating that they will not file any charges once we tranfer property.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    }
+   ],
+   "note": "ILSIC labels: Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-466",
+   "question": "Sir my wife put dorry and domestic violence case on me so i know at every hearing i has to go in court i do job it problem to take leave from office and i put divorce case on her any other case i put on her",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "10"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    }
+   ],
+   "note": "ILSIC labels: Section 10 of The Hindu Marriage Act, 1955; Section 13 of The Hindu Marriage Act, 1955; Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-496",
+   "question": "good morning sir! my name is kamalpreet. my husband who was living with me in my parents home has taken away my 2yr old daughter while i was in delhi for my exam of judiciary on 1 june 2014.our relationship is not good and i came to my parents home bcoz of that but he too accompanied me. my parents were helping him in every possible way. when he felt that i will not agree to be with him ,he slowly planned and when i was awy and my mother was alone,he took away the child. kindly tell me the way out so that very first i can get my child's custody. i cannot live with this man anymore but i am worried about my child.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-502",
+   "question": "I've been married for 2 years now, currently pregnant. My husband on coming to know that iam pregnant, beated me up to get the abortion done. Upon refusing to do so, he left the house for few days, when I started enquiring from his office and other frens, came to know of his parents place in same city( I was aware that his parents live n remote area in south). I reached there and came to know that my husband is married to someone else also. I've filed a police complaint under 494, 498a and 506. Police is not helping much saying we can only investigate if your husband is traceable. After few days it was found that my husband has left for australua with his first wife. A dv case has also been filed, and now its stagnating that no notice has been served to husband since he is not traceable. Police has issued a look out notice though. Please advise what to do. I don't even have his Australian address to get the notice served there.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "17"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "318"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "82"
+    }
+   ],
+   "note": "ILSIC labels: Section 17 of The Hindu Marriage Act, 1955; Section 415 of The Indian Penal Code, 1860; Section 494 of The Indian Penal Code, 1860; Section 495 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-506",
+   "question": "There are many disputes between me and my father in law due to improper information provided by my wife's education and hiding health issues. from the time I came to know regarding her health issues we have been continuously undergoing necessary treatments more than a year. we have been married since 1 and half year and she has visited India 3 times at my expenses, but recently her father booked a ticket for her, when she went to my home there was a discussion between me and my wife, so she left my home and went to her parental home and it is more than 2 months(return ticket cancelled). When am asking to come back she wants me to come and take her, I have recently booked a return ticket and she asked me to request her father to send when I called, he's not willing to send and he wants me come and take her. Due to brain wash done by parents and sister my wife also behaving the same.It has been repeatedly observed even last time I went personally and bring her back. I have been undergoing too much mental pressures due to above and behavior by her family members.I have necessary evidences that her family members calling my friends and other family member to ask divorce So I would like to file a divorce petition and know the following consequence 1. Time frame for divorce 2. What steps could be taken by them 3. if filled a dowry case by them what will happen, I can prove that we haven't harassed for dowry but the issues with false information provided during marriage 4. How many times I should personally visit court as am an NRI 5. For the dowry case what will happen to my passport, will be am able move back to my work location easily. 6. Any other cases I can file on my inlaws ? 7. Suggestions ...",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "dowry prohibition act",
+     "section": "3"
+    },
+    {
+     "act": "dowry prohibition act",
+     "section": "4"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "482"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "318"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "82"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 3 of The Dowry Prohibition Act, 1961; Section 4 of The Dowry Prohibition Act, 1961; Section 415 of The Indian Penal Code, 1860; Section 438 of The Code of Criminal Procedure, 1973; Section 494 of The Indian Penal Code, 1860; Section 498A of The Indian Penal Code, 1860; Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-509",
+   "question": "Married girl fled away since 3 months..no response..stridhan taken away..out of society..no contact..doing job in I T ..boy want to file police information u/s 39 crpc or to court.what to do..",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "33"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "316"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 39 of The Code of Criminal Procedure, 1973; Section 409 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-511",
+   "question": "Hello, Me & my husband filied divorce of mutual consent. We both are living separately since four year. We filied it on june 2015 but now my husband are not interested in giving me divorce as I think. My next date is in April please guide me if I don't want to live with him but I am scared that if he withdraw his consent or not come on date so what will happen? What is the remedies kindly guide me. I just say I don't want to live with him.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-515",
+   "question": "Hello , I want to ask question regarding my sister who has recently suffered from Domestic Voilence & left the husband house due consistant pressure from him after 15 year of stay , she has a child of 14 year at the moment looking for only for MAINTANCE for her & child because she is not having any source of income . So kindly guide how to take this case forward",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "domestic violence act",
+     "section": "12"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "18"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "19"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "20"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "21"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "22"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "23"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "10"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "528"
+    }
+   ],
+   "note": "ILSIC labels: Section 10 of The Hindu Marriage Act, 1955; Section 12 of The Protection of Women from Domestic Violence Act, 2005; Section 125 of The Code of Criminal Procedure, 1973; Section 18 of The Protection of Women from Domestic Violence Act, 2005; Section 19 of The Protection of Women from Domestic Violence Act, 2005; Section 20 of The Protection of Women from Domestic Violence Act, 2005; Section 21 of The Protection of Women from Domestic Violence Act, 2005; Section 22 of The Protection of Women from Domestic Violence Act, 2005; Section 23 of The Protection of Women from Domestic Violence Act, 2005; Section 482 of The Code of Criminal Procedure, 1973"
+  },
+  {
+   "id": "ilsic-lay-test-521",
+   "question": "Dear Sir/Mam, My sister got arrange marriage done 6 year back with a guy whom she was loving. We have done the marriage nicely and given guy whatever he asked but after 6 months of the marriage he escaped from house and got married to a different girl whom he was loving and never comes back. Due to this my sister got depressed and got a tumor on her brain, My father and mother have done the operation and after asking so much my sister in law's given money for the operation.Since then my sister is like a servant in her residence and for a daily life of lady what she need she have to beg to them. Now their inlwas also talk to their son and everyone is one but my sister life they screwed. Kindly suggest me how to she can be separated and how that guy will be punished.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "316"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "318"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "351"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "82"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 13 of The Hindu Marriage Act, 1955; Section 406 of The Indian Penal Code, 1860; Section 420 of The Indian Penal Code, 1860; Section 494 of The Indian Penal Code, 1860; Section 498A of The Indian Penal Code, 1860; Section 506 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-530",
+   "question": "My younger brother just got on 17th Feb 16 married and found after a month that his wife is reacting like a mental case. When my mother and brother call to her parents at their home, his wife start beating to her parents and using the nonsense for her family relatives. My mother is very old she is unable to handle her at home . Her parents has took her to their relatives home just to avoid the public rush at their home and after that they admitted her to AIMS (one of my cousin take the appointment with doctor for her) but even after 7 days no improvement is found on her behavior. Now when I inquired about the problem at the area she residing, maximum of people are telling that she is having this problem from so long (she was child) and that’s why she is not staying with their parents. The mental problem cannot remove now; they cheated us, we had not inquired about her. The ring ceremony was done within a week of our first meeting due to the pressure given by her parents. Please suggest what to do my brother is going under depression and don’t want to continue with this relation. We want to file a divorce",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "12"
+    }
+   ],
+   "note": "ILSIC labels: Section 12 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-533",
+   "question": "I am married since last 5 yrs with no kids. My husband left our rented appartment(agreement is under his name) 5 months back after our fight and now says he wants a divorce. He is asking for my consent to file mutually. I don't want a divorce and want to work out our marriage. I am continuing to pursue him everday to come back and workout our marriage. He continues to pay appartment's rent however does not pay me money for daily expenses and I have to ask my parents for help.He has a property in other city (native) where his mother and other PG girls stay. He wants to vacate this rented apartment and wants me to stay in my college hostel, and move in with his mother back to native. I am a student and don't have an income of my own. He has voice recordings of our meetings after separation that he had done without my knowledge, that may have some of my confessions of my past acts. He may also have recorded my phone calls when I had threatened him in feat of anger. I want to mend my ways and work out my marriage. I am also seeking help from a homeopathic counsellor for my anger issues. Whereas he is not ready to see a marriage or psychiatric counsellor despite suffering from bipolar disorder. What are my legal options? Should I leave the house? Or continue to stay here? How should I safeguard myself from a refraining order filed him in future? Can he file a refraining order against me before filing a divorce? Do I have sufficient grounds of contesting against divorce? Does he have sufficient grounds for contesting divorce? What are the chances of divorce being granted to him? Can I make him pay for my daily expenses? Should I take a legal action first like RCR or wait till he takes a legal action? Does him suffering from bipolar disorder has any legal angel for my defense? What can I do to have him back with me regardless it is here in this city or our native in his property with my mother in law? I don't have any problem now in staying with my mother in law, however I previously was asking him to separate mother in law from his property due to her nusiance, so we can move back there. Can he use my previous demand of this as a cause of divorce now?",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "domestic violence act",
+     "section": "12"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "18"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "19"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "20"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "22"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    }
+   ],
+   "note": "ILSIC labels: Section 12 of The Protection of Women from Domestic Violence Act, 2005; Section 125 of The Code of Criminal Procedure, 1973; Section 13 of The Hindu Marriage Act, 1955; Section 18 of The Protection of Women from Domestic Violence Act, 2005; Section 19 of The Protection of Women from Domestic Violence Act, 2005; Section 20 of The Protection of Women from Domestic Violence Act, 2005; Section 22 of The Protection of Women from Domestic Violence Act, 2005; Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-541",
+   "question": "Dear Sirs/Madams, I got married to my wife on 8Feb 2015. Even before the marriage our families has started differences due to little little issues. On 15 Jan 2015, my wife misbehaved very badly with my mother over the clothes we have given to her on the occasion of ring ceremony. That time I decided to quit the marriage and even decided to return everything they have given by their own wish. Her grand father was also hospitalized during that time. But we forget and decided to give one more chance. Again after marriage, she told me to take a new car and then I said let me sold my old car and take a new one. We both will contribute half half to the emi. But in turn she told me that she will ask my father to return the four lakh rupees which her family give it on ring ceremony according to their own wish( we have not asked for any sort of money or dehaj..I have the voice proof of this). I said how could you ask this money from my father. This happened on march 2015. From that time onward she keeps on taunting my every time by saying that i have killed her grand father as the money is kept for his treatment. Every time she use to pick to my shirt collars, gives me a slap....making fun of my family and also said many b ad things to me. and she keeps on repeating the same things again and again. I am doing my Phd and begin to loose my mental balance and even thought of telling the same things to my mom and dad. But to save my relationship, i never told these things. She also said that i have taken dehaaj of 4 lakh ruppes and have taken advantage of her always. I am already suffering from this mental agony and have thought of ending up my life for the sake of my parents. Due to these, I got my liver damaged(NAFLD) and also caught up with umbilical hernia. I would have gave up my life uptill now. My treatment is going on and she didnot even turned up once for even stand up with me. I have much more things to tell about the mental tortures I received it from her in the past one year. Recently only I told everything to my parents and she also accepted that she had said all those things in the last one year. Her elder sister is also facing a troubled marriage. Her in laws has alsoready a filed a fraud case on her family that she bring all of the jewellery to her home and then didnot came back from her home. Her in laws also called up last year and adviced us now to marry the gal of this family but i ignored which i believe they were quite right after seeing all these. I am also consulting a psychiatrist to treat my mental condition and would go for the surgery soon. I even cant stay of spending even a single microsecond with this girl. Kindly advise me what to do ? I feel like dying.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "24"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 24 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-547",
+   "question": "Giri and swathi married 3 months ago..but swathi has no free consent for this marriage.it is forced by her parents by emotional blackmailing(like if you dont marry i wil die)..husband doesnt know that it is forced..i think emotional blackmailing force comes under voidable marriages in hindu marriages act... so marriage is void...and right to choose Life partner is fundamental right..this marriiage is violation of rights by her parents.. till now husband and wife not physically contacted due to refusal of wife beacuase that is forced marriage..now swathi came to her parents house and decided to take divorce..but husband claiming 400000 if swathi wants to take divorce...my question is.... is husband has any right to claim money from swathi??...and is swathi has right to claim any maintainable??...swathi is just degree completed and no job and Giri doing software job for 25000..please clarify sirr",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 13 of The Hindu Marriage Act, 1955; Section 498A of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-558",
+   "question": "If I’m trying to get divorced in the US after marriage in india, is the reason “irreconcilable differences” valid in india? Do I need to file separate divorce in india? Also we have only been married for 6 months. Do I have to pay alimony? Will a case be filed against me in india that will restrict my travel?",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "code of civil procedure",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Code of Civil Procedure, 1908; Section 13 of The Hindu Marriage Act, 1955; Section 498A of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-563",
+   "question": "I am currently in USA. I got married 1 and half years ago. My wife initially did not want to come to USA. Finally after lot of discussion with her parents she came to USA. But 2 days after reaching here, one day morning she suddenly started breaking all the items in the house( TV, computer, etc) and attacked me with a broken window glass. i was injured and called police. USA police enquired here and arrested her. After request from her parents i got her released before any case was registered and sent her to india. After few days i got CCTV footage of my apartment. In that footage my wife is talking to another guy and discussing about dealing me and also they were planning their marriage when she was still married to me. Police department also has given video of enquiry where she has accepted that she has a boy friend. We approached a lawyer in india, but he says we still need to give the girl compensation. What should be our approach in this scenario?",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "12"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    }
+   ],
+   "note": "ILSIC labels: Section 12 of The Hindu Marriage Act, 1955; Section 125 of The Code of Criminal Procedure, 1973"
+  },
+  {
+   "id": "ilsic-lay-test-570",
+   "question": "Hi, My younger brother, was married to my siser in law four months ago a per custom. Since he works outside India, post marriage he was in my parents home for 15-20 days after which he left for his job. And my sister in law stayed with my parents for 2 weeks and later went to her mothers home. During this time my parents nor my sister in law had any contacts, but she used to call and torcher my brother via a msg or a phone call (as stated by him) All of sudden , my sister in law and her mother, brothers, turn up in my parents home and abuse and threaten my parents questioning when will my brother take his wife and go. my parents adviced them that, they cant answer this question let there son come back and will sort this matter. Even after my parents insisting not to leave there daughter, they left her and went. Within a week or 2, after this incident my brother came back for his holidays. And my parents informed his mother in law about his avilability. Later when they came home , her brothers got physical with my dad and my brother over the discussion, this triggered to huge fight and i was called to intervin (since i dont stay with my parents) During the discussion my brother spoke all his concerns and physical abuse that my sister in law carried on him during the days spent in India and the mental agaony which she is been trigggering through call or msg when he is outside. Due to all these incidents he has made up his mind that he cant stay with her andneed a divource.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-574",
+   "question": "My brother-in-law got married in Dec 2013 and since the 2nd month of his marriage his wife started creating issues at home. During the course of 1.5 years of marriage she has spent most of her time at her parents home. Recently we found out that she had been married before, on some further investigation we were able to trace her previous husband and he confirmed that the marriage ended mutual consent but not through Court, it was done via a notary. In the meantime she has filed a false court case citing DV seeking compensation and maintenance from my brother-in-law. My question is as follows: 1. Can my brother-in-law file a police compliant under Sections 420 (cheating), 494 (marrying again during lifetime of husband) and 495 (offence with concealment of former marriage from person with whom subsequent marriage is contracted). 2. As the case against my brother-in-law is built on false grounds, in our response we want to declare the marriage null and void under IPC section 494, section 5(1), 11 under Hindu marriage act both declaring 2nd marriage illegal (null and void) and therefore seek dismissal of the case from the court. 3. Can we file a divorce case against them for bigamy and seek compensation for the amount spend on marriage, harassment, cheating and fraud under IPC Section 415 and Section 420. Your views in the above matter will be greatly appreciated.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "12"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "318"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "82"
+    }
+   ],
+   "note": "ILSIC labels: Section 12 of The Hindu Marriage Act, 1955; Section 420 of The Indian Penal Code, 1860; Section 494 of The Indian Penal Code, 1860; Section 495 of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-579",
+   "question": "I'm currently residing in Dehradun, Uttarakhand. My husband has got remarried without giving me divorce. I have got his second marriage pictures that I'll be filing as evidence in the IPC 494 complaint before the court in Dehradun. Please note that another case u/s 498A, DP (3&4) is ongoing in Bangalore which was filed when I was residing with my parents there. It's currently in witness cross-examination stage. I have also got the evidences now which prove that my husband & his family had given false info about his whereabouts during marriage talks. Also, all my belongings & streedhan are still present in my in-laws house in UP. On this basis, can I add sections like 420, 120B & 406 in my fresh 494 complaint in Dehradun? will it be allowed? Local advocate here says that we can file only 494 complaint and cannot include any other sections in it. He also says that it's because we have already filed a complaint in Bangalore and case is ongoing for it. But the point is police didnt add any of these sections in the chargesheet. I really want to bring these sections in my case because this was the entire root cause and now we have the evidences for it too.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "17"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "175"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "223"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "316"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "318"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "60"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "61"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "82"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "84"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 120 of The Indian Penal Code, 1860; Section 120B of The Indian Penal Code, 1860; Section 156 of The Code of Criminal Procedure, 1973; Section 17 of The Hindu Marriage Act, 1955; Section 200 of The Code of Criminal Procedure, 1973; Section 406 of The Indian Penal Code, 1860; Section 420 of The Indian Penal Code, 1860; Section 494 of The Indian Penal Code, 1860; Section 495 of The Indian Penal Code, 1860; Section 498 of The Indian Penal Code, 1860; Section 498A of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-589",
+   "question": "Hi folks My brother got married 2years back and has got a son now who is Of 8months now. We both,me and my brother . went for a tour to Haridwar ,for some rituals of our grandmother .We,got three floors where we are staying . 1st floor is mine ,2nd floor is my brother l’s. When we return ,his wife shifted her entire clothes ,furniture in the ground floor ,which was empty . Now ,she has locked the doors from inside and not allowing us to enter .When we called Police,they refused to take ny actions . PS:Property was shared by My father’s brother and 3sisters as it was on the name of my grandfather and I presumed that it belongs to my father’s brother and 3 sisters . Immediately ,My father’s sisters and his brother changed the property name on my father’s name . Now the question is ,how can we proceed to let her out of this floor or the entire property? Also ,is my property clear for smooth sale purchase without ny challenges by her ,and her son ? She is not agreeing for the divorce ,she does not have good financial background but before marriage she said ,she was educated .But after marriage ,she did not even apply for ny job . My brother want divorce and I want the property to be cleared by all means . Please suggest ,how should I proceed and how should my brother proceed .",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-591",
+   "question": "Respected Sir/Madam, i and my wife are doctors working in reputed hospital in a town and married since 2yrs through arrange marriage. recently i found out two important things which she did not reveal to me 1. we both belong to oc and same caste, but she illegally misused obc reservations and got seat and jobs 2. she had premarital affair 6yrs ago with her classmate and lost virginity Now somehow all our relatives and neighbours got to know about her affair and reservation issues (through her ex or classmates), my family prestige got ruined An caste based NGO filed a case against my wife regarding reservation misuse and she may be convicted and jailed. i want to get divorce against her and get child custody, i dont even want to pay any alimony. need ur suggestions and thanks for ur help",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-613",
+   "question": "Hi, My marriage took place in Jaipur in 2015. Im from Jaipur and my wife is from Bhopal. After marriage we resided at Delhi for one month and then we relocated to my parents place in Jaipur (lost my job). My wife left me for parents place multiple times and finally in June 16. She put all cases on me and my parents in Feb - Mar 2017 including 498A, 125, DV etc after mediation talks failed. We got AB and then normal bail in 498A. She has already got interim maintenance order which Im paying. Now she appears on all 125 and DV hearings but does not give statement in 498A as I have solid evidences in my support and all her cases are fabricated. Almost 8-9 hearings have happened in 498A and she does not give her statement to move case forward. Also as per my lawyer, the judge being woman she is not issuing warrant to give her statement in court. Now my question is: 1) After marriage I traveled to Bhopal for one day only to get her back once. (the police fir mentions that date as the start of the dowry seeking and then continuing offence) 2) My parents did not visit Bhopal after marriage even once. So how does the court in Bhopal get to decide the case when whatever incident she is saying (all hitting, not giving food, asking for dowry) etc happened at Jaipur / Delhi (even marriage happened in Jaipur) and not at Bhopal. What is the process and fees which I need to incur to get the case quashed if at all this is a fit case for quashing? The high court is at Jabalpur for my case.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "528"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 482 of The Code of Criminal Procedure, 1973; Section 498A of The Indian Penal Code, 1860; Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-635",
+   "question": "Hi , I am in love with a girl since 7 years . She is a divorcee and my parents dint accept her to be their daughter In law . I was forced to get married to a girl of their choice . It’s been 15 days of marriage . I want to come out of this marriage . Can I ask for annulment of marriage based on refusal of sex from my end . Or please suggest any other approach . I don’t want to live with my wife for rest of my life .",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-641",
+   "question": "Currently I am living in USA and my wife & kid(3 years old) are in India. After going through so much mental agony (due to my wife & mother-in-law's behavior), I feel like hell in marriage life & decided to go for divorce. Please let me know If I can apply for divorce in India from USA. Also, should I need to appear in India for this? If yes, when and how many times?",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-647",
+   "question": "My marraige on 29 april 2013. In December I know that My wife has an affair in the office. I have call recordings proof conversation between my wife n his boyfriend. She has physical relation with him. So plz tell can I file a case against my wife.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "14"
+    }
+   ],
+   "note": "ILSIC labels: Section 14 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-652",
+   "question": "Am Bhaskar am from hyderabad , my wife is filled 498/a and maintenance in warangal court. she filled maintenance in 2016. she is well studied double post graduated , and financially very sound. am not that much, am the daily wage worker .judge declared monthly 2000/- now she asking 2yaer maintenance. so can u help me, any one give suggestion? and how can i proceed ?",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "25"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "146"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 127 of The Code of Criminal Procedure, 1973; Section 25 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-654",
+   "question": "Dear sir, I was married in year2011. I am B.tech in Mechanical Engg and working in MNC salary 60000 PM. My wife is MCA and was working in software company 4 years backat salary around 30000 PM. She worked till 2013. Although my job was close to my native place (Approx 60 Kms) where my parents were living but still we both decided to live separate and taken a rented accommodation nearby my company. We both were living there since 2011 till 2014. Our relationship was not went well due to her dominating nature. She always tried to dominate me. she never wanted to have any kind of attachment and relation with my parents and brother and sister. Somehow we managed. Later on we were planning for a child and due to some medical problem we could not have child. We checked up with doctor and could find out that there was some medical problem in me. It was a big shock for me. Because of this issue I was very much depressed. She has got another chance to dominate me as there were some medical problem in me. Later on we had twins through IVF (Test tube baby) in June 2014. My wife wanted to go to her parents for 1 month. in our family there is a custom that mother does not go outside the home for 90 days after giving birth to child and neither she needs to work. She should take rest and take care of babies. So I told her to stay back but she started crying and requested to me and my mother for going to her parents. So we agreed. She went there and next day she send a sms to me saying that I will never come back now and I should better live with my parents. there were some arguments with her but she didn't agree. When we tried to talked to her parents they also started blaming my parents. At that time I was so much depressed with her actions. I was now alone at rented accommodation and decided to shift to my native as now babies also requires care and she will not be able to do alone. so I shifted to my native. She is so egoistic that she literally fighted with me over phone and her parents threatened me and my parents that they will take me to jail. after 2 months of silence, my brother and sister went to meet her and to see the babies and as a mediator they spoken with her parents and other relatives also and brought her back to my native. Still she wanted to move from here and continuously asking me to leave this place and go back to earlier rented accommodation but I always told her that babies need care at this time and she will not be able to do it alone. After 5-6 months from then, now again she told the same thing and said she can not live with my parents and wanted to shift immediately but I denied. After 2 days she told me that she have some bank related work at her parents place and wanted to go to her parents for a week. I agreed and she went. After reaching there within hours she called me and told that now I will not come back and if I need children then I should leave my parents. She also told that she will start working now. I talked to her parents also for this but all in vain. her parents always support her at her mistakes also. In last 5-6 months, there were various episodes where she have not treated me like a husband. I went to her parents to meet my babies alongwith my parents and her parents told to take permission from my wife if I want to meet babies. Do a father require permission of her wife for seeing his son and daughter. her parents also threatened me that they will put me in prison. Later-on my wife sent sms to my brother stating that stay away from me, my family and childrens else it will not be good for all of us. She is blackmailing me now because of babies. Actually my inner feeling is that she does not want to live with me anymore and she had taken the babies and separated me from them just to torture me. She does not like me at all due to my sexual problem also. I have tried to contact her relatives also but no-one is coming in between. NO one is helping me out. With so much negative behavior and actions from her side, I am not willing to live with her and nor she want. But I need my children. Kindly suggest what Should I do. I consulted with some experienced family members and experienced friends also but everyone is saying that stay cool and calm and be silent, after 5-6 months she will come back but I know the reality. she is so stubborn and egoistic that she will never come back until unless I bow in front of her. Kindly suggest what should I do. What are the fake allegations she can make as she had already threatened me for same. How can I get separated from her? Kindly help.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "10"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    }
+   ],
+   "note": "ILSIC labels: Section 10 of The Hindu Marriage Act, 1955; Section 125 of The Code of Criminal Procedure, 1973; Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-663",
+   "question": "I got married for 3 months. I am staying with my parents .The second day after my marriage, my wife ask me to move outside city and abandon my depending parents. She is not helping my parents or me in any household or any work. I have hired a 6 hrs/day house hold work person. She started wearing full western clothes after I refuse to separate from my parents. She is constantly giving me treat of suicide. She is kind of talking bad about me and my family on social media like whatsapp and to her friends regularly. She only listen to her parents and when I complain to her parents about this behavior they support her by backing the excuse of freedom of expression and 21st century modern woman. According to them, wife's dignity will go down if she helps her husband. I lost my project in the company due to extreme harassment . She is an employed but on bench from last 5 months. My father got seek but she denied to help my family in need. She now took offer from Pune to work and live separately as a free independent woman. This is what she is following https://qr.ae/pGv7dC",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "constitution of india",
+     "section": "21"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 21 of Constitution of India"
+  },
+  {
+   "id": "ilsic-lay-test-667",
+   "question": "Hello, I have filed a Mutual divorce with my wife and our next date is 8th April 2015. We both are ready for the divorce . Now after divorce I am planning to remarry again . I want to remarry on 12th April. As I am staying in USA now on L1-B . I want to get remarried and then bring my new wife on L2 Visa . Can i remarry just after 4 days of my divorce ? now another point here is, the girl i want to remarry is also getting her divorce done . She has also filed a mutual divorce petition and her divorce hearing date is on 6th April and she is also confident of getting the divorce done as they both are ready. Now after her divorce and then my divorce and then within 4 days we will get married is that ok?",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "11"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "12"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "15"
+    }
+   ],
+   "note": "ILSIC labels: Section 11 of The Hindu Marriage Act, 1955; Section 12 of The Hindu Marriage Act, 1955; Section 13 of The Hindu Marriage Act, 1955; Section 15 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-670",
+   "question": "I filed for MCD on 13 Aug 2013, with agreed to terms wrt assets, child custody, alimony, and maintenance. all the provisions of the terms were implemented fully by me and partly by my spouse who promised to implement the balance terms soon. However, on 12 Feb 2013 (one day before expiry of 6 month cooling off period) my spouse withdrew consent. I wish to challenge this malafide withdrawal within 13(B), and do not want to file a fresh case under 13(1). Is this possible? How?",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "code of civil procedure",
+     "section": "151"
+    },
+    {
+     "act": "constitution of india",
+     "section": "227"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "10"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "24"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "316"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "318"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "319"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "336"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "338"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "340"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "61"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 10 of The Hindu Marriage Act, 1955; Section 120B of The Indian Penal Code, 1860; Section 13 of The Hindu Marriage Act, 1955; Section 151 of The Code of Civil Procedure, 1908; Section 227 of Constitution of India; Section 24 of The Hindu Marriage Act, 1955; Section 406 of The Indian Penal Code, 1860; Section 419 of The Indian Penal Code, 1860; Section 420 of The Indian Penal Code, 1860; Section 465 of The Indian Penal Code, 1860; Section 467 of The Indian Penal Code, 1860; Section 468 of The Indian Penal Code, 1860; Section 471 of The Indian Penal Code, 1860; Section 498A of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-682",
+   "question": "Hi, Me and my wife has been living separately from past 6months. My wife recently has issued a notice which says : Section: 13,B and status: \"Await Mediation report\" for the next hearing. Could you please let me know what is this 13,B Section and I have not signed or agreed for any mutual divorce. I am a bit confused as what will be the next course of action. I am in process of appointing a new lawyer. Please help me understand if she can file 13,B with out my consent and what does this Await Mediation report means? Thanks in Advance.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-684",
+   "question": "Sir, am in big trouble.please show me the path. My husband has filed a RCR ( three years back) case just to seek bail in my case of 498A and 34 DP Act. He and my entire in-laws never wanted to continue this relationship, and tried their best to break me down so that I may file for divorce, but to get bail, my husband said in the court that he wants to take me back. Because of all this, I was depressed and had to consult a psychologist and take some medicines. And he came to know about this and came for one day just take a copy of that precription, and I gave it in good faith. (There's nothing much mentioned in the prescription) He also filed a case of stealing his ornaments and certificates against me and my parents, in which police has given us clean chit in the investigation report which they have submitted recently in the court. And we also got to know from the police that one of the neighbours of my husband has filed a case of \"threatening and misbehaving with women\", upon in which He's on bail. Because of this attitude, I said in court that I dont want to go with him. The court then gave him 6 months time to talk to us and take me back with me, but neither he ever made any contact , nor he replied positively to the efforts made by my family memebers and the entire family changed their contact numbers as well. Then I attended the proceedings of the RCR case, where he said the same. This time, I also said yes and decided to go with him, but then as he didnt want to take me back, he never came to my home and made excusese of illness and didnt attended the proceedings on three later dates continuously. The judge in the ordersheet wrote that \"reconciliation proceeding fails, and it seems that the petitioner doesnot intend to take back his wife.\" Now, 6 months later he made false allegations that He went several times to my home , but I refused to go and therefore wanted bail. But I opposed him and submitted the RCR ordersheet, after which court ordered fixed the next date to take me back. But, on that date He bluntly said, \"Now, I don't want to take my wife back and she is mentally ill, and since girl's father is a police officer, I am scared that She might commit suicide and we all will be prisioned. She had said earlier that She doesnt want to go and her father being a police officer has threatened me several times......\" and all that....to which the court said to give these things in written. Now I dont understand where this case is heading. He has spoilt 6 years of my life, I dont wnat to let him go like this...also I dont want to waste my entire life behind him. Please help me..",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "24"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 13 of The Hindu Marriage Act, 1955; Section 13 of The Hindu Marriage Act, 1955; Section 24 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-707",
+   "question": "Dear sir, There is a girl 6 years older than me. We befriended with each other in a college event. We vecame friends. We were hanging out with each other only at publ8c places and no sexual relations. Later she started forcing me for the marriage and threating me to commit sucide. She attempted sucide once too. Than she called her parents and They also forced me and blackmailed me and took me to a lawyer where I was not allowed to speak even a word...there only in a small room they told me to exchange the garland and then took photo and took me to registrar office on the same day where i was not allowed to appear before registrar and they just took my signature and finger print and two days later handed over the certificate saying we are legally married now u cant do anything. Please advice on the above case I want to get rid of the marriage. Till now i never stayed with her and no sexual intercourse hasbeen taken place. Is it possible to get rid this marriage if yes then how? Is there any way to get rid of this.?",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "12"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 12 of The Hindu Marriage Act, 1955; Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-710",
+   "question": "Hi i got married 2 months back forcefully and I'm in love with a guy from 3 years. I can't accept anyone else that my guy. I want to file divorce and I don't want any thing from the person whom I got married forcefully I just want divorce as early as possible. Please help me how I should go ahead to get divorce early since I married just 2 months back. Please help me please...",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "12"
+    }
+   ],
+   "note": "ILSIC labels: Section 12 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-712",
+   "question": "I got married in FEB.2009 my wife is in her parental home with all the gold and cash she recieved from my family and her family at the time of marriage.she is there for 2 years.now sent a legal notice that within a week return my car which you get as dowery, Misbeaviour with her(verbal) Extramarital affair. i want to know if i reply the notice with the deniel of these allegation and call her back under sec9.what are the precautionary measures i hv to take.i dont want to live with her in my parental home . I want to save my ageold parents and my younger brother and sister from her revengeful acts. My son is also with her. should i shift to rental home or debarr myself from my parents . Plz suggest",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-719",
+   "question": "I got married 6th Dec 2013 and blessed with a daughter on 12 th august 2014. Through out my married life my in laws tried to isolate me from my mother.every time they told me to get separated from my mother 55 yrs old and only younger brother(26 yrs old).my father had passed away in 2006. My mother is like god for me.now it has been 4 months passed right after the birth of my daughter my in laws refused to send my wife back with me.they clearly told me to get my share of property and live separately with my wife as our only house is on the name of my mother. Plz guide me what to do.I am afraid if my in laws files any false cases against me or my mother or brother.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 498A of The Indian Penal Code, 1860; Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-760",
+   "question": "I want to marry my divorced daughter to a divorced boy. Both are in spinda relation. I know she has not been claim any property rights. She is Govt employee.Both the families are agreeing. kindly tell me who can challenge their relation in court and what type of punishment can impose",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "16"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "18"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "5"
+    }
+   ],
+   "note": "ILSIC labels: Section 16 of The Hindu Marriage Act, 1955; Section 18 of The Hindu Marriage Act, 1955; Section 5 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-761",
+   "question": "Respected Sir, If She has created a false allegation after 8 months leaving my Home,and then for 498A. what is the procedure for me to follow. Thanking You, V.R.Sengarap Dy.EE. MSETCL",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "code of civil procedure",
+     "section": "9"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "25"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "175"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "242"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "327"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "331"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "332"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 156 of The Code of Criminal Procedure, 1973; Section 205 of The Indian Penal Code, 1860; Section 25 of The Hindu Marriage Act, 1955; Section 437 of The Indian Penal Code, 1860; Section 451 of The Indian Penal Code, 1860; Section 457 of The Indian Penal Code, 1860; Section 498A of The Indian Penal Code, 1860; Section 9 of The Code of Civil Procedure, 1908"
+  },
+  {
+   "id": "ilsic-lay-test-762",
+   "question": "I got married in April 2015 and officially separated in January 2017 (which is in court records also) We have no kids. In August 2016 We started the procedures for Mutual Divorce where we were presented in front of the counselor. After that counselor singed the papers where we were permitted to go for the further procedures. In September 2016 both of us visited the court again and all my personal stuff was handed over to me in presence of the lawyer. Than happened one session where our lawyer put the case in front of the judge and signed some papers. Now the first motion is in February/March 2018 which is after completing the 1 year of separation. I asked our lawyer to file one application also on the first motion where we can request for waiving off 6 months cool off period. But all he said that it depends on the judge and we cannot do anything about it. All the procedure is taken care by my husband's lawyer and I'm worried if he is doing all the things in right manner. Here I need guidance, if I can get divorce without waiting 6 month cool off period as I read in newspaper that Supreme Court waived off the 6 months cool off period if all things related to Alimony, Child, Property and other got resolved. Kindly help.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "family courts act",
+     "section": "9"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 9 of The Family Courts Act, 1984"
+  },
+  {
+   "id": "ilsic-lay-test-764",
+   "question": "Kindly advise whether :- 1. Clause (9) of the said act i.e. “Punishment for male adult marrying a child” also applies to a marriage solemnized 24 years before (in 1993). 2. Is this marriage (solemnized in 1993) automatically gets void, if the girl in this marriage was below the age of 16 years at the time of marriage. 3. What are the legalities of such marriage under Hindu Marriage Act 1955.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "18"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "5"
+    }
+   ],
+   "note": "ILSIC labels: Section 18 of The Hindu Marriage Act, 1955; Section 5 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-768",
+   "question": "Hello Sir/Madam, one of my friend's husband filed a divorce case on cruelty basis and adultery in the month of August 2017. In the month of September 2017 both of them appeared before the court appointed counselor and agreed on many terms mutually. a) Pay monthly expenses of their 8 year old kid who resides with my friend. b) Take permission from court in case he travels out of country on business for more than 15 days c) Meet once in a month at the care center in the court premises and many more. However, my friend's husband took written permission from the judge for travelling out of the country for more than 15 days and travelled in early November 2017. He took an employment in a foreign country and never appeared again before the court. My friend attended every hearing in the court. However, my friend's husband neither appeared nor his senior counsel appeared for the hearings. He paid for the first two months for their son's expense as agreed but then refused to pay inspite of repeated orders from the judge. Now we understand that the case has been disposed and the webpage on the case status says \"Case disposed. Nature of disposal: Uncontested - Judgement\" What does it mean and will my friend and her son get justice? What should be next course of action as he questioned her integrity and character?",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "28"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 13 of The Hindu Marriage Act, 1955; Section 28 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-770",
+   "question": "We are going to file the first motion for mutual consent divorce in Kolkata next week. Our lawyers are saying we will only get a second petition date after 1 year. Is that true and can anything be done to get the decree after 6 months of cooling off? Thanks, Sudipto Pal",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "family courts act",
+     "section": "9"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 9 of The Family Courts Act, 1984"
+  },
+  {
+   "id": "ilsic-lay-test-773",
+   "question": "My wife and I work in same Company. She earns equally as me. She filed up divorce (u/s 13 of HMA), however her petition was dismissed as it had totally wrong facts and were proven wrong, and even I wanted to save my marriage. Moreover, she had filed an FIR for Sec 498A & 406 after filing of divorce petition, for which the case is still under trial at district court. Now she has moved to high court for review & grant of divorce (u/s 13 HMA). I am in no condition to go to high court and reiterate the same facts to court again. However, I want to get rid of her. Request suggestions... P.S.. no child from marriage",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "193"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "242"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "327"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "331"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "332"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 156 of The Indian Penal Code, 1860; Section 205 of The Indian Penal Code, 1860; Section 437 of The Indian Penal Code, 1860; Section 451 of The Indian Penal Code, 1860; Section 457 of The Indian Penal Code, 1860; Section 498A of The Indian Penal Code, 1860"
+  },
+  {
+   "id": "ilsic-lay-test-774",
+   "question": "My wife and I are living separately for the past 2.5 years and she is not available in India to file for divorce. If they suddenly file for divorce without my knowledge citing some false dowry charges, is there a way to save myself and my family members? We did not demand any dowry, and she had taken all her jewels given by her parents when she left. The jewels which we gave as streedhan are there with her and only one bracelet and chain which they had given me for diwali are with me. Wedding expenses were equally shared, and I have done either cheque or online transfers for most of the expenses (including wedding hall booking and house rent advance payment and house rents). I had borne all the expenses after marriage and she had not given any money for rent too. Can these online transactions and cheque details be shown as evidences for not taking dowry? If I get in writing from my father in law that we have not taken any dowry, will that be sufficient as a proof for not taking dowry in the court?",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "code of civil procedure",
+     "section": "9"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "25"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "175"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "250"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "35"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "242"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "318"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "327"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "331"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "332"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 156 of The Code of Criminal Procedure, 1973; Section 205 of The Indian Penal Code, 1860; Section 227 of The Code of Criminal Procedure, 1973; Section 25 of The Hindu Marriage Act, 1955; Section 41 of The Code of Criminal Procedure, 1973; Section 420 of The Indian Penal Code, 1860; Section 437 of The Indian Penal Code, 1860; Section 451 of The Indian Penal Code, 1860; Section 457 of The Indian Penal Code, 1860; Section 498A of The Indian Penal Code, 1860; Section 9 of The Code of Civil Procedure, 1908"
+  },
+  {
+   "id": "ilsic-lay-test-777",
+   "question": "Hi, My wife slapped me with false 498A, DV, including my parents along with 125. My wife went to her brother's marriage and came back with all dirty intentions and making ground for filing false cases. We are from Gujarat and me and my wife were staying in Pune. She came after marriage to our home in Pune and started fighting with me with intention of provoking me. The very next day she made excuse and left my home stealing all my original educational documents with her. Looking at this act of her, I filled divorce petition in Guj which she came to know immediately due to her fathers contact in court. The next day morning she went to my parents home in the same town and entered forcefully and started threatening them of false cases. The next day she stepped out in the compound of our home and picked up a brick to attack my mother. She and my father immediately closed the door to safe guard themselves. She then started breaking all the window glass and other things in the home in which she got hurt on her own. After Police came she started acting that my parents have hurt her and her father admitted her to hospital and got medical certificate for 5 days admission. I have now applied for quashing in the high court and we have got stay on chargesheet. How much does this medical report stands as evidence as all crime she has done was intentional to file fake 498A on me and my parents.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "code of civil procedure",
+     "section": "9"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "25"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "175"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "250"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "242"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "316"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "318"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "327"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "331"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "332"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 156 of The Code of Criminal Procedure, 1973; Section 205 of The Indian Penal Code, 1860; Section 227 of The Code of Criminal Procedure, 1973; Section 25 of The Hindu Marriage Act, 1955; Section 406 of The Indian Penal Code, 1860; Section 420 of The Indian Penal Code, 1860; Section 437 of The Indian Penal Code, 1860; Section 451 of The Indian Penal Code, 1860; Section 457 of The Indian Penal Code, 1860; Section 498A of The Indian Penal Code, 1860; Section 9 of The Code of Civil Procedure, 1908; Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-781",
+   "question": "I am working in a reputed top banking firm and now my wife has filled a false allegation case in police station on me under 498a and fIR is registered Since it’s just a week police have time to prepare chargesheet and submit to the court Now my question is I have informed my manager about this and he has raised it to Hr should I quit my job just bcoz 498a is against me or should I submit all details to Hr and continue my work?",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "code of civil procedure",
+     "section": "9"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "25"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "175"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "528"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "242"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "327"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "331"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "332"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 156 of The Code of Criminal Procedure, 1973; Section 205 of The Indian Penal Code, 1860; Section 25 of The Hindu Marriage Act, 1955; Section 437 of The Indian Penal Code, 1860; Section 451 of The Indian Penal Code, 1860; Section 457 of The Indian Penal Code, 1860; Section 482 of The Code of Criminal Procedure, 1973; Section 498A of The Indian Penal Code, 1860; Section 9 of The Code of Civil Procedure, 1908; Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-789",
+   "question": "1. Is it a crime to do marriage (temple & then registration) of a boy of 20.5 years old ? with a girl completed 21 years. What IPC sections can be implied; 2. If the boy marriage (20.5 years) was done against the will of his parents ? 3. If the boy marriage (20.5 years) was done against his will by forcing him & by isolating him from his paernts ? 4. If the boy marriage (20.5 years) was done against the will of boy & his parents ? 5. What should the boy & his parents do to dissolve this marriage registration after 1 month of the registration ? Thank you very much for the needful help, Best Regards.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "18"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "5"
+    }
+   ],
+   "note": "ILSIC labels: Section 18 of The Hindu Marriage Act, 1955; Section 5 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-797",
+   "question": "Hello , I had instituted a Divorce suit on ground of cruelty and desertion HMA, against my wife. I was appearing in person and without lawyer. Matter was fixed for WS of my wife. But due to unavoidable circumstances I left India as I work abroad for 6 months. But before going abroad, I signed a vakalatnama and appointed a lawyer, and gave power of attorney to my mother to represent me in above case . Next date my wife appeared and did not filed her WS. My lawyer appeared and gave vakalatnama duely signed by me but Judge did not accepted vakalatnama stating that vakalatnama has to be given in person and refused to take it on record and he adjourned the matter for my PA and WS of my wife.On next date my wife did not appeared ,only her lawyer appeared. My mother appeared on my behalf using power of attorney and requested judge to allow her to represent herself on my behalf but he again refused to accept power of attorney and dismissed the suit stating that power of attorney not allowed in divorce case and suit is dismissed as default due to non appearance of husband My question is that 1) power of attorney not allowed in divorce cases??? 2) is it necessary to file a vakalatnama ,in person in front of a judge ??? 3) what legal remedy available from Family court or high court???",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "family courts act",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Family Courts Act, 1984; Section 13 of The Hindu Marriage Act, 1955; Section 13 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-803",
+   "question": "Hi, I need some guidance with divorce procedures / time taken and cost as well. I'm Shalini, 39 years old, got married in 2015 in Mathura Uttar Pradesh to man I had known for a year or so. However, post marriage things didn't turn out well. We have stayed together for not more than 6 months in total and now separate for more than 3 years. Reasons are personal and can be discussed in person only. However , I would like to know the procedure if the divorce is mutual or if my husband chooses not to divorce or delay the procedure intentionally as I've approached him multiple times to consider it on mutual grounds, but to even discuss it is postponed by 6 months or a year !! Also, since we have been separate for more than 3 years , can the divorce be granted even if it's not mutual. Will this be a time consuming process and what is the cost that should be considered for the entire procedure. Thanks and Regards Shalini.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "family courts act",
+     "section": "9"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "23"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 13 of The Hindu Marriage Act, 1955; Section 23 of The Hindu Marriage Act, 1955; Section 9 of The Family Courts Act, 1984"
+  },
+  {
+   "id": "ilsic-lay-test-816",
+   "question": "Hi, I got married in India in Dec 2014. I am a resident in US. My wife chose to stay back in India, though she has a valid US visa and never joined me. She was having an affair and was living with her BF after the marriage. In May 2015 she came to US and we filed for a no fault- mutual consent divorce. She was represented by a lawyer. She signed a settlement agreement submitting to the jurisdiction of US court and accepting that no DV or Dowry was ever put on her. She also waived any right to alimony or future money from any of the property and acknowledged that she can maintain her own lifestyle. This agreement was notarized by both of our lawyers and signed by me and her. This agreement was filed with the Divorce petition in the court and submitted. The court granted the divorce after 1 month on the date of hearing. Her lawyer and my lawyer attended the court hearing. I have copy of her agreement with her lawyer with me. The divorce was finalised on july 6. Now after all this time, she filed a complaint with CAW Cell in New Delhi alleging DV+Dowry. We are yet to go for first counselling. I want to know what should we do in CAW counselling? Should we bring out the fact that she has already filed for divorce and agreed to all the terms earlier? I am not sure if her lawyer gave her the divorce copy or not. Either ways, I have all paperwork in order. Any advice on future course of actions is appreciated. I believe if she does go ahead with filing 498A etc, the US court ruling in which she agreed to all terms would be useful?",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "domestic violence act",
+     "section": "12"
+    },
+    {
+     "act": "domestic violence act",
+     "section": "2"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "23"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "514"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "528"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "227"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "229"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "45"
+    }
+   ],
+   "note": "ILSIC labels: Section 107 of The Indian Penal Code, 1860; Section 12 of The Protection of Women from Domestic Violence Act, 2005; Section 13 of The Hindu Marriage Act, 1955; Section 191 of The Indian Penal Code, 1860; Section 193 of The Indian Penal Code, 1860; Section 2 of The Protection of Women from Domestic Violence Act, 2005; Section 23 of The Hindu Marriage Act, 1955; Section 468 of The Code of Criminal Procedure, 1973; Section 482 of The Code of Criminal Procedure, 1973"
+  },
+  {
+   "id": "ilsic-lay-test-822",
+   "question": "I am an Indian Expat living abroad. I wish to file for divorce by mutual consent. I wish to apply for the divorce in the country I am currently living in. What are the conditions that need to be met for me to apply for the divorce if any? esp. duration of living separately. Do we have to submit any evidence to support mutual consent divorce. After divorce I might have to move to another country or back to India with my child depending on the job and/or personal reasons. What do I have to do to ensure I can do that without any legal hassles.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "code of civil procedure",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "28"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Code of Civil Procedure, 1908; Section 13 of The Hindu Marriage Act, 1955; Section 28 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-827",
+   "question": "Hello. I would like to know if i can take divorce from my wife. She is only 17. I got married in feb 2015 with her elder sister. But she was having affair with someone else. So she committed suicide with him. Later on my mother in law forced me to marry her younger sister. And told me that she is 18. My mother in law tortured me emotionaly (crying all the time on my place). I have my neighbors who saw her doing like this. So i got married again with her younger daughter on may 2015 by all hindu rituals. After marriage mymother in law told me she is only 16. My wife lived 4 months with me. And then mother in law took her away. As my wife is immature, so she cant have decision over her mother. Now her mother is harrassing n torturing me. That she will file a false case of dowry n even she told me that i will kill you. Everything i have recorded in call. She is a psycho woman. I dont know what she want from me now. Now she makes my wife against me also. She told me i will not send ur wife. And also i will not let my daughter sign divorce. I asked her what is my fault. She cant tell anything my fault is nothing. But she told i will make my daughter file all possible false case against you. And i will kill you also. I have evidence also proving that ( recording conversation). She is harrassing n torturing me unnecessary. Bcoz of her psycho behave. I cant count on my wife, she is immature and dont understanding anything. She will do watever her mother will tell. So now she is not sending my wife and also warn me not to give divorce. Now what can i do please advice. This can be very dangerous for me to keep relation with her. I want divorce please tell can i take divorce from my wife even if she is not ready, immature. And also evidence like recorded call of her mother can help anything? I dont have anything recorded with my wife as her mother dont let me talk with her. But i know my wife will do watever her mother will tell her. Please advice.",
+   "role": "citizen",
+   "topic": "civil",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "hindu marriage act",
+     "section": "11"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "12"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "18"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "5"
+    }
+   ],
+   "note": "ILSIC labels: Section 11 of The Hindu Marriage Act, 1955; Section 12 of The Hindu Marriage Act, 1955; Section 18 of The Hindu Marriage Act, 1955; Section 5 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-829",
+   "question": "My daughter has filed a divorce petition on 24.12.2012 and her husband also filed a divorce petition separately charging allegations on cases each other. After attending number of hearings and counselling, now they (both side lawyers also) and arrived a mutual agreement to settle issues like returning of jeweleries and alimony amount etc in the presence of the Judge. My question is should they again file a mutual divorce petition and wait for 6 months for getting the divorce or they can get the divorce order in the forthcoming hearing posted on 30.07.2014 itself. Kindly provide me your legal opinion on this which will be very helpful for my family to get rid of mental agony. with Best Regards, S.Ganapathi",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "code of civil procedure",
+     "section": "151"
+    },
+    {
+     "act": "constitution of india",
+     "section": "142"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "13"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "23"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 13 of The Hindu Marriage Act, 1955; Section 142 of Constitution of India; Section 151 of The Code of Civil Procedure, 1908; Section 23 of The Hindu Marriage Act, 1955; Section 498A of The Indian Penal Code, 1860; Section 9 of The Hindu Marriage Act, 1955"
+  },
+  {
+   "id": "ilsic-lay-test-835",
+   "question": "Divorce case is filed by husband. When it is pending wife has filed petition under Section 9 and section 18of hindu Marriage Act. Whether she can claim Maintainance when she filed petition for restitution of conjugal rights. What is the effect if section 9 is failed. Please advise me.",
+   "role": "citizen",
+   "topic": "criminal",
+   "expectation": "answer",
+   "relevant": [
+    {
+     "act": "domestic violence act",
+     "section": "20"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "18"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "24"
+    },
+    {
+     "act": "hindu marriage act",
+     "section": "9"
+    },
+    {
+     "act": "nagarik suraksha",
+     "section": "144"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "85"
+    },
+    {
+     "act": "nyaya sanhita",
+     "section": "86"
+    }
+   ],
+   "note": "ILSIC labels: Section 125 of The Code of Criminal Procedure, 1973; Section 18 of The Hindu Marriage Act, 1955; Section 20 of The Protection of Women from Domestic Violence Act, 2005; Section 24 of The Hindu Marriage Act, 1955; Section 498A of The Indian Penal Code, 1860; Section 9 of The Hindu Marriage Act, 1955"
+  }
+ ]
+}
