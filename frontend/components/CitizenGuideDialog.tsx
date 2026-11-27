@@ -1,5 +1,5 @@
 "use client";
-import { ArrowLeft, ArrowRight, BookOpenText, Check, FileText, MessageSquareText, Paperclip, Scale, ShieldCheck, Sparkles, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpenText, Check, FileText, MessageSquareText, Paperclip, Scale, ShieldCheck, TextSearch, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useDialogFocus } from "./useDialogFocus";
@@ -26,7 +26,7 @@ export default function CitizenGuideDialog({ open, initialSlide, onClose, onStar
       <div className="guide-stage-orb"><slide.Icon size={30} strokeWidth={1.3}/></div>
       {slide.key === "rights" && <div className="mini-conversation"><span>Can they ask me to come in?</span><div><i/><i/><i className="short"/></div><b><Scale size={12}/>2 legal sources</b></div>}
       {slide.key === "incident" && <div className="mini-timeline"><span><Check size={12}/>What happened</span><i/><span><Check size={12}/>What you kept</span><i/><span><FileText size={12}/>How to report</span></div>}
-      {slide.key === "contract" && <div className="mini-document"><div><FileText size={23}/><i/><i/><i/></div><span><Sparkles size={13}/>Clause found</span><b><Paperclip size={13}/>Your file · D1</b></div>}
+      {slide.key === "contract" && <div className="mini-document"><div><FileText size={23}/><i/><i/><i/></div><span><TextSearch size={13}/>Clause found</span><b><Paperclip size={13}/>Your file · D1</b></div>}
     </div>
     <p className="guide-kicker">{t(slide.kicker)}</p><h2 id="citizen-guide-title">{t(slide.title)}</h2><p className="guide-description">{t(slide.description)}</p>
     <div className="guide-prompt"><div><span>{t("guideStartLabel")}</span><p lang="en">“{slide.prompt}”</p></div><button onClick={() => onStart(slide.prompt)}>{t("guideAsk")}<ArrowRight size={14}/></button></div>

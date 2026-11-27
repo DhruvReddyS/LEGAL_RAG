@@ -18,7 +18,6 @@ import {
   MemoryStick,
   RefreshCw,
   Server,
-  Sparkles,
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -318,7 +317,7 @@ export default function DesktopReadiness() {
               <div className="mt-6 flex flex-col-reverse items-stretch justify-between gap-3 border-t border-[var(--border)] pt-5 sm:flex-row sm:items-center">
                 <p className="flex items-center gap-2 text-xs text-[var(--ink-soft)]"><CircleDot size={12} className="text-[var(--state-ok-text)]" />{remoteMode ? "Prompts and evidence go only to the selected private Corpusil server, not a public AI provider." : "Prompts and evidence stay in this local Corpusil deployment; no public AI provider is used."}</p>
                 <button onClick={dismiss} disabled={!ready} className="button-primary h-11 px-5 disabled:opacity-50">
-                  {ready ? <><Sparkles size={15} />Enter Corpusil<ChevronRight size={14} /></> : <><Server size={15} />Complete required setup</>}
+                  {ready ? <>Enter Corpusil<ChevronRight size={14} /></> : <><Server size={15} />Complete required setup</>}
                 </button>
               </div>
             </div>

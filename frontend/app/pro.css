@@ -203,7 +203,7 @@
 .pro-tool-head h2 { font-family: var(--body); font-size: 17px; font-weight: 600; letter-spacing: -.01em; }
 .pro-tool-head p { margin-top: 3px; max-width: 74ch; color: var(--ink-soft); font-size: 13.5px; line-height: 1.55; }
 .pro-overview { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 16px; align-items: start; }
-.pro-overview-main, .pro-overview-side { display: grid; gap: 16px; min-width: 0; }
+.pro-overview-main, .pro-overview-side { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; min-width: 0; }
 .pro-steps { display: grid; }
 .pro-steps li { display: flex; align-items: center; gap: 11px; padding: 8px 2px; border-top: 1px solid var(--border); }
 .pro-steps li:first-child { border-top: 0; }
@@ -347,3 +347,8 @@
 .pro-app .button-primary { background: var(--pro-accent); color: var(--paper); }
 :root[data-theme="ink"] .pro-app .button-primary { color: #1a1b1a; }
 :root[data-theme="ink"] .pro-app .pro-overview-main .case-block .button-primary { color: var(--ink); }
+
+/* A case block's single column is the card's width, not its widest row's: on a phone a
+   dated row was pushing the whole page 57px wider than the screen. */
+.case-block, .case-chats { grid-template-columns: minmax(0, 1fr); }
+.case-block > *, .case-chats > * { min-width: 0; }

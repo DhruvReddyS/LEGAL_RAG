@@ -1,5 +1,5 @@
 "use client";
-import { CalendarPlus, CircleAlert, FileUp, RotateCcw, Sparkles } from "lucide-react";
+import { BookOpenText, CalendarPlus, CircleAlert, FileUp, RotateCcw } from "lucide-react";
 import { useRef, useState } from "react";
 import { ApiError, extractCitizenDocument } from "@/lib/api";
 import { explainNotice } from "@/lib/api-citizen";
@@ -108,7 +108,7 @@ export default function NoticeExplainer({ onRecord, onLegalAid }: { onRecord: (d
       {item.status === "replaced" ? <span className="ctz-repealed">{t("replacedLabel")} {item.replaced_on ? formatDate(item.replaced_on, lang) : ""}.{item.successors.length ? <>{t("nowIs")} <b lang="en">{item.successors.join(", ")}</b></> : item.no_successor ? t("noSuccessor") : t("noMappingKnown")}{item.ingredients_changed ? ` · ${t("elementsChanged")}` : ""}</span> : item.status === "not_checked" ? <span>{t("notChecked")}</span> : null}
     </li>)}</ul></section>}
 
-    <section className="ctz-block ctz-plain"><h3><Sparkles size={15} aria-hidden="true"/>{t("plainWords")}</h3>
+    <section className="ctz-block ctz-plain"><h3><BookOpenText size={15} aria-hidden="true"/>{t("plainWords")}</h3>
       {result.plain ? <><p className="ctz-note">{t("plainLabel")}</p><p lang={result.plain.language}>{result.plain.summary}</p>{!!result.plain.demands.length && <ul className="ctz-quotes">{result.plain.demands.map(item => <li key={item.quote}><p lang={result.plain!.language}>{item.plain}</p><blockquote>{item.quote}</blockquote></li>)}</ul>}</> : <>
         <p className="ctz-note">{t("plainWordsHint")}</p>
         {result.plain_status === "unavailable" && <p className="ctz-note" role="status">{t("plainUnavailable")}</p>}

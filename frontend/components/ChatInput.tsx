@@ -88,7 +88,7 @@ export default function ChatInput({ scopeLockedReason = null, onSend, onStop, di
         </select>
         <ChevronDown size={13}/>
       </label>
-    )}<span>{extracting ? t("statusExtracting") : recording ? t("statusRecording") : documents.length ? t("statusDocsDeep") : caseId ? "Reading the law and this case's files" : t("statusDefault")}</span></div>
+    )}<span className={extracting || recording || documents.length || caseId ? undefined : "composer-hint"}>{extracting ? t("statusExtracting") : recording ? t("statusRecording") : documents.length ? t("statusDocsDeep") : caseId ? "Reading the law and this case's files" : t("statusDefault")}</span></div>
     <input ref={fileInput} type="file" accept="application/pdf,image/png,image/jpeg,image/webp" className="sr-only" tabIndex={-1} aria-label={t("chooseDocument")} onChange={async event => {
       const file = event.target.files?.[0]; event.target.value = ""; if (!file) return;
       if (file.size > 10 * 1024 * 1024) { setError(t("fileTooBig")); return; }
