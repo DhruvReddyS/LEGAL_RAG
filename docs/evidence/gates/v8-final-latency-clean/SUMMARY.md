@@ -31,3 +31,34 @@ The contract was not re-recorded to make this pass. Doing so from this run
 would also lower the Deep floor to a noisy low reading, which is what the gate
 exists to prevent. A new contract should be recorded deliberately, from
 several clean runs, with the three-source design stated.
+
+## Two more attempts, 27 Nov afternoon
+
+- `v8-final-latency-clean-2` refused to measure: the host was paging at 2,450
+  swap-outs per second, and the harness will not record a loaded machine.
+- `v8-final-latency-clean-3` measured: Fast p95 1,838 ms, Deep p50 36.6 s,
+  decode 27.2 tokens/s, verification 0.788, unsupported 2.14 per query, Fast
+  citations 2.71, Deep citations 3.14. Failed on Fast p95 and both citation
+  floors.
+
+## What the runs together say
+
+| | contract (5 Nov) | clean | clean-3 |
+|---|---|---|---|
+| Fast p95 | 1,172 ms | 1,576 ms | 1,838 ms |
+| Deep p50 | 47.9 s | 38.6 s | 36.6 s |
+| Fast citations | 3.43 | 2.71 | 2.71 |
+| Deep citations | 3.71 | 3.14 | 3.14 |
+
+- Fast p95 has risen by 35 to 55 percent since the contract, consistently. The
+  Fast lane gained work after 5 Nov (statute lookup, the law bridge, duplicate
+  removal in 80500cb). It is still under two seconds, but it is a regression
+  and the cause is not yet isolated.
+- Deep citations are steadily 3.14, not noise as first thought. Likely causes:
+  shorter plain-language citizen answers (2751e37) and a question the contract
+  run refused that is now answered (Deep abstention 0.14 -> 0.0).
+- Deep is faster than the contract, and checks no less.
+
+The contract was deliberately not re-recorded. Recording it from these runs
+would accept the Fast slowdown without knowing its cause, which is what the
+gate exists to prevent.

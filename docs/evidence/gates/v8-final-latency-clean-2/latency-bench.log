@@ -1,0 +1,1 @@
+Refusing to measure: host is paging at 2450.67 swapouts/s. A run taken on a loaded machine is not comparable to an idle one. Pass --allow-busy-machine only to record a deliberately loaded scenario.
