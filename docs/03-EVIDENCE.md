@@ -89,10 +89,23 @@ that owed a disclosure.
 | unsupported claims | **0** |
 | Deep latency p50 | 47.9 s |
 
-The latest full run, `v6-final-7` on 6 November 2026, passed all seven gates: recall@5 0.500,
-citation accuracy@5 0.341, abstention 1.000, ground coverage 0.618, currency 1.000, 0 unsupported
-claims, Deep p50 45.8 s. The baselines above were deliberately left as they were, so they are
-the floors the gates enforce and not the current figures.
+The latest full run, `v8-final` on 27 November 2026 (commit 7ff5e22), passed six of seven gates:
+recall@5 0.500, citation accuracy@5 0.413, abstention 1.000 on 102 questions, ground coverage 0.592
+on 30 items (police 0.665; the set grew from 10 items on 27 November, so this is not comparable with
+the 0.618 of `v6-final-7`), currency 1.000, 0 unsupported claims in 1,191 published. Citation
+accuracy rose because the Fast lane now shows three sources, not four: the fourth was right for 1 of
+77 questions.
+
+Latency (`v8-final-latency-clean`, quiet host): Fast p95 1.58 s, Deep p50 38.6 s and p95 57.1 s,
+verification 0.788. It failed on citations per query, Fast 2.71 against a floor of 3.09 set when four
+sources were shown, and Deep 3.14 against 3.34 (3.43 on the same code an hour earlier). In macOS Low
+Power Mode the same code ran at 13.8 tokens per second instead of 25.8 and Deep p50 was 76 s; that
+run is kept as `v8-final`. The baselines above were deliberately left as they were, so they are the
+floors the gates enforce and not the current figures.
+
+Every one of those accuracy figures is the system's own judgement. A fixed-seed sheet of 35 answers
+for a human reviewer is produced by `scripts/export_review_sheet.py`; until it is marked, there is no
+independent accuracy figure.
 
 Recall and citation accuracy here count only the governing section. Scored on v3's phrase
 predicates the same system read about 0.93 and 0.64. The stricter number is the honest one.
@@ -113,7 +126,7 @@ not read" must not look the same.
 
 | Group | Asks |
 |---|---|
-| **Correctness** | Does the code do what it was told? (2,891 tests) |
+| **Correctness** | Does the code do what it was told? (2,978 backend tests; 346 frontend unit and 164 browser tests) |
 | **Security** | Can a caller reach another tenant's evidence? (36 tests, plus a structural check that every `{case_id}` route enforces ownership) |
 | **Quality** | Does retrieval find the right law, and is the answer any good? (61 golden items, both gates) |
 
@@ -125,8 +138,8 @@ not read" must not look the same.
 
 Each is measured, and each has a stated direction rather than a shrug. Items 2 to 12 were
 measured 6 September 2026 against `global_legal_corpus_v3` and have not all been re-checked
-on v6: read them as history. On v6, ground coverage is 0.618 on the 10 items that score it, and Deep p50 is 45.8 s across
-the golden set (run `v6-final-7`). The governing section is still missed for many questions
+on v6: read them as history. On v6, ground coverage is 0.592 on the 30 items that score it, and Deep p50 is 38.6 s on a quiet
+host (runs `v8-final` and `v8-final-latency-clean`). The governing section is still missed for many questions
 (recall@5 is 0.500), and a verified answer can still
 name a wrong forum or an inapplicable section, because verification checks support, not
 legal correctness. It needs review by a lawyer.

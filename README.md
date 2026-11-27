@@ -26,6 +26,7 @@ Six documents, indexed at [`docs/README.md`](docs/README.md). These are the
 documents we follow.
 
 - What Corpusil is, and every feature with its state: [`docs/01-PRODUCT.md`](docs/01-PRODUCT.md)
+- How a question becomes an answer, on one page: [`docs/architecture/corpusil-overview.png`](docs/architecture/corpusil-overview.png)
 - How it works, component by component: [`docs/02-ARCHITECTURE.md`](docs/02-ARCHITECTURE.md)
 - How it is measured, and what is still wrong: [`docs/03-EVIDENCE.md`](docs/03-EVIDENCE.md)
 - Running it, building the corpus, cutting a release: [`docs/04-OPERATIONS.md`](docs/04-OPERATIONS.md)
@@ -39,18 +40,18 @@ intentionally being deleted.
 
 ## Current status
 
-Citizen, police, advocate and admin workflows are implemented. The remaining
-work is release quality: finish the v5 index, repair its payload-only metadata,
-run the complete gate suite, and cut over only if it beats the live fallback.
+Citizen, police, advocate and admin workflows are implemented, with a desktop app for macOS
+and Windows. As of 27 November 2026 (release 0.4.3):
 
 | | |
 |---|---|
-| Live corpus | `global_legal_corpus_v4`, 49,684 points |
-| v5 candidate | 1,563 unique PDFs, 55,321 pages, 2.355 GiB; rebuild in progress |
-| Minimum-source coverage | 22/22 defined workflows canonical-complete |
-| Canonical provenance | 1,563/1,563 official source URLs verified |
-| Section coverage | BNSS 100%, BSA 99%, BNS 96% |
-| Section concordance | 2,596 pairs from the official NCRB tables |
+| Serving corpus | `global_legal_corpus_v6`, 1,593 documents, 86,127 passages |
+| Quality gates (`v8-final`) | 6 of 7 passed; latency passes on speed, fails on two citation floors (see [`docs/03-EVIDENCE.md`](docs/03-EVIDENCE.md)) |
+| Answers, 102 golden questions | correct refusals 1.000, unsupported claims 0 of 1,191, currency 1.000 |
+| Retrieval | citation accuracy@5 0.413, recall@5 0.500 |
+| Speed, quiet host | Fast p95 1.58 s, Deep p50 38.6 s |
+| Tests | 2,978 backend, 346 frontend unit, 164 browser |
+| Not yet done | human review of answers (sheet ready), native review of Hindi and Telugu |
 
 Four CI gates guard the qualities that matter, and each exists because
 something got past the ones before it: correctness, cross-tenant isolation,
